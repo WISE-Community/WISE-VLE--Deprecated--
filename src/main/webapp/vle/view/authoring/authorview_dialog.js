@@ -525,15 +525,6 @@ View.prototype.initializeCopyProjectDialog = function (){
 View.prototype.initializeEditIMSettingsDialog = function(){
 	var view = this;
 	
-	// setup idea manager toggle change action
-	$('#enableIdeaManager').click(function() {
-		if(this.checked){
-			$("#ideaManagerSettings").slideDown();
-		} else {
-			$("#ideaManagerSettings").slideUp();
-		}
-	});
-	
 	// setup public idea manager toggle change action
 	$('#enablePublicIdeaManager').click(function() {
 		if(this.checked){

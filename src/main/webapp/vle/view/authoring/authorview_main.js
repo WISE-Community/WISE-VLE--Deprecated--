@@ -395,25 +395,22 @@
 View.prototype.generateAuthoring = function(){
 	var view = this;
 	$('#stepTerm, #activityTerm').show(); // TODO: not sure why this is necessary but stepTerm and activityTerm inputs always seems to be hidden by default
-	
+
 	//remove any old elements and clear variables
-	$('#activeContainer').empty();
-	$('#inactiveContainer').empty();
+	var activeContainer = $('#activeContainer').empty(),
+	inactiveContainer = $('#inactiveContainer').empty();
 	this.currentStepNum = 1;
 	this.currentSeqNum = 1;
-	
-	var activeContainer = $('#activeContainer');
+
 	if(this.project.getRootNode()){
 		this.generateNodeElement(this.project.getRootNode(), null, activeContainer, 0, 0);
-	};
-	
+	}
+
 	var unusedSeqs = this.project.getUnattached('sequence');
-	
-	var inactiveContainer = $('#inactiveContainer');
 	for(var d=0;d<unusedSeqs.length;d++){
 		this.generateNodeElement(unusedSeqs[d], null, inactiveContainer, 0, 0);
-	};
-	
+	}
+
 	var unusedNodes = this.project.getUnattached('node');
 	if(unusedNodes.length>0){
 		var stepTerm = view.getI18NString('step');
@@ -440,15 +437,42 @@ View.prototype.generateAuthoring = function(){
 				"nodes have been found that violate that structure (Project-->Activity-->Step). Those nodes have been " +
 				"ignored! You should fix this by either authoring in Advanced Project mode or switching to Advanced " +
 				"Project mode long enough to put the project in the structure required for Simple Project.", 3);
-	};
-	
+	}
+
 	// make sequences sortable
 	$('#activeContainer').sortable({
 		placeholder:'dragTarget',
-		revert:100
+		//revert:100,
+		helper:'clone',
+		start: function(event,ui){
+			// remove "selected" class from all activities
+			$('.seq').removeClass('selected');
+			// add selected class to item being dragged
+			ui.item.addClass('selected');
+			ui.item.data('position',ui.item.index());
+		},
+		update: function(event,ui){
+			var position = ui.item.index(),
+			target = {after:true, id:''};
+			if(position===0){
+				// new position is first activity in project, so set target as root/master node
+				target.id = view.project.getRootNode().id;
+			} else {
+				// set target as previous activity in project
+				target.id = ui.item.prev().data('absid');
+			}
+			view.moveNodes(target); // move the activity to new position
+		},
+		stop: function(event,ui){
+			if(ui.item.index() === ui.item.data('position')){
+				// remove selected class
+				ui.item.removeClass('selected');
+				ui.item.data('position','');
+			}
+		}
 	});
-	
-	// show number of nodes per sequence
+
+	// initialize each sequence
 	$('#dynamicProject .seq').each(function(){
 		view.initSequence($(this).get(0));
 	});
@@ -463,6 +487,9 @@ View.prototype.generateAuthoring = function(){
 		eventManager.fire('browserResize');
 	});
 	eventManager.fire('browserResize');
+
+	// check for out of order review sequences
+	this.checkReviewSequenceOrder();
 };
 
 /**
@@ -485,8 +512,8 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	
 	//project structure validation
 	// TODO: remove (deprecated)
-	if(el.id=='activeContainer' && this.simpleProject){
-		if(depth>2 || (depth==1 && node.type!='sequence') || (depth==2 && node.type=='sequence')){
+	if(el.id==='activeContainer' && this.simpleProject){
+		if(depth>2 || (depth===1 && node.type!=='sequence') || (depth===2 && node.type==='sequence')){
 			this.projectStructureViolation = true;
 			return;
 		}
@@ -514,14 +541,14 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	//var taskDiv = createElement(document, 'div', {id: 'taskDiv_' + node.id, 'class': 'taskDiv'});
 	//taskTD.appendChild(taskDiv);
 	//mainTD.appendChild(mainDiv);
-	
-	if(node.type=='sequence' && (this.getProject().getRootNode() && node.id!=this.project.getRootNode().id)){
-		var isActive = ($(el).attr('id')=='activeContainer');
-		
+
+	if(node.type==='sequence' && (this.getProject().getRootNode() && node.id!==this.project.getRootNode().id)){
+		var isActive = ($(el).attr('id')==='activeContainer');
+
 		var sequenceEl = createElement(document, 'li', {id: node.id, 'class': 'projectNode seq'}),
-			sequenceWrap = createElement(document, 'div', {'class': 'seqWrap'}),
-			seqTitleEl = createElement(document, 'div', {'class': 'sequenceTitle ui-widget-header'});
-		
+		sequenceWrap = createElement(document, 'div', {'class': 'seqWrap'}),
+		seqTitleEl = createElement(document, 'div', {'class': 'sequenceTitle ui-widget-header'});
+
 		var activityTerm = view.getProject().getActivityTerm();
 		var titleText = view.utils.isNonWSString(activityTerm) ? activityTerm + ' ' : '';
 		if(isActive){
@@ -532,6 +559,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		} else {
 			titleText += ': ';
 			$(sequenceEl).addClass('inactive');
+			$(sequenceEl).attr('data-absid',absId);
 		}
 		titleText += ' ' + title;
 		var seqTitleDiv = $(createElement(document, 'div', {'class': 'title'})).html(titleText);
@@ -599,11 +627,11 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 				}
 				
 				//set the phase number 1, 2, 3
-				if(reviewPhase == 'start') {
+				if(reviewPhase === 'start') {
 					peerReviewStep = 1;
-				} else if(reviewPhase == 'annotate') {
+				} else if(reviewPhase === 'annotate') {
 					peerReviewStep = 2;
-				} else if(reviewPhase == 'revise') {
+				} else if(reviewPhase === 'revise') {
 					peerReviewStep = 3;
 				}
 				
@@ -620,9 +648,9 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 				}
 			}
 		}
-		
+
 		var nodeIconPath = null;
-		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
+		if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
 			nodeIconPath = this.nodeIconPaths[node.type];
 			$(nodeEl).append('<img class="nodeIcon" src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/>');
 			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
@@ -638,13 +666,13 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		
 		// insert step term and position
 		var titleText = '';
-		if(el.id!='unused'){
+		if(el.id!=='unused'){
 			var stepTerm = this.getProject().getStepTerm(),
 				stepNum = this.getProject().getVLEPositionById(node.id);
 			if(absId.match(/null.*/)){
 				titleText = stepTerm + ': ';
 			} else {
-				if(stepNum == 'NaN'){
+				if(stepNum === 'NaN'){
 					titleText = stepTerm + ': ';
 				} else {
 					titleText = stepTerm + ' ' + stepNum + ': ';
@@ -752,11 +780,34 @@ View.prototype.initSequence = function(target){
 	
 	// insert delete and hide/show links
 	if(seq.attr('id')!=='unusedNodes'){
-		var actionsEl = $('<div class="actions"></div>');
-		var hideLink = $('<a class="tooltip" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/ alt="hide"></a>');
-		if(!isActive){
+		var actionsEl = $('<div class="actions"></div>'),
+		toggleLink = '';
+		if(isActive){
+			toggleLink = $('<a class="tooltip" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/ alt="hide"></a>');
+			// bind hide click action
+			toggleLink.on('click',function(e){
+				e.stopPropagation();
+				// remove "selected" class from all activities
+				$('.seq').removeClass('selected');
+				// add 'selected' class to current activity and execute hide function (move to inactive section)
+				seq.addClass('selected', function(){
+					view.hideSelected();
+				});
+			});
+		} else {
 			// sequence is inactive, so add show link instead of hide link
-			hideLink = $('<a class="tooltip" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/ alt="show"></a>');
+			toggleLink = $('<a class="tooltip" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/ alt="show"></a>');
+
+			// bind show click action
+			toggleLink.on('click',function(e){
+				e.stopPropagation();
+				// remove "selected" class from all activities
+				$('.seq').removeClass('selected');
+				// add 'selected' class to current activity and execute hide function (move to inactive section)
+				seq.addClass('selected', function(){
+					//view.showSelected();
+				});
+			});
 		}
 		var deleteLink = $('<a class="tooltip" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/trash.png" alt="delete"/></a>');
 		
@@ -769,11 +820,9 @@ View.prototype.initSequence = function(target){
 			seq.addClass('selected', function(){
 				view.deleteSelected();
 			});
-		})
-		
-		// TODO: bind hide click action
-		
-		actionsEl.append(hideLink).append(deleteLink);
+		});
+
+		actionsEl.append(toggleLink).append(deleteLink);
 		infoEl.append(actionsEl);
 		
 		$('.seqWrap',seq).append(infoEl);
@@ -781,6 +830,7 @@ View.prototype.initSequence = function(target){
 		// add tooltips
 		view.insertTranslations('main',view.insertTooltips(infoEl));
 	} else {
+		seq.attr('data-absid','null');
 		$('li.node',seq).addClass('unused');
 	}
 	
@@ -804,16 +854,17 @@ View.prototype.editSequence = function(target){
 		isActivity = (seq.attr('id')!=='unusedNodes'),
 		isActive = !seq.hasClass('inactive'),
 		node = null,
-		selected = [];
-	
+		selected = [],
+		controlPos = {};
+
 	// hide dynamic project and show sequence editor
 	if($('#dynamicProject').is(':visible')){
 		$('#dynamicProject').fadeOut(function(){
 			$('#sequenceEditor').fadeIn();
 		});
 	}
-	
-	function populateSequence() {
+
+	function populateSequence(resetDisplay) {
 		$('#sequenceEditor').attr('data-absid',seq.attr('data-absid')).attr('data-id',seq.attr('id'));
 		
 		var contentEl = $('#sequenceContent');
@@ -823,7 +874,7 @@ View.prototype.editSequence = function(target){
 		
 		// insert sequence title
 		var headerClass = isActive ? 'panelHeader' : 'panelHeader inactive';
-		var seqHead = $('<div class="' + headerClass + '"></div>');
+		var seqHead = $('<div id="seqHead" class="' + headerClass + '"></div>');
 		var titleEl = $('<span>' + nodeTitle + '</span>');
 		var titleInput = '';
 		if(isActivity){
@@ -849,7 +900,7 @@ View.prototype.editSequence = function(target){
 			
 			// bind title input change event
 			titleInput.on('change blur keyup',function(e){
-				if(e.type === 'keyup' && e.keyCode !== 10 && e.keyCode !== 13) return;
+				if(e.type === 'keyup' && e.keyCode !== 10 && e.keyCode !== 13) { return; }
 				if(e.type === 'change'){
 					// fire nodeTitleChanged event
 					eventManager.fire('nodeTitleChanged',node.id);
@@ -940,10 +991,33 @@ View.prototype.editSequence = function(target){
 			$('ul.sequence',contentEl).sortable({
 				placeholder: 'placeholder',
 				containment: $('#sequenceEditor'),
-				opacity: .9,
+				opacity: 0.9,
 				revert:100,
-				change: function(e){
-					// TODO: add change event
+				helper:'clone',
+				start: function(event,ui){
+					// add toMove class to item being dragged
+					ui.item.addClass('toMove');
+					ui.item.data('position',ui.item.index());
+				},
+				update: function(event,ui){
+					var position = ui.item.index(),
+					target = {after:true, id:''};
+					if(position===0){
+						// new position is first step in activity, so set activity node as target and "after" to false
+						target.id = $('#sequenceEditor').data('absid');
+						target.after = false;
+					} else {
+						// set target as previous step in activity
+						target.id = ui.item.prev().data('absid');
+					}
+					view.moveNodes(target,'toMove'); // move the step to new position within the activity
+				},
+				stop: function(event,ui){
+					if(ui.item.index() === ui.item.data('position')){
+						// remove selected class
+						ui.item.removeClass('toMove');
+						ui.item.data('position','');
+					}
 				}
 			});
 		}
@@ -980,7 +1054,7 @@ View.prototype.editSequence = function(target){
 					}
 				}
 			});*/
-			
+
 			if(isActivity){
 				// insert drag handle
 				$(this).prepend('<span class="ui-icon ui-icon-grip-dotted-vertical move"></span>');
@@ -1001,7 +1075,7 @@ View.prototype.editSequence = function(target){
 			
 			// bind title input change event
 			stepTitleInput.on('change blur keyup',function(e){
-				if(e.type === 'keyup' && e.keyCode !== 10 && e.keyCode !== 13) return;
+				if(e.type === 'keyup' && e.keyCode !== 10 && e.keyCode !== 13) { return; }
 				if(e.type === 'change'){
 					// fire nodeTitleChanged event
 					eventManager.fire('nodeTitleChanged',step.id);
@@ -1015,7 +1089,7 @@ View.prototype.editSequence = function(target){
 			
 			
 			// insert edit button
-			var editButton = $(createElement(document, 'a', {'class':'edit'}))
+			var editButton = $(createElement(document, 'a', {'class':'edit'}));
 			editButton.html('<img class="icon" alt="edit" src="/vlewrapper/vle/images/icons/teal/edit.png"></img>' + view.getI18NString('authoring_project_content_edit_step'));
 			$(this).append(editButton);
 			
@@ -1089,7 +1163,7 @@ View.prototype.editSequence = function(target){
 		closeEl.on('click',function(){
 			$('#sequenceEditor').fadeOut(function(){
 				// clear contents
-				contentEl.empty();
+				contentEl.empty().attr('data-absid','');
 				// show activities
 				$('#dynamicProject').fadeIn();
 			});
@@ -1100,35 +1174,47 @@ View.prototype.editSequence = function(target){
 			
 			
 			// make controls scroll with activity
-			var offset = controls.offset(),
-				elTop = offset.top,
-				elLeft = offset.left;
-			var gap = elTop-$('#projectStructure .contentWrapper').offset().top;
-			var baseTop = $('#authoringContainer').offset().top;
-			$('#projectStructure .contentWrapper').on('scroll', (function() {
-		        var elWidth = controls.width(),
-		        	top = $('#authoringContainer').offset().top;
-		        if (baseTop-top>gap) {
-		        	controls.addClass('sticky');
-		        	var left = elLeft-parseInt(controls.css('margin-left'))/2-parseInt(controls.css('margin-right'))/2-parseInt(controls.css('border-left-width'))/2-parseInt(controls.css('border-right-width'))/2;
-		        	controls.css({'top':baseTop, 'left':left, 'width':elWidth});
-		        } else {
-		        	controls.removeClass('sticky');
-		        	controls.css({'top':'', 'left':'', 'width':''});
-		        }
-		    }));
+			if(resetDisplay){
+				var offset = controls.offset(),
+				elTop = offset.top;
+				controlPos.gap = elTop-$('#projectStructure .contentWrapper').offset().top;
+				controlPos.baseTop = $('#authoringContainer').offset().top;
+				$('#sequenceEditor').data('controlPos',controlPos);
+			}
+			$('#projectStructure .contentWrapper').off('scroll.controls');
+			$('#projectStructure .contentWrapper').on('scroll.controls', setScroll);
+			$(window).off('resize.controls');
+			$(window).on('resize.controls', setScroll);
+
+			function setScroll() {
+				//var elWidth = controls.width(),
+				var top = $('#authoringContainer').offset().top;
+				if (controlPos.baseTop-top>controlPos.gap) {
+					var elWidth = seqHead.width(),
+					left = seqHead.offset().left;
+					controls.addClass('sticky');
+					left = left-parseInt(controls.css('margin-left'),10)/2-parseInt(controls.css('margin-right'),10)/2-parseInt(controls.css('border-left-width'),10)/2-parseInt(controls.css('border-right-width'),10)/2;
+					controls.css({'top':controlPos.baseTop, 'left':left, 'width':elWidth});
+				} else {
+					controls.removeClass('sticky');
+					controls.css({'top':'', 'left':'', 'width':''});
+				}
+			}
+
+			$('#projectStructure .contentWrapper').scroll();
 		});
 	};
 	
 	if($('#sequenceEditor').attr('data-absid')===seq.attr('data-absid')){
 		// get currently selected steps
 		selected = $('#sequenceEditor').data('selected');
+		controlPos = $('#sequenceEditor').data('controlPos');
 		// populate activity editor
-		populateSequence();
+		populateSequence(false);
 	} else {
 		$('#sequenceContent').fadeOut(function(){
 			// populate activity editor
-			populateSequence();
+			populateSequence(true);
 		});
 	}
 };
@@ -1142,10 +1228,10 @@ View.prototype.nodeTitleChanged = function(id){
 	var node = this.project.getNodeById(id);
 	var val = document.getElementById('titleInput_' + id).value;
 
-	if(val.length>60 && node.type!='sequence'){
+	if(val.length>60 && node.type!=='sequence'){
 		this.notificationManager.notify('Step titles cannot exceed 60 characters.', 3);
 		$('#nodeTitle_' + id).text(val.substring(0, 60));
-	} else if(val.length>50 && node.type=='sequence'){
+	} else if(val.length>50 && node.type==='sequence'){
 		this.notificationManager.notify('Activity titles cannot exceed 50 characters.', 3);
 		$('#nodeTitle_' + id).text(val.substring(0, 50));
 	} else {
@@ -1162,7 +1248,7 @@ View.prototype.nodeTitleChanged = function(id){
 		this.saveProject();
 		// update project structure
 		this.generateAuthoring();
-	};
+	}
 };
 
 /**
@@ -1195,13 +1281,13 @@ View.prototype.saveProject = function(){
 		var data = $.stringify(this.getProject().projectJSON(),null,3);
 		
 		var success_callback = function(text, xml, o){
-			if(text!='success'){
+			if(text!=='success'){
 				o.notificationManager.notify('Unable to save project to WISE server. The server or your Internet connection may be down. An alert will pop up with the project file data, copy this and paste it into a document for backup.', 3);
 				alert(data);
 			} else {
 				o.notificationManager.notify('Project Saved.', 3);
 				o.eventManager.fire('setLastEdited');
-			};
+			}
 		};
 		
 		var failure_callback = function(o, obj){
@@ -1212,7 +1298,7 @@ View.prototype.saveProject = function(){
 		this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', fileName: this.project.getProjectFilename(), data: encodeURIComponent(data)}, success_callback, this, failure_callback);
 	} else {
 		this.notificationManager.notify('Please open or create a Project before attempting to save.', 3);
-	};
+	}
 };
 
 /**
@@ -1241,7 +1327,8 @@ View.prototype.stepTermChanged = function(){
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
-	};
+	}
+};
 
 /**
  * Updates the project's activityTerm value
@@ -1261,12 +1348,12 @@ View.prototype.activityTermChanged = function(){
  * TODO: remove, not used anymore
  */
 View.prototype.stepNumberChanged = function(){
-	var val = parseInt(document.getElementById('numberStepSelect').options[document.getElementById('numberStepSelect').selectedIndex].value);
-	if(val==0){
+	var val = parseInt(document.getElementById('numberStepSelect').options[document.getElementById('numberStepSelect').selectedIndex].value,10);
+	if(val===0){
 		this.autoStepChanged();
-	} else if(val==1){
+	} else if(val===1){
 		this.stepLevelChanged();
-	};
+	}
 };
 
 /**
@@ -1281,7 +1368,7 @@ View.prototype.autoStepChanged = function(){
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
-	};
+	}
 };
 
 /**
@@ -1297,7 +1384,7 @@ View.prototype.stepLevelChanged = function(){
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
-	};
+	}
 };
 
 /**
@@ -1398,8 +1485,8 @@ View.prototype.viewAssets = function(params){
 		showElement('assetEditorDialog');
 		var populateOptions = function(projectListText, args){
 			var view = args[0];
-			
-			if(projectListText && projectListText!=''){
+
+			if(projectListText && projectListText!==''){
 				//get the project list as JSON
 				var projectList = JSON.parse(projectListText);
 				
@@ -1407,8 +1494,8 @@ View.prototype.viewAssets = function(params){
 				var projectAssetsInfo = projectList[0];
 				
 				var assets = [];
-				
-				if(projectAssetsInfo != null) {
+
+				if(projectAssetsInfo !== null) {
 					//get the assets array
 					assets = projectAssetsInfo.assets;
 				}
@@ -1416,8 +1503,20 @@ View.prototype.viewAssets = function(params){
 				var parent = document.getElementById('assetSelect');
 				parent.innerHTML = '';
 				
+				// get allowed file types
+				var extensions = view.allowedAssetExtensions;
+				//check for type parameter and only show files with matching extensions
+				if(view.assetEditorParams && view.assetEditorParams.type === "image"){
+					extensions = view.allowedAssetExtensionsByType.image;
+				} else if(view.assetEditorParams && view.assetEditorParams.type === "flash"){
+					extensions = extensions = view.allowedAssetExtensionsByType.flash;
+				} else if(view.assetEditorParams && view.assetEditorParams.type === "media"){
+					extensions = view.allowedAssetExtensionsByType.video.concat(view.allowedAssetExtensionsByType.flash, view.allowedAssetExtensionsByType.flashVideo, view.allowedAssetExtensionsByType.audio);
+				}
+
 				//loop through all the assets
-				for(var d=0;d<assets.length;d++){
+				var d = assets.length;
+				for(; d>0; d--){
 					//get an asset
 					var asset = assets[d];
 					
@@ -1437,36 +1536,16 @@ View.prototype.viewAssets = function(params){
 						status = 'notUsed';
 					}
 					
-					//check for type parameter and only show files with matching extensions
-					if(view.assetEditorParams && view.assetEditorParams.type == "image"){
-						var extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
-					} else if(view.assetEditorParams && view.assetEditorParams.type == "flash"){
-						var extensions = ['swf', 'flv'];
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
-					} else if(view.assetEditorParams && view.assetEditorParams.type == "media"){
-						var extensions = ['swf', 'flv', 'mov', 'mp4', 'avi', 'wmv', 'mpg', 'mpeg', 'ogg'];
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
-					} else if(view.assetEditorParams && view.assetEditorParams.extensions 
-						&& view.assetEditorParams.extensions.length > 0){
-						var extensions = view.assetEditorParams.extensions;
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
+					if (!view.utils.fileFilter(extensions,fileName)){
+						continue;
 					}
 					
 					var text = '';
-					
-					if(status == 'inactive') {
+
+					if(status === 'inactive') {
 						//the asset is only used in an inactive step
 						text = fileName + ' (Only used in inactive steps)';
-					} else if(status == 'notUsed') {
+					} else if(status === 'notUsed') {
 						//the asset is not used in any step
 						text = fileName + ' (Not used)';
 					} else {
@@ -1499,7 +1578,7 @@ View.prototype.viewAssets = function(params){
 				//$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
 				
 				// add new button depending on type param
-				if(type == "image"){
+				if(type === "image"){
 					buttons['Insert Image'] = function(){
 						var url = $('#assetSelect option:selected').val();
 						if(url){
@@ -1509,7 +1588,7 @@ View.prototype.viewAssets = function(params){
 							alert("Please select an image from the list.");
 						}
 					};
-				} else if (type == "media"){
+				} else if (type === "media"){
 					buttons['Insert Media'] = function(){
 						var url = $('#assetSelect option:selected').val();
 						if(url){
@@ -1519,7 +1598,7 @@ View.prototype.viewAssets = function(params){
 							alert("Please select a file from the list.");
 						}
 					};
-				} else if (type == "file"){
+				} else if (type === "file"){
 					buttons['Insert Link'] = function(){
 						var url = $('#assetSelect option:selected').val();
 						if(url){
@@ -1531,7 +1610,7 @@ View.prototype.viewAssets = function(params){
 					};
 				} else {
 					var buttonText = 'Choose Selected File';
-					if(view.assetEditorParams.buttontext && typeof view.assetEditorParams.buttontext == 'string'){
+					if(view.assetEditorParams.buttontext && typeof view.assetEditorParams.buttontext === 'string'){
 						buttonText = view.assetEditorParams.buttontext;
 					}
 					buttons[buttonText] = function(){
@@ -1618,10 +1697,10 @@ View.prototype.startPreview = function(em){
  */
 View.prototype.projectOptionSelected = function(id){
 	var projectId = null;
-	if (typeof id == 'string'){
+	if (typeof id === 'string'){
 		projectId = id;
-		projectId = parseInt(projectId);
-	} else if(typeof id == 'number'){
+		projectId = parseInt(projectId,10);
+	} else if(typeof id === 'number'){
 		projectId = id;
 	} else {
 		//projectId = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
@@ -1634,7 +1713,7 @@ View.prototype.projectOptionSelected = function(id){
 	/* if this is a portal project, we need to set the portal variables based on the project name/id combo */
 	if(this.portalUrl){
 		var ndx = this.portalProjectIds.indexOf(projectId);
-		if(ndx!=-1){
+		if(ndx!==-1){
 			this.portalProjectId = projectId;
 			this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&projectId=' + this.portalProjectId + '&command=retrieveFile&fileName=';
 			path = this.portalProjectPaths[ndx];
@@ -1645,23 +1724,24 @@ View.prototype.projectOptionSelected = function(id){
 	}
 	
 	//if all is set, load project into authoring tool
-	if(path!=null && path!=""){
+	if(path!==null && path!==""){
 		$('#projectContent').css('z-index','auto');
+		$('.sticky').hide(); // hide any fixed items (action menus, etc.)
 		// hide the welcome panel, show the loading message
-		$('#projectContent').show();
+		$('#projectContent').show().scrollTop();
 		$('#projectOverlay').show();
 		$('#projectLoading').show();
 		$('#projectWelcome').hide();
-		
+
 		/* if a project is currently open and the authoring tool is in portal mode, notify the
 		 * portal that this user is no longer working on the project */
 		if(this.getProject() && this.portalUrl){
 			this.notifyPortalCloseProject();
 		}
-		
+
 		this.loadProject(this.authoringBaseUrl + path, this.utils.getContentBaseFromFullUrl(this.authoringBaseUrl + path), true);
 		$('#openProjectDialog').dialog('close');
-		
+
 		eventManager.fire('browserResize');
 	} else {
 		this.notificationManager.notify('Error: could not find project path.', 2);
@@ -1676,7 +1756,7 @@ View.prototype.projectOptionSelected = function(id){
  */
 View.prototype.copyOptionSelected = function (id){
 	var view = this;
-	
+
 	var portalProjectId = id;
 	/*
 	 * processes the response to the request to copy a project
@@ -1695,20 +1775,20 @@ View.prototype.copyOptionSelected = function (id){
 			 * the project file name is the same as the project file name
 			 * from the project that was copied
 			 */
-			var index = $.inArray(parseInt(portalProjectId),o.portalProjectIds);
+			var index = $.inArray(parseInt(portalProjectId,10),o.portalProjectIds);
 			var fileName = o.portalProjectPaths[index];
 			var title = o.portalProjectTitles[index];
 			o.createPortalProject('/' + t + fileName, title, portalProjectId);
 		}
-		
+
 		$('#openProjectDialog').dialog('close');
 	};
-	
+
 	/* handles a failure response to the request to copy a project */
 	var failure = function(t,o){
 		o.notificationManager.notify('Failed copying project on server.', 3);
 	};
-	
+
 	var index = $.inArray(portalProjectId,view.portalProjectIds);
 	var fileName = view.portalProjectPaths[index];
 	$('#openProjectLoading .loadingText').text(view.getI18NString('authoring_dialog_copy_processing'));
@@ -1727,14 +1807,14 @@ View.prototype.copyOptionSelected = function (id){
  */
 View.prototype.openProject = function(selectedTab,copyMode){
 	var view = this;
-	
+
 	/* wipe out old select project options and set placeholder option */
 	$('#selectProject').children().remove();
 	$('#selectProject').append('<option name="projectOption" value=""></option>');
-	
+
 	//initialzie jQuery UI tabs
 	var tab = 0;
-	if(typeof selectedTab == 'number'){
+	if(typeof selectedTab === 'number'){
 		tab = selectedTab;
 	}
 	$('#projectTabs').tabs({
@@ -1743,28 +1823,28 @@ View.prototype.openProject = function(selectedTab,copyMode){
 			view.setProjectListingWidths();
 		}
 	});
-	
+
 	/* make request to populate the project select list */
 	this.retrieveProjectList(copyMode);
-	
+
 	/* show the loading div and hide the select drop down until the
 	 * project list request comes back */
 	//$('#openProjectForm').hide();
 	//$('#loadingProjectMessageDiv').show();
 	//clear out existing project lists
 	$('#projectTabs .projectList').html('');
-	
+
 	// show loading overlay and message
 	$('#openProjectLoading .loadingText').text(view.getI18NString('authoring_dialog_open_loading'));
 	$('#openProjectOverlay').show();
 	$('#openProjectLoading').show();
-	
+
 	var title = this.getI18NString('authoring_dialog_open_title');
 	if (copyMode === true){
 		title = this.getI18NString('authoring_dialog_open_titlecopy');
 	}
 	$('#openProjectDialog').dialog('option','title',title);
-	
+
 	/* open the dialog */
 	$('#openProjectDialog').dialog('open');
 	//eventManager.fire('browserResize');
@@ -1778,22 +1858,22 @@ View.prototype.copyProject = function(){
 	$("#createProjectDialog").dialog("close");
 	//use the open project dialog, but with copyMode set to true
 	this.openProject(0,true);
-	
+
 	/*showElement('copyProjectDialog');
-	
+
 	var doSuccess = function(list, view){
 		var parent = document.getElementById('copyProjectSelect');
 
 		while(parent.firstChild){
 			parent.removeChild(parent.firstChild);
 		};
-		
+
 		//parse the JSON string into a JSONArray
 		var projectsArray = JSON.parse(list);
-		
+
 		//sort the array by id
 		projectsArray.sort(view.sortProjectsById);
-		
+
 		//loop through all the projects
 		for(var x=0; x<projectsArray.length; x++) {
 			//get a project and obtain the id, path, and title
@@ -1801,17 +1881,17 @@ View.prototype.copyProject = function(){
 			var projectId = project.id;
 			var projectPath = project.path;
 			var projectTitle = project.title;
-			
+
 			//create a drop down option for the project
 			var opt = createElement(document, 'option', {name: 'copyProjectOption'});
 			parent.appendChild(opt);*/
-			
-			/*
-			 * create the text for the drop down for this project
-			 * e.g.
-			 * 531: Photosynthesis
-			 */
-			/*opt.text = projectId + ': ' + projectTitle;
+
+	/*
+	 * create the text for the drop down for this project
+	 * e.g.
+	 * 531: Photosynthesis
+	 */
+	/*opt.text = projectId + ': ' + projectTitle;
 			opt.value = projectId;
 			opt.fileName = projectPath;
 			opt.title = projectTitle;
@@ -1819,7 +1899,7 @@ View.prototype.copyProject = function(){
 		$('#copyProjectDialog').dialog('open');
 		eventManager.fire('browserResize');
 	};
-	
+
 	if(this.portalUrl){
 		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList', projectTag: 'authorableAndLibrary'}, function(t,x,o){doSuccess(t,o);}, this);
 	} else {
@@ -1834,7 +1914,7 @@ View.prototype.copyProject = function(){
  */
 View.prototype.toggleProjectMode = function(){
 	this.projectStructureViolation = false;
-	
+
 	//toggle modes and set associated text
 	if(this.simpleProject){
 		this.simpleProject = false;
@@ -1842,11 +1922,11 @@ View.prototype.toggleProjectMode = function(){
 	} else {
 		this.simpleProject = true;
 		$('#projectModeDiv > span').text('Simple Mode');
-	};
+	}
 	//regenerate authoring if a project is open
 	if(this.project){
 		this.generateAuthoring();
-	};
+	}
 };
 
 /**
@@ -1871,52 +1951,53 @@ View.prototype.editIMSettings = function(){
 			$('#enableIdeaManager').prop('checked',false);
 			$('#imSettings input, #enablePublicIdeaManager').prop('disabled',true);
 			$('#imSettings a').addClass('disabled');
-			$('#imSettings, #enablePublicIMLabel').fadeTo('fast',.5);
+			$('#imSettings, #enablePublicIMLabel').fadeTo('fast',0.5);
 		}
 		if($('#editIMSettingsDialog').is(':visible')){
 			$('#enableIdeaManager').toggleSwitch('refresh');
 		}
 	};
-	
+
 	// initialize idea manager settings object and IM version
 	var imSettings = {}, imVersion = '1', imEnabled = false; // TODO: enable IM by default for new projects from now on??
-	
-	if (this.projectMeta.tools != null) {
+
+	if (this.projectMeta.tools !== null) {
 		var tools = this.projectMeta.tools;
-		
+
 		// get whether Idea Manager is enabled
-		if(typeof tools.isIdeaManagerEnabled != 'undefined'){
+		if(typeof tools.isIdeaManagerEnabled !== 'undefined'){
 			imEnabled = tools.isIdeaManagerEnabled;
 		}
-		
+
 		// initialize idea manager settings object and IM version
-		var imSettings = {}, imVersion = '1';
-		
-		if (this.projectMeta.tools != null) {
+		imSettings = {};
+		imVersion = '1';
+
+		if (this.projectMeta.tools !== null) {
 			var tools = this.projectMeta.tools;
-			
+
 			//determine if enable idea manager needs to be checked
-			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
+			if (tools.isIdeaManagerEnabled !== null && tools.isIdeaManagerEnabled) {
 				$("#enableIdeaManager").attr('checked', true);
 			}
-			
+
 			//determine if enable public idea manager checkbox needs to be checked
-			if (tools.isPublicIdeaManagerEnabled != null && tools.isPublicIdeaManagerEnabled) {
+			if (tools.isPublicIdeaManagerEnabled !== null && tools.isPublicIdeaManagerEnabled) {
 				this.enablePublicIdeaManager(true);
 			} else {
 				this.enablePublicIdeaManager(false);
 			}
 
 			//determine if enable student asset uploader needs to be checked
-			if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
+			if (tools.isStudentAssetUploaderEnabled !== null && tools.isStudentAssetUploaderEnabled) {
 				$("#enableStudentAssetUploader").attr('checked', true);
 			}
-			
+
 			// get Idea Manager version
 			if('ideaManagerVersion' in tools){
 				imVersion = tools.ideaManagerVersion;
 			}
-			
+
 			// get Idea Manager settings
 			if ('ideaManagerSettings' in tools){
 				imSettings = tools.ideaManagerSettings;
@@ -1925,19 +2006,19 @@ View.prototype.editIMSettings = function(){
 				}
 			}
 		}
-		
+
 		// get Idea Manager settings
-		if (typeof tools.ideaManagerSettings != 'undefined'){
+		if (typeof tools.ideaManagerSettings !== 'undefined'){
 			imSettings = tools.ideaManagerSettings;
-			if(typeof tools.ideaManagerSettings.version != 'undefined'){
+			if(typeof tools.ideaManagerSettings.version !== 'undefined'){
 				imVersion = tools.ideaManagerSettings;
 			}
 		}
 	}
-	
-	if(this.projectHasRun && parseInt(imVersion) < 2){
+
+	if(this.projectHasRun && parseInt(imVersion,10) < 2){
 		// notify user that project uses old version of IM and has run in classroom, so settings cannot be changed
-		
+
 		// disable IM settings panel
 		$('#ideaManagerSettings :input').prop('disabled',true);
 		$('#ideaManagerSettings .delete').off('click.imSettings');
@@ -1946,21 +2027,21 @@ View.prototype.editIMSettings = function(){
 		$('#enableIdeaManager').on('click.imSettings',function(){
 			enableIMSettings($(this).prop('checked'));
 		});
-		
+
 		// since project hasn't run with IM v1, we can use IM v2 for this project from now on
 		imVersion = '2';
 		// set version as attribute of enable IM checkbox (will be read and stored when saving project metadata)
 		$('#enableIdeaManager').attr('data-version',imVersion);
-		
+
 		// show run warning text if project has been run in classroom, vice versa
 		this.projectHasRun ? $('#imRunWarning').show() : $('#imRunWarning').hide();
-		
+
 		//populate Idea Manager settings
 		this.populateIMSettings(imSettings);
 	}
-	
+
 	enableIMSettings(imEnabled);
-	
+
 	// open dialog
 	$('#editIMSettingsDialog').dialog('open');
 };
@@ -1986,55 +2067,55 @@ View.prototype.enablePublicIdeaManager = function(on) {
  */
 View.prototype.populateIMSettings = function(settings){
 	var view = this;
-	
+
 	// get and populate any custom labels for IM terms
 	if('ideaTerm' in settings && this.utils.isNonWSString(settings.ideaTerm)) {
 		$('#imIdeaTerm').val(settings.ideaTerm);
 	} else {
 		$('#imIdeaTerm').val(this.getI18NString('idea'));
 	}
-	
+
 	if('ideaTermPlural' in settings && this.utils.isNonWSString(settings.ideaTermPlural)) {
 		$('#imIdeaTermPlural').val(settings.ideaTermPlural);
 	} else {
 		$('#imIdeaTermPlural').val(this.getI18NString('idea_plural'));
 	}
-	
+
 	if('basketTerm' in settings && this.utils.isNonWSString(settings.basketTerm)) {
 		$('#imBasketTerm').val(settings.basketTerm);
 	} else {
 		$('#imBasketTerm').val(this.getI18NString('idea_basket'));
 	}
-	
+
 	if('ebTerm' in settings && this.utils.isNonWSString(settings.ebTerm)) {
 		$('#imEBTerm').val(settings.ebTerm);
 	} else {
 		$('#imEBTerm').val(this.getI18NString('explanation_builder'));
 	}
-	
+
 	if('addIdeaTerm' in settings && this.utils.isNonWSString(settings.addIdeaTerm)) {
 		$('#imAddIdeaTerm').val(settings.addIdeaTerm);
 	} else {
 		$('#imAddIdeaTerm').val(this.getI18NString('idea_basket_add_an_idea'));
 	}
-	
+
 	if('privateBasketTerm' in settings && this.utils.isNonWSString(settings.privateBasketTerm)) {
 		$('#imPrivateBasketTerm').val(settings.privateBasketTerm);
 	} else {
 		$('#imPrivateBasketTerm').val(this.getI18NString('idea_basket_private'));
 	}
-	
+
 	if('publicBasketTerm' in settings && this.utils.isNonWSString(settings.publicBasketTerm)) {
 		$('#imPublicBasketTerm').val(settings.publicBasketTerm);
 	} else {
 		$('#imPublicBasketTerm').val(this.getI18NString('idea_basket_public'));
 	}
-	
+
 	// clear active idea attributes
 	$('#ideaAttributes .attribute.active').each(function(){
 		$(this).html('').removeClass('active').addClass('empty');
 	});
-	
+
 	// get and populate idea attributes for this project
 	if('ideaAttributes' in settings){
 		// idea attributes have been previously set, so get and populate
@@ -2056,14 +2137,14 @@ View.prototype.populateIMSettings = function(settings){
 		view.addIdeaAttribute('source');
 		view.addIdeaAttribute('icon',null,null,false);
 	}
-	
+
 	// make active attribute fields sortable
 	$('#ideaAttributes').sortable({
 		items:'td.attribute.active, td.attribute.empty',
 		handle:'h6',
 		cancel: 'h6 < a'
 	});
-	
+
 	// insert add new attribute links to all unused attribute fields
 	$('#ideaAttributes .attribute.empty').each(function(){
 		view.deleteIdeaAttribute($(this));
@@ -2082,7 +2163,7 @@ View.prototype.populateIMSettings = function(settings){
  */
 View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCustom,target,id){
 	var view = this;
-	
+
 	function addOption(target,option){
 		// create new option input and add to DOM
 		var newInput = $("<div class='optionWrapper'><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><input type='text' class='option' value='" + option + "' maxlength='25' /><a class='delete' title='Remove option' >X</a></div>");
@@ -2092,37 +2173,37 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		}
 		$('.add', target).before(newInput);
 		$('input',newInput).focus();
-		
+
 		if ($('.option', target).length > 9){
 			// 10 option fields shown, so remove add more link
 			$('.add', target).hide();
 		}
-		
+
 		// add new item to jquery-ui sortable
 		//target.sortable('refresh');
-		
+
 		// bind delete link click event
 		$('.delete',newInput).on('click.imSettings',function(){
-			if($(this).hasClass('disabled')) return;
-			
-			if($('.option', target).length == 2){
+			if($(this).hasClass('disabled')) { return; }
+
+			if($('.option', target).length === 2){
 				alert('You must specify at least two (2) options for this attribute.');
 				return;
 			}
 			newInput.fadeOut(function(){
 				$(this).remove();
 				//if($('.option', target).length < 10){
-					// show add option link
-					$('.add', target).fadeIn();
+				// show add option link
+				$('.add', target).fadeIn();
 				//}
 			});
 		});
-	};
-	
+	}
+
 	// check for unused attribute elements
 	if($('#ideaAttributes .attribute.empty').length > 0){
 		// there are empty attribute fields, so we can add another
-		
+
 		// get target param if provided or next unused attribute element
 		var newAttribute = null;
 		if(target){
@@ -2130,138 +2211,144 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		} else {
 			newAttribute = $('#ideaAttributes .attribute.empty').eq(0);
 		}
-		
+
 		// if id param wasn't sent, generate unique id for new attribute
-		if(!id || typeof id != 'string'){
+		if(!id || typeof id !== 'string'){
 			id = view.utils.generateKey();
 		}
-		
+
 		var count = 0;
 		var header = null, choices = null;
 		// set header depending on attribute type
-		if(type=='source'){
+		if(type==='source'){
 			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Source</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
-		} else if (type=='icon'){
+		} else if (type==='icon'){
 			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Icon</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
-		} else if (type=='tags'){
+		} else if (type==='tags'){
 			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Tags</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
-		} else if (type=='label'){
+		} else if (type==='label'){
 			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Label</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
 		}
-		
-		if(type=='source' || type=='tags' || type=='label'){
+
+		if(type==='source' || type==='tags' || type==='label'){
 			choices = $(document.createElement('div')).addClass('options').attr('id','options_' + id);
-			if(type=='tags'){
+			if(type==='tags'){
 				choices.append('<p>Options<span class="details">(students can choose any)</span>:</p>');
 			} else {
 				choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
 			}
-			
+
 			// insert add more link and bind click
 			var moreLink = $("<p class='add'><a>Add more +</a></p>");
 			choices.append(moreLink);
 			$('a',moreLink).on('click.imSettings',function(){
-				if($(this).hasClass('disabled')) return;
+				if($(this).hasClass('disabled')) { return; }
 				addOption(choices,'');
 			});
-			
+
 			// insert saved options
 			if(options && options.length > 0){
-				for(var i=0;i<options.length;i++){
-					if(typeof options[i] == 'string' && count<11){
+				var i = options.length;
+				for(; i>0; i--){
+					if(typeof options[i] === 'string' && count<11){
 						addOption(choices,options[i]);
 						count++;
 					}
 				}
 			}
-			
-			if (count == 0){
+
+			if (count === 0){
 				// no valid options were set, so add default options
 				var defaults = [];
-				if(type=='source'){
+				if(type==='source'){
 					defaults = ['Evidence Step','Visualization or Model','Movie/Video','Everyday Observation','School or Teacher'];
-				} else if(type=='tags'){
+				} else if(type==='tags'){
 					defaults = ['Tag1','Tag2'];
-					
-				} else if(type=='label'){
+
+				} else if(type==='label'){
 					defaults = ['Label1','Label2'];
 				}
-				for(var a=0;a<defaults.length;a++){
+				var a = defaults.length;
+				for(; a>0; a--){
 					addOption(choices,defaults[a]);
 				}
-			} else if (count == 1){
+			} else if (count === 1){
 				// only one option was set, so add a default second option (minimum of two options allowed for these attribute types)
 				var choice = '';
-				if(type=='source'){
+				if(type==='source'){
 					choice = 'Source2';
-				} else if (type=='tags'){
+				} else if (type==='tags'){
 					choice = 'Tag2';
-				} else if (type=='label'){
+				} else if (type==='label'){
 					choice = 'Label2';
 				}
 				addOption(choices,choice);
 			}
-			
+
 			// make options sortable
 			choices.sortable({
 				items: '.optionWrapper',
 				handle: 'span.move'
 			});
-		} else if(type=='icon'){
+		} else if(type==='icon'){
 			choices = $(document.createElement('div')).addClass('options').attr('id','options_' + id);
 			choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
 			var icons = {'blank':'None','important':'Important','question':'Not Sure','check':'Check','favorite':'Favorite','star_empty':'Star Empty','star_half':'Star Half Full','star_full':'Star Full'};
-			for(key in icons){
-				var option = $("<div class='optionWrapper'><input type='checkbox' class='option' value='" + key + "' /><img class='icon' src='images/ideaManager/" + key + ".png' alt='" + key + "' />" + icons[key] + "</div>");
-				choices.append(option);
-				if(options && options.length > 0){
-					for(var i=0;i<options.length;i++){
-						if(options[i] == key){
+			for(var prop in icons){
+				if (obj.hasOwnProperty(prop)) {
+					// prop is not inherited
+					var option = $("<div class='optionWrapper'><input type='checkbox' class='option' value='" + prop + "' /><img class='icon' src='images/ideaManager/" + prop + ".png' alt='" + prop + "' />" + icons[prop] + "</div>");
+					choices.append(option);
+					if(options && options.length > 0){
+						var i = options.length;
+						for(; i>0; i--){
+							if(options[i] === prop){
+								$('.option',option).prop('checked',true);
+							}
+						}
+					} else {
+						if(prop==='blank' || prop==='important' || prop==='question'){
 							$('.option',option).prop('checked',true);
 						}
-					}
-				} else {
-					if(key=='blank' || key=='important' || key=='question'){
-						$('.option',option).prop('checked',true);
 					}
 				}
 			}
 		}
-		
+
 		if(header && choices){
 			// options have been set and type is valid, so populate new attribute element
 			// create name input
 			var fieldName = view.utils.capitalize(type);
-			if(typeof name == 'string' && view.utils.isNonWSString(name)){
+			if(typeof name === 'string' && view.utils.isNonWSString(name)){
 				fieldName = name;
 			}
 			var nameElement = $(document.createElement('p'));
 			var nameInput = $(createElement(document, 'input', {type: 'text', id: 'fieldName_' + id, name: 'fieldName_' + id, value: fieldName})).addClass('fieldName').addClass('required').attr('maxlength','25');
 			nameElement.append(document.createTextNode('Field Name:')).append(nameInput);
-			
+
 			// create required checkbox
 			var required = $(document.createElement('p'));
 			var requiredCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'required_' + id})).attr('checked','checked').css('margin-left','0');
 			required.append(requiredCheck).append(document.createTextNode('This field is required'));
-			if(isRequired == false){
+			if(isRequired === false){
 				requiredCheck.prop('checked',false);
 			}
-			
+
 			// clear new attribute element and add id
 			newAttribute.html('').attr('id','attribute_' + id);
-			
+
 			// add header and choices to new attribute element
 			newAttribute.append(header).append(choices);
 			// add name inptu and required toggles to DOM
 			header.after(nameElement);
 			nameElement.after(required);
-			
-			if(type=='source' || type=='label'){
+
+			if(type==='source' || type==='label'){
 				// create allow custom field checkbox
 				var custom = $(document.createElement('p'));
 				var customCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'custom_' + id})).css('margin-left','0');
-				custom.append(customCheck).append(document.createTextNode('Allow students specify their own ' + type));;
-				if(allowCustom == true){
+				custom.append(customCheck).append(document.createTextNode('Allow students specify their own ' + type));
+				if(allowCustom === true){
 					customCheck.prop('checked',true);
 				}
 				// add custom field checkbox to attribute element
@@ -2269,17 +2356,17 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			}
 			// remove empty class and add active class
 			newAttribute.removeClass('empty').addClass('active').attr('data-type',type);
-			
+
 			// bind attribute delete link click event (with confirm dialog)
 			$('.delete', header).on('click.imSettings',function(){
-				if($(this).hasClass('disabled')) return;
+				if($(this).hasClass('disabled')) { return; }
 				var answer = confirm('Are you sure you want to permanently delete this attribute?');
 				if (answer){
 					// do delete
 					view.deleteIdeaAttribute($(this).parent().parent());
 				}
 			});
-			
+
 			view.insertTooltips(newAttribute);
 		} else {
 			// header & choices elements not defined so type is not allowed, fire error notification
@@ -2297,25 +2384,25 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
  */
 View.prototype.deleteIdeaAttribute = function(target){
 	var view = this;
-	
+
 	// clear content
 	target.html('').removeClass('active').addClass('empty').removeAttr('id');
-	
+
 	// create new attribute links
 	var newLinks = $(document.createElement('div')).addClass('newLinks');
 	newLinks.append('<h6>Add new attribute +</h6>');
 	var container = $(document.createElement('ul'));
 	container.append('<li><a name="source">Source</a></li><li><a name="label">Label</a></li><li><a name="icon">Icon</a></li><li><a name="tags">Tags</a></li>');
 	newLinks.append(container);
-	
+
 	// add new attribute links to DOM element
 	target.append(newLinks);
-	
+
 	// bind click actions to new links
 	$('a',container).click(function(){
 		var type = $(this).attr('name');
 		var isRequired = false;
-		if(type=='source' || type=='label'){
+		if(type==='source' || type==='label'){
 			isRequired = true;
 		}
 		view.addIdeaAttribute(type,null,null,isRequired,null,target);
@@ -2333,14 +2420,14 @@ View.prototype.onProjectLoaded = function(){
 		eventManager.fire('cleanProject');
 	} else {
 		this.projectStructureViolation = false;
-		
+
 		$('#sequenceEditor').hide();
 		$('#dynamicProject').show();
-		
+
 		if(this.selectModeEngaged){
 			this.disengageSelectMode(-1);
 		}
-	
+
 		if(this.project && this.project.getStepTerm()){
 			document.getElementById('stepTerm').value = this.project.getStepTerm();
 		} else {
@@ -2358,35 +2445,35 @@ View.prototype.onProjectLoaded = function(){
 			this.project.setActivityTerm(activityTerm);
 			this.notificationManager.notify('Activity term not set in project, setting default value: \"' + activityTerm + '\"', 2);
 		}
-		
+
 		// clear out any data from the sequenceEditor
 		$('#sequenceEditor').removeData();
-	
+
 		// reset logging level checkbox (default to checked, high post level)
 		$('#loggingToggle').prop('checked',true);
-		
+
 		$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
 		$('#projectInfo input[type="checkbox"]').toggleSwitch();
-	
+
 		// if we're in portal mode, tell the portal that we've opened this project
 		if (this.portalUrl) {
 			this.notifyPortalOpenProject(this.project.getContentBase(), this.project.getProjectFilename());
 		}
-		
+
 		var title = '';
 		if(this.project.getTitle()){
 			title = this.project.getTitle();
 		} else {
 			title = this.project.getProjectFilename().substring(0, this.project.getProjectFilename().lastIndexOf('.project.json'));
 			this.project.setTitle(title);
-		};
-		
+		}
+
 		// reset thumbnail, toggle as favorite link, hide project info inputs, show project info input display text
 		$('#projectThumb').attr('src','');
 		$('a.bookmark',$('#projectContent')).removeClass('true');
 		$('#projectInfo input').hide();
 		$('#projectInfo .inputDisplay').show();
-		
+
 		// insert title
 		//$('#titleInput').val(title);
 		$('#projectTitle').text(title);
@@ -2394,35 +2481,34 @@ View.prototype.onProjectLoaded = function(){
 		// insert project id
 		$('#projectId').text(this.getI18NString("ID") + ': ' + this.portalProjectId);
 		$('a.bookmark',$("#projectInfo")).attr('data-projectid',this.portalProjectId);
-		
+
 		this.populateThemes();
-	
+
 		this.generateAuthoring();
-	
+
 		this.retrieveMetaData();
-		
+
 		this.retrieveProjectInfo();
-		
+
 		this.retrieveProjectRunStatus();
-		
+
 		//add these two params to the config
 		this.getConfig().setConfigParam('getContentUrl', this.getProject().getUrl());
 		this.getConfig().setConfigParam('getContentBaseUrl', this.getProject().getContentBase());
-	
+
 		if(this.placeNode){
 			this.placeNewNode(this.placeNodeId);
 		}
-		
+
 		this.premadeCommentLists = null;
-		
+
 		// hide loading message and show the project content panel
 		$('#projectOverlay').hide();
 		$('#projectLoading').hide();
 		$('#projectContent').css('z-index',1);
-		
+
 		// TODO: check if there are missing required metadata fields and require meta form completion
-		
-		
+
 		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 2);
 	}
 };
@@ -2432,14 +2518,14 @@ View.prototype.onProjectLoaded = function(){
  * @returns Boolean
  */
 View.prototype.retrieveProjectInfo = function(){
-	if(this.mode == "portal") {
+	if(this.mode === "portal") {
 		var requestParams = {
-			"projectId":this.portalProjectId,
-			"command":"getProjectInfo"
+				"projectId":this.portalProjectId,
+				"command":"getProjectInfo"
 		};
 		this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), requestParams, this.retrieveProjectInfoSuccess, this, this.retrieveProjectInfoFailure);
 	}
-	
+
 };
 
 /**
@@ -2448,57 +2534,57 @@ View.prototype.retrieveProjectInfo = function(){
 View.prototype.retrieveProjectInfoSuccess = function(text,xml,o) {
 	var view = o, infoJSON = JSON.parse(text);
 	var thumbUrl = infoJSON.thumbUrl,
-		projectOwnerName = infoJSON.projectOwnerName,
-		projectOwnerUsername = infoJSON.projectOwnerUsername,
-		isLibrary = infoJSON.isLibrary,
-		isFavorite = infoJSON.isFavorite,
-		sharedUsers = infoJSON.sharedUsers;
-	
+	projectOwnerName = infoJSON.projectOwnerName,
+	projectOwnerUsername = infoJSON.projectOwnerUsername,
+	isLibrary = infoJSON.isLibrary,
+	isFavorite = infoJSON.isFavorite,
+	sharedUsers = infoJSON.sharedUsers;
+
 	// check if thumb image exists, insert thumb image
 	$.ajax({
-	    url:thumbUrl,
-	    type:'HEAD',
-	    error: function(){
-	    	// image doesn't exist, so use default thumb url
+		url:thumbUrl,
+		type:'HEAD',
+		error: function(){
+			// image doesn't exist, so use default thumb url
 			$('#projectThumb').attr('src',view.defaultThumbUrl);
-	    },
-	    success: function(){
-	    	// insert thumbnail
-	    	$('#projectThumb').attr('src',thumbUrl);
-	    }
+		},
+		success: function(){
+			// insert thumbnail
+			$('#projectThumb').attr('src',thumbUrl);
+		}
 	});
-	
+
 	// if project is bookmarked, add 'true' to toggle bookmark link
 	if(isFavorite){
 		$('a.bookmark',$("#projectInfo")).addClass('true');
 	}
-	
+
 	// clear out existing shared/library icons
 	$('.infoIcon').remove();
-	
+
 	// if project is shared, insert shared icon
-	if(projectOwnerUsername != view.portalUsername){
+	if(projectOwnerUsername !== view.portalUsername){
 		var sharedTitle = view.getI18NString("authoring_project_shared_pre") + projectOwnerName;
 		$('#topProjectTools').before('<img id="sharedIcon" class="infoIcon" alt="shared" src="/vlewrapper/vle/images/icons/red/multi-agents.png" title="' + sharedTitle + '" />');
 	}
-	
+
 	// if project is a library project, add library icon
 	if(isLibrary){
 		var libraryTitle = view.getI18NString("authoring_project_library");
 		$('#topProjectTools').before('<img id="libraryIcon" class="infoIcon" alt="library project" src="/vlewrapper/vle/images/icons/red/bookmark.png" title="' + libraryTitle + '" />');
 	}
-	
+
 	// insert tooltips
 	view.insertTooltips($('#projectContent'));
 };
-	
+
 
 /**
  * Failure callback for project info request
  */
 function retrieveProjectInfoFailure(c,o) {
 	o.notificationManager.notify('Error retrieving information for this project. Please contact WISE for assistance.', 3);
-};
+}
 
 
 /**
@@ -2506,23 +2592,23 @@ function retrieveProjectInfoFailure(c,o) {
  * @returns Boolean
  */
 View.prototype.retrieveProjectRunStatus = function(){
-	if(this.mode == "portal") {
+	if(this.mode === "portal") {
 		var requestParams = {
-			"projectId":this.portalProjectId,
-			"command":"getNumberOfRuns"
+				"projectId":this.portalProjectId,
+				"command":"getNumberOfRuns"
 		};
 		this.connectionManager.request('GET', 1, '/webapp/teacher/projects/projectinfo.html', requestParams, this.retrieveProjectRunStatusSuccess, this, this.retrieveProjectRunStatusFailure);
 	} else {
 		this.projectHasRun = false;
 	}
-	
+
 };
 
 /**
  * Success callback for project run check
  */
 View.prototype.retrieveProjectRunStatusSuccess = function(text,xml,o) {
-	var numRuns = parseInt(text);
+	var numRuns = parseInt(text,10);
 	if(numRuns > 0){
 		o.projectHasRun = true;
 	} else {
@@ -2544,7 +2630,7 @@ function retrieveProjectRunStatusFailure(c,o) {
  */
 View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 	var handler = function(responseText, responseXML, o){
-		if (responseText != "") {
+		if (responseText !== "") {
 			var usersJSON = JSON.parse(responseText);
 			var currentUsers = '', currentEditors = '';
 			if(usersJSON.length>0){
@@ -2555,7 +2641,7 @@ View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 					}
 				}
 				var userTerm = o.getI18NString('user');
-				if (usersJSON.length > 1) userTerm = o.getI18NString('user_plural');
+				if (usersJSON.length > 1) { userTerm = o.getI18NString('user_plural'); }
 				currentUsers = usersJSON.length + ' <a href="#nogo" class="tooltip" title="' + currentEditors + '">' + userTerm + '</a> ' + o.getI18NString('authoring_project_also_editing');
 				o.notificationManager.notify(o.getI18NString("authoring_multiple_editors_warning"), 3);
 				$('#currentUsers').html(currentUsers);
@@ -2569,7 +2655,7 @@ View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 			eventManager.fire('browserResize');
 		}
 	};
-	
+
 	this.connectionManager.request('POST', 1, this.portalUrl, {command: 'notifyProjectOpen', projectId: this.portalProjectId}, handler, this);
 };
 
@@ -2583,7 +2669,7 @@ View.prototype.notifyPortalCloseProject = function(sync){
 		var success = function(t,x,o){
 			//o.notificationManager.notify('Portal notified that project session is closed.', 3);
 		};
-		
+
 		var failure = function(t,o){
 			//o.notificationManager.notify('Unable to notify portal that project session is closed', 3);
 		};
@@ -2598,32 +2684,32 @@ View.prototype.notifyPortalCloseProject = function(sync){
 View.prototype.getEditors = function(){
 	var success = function(t,x,o){
 		/* there was a change and we need to get the difference */
-		if(t!=this.currentEditors){
+		if(t!==this.currentEditors){
 			/* notify user of the difference */
 			var diffText = o.getEditorDifferenceText(t);
-			
-			if(diffText && diffText!=''){
+
+			if(diffText && diffText!==''){
 				o.notificationManager.notify(o.getEditorDifferenceText(t), 3);
-			};
-			
+			}
+
 			/* update the also editing display to the current editors if any */
-			if(t==''){
+			if(t===''){
 				document.getElementById("concurrentAuthorDiv").innerHTML = '';
 				eventManager.fire('browserResize');
 			} else {
 				document.getElementById("concurrentAuthorDiv").innerHTML = "Also Editing: " + t;
 				eventManager.fire('browserResize');
-			};
-			
+			}
+
 			/* set the current editors to the new response */
 			o.currentEditors = t;
-		};
+		}
 	};
-	
+
 	/* only request if a project is currently opened */
 	if(this.getProject()){
 		this.connectionManager.request('POST', 1 ,this.portalUrl, {command:'getEditors', projectId: this.portalProjectId, path: this.getProject().getUrl()}, success, this);
-	};
+	}
 };
 
 /**
@@ -2637,29 +2723,29 @@ View.prototype.getEditorDifferenceText = function(text){
 	var current = this.currentEditors.split(',');
 	var incoming = text.split(',');
 	var diffText = '';
-	
+
 	/* remove usernames in common to get the differences */
-	for(var a=current.length - 1;a>=0;a--){
-		if(incoming.indexOf(current[a])!=-1){
+	for(var a=current.length;a>0;a--){
+		if(incoming.indexOf(current[a])!==-1){
 			incoming.splice(incoming.indexOf(current[a]), 1);
 			current.splice(a,1);
-		};
-	};
-	
+		}
+	}
+
 	/* add text for users that may have left */
-	for(var b=0;b<current.length;b++){
-		if(current[b]!=''){
+	for(var b=current.length;b>0;b--){
+		if(current[b]!==''){
 			diffText += 'User ' + current[b] + ' is no longer working on this project.<br/>';
-		};
-	};
-		
+		}
+	}
+
 	/* add text for users that may have joined */
-	for(var c=0;c<incoming.length;c++){
-		if(incoming[c]!=''){
+	for(var c=incoming.length;c>0;c--){
+		if(incoming[c]!==''){
 			diffText += 'User ' + incoming[c] + ' has started editing this project.<br/>';
-		};
-	};
-	
+		}
+	}
+
 	return diffText;
 };
 
@@ -2677,23 +2763,23 @@ View.prototype.stopEditingInterval = function(){
 View.prototype.author = function(nodeInfo) {
 	var absId = nodeInfo.split('----')[0];
 	var nodeId = nodeInfo.split('----')[1];
-	
+
 	// add editing (highlight) class to node display
 	setTimeout(function(){$('#' + $.escapeId(absId)).addClass('editing');},1000);
-		
+
 	// retrieve the node from the project
 	var node = this.project.getNodeById(nodeId);
-	
-	if(node.type=='DuplicateNode'){
+
+	if(node.type==='DuplicateNode'){
 		node = node.getNode();
 		// replace duplicate node with the node it represents
 	}
-	
+
 	// launch the authoring for the node
-	if(NodeFactory.acceptedTagNames.indexOf(node.type)==-1){
+	if(NodeFactory.acceptedTagNames.indexOf(node.type)===-1){
 		this.notificationManager.notify('No tool exists for authoring this step yet', 3);
 		return;
-	} else if(this.versionMasterUrl){
+	//} else if(this.versionMasterUrl){
 		//this.versioning.versionConflictCheck(nodeId);
 	} else {
 		this.activeNode = node;
@@ -2711,62 +2797,63 @@ View.prototype.nodeTypeSelected = function(){
 	var parent = document.getElementById('createNodeDiv');
 	var old = document.getElementById('selectNodeIconDiv');
 	var val = document.getElementById('createNodeType').options[document.getElementById('createNodeType').selectedIndex].value;
-	
+
 	if(old){
 		parent.removeChild(old);
-	};
-	
-	if(val && val!=""){
+	}
+
+	if(val && val!==""){
 		var nodeIconPath = this.nodeIconPaths[val];
 		var nodeClassesForNode = this.nodeClasses[val];
-		
+
 		var selectDiv = createElement(document, 'div', {id: 'selectNodeIconDiv'});
 		var selectText = document.createTextNode('Select an Icon:');
 		var select = createElement(document, 'select', {id: 'selectNodeIcon', name: 'param2'});
 		
-		for(var x=0;x<nodeClassesForNode.length;x++){
+		var x = nodeClassesForNode.length;
+		for(; x>0; x--){
 			var nodeClassObj = nodeClassesForNode[x];
 			var opt = createElement(document, 'option', {name: 'nodeClassOption'});
 			opt.value = nodeClassObj.nodeClass;
 			opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
-			
+
 			select.appendChild(opt);
-		};
-		
+		}
+
 		//the div that will contain the description of the step type
 		var descriptionDiv = createElement(document, 'div', {id: 'selectNodeDescription'});
-		
+
 		//the actual text that contains the description, this will initially be set to the default description
 		var descriptionText = "Description not provided";
-		
+
 		//get the constructor for the chosen step type
 		var nodeConstructor = NodeFactory.nodeConstructors[val];
-		
-		if(nodeConstructor != null) {
+
+		if(nodeConstructor !== null) {
 			//the constructor exists
-			if(NodeFactory.nodeConstructors[val].authoringToolDescription != null &&
-					NodeFactory.nodeConstructors[val].authoringToolDescription != "") {
+			if(NodeFactory.nodeConstructors[val].authoringToolDescription !== null &&
+					NodeFactory.nodeConstructors[val].authoringToolDescription !== "") {
 				//get the description text
 				descriptionText = NodeFactory.nodeConstructors[val].authoringToolDescription;			
 			}
 		}
-		
+
 		//create a text node with the description
 		var descriptionTextNode = document.createTextNode('Description: ' + descriptionText);
-		
+
 		//add the text node to the description div
 		descriptionDiv.appendChild(descriptionTextNode);
-		
+
 		//add all the elements to the select div
 		selectDiv.appendChild(selectText);
 		selectDiv.appendChild(select);
 		selectDiv.appendChild(createElement(document, 'br'));
 		selectDiv.appendChild(createElement(document, 'br'));
 		selectDiv.appendChild(descriptionDiv);
-		
+
 		//add the select div to the select dialog
 		parent.appendChild(selectDiv);
-	};
+	}
 };
 
 /**
@@ -2776,24 +2863,24 @@ View.prototype.nodeTypeSelected = function(){
 View.prototype.populateNodeSelector = function(event, cancelEvent){
 	var parent = document.getElementById('nodeSelectDiv');
 	var COLORS = ['blue','red','purple','green','yellow','black','white','silver'];
-	
+
 	/* clear any old select elements */
 	while(parent.firstChild){
 		parent.removeChild(parent.firstChild);
 	}
-	
+
 	/* create new node select element */
 	var select = createElement(document, 'select', {id:'nodeSelectorSelect'});
 	parent.appendChild(select);
-	
+
 	/* create color select element */
 	var colorSelect = createElement(document, 'select', {id:'colorSelectorSelect'});
 	parent.appendChild(colorSelect);
-	
+
 	/* parse project from root node and add option for each node in project */
 	var addOption = function(node, select){
 		/* if this node is a sequence node, add all of its children */
-		if(node.type=='sequence'){
+		if(node.type==='sequence'){
 			for(var a=0;a<node.children.length;a++){
 				addOption(node.children[a], select);
 			}
@@ -2801,23 +2888,23 @@ View.prototype.populateNodeSelector = function(event, cancelEvent){
 			var opt = createElement(document, 'option', {id:node.id});
 			opt.value = node.view.getProject().getPositionById(node.id);
 			opt.text = node.title;
-			
+
 			select.appendChild(opt);
 		}
 	};
-	
+
 	addOption(this.getProject().getRootNode(), select);
-	
+
 	/* add colors to the color selector */
-	for(var b=0;b<COLORS.length;b++){
+	for(var b=COLORS.length;b>0;b--){
 		var opt = createElement(document, 'option');
 		opt.value = COLORS[b];
 		opt.text = COLORS[b];
-		
+
 		colorSelect.appendChild(opt);
 	}
-	
-	
+
+
 	/* add the buttons */
 	var selectButt = createElement(document, 'input', {type:'button', value:'Create Link', onclick:'eventManager.fire(\'' + event + '\')'});
 	var cancelButt = createElement(document, 'input', {type:'button', value:'Cancel', onclick:'eventManager.fire(\'' + cancelEvent + '\')'});
@@ -2825,7 +2912,7 @@ View.prototype.populateNodeSelector = function(event, cancelEvent){
 	parent.appendChild(createBreak());
 	parent.appendChild(selectButt);
 	parent.appendChild(cancelButt);
-	
+
 	/* show the dialog */
 	showElement('nodeSelectorDialog');
 	$('#nodeSelectorDialog').dialog('open');
@@ -2914,9 +3001,9 @@ View.prototype.retrieveProjectListSuccess = function(t,x,o){
 View.prototype.retrieveProjectListWelcomeSuccess = function(t,x,o){
 	if(o.portalUrl){
 		o.populateWelcomeProjects(t);
-	} else {
+	}// else {
 		//o.populateStandAloneProjects(t,true);
-	}
+	//}
 };
 
 /**
@@ -2935,20 +3022,20 @@ View.prototype.retrieveProjectListFailure = function(t,o){
  */
 View.prototype.populatePortalProjects = function(t,copyMode){
 	var view = this;
-	
+
 	//parse the JSON string into a JSONArray
 	var projectsArray = JSON.parse(t);
-	
+
 	//sort the array by id (descending)
 	projectsArray.sort(this.sortProjectsById);
-	
+
 	//variables to hold total number of favorite, owned, and shared projects
 	var numFave = 0, numOwned = 0, numShared = 0, numLibrary = 0; //numAll = 0;
 	//arrays to hold string segments for each project listing
 	var favoriteSegments = [], ownedSegments = [], sharedSegments = [], librarySegments = []; //allSegments = [];
 	//object to hold details tooltip content for each project listing
 	var detailsContent = {};
-	
+
 	// pre-load i18N strings
 	var createdDetailsPreText = this.getI18NString('authoring_project_created_pre'),
 	createdDetailsRunPreText = this.getI18NString('authoring_project_created_pre_run'),
@@ -2965,7 +3052,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 	idText = this.getI18NString('ID'),
 	openText = this.getI18NString("open"),
 	copyText = this.getI18NString("copy");
-	
+
 	//loop through all the projects
 	for(var x=projectsArray.length-1; x>-1; x--) {
 		//add the fields to the appropriate arrays
@@ -2978,7 +3065,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			this.portalProjectPaths[index] = projectPath;
 			this.portalProjectTitles[index] = projectTitle;
 		}
-		
+
 		//get a project and obtain the id, path, and title
 		var project = projectsArray[x];
 		var projectId = project.id;
@@ -3001,7 +3088,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 		var runId = null, hasRun = false, createdClass = '', createdPre = '';
 		var createdDetails = createdDetailsPreText + ': ';
 		var runDetails = '';
-		if(typeof project.runId == 'number' && typeof project.isLibrary == 'boolean' && !project.isLibrary){
+		if(typeof project.runId === 'number' && typeof project.isLibrary === 'boolean' && !project.isLibrary){
 			hasRun = true;
 			runId = project.runId;
 			createdClass = 'runCopy ';
@@ -3012,34 +3099,34 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 		}
 		var isOwned = false, iconSrc = '/vlewrapper/vle/images/icons/red/shared.png', iconAlt = openDialogSharedText;
 		var sharedDetails = '', sharedUsers = '';
-		if(projectOwner == this.portalUserFullname){
+		if(projectOwner === this.portalUserFullname){
 			isOwned = true;
 			iconSrc = '/vlewrapper/vle/images/icons/teal/briefcase.png';
 			iconAlt = openDialogOwnedText;
 		} else {
 			if(isAuthorable){
 				sharedDetails = '<p class="sharedDetails">' +
-					'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
-					projectSharedPreText + projectOwner +
-					'</p>';
-				
+				'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
+				projectSharedPreText + projectOwner +
+				'</p>';
+
 				sharedUsers = '<p class="sharedDetails sharedUsers">' +
-					'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
-					projectSharedUsersPreText + project.sharedUsers +
-					'</p>';
+				'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
+				projectSharedUsersPreText + project.sharedUsers +
+				'</p>';
 			}
 		}
 		var infoIcon = '';
 		var libraryDetails = '', parentDetails = '', isLibrary = false;
-		if(typeof project.isLibrary == 'boolean' && project.isLibrary){
+		if(typeof project.isLibrary === 'boolean' && project.isLibrary){
 			isLibrary = true;
 			var infoTitle = projectLibraryText;
 			infoIcon = '<img alt="copy" src="/vlewrapper/vle/images/icons/brown/bookmark.png" title="' + infoTitle + '">';
 			libraryDetails = '<p class="libraryDetails">' +
-				'<img alt="copy" src="/vlewrapper/vle/images/icons/red/bookmark.png" />' +
-				infoTitle +
-				'</p>';
-		} else if(typeof project.parentId == 'number'){
+			'<img alt="copy" src="/vlewrapper/vle/images/icons/red/bookmark.png" />' +
+			infoTitle +
+			'</p>';
+		} else if(typeof project.parentId === 'number'){
 			var infoTitle = '', titlePre = '';
 			if(project.parentLibrary){
 				titlePre = projectCopyLibraryPreText;
@@ -3050,54 +3137,54 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			infoIcon = '<img alt="copy" src="/vlewrapper/vle/images/icons/brown/copy-item.png" title="' + infoTitle + '">';
 			parentDetails = '<p class="parentDetails">' + titlePre + ' <span>' + project.parentId + ' (' + project.parentTitle + ')</span></p>';
 		}
-		
+
 		var ownershipIcon = '';
 		if(isAuthorable){
 			ownershipIcon = '<img alt="' + iconAlt + '" title="' + iconAlt + '" src="' + iconSrc + '" />';
 		}
-		
+
 		createdDetails = '<p class="' + createdClass + 'createdDetails">' + createdDetails + '<span>' + dateCreated + '</span></p>';
-		
+
 		var editedDetails = '';
-		if(typeof lastEdited == 'string' && lastEdited != ''){
+		if(typeof lastEdited === 'string' && lastEdited !== ''){
 			editedDetails = '<p class="editDetails">' + lastEditedPreText + '<span>' + lastEdited + '</span></p>';
 		}
-		
+
 		var detailsTitle = '<h3 class="titleDetails">' + projectTitle + ' <span>(' + idText + ': ' + projectId + ')</span></h3>';
-		
+
 		// insert project thumb path attribute
 		var thumbUrl = '';
-		if(typeof project.thumbUrl == 'string'){
+		if(typeof project.thumbUrl === 'string'){
 			thumbUrl = project.thumbUrl; 
 		} else {
 			thumbUrl = view.defaultThumbUrl;
 		}
 		var details = $('<div><img class="projectThumb" src="' + thumbUrl + '" alt="thumb" />' + 
-			'<div class="summaryInfo">' + libraryDetails + sharedDetails + createdDetails + editedDetails + parentDetails + sharedUsers + runDetails + '</div><div style="clear:both;"></div></div>');
+				'<div class="summaryInfo">' + libraryDetails + sharedDetails + createdDetails + editedDetails + parentDetails + sharedUsers + runDetails + '</div><div style="clear:both;"></div></div>');
 		details.prepend(detailsTitle);
 		//add to tooltip content object
 		detailsContent[projectId] = details;
 		//details = details.replace(/"/g,"&quot;"); // escape double quotes so that the details text can be set as the value of the tooltip attribute
-		
+
 		//set button class and value
 		var buttonValue = openText;
 		if(copyMode){
 			buttonValue = copyText;
 		}
-		
+
 		//create project listing DOM element
 		var projectListing = '<div class="projectListing" data-projectid="' + projectId + '">' +
-			'<input type="button" class="openProject" data-projectid="' + projectId + '" value="' + buttonValue + '" />' +
-			'<div class="infoWrapper">' +
-			'<div class="projectInfo">' +
-			'<a class="' + bookmarkClass + 'bookmark tooltip" data-projectid="' + projectId + '" title="' +  toggleFavoriteTitleText + '" data-tooltip-offset="-2"></a>' +
-			'<span class="projectTitle">' + projectTitle + '</span><span class="projectId"> (' + idText + ': ' + projectId + ')</span>' +
-			ownershipIcon + infoIcon + 
-			'</div>' +
-			'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" data-tooltip-class="info" data-tooltip-anchor="left" data-tooltip-event="click" data-tooltip-keep="true"/></div>' +
-			'</div>' +
-			'</div>';
-		
+		'<input type="button" class="openProject" data-projectid="' + projectId + '" value="' + buttonValue + '" />' +
+		'<div class="infoWrapper">' +
+		'<div class="projectInfo">' +
+		'<a class="' + bookmarkClass + 'bookmark tooltip" data-projectid="' + projectId + '" title="' +  toggleFavoriteTitleText + '" data-tooltip-offset="-2"></a>' +
+		'<span class="projectTitle">' + projectTitle + '</span><span class="projectId"> (' + idText + ': ' + projectId + ')</span>' +
+		ownershipIcon + infoIcon + 
+		'</div>' +
+		'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" data-tooltip-class="info" data-tooltip-anchor="left" data-tooltip-event="click" data-tooltip-keep="true"/></div>' +
+		'</div>' +
+		'</div>';
+
 		if(isFavorite){
 			numFave+=1;
 			//add project to favorites list
@@ -3118,15 +3205,15 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			librarySegments.push(projectListing);
 		}
 		//if(!copyMode && isAuthorable){
-			//numAll+=1;
-			//add project to view all list
-			//allSegments.push(projectListing);
+		//numAll+=1;
+		//add project to view all list
+		//allSegments.push(projectListing);
 		//}
-		
+
 		//populate the open project dialog with entry for project
 		//$('#selectProject').append('<option name="projectOption" value="' + projectId + '">' +  projectId + ': ' + projectTitle +'</option>');
 	}
-	
+
 	//populate the project tabs
 	$('#favoriteProjects').append(favoriteSegments.join(""));
 	$('#ownedProjects').append(ownedSegments.join(""));
@@ -3134,40 +3221,40 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 	if(copyMode){
 		$('#libraryProjects').append(librarySegments.join(""));
 	}// else {
-		//$('#allProjects').append(allSegments.join(""));
+	//$('#allProjects').append(allSegments.join(""));
 	//}
-	
+
 	var projectTabs = $('#projectTabs');
-	
+
 	// insert project thumbs into project details content
 	$('img.info',projectTabs).each(function(){
 		var id = $(this).data('projectid'),
-			content = detailsContent[id],
-			imgsrc = $('img.projectThumb',content).attr('src');
-		
-		if(imgsrc != view.defaultThumbUrl){
+		content = detailsContent[id],
+		imgsrc = $('img.projectThumb',content).attr('src');
+
+		if(imgsrc !== view.defaultThumbUrl){
 			$.ajax({
-			    url:imgsrc,
-			    type:'HEAD',
-			    error: function(){
-			    	// image doesn't load, so use default thumb and insert details content as info icon tooltip
+				url:imgsrc,
+				type:'HEAD',
+				error: function(){
+					// image doesn't load, so use default thumb and insert details content as info icon tooltip
 					$('img.projectThumb',content).attr('src',view.defaultThumbUrl);
 					var infoImg = $('img.info[data-projectid="' + id + '"]',projectTabs);
 					infoImg.attr('title',content.html()).addClass('tooltip').attr('data-tooltip-class','info').attr('data-tooltip-anchor','left');
 					//initialize tooltip
 					view.insertTooltips(infoImg);
-			    },
-			    success: function(){
-			    	// image loads, so insert details content as info icon tooltip
+				},
+				success: function(){
+					// image loads, so insert details content as info icon tooltip
 					var infoImg = $('img.info[data-projectid="' + id + '"]',projectTabs);
 					infoImg.attr('title',content.html()).addClass('tooltip').attr('data-tooltip-class','info').attr('data-tooltip-anchor','left');
 					// initialize tooltip
 					view.insertTooltips(infoImg);
-			    }
+				}
 			});
 		}
 	});
-	
+
 	// bind open project button clicks
 	projectTabs.off('click','.openProject');
 	projectTabs.on('click','.openProject',function(){
@@ -3178,7 +3265,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			eventManager.fire('projectSelected',id);
 		}
 	});
-	
+
 	//bind toggle bookmark link clicks
 	projectTabs.off('click','a.bookmark');
 	projectTabs.on('click','a.bookmark',function(){
@@ -3191,17 +3278,17 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			if(isBookmark){
 				//remove project entry from favorites tab
 				$('#favoriteProjects .projectListing[data-projectid="' + id + '"]').fadeOut(function(){$(this).remove();});
-				
+
 				//remove stars from project listings
 				$('a.bookmark[data-projectid="' + id + '"]', projectTabs).each(function(){
 					$(this).removeClass('true');
 				});
-				
+
 				// if id matches active project, remove star from editing panel
-				if(id == view.portalProjectId){
+				if(id === view.portalProjectId){
 					$('a.bookmark',$('#projectContent')).removeClass('true');
 				}
-				
+
 				//update favorites count
 				view.portalFavorites-=1;
 				if(isAuthorable){
@@ -3213,7 +3300,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 					$(this).addClass('true');
 				});
 				$('.projectListing[data-projectid="' + id + '"]', projectTabs).each(function(index){
-					if(index==0){
+					if(index===0){
 						//create clone DOM element for project listing
 						var entry = $(this).clone(), infoTitle = detailsContent[$(this).attr('data-projectid')].html();
 						$('a.bookmark',entry).addClass('tooltip').attr('title',view.getI18NString("authoring_toggle_favorite_title")).attr('data-tooltip-anchor','right');
@@ -3224,12 +3311,12 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 						view.insertTooltips(entry);
 					}
 				});
-				
+
 				// if id matches active project, add star to editing panel
-				if(id == view.portalProjectId){
+				if(id === view.portalProjectId){
 					$('a.bookmark',$('#projectContent')).addClass('true');
 				}
-				
+
 				//update favorites count
 				view.portalFavorites+=1;
 				if(isAuthorable){
@@ -3239,12 +3326,12 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			//update favorites count displays
 			$('#favoriteTab').html(view.getI18NString('authoring_dialog_open_favorites') + ' (' + view.portalFavorites + ')');
 			if(isAuthorable){
-				var count = parseInt($('#myFavorites > .count').text()) + authorableChange;
+				var count = parseInt($('#myFavorites > .count').text(),10) + authorableChange;
 				$('#myFavorites > .count').text(count);
 			}
 		});
 	});
-	
+
 	//insert total numbers of projects in open project dialog tabs
 	if(copyMode){
 		// if we're in copy mode, insert total number of library projects
@@ -3260,17 +3347,17 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 	$('#favoriteTab').html(this.getI18NString('authoring_dialog_open_favorites') + ' (' + numFave + ')');
 	$('#ownedTab').html(this.getI18NString('authoring_dialog_open_owned') + ' (' + numOwned + ')');
 	$('#sharedTab').html(this.getI18NString('authoring_dialog_open_shared') + ' (' + numShared + ')');
-	
-	
+
+
 	this.portalFavorites = numFave;
-	
+
 	//set height of project tabs to fit bottom of dialog, widths of the project listing elements
 	this.setProjectTabsHeight();
 	this.setProjectListingWidths();
-	
+
 	// insert tooltips
 	this.insertTooltips(projectTabs);
-	
+
 	this.onOpenProjectReady();
 };
 
@@ -3325,19 +3412,19 @@ View.prototype.toggleBookmark = function(pID,isBookmark,callback){
  */
 View.prototype.populateWelcomeProjects = function(t){
 	var view = this;
-	
+
 	//parse the JSON string into a JSONObject
 	var projectsObj = JSON.parse(t);
-	
+
 	//get the number of favorite, owned, and shared projects and insert in DOM
 	$('#myOwned > .count').text(projectsObj.owned);
 	$('#myShared > .count').text(projectsObj.shared);
 	$('#myFavorites > .count').text(projectsObj.bookmarked);
-	
+
 	// set portal variables
 	this.portalFavorites = projectsObj.bookmarked;
 	this.portalProjectId = null;
-	
+
 	//loop through all the recently edited projects
 	for(var x=0; x<projectsObj.recentProjects.length; x++) {
 		//get a project and obtain the id, title, and last edited time
@@ -3346,7 +3433,7 @@ View.prototype.populateWelcomeProjects = function(t){
 		var projectTitle = project.title;
 		var projectPath = project.path;
 		var lastEdited = project.lastEdited;
-		
+
 		//add the fields to the appropriate arrays
 		var index = $.inArray(projectId,this.portalProjectIds);
 		if(index < 0){
@@ -3357,7 +3444,7 @@ View.prototype.populateWelcomeProjects = function(t){
 			this.portalProjectPaths[index] = projectPath;
 			this.portalProjectTitles[index] = projectTitle;
 		}
-		
+
 		var linkClass = '';
 		if(x>2){
 			linkClass = 'extra';
@@ -3365,7 +3452,7 @@ View.prototype.populateWelcomeProjects = function(t){
 		//add the current project to the recently edited projects space
 		$('#recent').append('<p class="recentProject ' + linkClass + '"><a data-projectid="' + projectId + '" title="' + this.getI18NString('authoring_openlink_title') + ' ' + projectId + '">' + projectTitle + ' (' + this.getI18NString('authoring_id') + ' ' + projectId + ')' + '</a><span class="lastEdited">' + lastEdited + '</span></p>');
 	}
-	
+
 	if(projectsObj.recentProjects.length > 3){
 		var toggleEl = $('<p><a title="' + this.getI18NString('authoring_welcome_togglerecent_more') + '" class="tooltip more" data-tooltip-anchor="bottom" tooltip-offset="5">...</a></p>');
 		$('#recent').append(toggleEl);
@@ -3382,23 +3469,23 @@ View.prototype.populateWelcomeProjects = function(t){
 			});
 		});
 	}
-	
+
 	//bind click action to recent project links
 	$('.recentProject > a').click(function(){
 		var id = $(this).attr('data-projectid');
 		//open selected project
 		eventManager.fire("projectSelected",id);
 	});
-	
+
 	//show more details text on create panel hover
 	$('#myCreate').hover(
-		function(){$('#myCreate > .familyDetails').fadeIn(250);},
-		function(){$('#myCreate > .familyDetails').fadeOut(250);}
+			function(){$('#myCreate > .familyDetails').fadeIn(250);},
+			function(){$('#myCreate > .familyDetails').fadeOut(250);}
 	);
-	
+
 	// insert tooltips
 	this.insertTooltips($('#projectWelcome'));
-	
+
 	this.onOpenProjectReady();
 };
 
@@ -3413,17 +3500,17 @@ View.prototype.populateWelcomeProjects = function(t){
  */
 View.prototype.sortProjectsById = function(project1, project2) {
 	var result = 0;
-	
-	if(project1 != null && project2 != null) {
+
+	if(project1 !== null && project2 !== null) {
 		result = project1.id - project2.id;
-	} else if(project1 == null) {
+	} else if(project1 === null) {
 		//project1 is null so we will put it after project2
 		result = 1;
-	} else if(project2 == null) {
+	} else if(project2 === null) {
 		//project2 is null so we will put it after project1
 		result = -1;
 	}
-	
+
 	return result;
 };
 
@@ -3438,7 +3525,7 @@ View.prototype.populateStandAloneProjects = function(t){
 	for(var a=0;a<projects.length;a++){
 		$('#selectProject').append('<option name="projectOption" value="' + projects[a] + '">' + projects[a] + '</option>');
 	}
-	
+
 	this.onOpenProjectReady();
 };
 
@@ -3454,8 +3541,8 @@ View.prototype.onOpenProjectReady = function(){
 };
 
 View.prototype.reviewUpdateProject = function() {
-	
-	if(this.projectMetadata != null && this.projectMetadata.parentProjectId == null) {
+
+	if(this.projectMetadata !== null && this.projectMetadata.parentProjectId === null) {
 		/*
 		 * there is no parent project id in the metadata which means there is no parent project.
 		 * this means we can't update project.
@@ -3463,14 +3550,14 @@ View.prototype.reviewUpdateProject = function() {
 		alert("This project does not have a parent so Update Project is not available.");
 	} else {
 		//update the project by retrieving the files from the parent project
-		
+
 		var success = function(text,xml,obj){
 			//o.notificationManager.notify('Success', 3);
 			//alert(t);
 			var reviewResults = $.parseJSON(text);
-			
+
 			$('#reviewUpdateProjectDiv').html("");
-			
+
 			var reviewDescriptionHtml = "<div>";
 			reviewDescriptionHtml += "Here is how this project will be modified when you perform the update.";
 			reviewDescriptionHtml += "<br>";
@@ -3478,12 +3565,12 @@ View.prototype.reviewUpdateProject = function() {
 			reviewDescriptionHtml += "<input type='button' value='View all nodes' onclick='$(\".reviewUpdateNode\").show();' />";
 			reviewDescriptionHtml += "<hr>";
 			reviewDescriptionHtml += "</div>";
-			
+
 			$('#reviewUpdateProjectDiv').append(reviewDescriptionHtml);
-			
+
 			for(var x=0; x<reviewResults.length; x++) {
 				var nodeResult = reviewResults[x];
-				
+
 				var stepNumber = nodeResult.stepNumber;
 				var title = nodeResult.title;
 				var nodeType = nodeResult.nodeType;
@@ -3491,111 +3578,109 @@ View.prototype.reviewUpdateProject = function() {
 				var modified = nodeResult.modified;
 				var stepOrActivity = "";
 				var divClass = "";
-				
-				if(status != "not moved" || modified != "false") {
+
+				if(status !== "not moved" || modified !== "false") {
 					//step was changed
 					divClass = "class='reviewUpdateNode reviewUpdateNodeChanged'";
 				} else {
 					//step was not changed
 					divClass = "class='reviewUpdateNode reviewUpdateNodeNotChanged'";
 				}
-				
+
 				var nodeResultHtml = "<div " + divClass + ">";
-				
-				if(nodeType == "sequence") {
+
+				if(nodeType === "sequence") {
 					stepOrActivity = "Activity";
 				} else {
 					stepOrActivity = "Step";
 				}
-				
+
 				nodeResultHtml += stepOrActivity + " " + stepNumber + ": " + title;
-				
-				if(nodeType != "sequence") {
+
+				if(nodeType !== "sequence") {
 					nodeResultHtml += " (" + nodeType + ")";
 				}
-				
+
 				nodeResultHtml += "<br>";
-				
+
 				var nodeStatus = "";
-				
+
 				//check whether the node was added, deleted, or moved
-				if(status == 'added') {
+				if(status === 'added') {
 					nodeStatus += "[Added]";
-				} else if(status == 'deleted') {
+				} else if(status === 'deleted') {
 					nodeStatus += "[Deleted]";
-				} else if(status == 'moved') {
+				} else if(status === 'moved') {
 					nodeStatus += "[Moved]";
-				} else if(status == 'not moved') {
+				} else if(status === 'not moved') {
 					//do nothing
 				}
-				
+
 				//check whether the node was modified
-				if(modified == 'true') {
+				if(modified === 'true') {
 					nodeStatus += "[Modified]";
-				} else if(modified == 'false') {
-					//do nothing
 				}
-				
+
 				//if nothing has changed we will display no change
-				if(nodeStatus == "") {
+				if(nodeStatus === "") {
 					nodeStatus += "[No Change]";
 				}
-				
+
 				nodeResultHtml += nodeStatus;
-				
+
 				//the hr between each node
 				nodeResultHtml += "<hr>";
-				
+
 				nodeResultHtml += "</div>";
-				
+
 				$('#reviewUpdateProjectDiv').append(nodeResultHtml);
 			}
-			
+
 			//only show the nodes that have changed
 			$(".reviewUpdateNode").hide();
 			$(".reviewUpdateNodeChanged").show();
-			
+
 			//display the popup dialog
 			$('#reviewUpdateProjectDiv').dialog('open');
 		};
-		
+
 		var failure = function(text,obj){
 			//o.notificationManager.notify('Fail', 3);
 		};
-		
+
 		var requestParams = {
-			command: 'reviewUpdateProject',
-			forward: 'filemanager',
-			projectId: this.portalProjectId
+				command: 'reviewUpdateProject',
+				forward: 'filemanager',
+				projectId: this.portalProjectId
 		};
-		
+
 		this.connectionManager.request('POST', 1, this.portalUrl, requestParams, success, this, failure);
 	}	
 };
 
 View.prototype.updateProject = function() {
-	
+
 	var answer = confirm("Are you sure you want to update the project with the latest changes from the parent project?\n\nUpdating the project may have negative consequences to student data from existing runs depending on how the project was changed.");
-	
+
 	if(answer) {
 		var success = function(t,x,o){
 			//o.notificationManager.notify('Success', 3);
 		};
-		
+
 		var failure = function(t,o){
 			//o.notificationManager.notify('Fail', 3);
 		};
-		
-		
+
+
 		var contentPath = this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase());
-		
+
 		var requestParams = {
-			command: 'updateProject',
-			forward: 'filemanager',
-			projectId: this.portalProjectId,
-			contentPath: contentPath
+				command: 'updateProject',
+				forward: 'filemanager',
+				projectId: this.portalProjectId,
+				contentPath: contentPath
 		};
-		
+
 		this.connectionManager.request('POST', 1, this.portalUrl, requestParams, success, this, failure);
 	}
 };
@@ -3608,21 +3693,21 @@ View.prototype.updateProject = function() {
 View.prototype.deleteProject = function() {
 	//get the project title
 	var projectTitle = this.project.getTitle();
-	
+
 	//get the project id
 	var projectId = this.portalProjectId;
-	
+
 	//get the url for making the request to delete the project
 	var deleteProjectUrl = this.getConfig().getConfigParam('deleteProjectUrl');
-	
+
 	//confirm with the user that they really want to delete the project
 	var response = confirm("WARNING!!!\n\nAre you really sure you want to delete this project?\nThis will remove the project from your library and\nyou will no longer be able to see it.\n\nProject Title: " + projectTitle + "\n" + "Project Id: " + projectId + "\n\nClick 'OK' to delete the project.\nClick 'Cancel' to keep the project.");
-	
+
 	//params for making the delete project request
 	var requestParams = {
-		projectId:this.portalProjectId
+			projectId:this.portalProjectId
 	};
-	
+
 	if(response) {
 		//the user clicked 'OK' to delete the project so we will make the request
 		this.connectionManager.request('POST', 1, deleteProjectUrl, requestParams, this.deleteProjectSuccess, this, this.deleteProjectFailure);
@@ -3637,27 +3722,27 @@ View.prototype.deleteProject = function() {
  */
 View.prototype.deleteProjectSuccess = function(text, xml, obj) {
 	var thisView = obj;
-	
-	if(text == 'success') {
+
+	if(text === 'success') {
 		//the project was successfully deleted
-		
+
 		//get the title and project id
 		var projectTitle = thisView.project.getTitle();
 		var projectId = thisView.portalProjectId;
-		
+
 		//display the success message to the user
 		alert("Successfully deleted project.\n\nProject Title: " + projectTitle + "\n" + "Project Id: " + projectId + "\n\nThe Authoring Tool will now reload.");
-		
+
 		//refresh the authoring tool
 		location.reload();
-	} else if(text == 'failure: not owner') {
+	} else if(text === 'failure: not owner') {
 		//the user is not the owner of the project so the project was not deleted
 		alert('Error: Failed to delete project.\n\nYou must be the owner to delete this project.');
-	} else if(text == 'failure: invalid project id') {
+	} else if(text === 'failure: invalid project id') {
 		alert('Error: Failed to delete project.\n\nInvalid project id.');
-	} else if(text == 'failure: project does not exist') {
+	} else if(text === 'failure: project does not exist') {
 		alert('Error: Failed to delete project.\n\nInvalid project id.');
-	} else if(text == 'failure') {
+	} else if(text === 'failure') {
 		alert('Error: Failed to delete project.');
 	}
 };
@@ -3676,34 +3761,34 @@ View.prototype.deleteProjectFailure = function(text, obj) {
  * @param analyzeType the analyze type e.g. 'findBrokenLinksInProject' or 'findUnusedAssetsInProject'
  */
 View.prototype.analyzeProject = function(analyzeType) {
-	
-	if(analyzeType == 'findBrokenLinksInProject') {
+
+	if(analyzeType === 'findBrokenLinksInProject') {
 		/*
 		 * display a popup message notifying the user that it may take 
 		 * a little while to analyze the broken links in the project
 		 */
 		alert("Analyzing the project to find broken links may take up to\n30 seconds depending on how many links are in your project.\n\nClick 'OK' to start analyzing.");
-		
+
 		//remove the 'InProject' part from the string
 		analyzeType = 'findBrokenLinks';
-	} else if(analyzeType == 'findUnusedAssetsInProject') {
+	} else if(analyzeType === 'findUnusedAssetsInProject') {
 		//remove the 'InProject' part from the string
 		analyzeType = 'findUnusedAssets';
 	}
-	
+
 	//get the project id
 	var projectId = this.portalProjectId;
-	
+
 	//get the url for making the request to analyze the project for broken links
 	var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
-	
+
 	//the params for the request
 	var requestParams = {
-		analyzeType:analyzeType,
-		projectId:projectId,
-		html:true
+			analyzeType:analyzeType,
+			projectId:projectId,
+			html:true
 	};
-	
+
 	//make the request to analyze the project for broken links
 	this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, this.analyzeProjectSuccess, [this, analyzeType], this.analyzeProjectFailure);
 };
@@ -3717,17 +3802,17 @@ View.prototype.analyzeProject = function(analyzeType) {
 View.prototype.analyzeProjectSuccess = function(text, xml, obj) {
 	//get the analyze type
 	var analyzeType = obj[1];
-	
+
 	//change the title of the popup dialog appropriately
-	if(analyzeType == 'findBrokenLinks') {
+	if(analyzeType === 'findBrokenLinks') {
 		$('#analyzeProjectDialog').dialog('option', 'title', 'Find Broken Links');
-	} else if(analyzeType == 'findUnusedAssets') {
+	} else if(analyzeType === 'findUnusedAssets') {
 		$('#analyzeProjectDialog').dialog('option', 'title', 'Find Unused Assets');
 	}
-	
+
 	//insert the text into the div
 	$('#analyzeProjectDialog').html(text);
-	
+
 	//display the dialog
 	$('#analyzeProjectDialog').dialog('open');
 };
@@ -3740,10 +3825,10 @@ View.prototype.analyzeProjectSuccess = function(text, xml, obj) {
 View.prototype.analyzeProjectFailure = function(text, obj) {
 	//get the analyze type
 	var analyzeType = obj[1];
-	
-	if(analyzeType == 'findBrokenLinks') {
+
+	if(analyzeType === 'findBrokenLinks') {
 		alert("Error: an error occurred while trying to find broken links in the project.");		
-	} else if(analyzeType == 'findUnusedAssets') {
+	} else if(analyzeType === 'findUnusedAssets') {
 		alert("Error: an error occurred while trying to find unused assets in the project.");
 	}
 };
@@ -3761,29 +3846,33 @@ View.prototype.openStepTypeDescriptions = function(){
  */
 View.prototype.populateThemes = function(){
 	var themeSelect = $('#projectMetadataTheme').html('');
-	for(var i=0;i<this.activeThemes.length;i++){
-		var themeName = this.activeThemes[i];
-		// get theme's config file
-		var themepath = 'themes/' + themeName + '/';
-		var configpath = themepath + 'config.json';
+	
+	function getTheme(configPath,name){
 		$.ajax({
 			dataType:'json',
 			async:false,
-			url: configpath,
+			url: configPath,
 			success: function(data){
-				themeSelect.append('<option value="' + themeName + '">' + data.name + '</option>');
+				themeSelect.append('<option value="' + name + '">' + data.name + '</option>');
 				// TODO: insert thumnail and screenshot
-				
 			},
-			error: function(jqXHR,textStatus,errorThrown){
-				alert('Selected VLE theme "' + themeName + '" is broken: Invalid configuration file.');
+			error: function(){
+				alert('Selected VLE theme "' + name + '" is broken: Invalid configuration file.');
 			},
 			statusCode: {
 				404: function(){
-					alert('Selected VLE theme "' + themeName + '" is broken: Configuration file not found.');
+					alert('Selected VLE theme "' + name + '" is broken: Configuration file not found.');
 				}
 			}
 		});
+	}
+	
+	for(var i=0;i<this.activeThemes.length;i++){
+		var themeName = this.activeThemes[i];
+		// get theme's config file
+		var themePath = 'themes/' + themeName + '/';
+		var configPath = themePath + 'config.json';
+		getTheme(configPath,themeName);
 	}
 };
 
@@ -3830,7 +3919,7 @@ View.prototype.populateNavModes = function(themeName,navMode){
  * @param navMode the navigation mode identifer
  */
 View.prototype.setNavMode = function(navMode){
-	if(navMode != ''){
+	if(navMode !== ''){
 		this.utils.setSelectedValueById('projectMetadataNavigation', navMode);
 		// display selected nav mode
 		$('#currentNavMode').text($('#projectMetadataNavigation option:selected').text());
@@ -3856,6 +3945,6 @@ View.prototype.gotoDashboard = function() {
 };
 
 //used to notify scriptloader that this script has finished loading
-if(typeof eventManager != 'undefined'){
+if(typeof eventManager !== 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_main.js');
-};
+}

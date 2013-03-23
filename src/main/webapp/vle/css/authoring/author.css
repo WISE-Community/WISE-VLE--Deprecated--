@@ -69,6 +69,7 @@
 	-webkit-box-shadow:0 0 3px #444444;
 	-o-box-shadow:0 0 3px #444444;
 	box-shadow:0 0 3px #444444;
+	z-index:1;
 }
 
 p.warning {
@@ -627,6 +628,7 @@ table.wisetable th, table.wisetable td {
 	left:.5em;
 	right:.5em;
 	font-size:.85em;
+	z-index:1;
 }
 
 .contentWrapper {
@@ -986,7 +988,7 @@ table.wisetable th, table.wisetable td {
 }
 
 #author_body ul.sequence .placeholder {
-	height:20px;
+	height:24px;
 	background-color:#dddddd;
 	border: 1px solid #dddddd;
 	margin: 0.5em 0 .25em;
@@ -1015,7 +1017,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #sequenceContent > div {
 	margin: 0.5em;
-    padding: 0.25em;
+    padding: 0.25em 0;
 	font-size:.9em;
 	position:relative;
 	color:#666666;
@@ -1029,14 +1031,13 @@ table.wisetable th, table.wisetable td {
 	margin-bottom:0 !important;
 	line-height:22px;
 	background-color:#FFFFFF;
-	z-index:1;
 }
 
 #author_body #stepSelect {
 	padding:2px;
 	border:1px solid #cccccc;
 	background-color:#f5f5f5;
-	margin-right:.5em;
+	margin:0 0.25em 0 0.5em;
 }
 
 #author_body .sequenceContents ul.sequence {
@@ -1046,8 +1047,8 @@ table.wisetable th, table.wisetable td {
 #author_body .sequenceContents ul.sequence li.node {
 	/*cursor:pointer;*/
 	margin-top:.5em;
-	height: 20px;
-    line-height: 20px;
+	height: 24px;
+    line-height: 24px;
     position:relative;
 }
 
@@ -1236,7 +1237,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #stepTools {
     position: absolute;
-    right: 0;
+    right: .25em;
     top: 1px;
 }
 
@@ -1298,7 +1299,7 @@ table.wisetable th, table.wisetable td {
 /* Settings Panels */
 
 .featureSettings {
-	font-size:.9em;
+	font-size:.95em;
 	border:1px solid #cccccc;
 	background-color:#f5f5f5;
 	margin:.5em 0;
@@ -1410,14 +1411,6 @@ table.wisetable th, table.wisetable td {
 	padding-bottom:.25em;
 }
 
-.featureSettings .details {
-	font-size:.9em;
-	color:#555555;
-	margin-left:.25em;
-	font-weight:normal;
-	text-decoration:none !important;
-}
-
 .featureSettings ul {
 	margin:.5em .5em 0;
 	font-size:.9em;
@@ -1441,6 +1434,14 @@ table.wisetable th, table.wisetable td {
 .featureSettings .settingLabel span {
 	text-decoration:underline;
 	color:#745A33;
+	font-size:1.05em;
+}
+
+.featureSettings span.details {
+	font-size:.95em;
+	margin-left:.25em;
+	font-weight:normal;
+	text-decoration:none !important;
 }
 
 .featureSettings input[type='text'], .featureSettings input[type='password'], .featureSettings textarea {
@@ -1558,7 +1559,7 @@ table.wisetable th, table.wisetable td {
 
 .projectListing {
 	text-align:left;
-	font-size:.85em;
+	font-size:.9em;
 	padding: 0 0.25em;
 }
 

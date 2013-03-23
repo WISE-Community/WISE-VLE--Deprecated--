@@ -97,18 +97,22 @@ View.prototype.selectStepsAll = function(onComplete){
  * Returns a custom object of nodes represented by the elements on the page
  * that are currently 'selected'.
  * 
+ * @param className String specifying element class that identifies selected nodes (Optional;
+ * default is "selected")
+ * 
  * obj.master = node (master sequence)	- null if master seq is not selected
  * obj.seqs = [seq 1, seq 2...]			- empty list if no seqs are selected
  * obj.nodes = [node 1, node 2...]		- empty list if no nodes are selected
  * 
  * TODO: Remove master selection: not used anymore
  */
-View.prototype.getSelected = function(){
+View.prototype.getSelected = function(className){
+	var cName = className ? className : 'selected';
 	var o = {master: null, seqs: [], nodes: []};
-	o.master = $('.selected.master');
-	o.seqs = $('.selected.seq');
-	o.nodes = $('.selected.node');
-	o.ordered = $('.projectNode.selected');
+	o.master = $('.' + cName + '.master');
+	o.seqs = $('.' + cName + '.seq');
+	o.nodes = $('.' + cName + '.node');
+	o.ordered = $('.' + cName + '.projectNode');
 	return o;
 };
 
@@ -123,23 +127,26 @@ View.prototype.deleteSelected = function(){
 		warning = '',
 		seqMode = false;;
 	
-	if(selected.seqs.size()==1){ // an activity has been selected for deletion
+	if(selected.seqs.size()>0){ // an activity has been selected for deletion
 		seqMode = true;
 		
 		seqAlert = '<p>If you delete an activity, any steps that activity contains will be unattached and moved to the Inactive Content section (in "Unused Steps").<p>';
 		
-		var seq = $(selected.seqs[0]),
-			seqId = seq.attr('id'),
-			seqPos = '';
-			seqNode = view.getProject().getNodeById(seqId);
-		
-		if(!seq.hasClass('inactive')){
-			seqPos = 'Activity ' + seq.attr('data-pos') + ': ';
-		} else {
-			seqPos = 'Activity: ';
+		if(selected.seqs.size()==1){ // one activity has been selected for deletion
+			var seq = $(selected.seqs[0]),
+				seqId = seq.attr('id'),
+				seqPos = '';
+				seqNode = view.getProject().getNodeById(seqId);
+			
+			if(!seq.hasClass('inactive')){
+				seqPos = 'Activity ' + seq.attr('data-pos') + ': ';
+			} else {
+				seqPos = 'Activity: ';
+			}
+			message = '<p>Are you sure you want to delete "' + seqPos + seqNode.getTitle() + '"?<p>';
+		} else { // more than one activity has been selected for deletion
+			message = '<p>Are you sure you want to delete ' + selected.seqs.size() + ' Activities?';
 		}
-		
-		message = '<p>Are you sure you want to delete ' + seqPos + seqNode.getTitle() + '?<p>';
 		
 		warning = '<p class="ui-state-error ui-corner-all">' + 
 			'<span class="ui-icon ui-icon-alert"></span>' + 
@@ -154,10 +161,9 @@ View.prototype.deleteSelected = function(){
 				nodeId = node.attr('id'),
 				nodeTitle = view.getProject().getNodeById(nodeId).getTitle();
 			
-			message = '<p>Are you sure you want to delete Step: ' + nodeTitle + '?<p>';
-		}
-		if(selected.nodes.size()>1){ // more than one step has been selected for deletion
-			message = '<p>Are you sure you want to delete ' + selected.nodes.size() + ' Steps?';
+			message = '<p>Are you sure you want to delete "Step: ' + nodeTitle + '"?<p>';
+		} else { // more than one step has been selected for deletion
+			message = '<p>Are you sure you want to delete "' + selected.nodes.size() + '" Steps?';
 		}
 		
 		// check if any steps are part of a review sequence
@@ -165,14 +171,14 @@ View.prototype.deleteSelected = function(){
 			var id = selected.nodes[i].id.split('--')[1];
 			var projectNode = view.getProject().getNodeById(id);
 			if(projectNode.reviewGroup){
-				reviewAlert = '<p>Also, deleting any steps that are part of a Student or Teacher Review Sequence will remove that review sequence.</p>';
+				reviewAlert = '<p>Also, please note that deleting any steps that are part of a Student or Teacher Review Sequence will remove that review sequence.</p>';
 			}
 		}
 		
 		warning = '<p class="ui-state-error ui-corner-all">' + 
 			'<span class="ui-icon ui-icon-alert"></span>' + 
 			'WARNING: This operation is permanent and cannot be undone!</p>' + 
-			'<p>As an alternative, you can move steps to the Inactive Content section by clicking ' +
+			'<p>As an alternative, you can move steps to the Inactive Content section by selecting one or more steps and clicking ' +
 			'the "Move" button in the activity\'s toolbar and then choosing an inactive activity or "Unused Steps" as your destination. ' + 
 			'Inactive steps do not show up when viewing the project, but are saved for possible future use.</p>';
 	} else {
@@ -248,6 +254,440 @@ View.prototype.deleteSelected = function(){
 		buttons: [{text: this.getI18NString("cancel"), click: function(){ $(this).dialog('close'); }},
 		          {text: this.getI18NString("ok"), click: doDelete}]
 	});
+};
+
+/**
+ * Moves the selected nodes or sequences to the inactive content section (removes from
+ * active project sequence)
+ */
+View.prototype.hideSelected = function(){
+	var view = this,
+		message = '',
+		reviewAlert = '',
+		info = '',
+		target = '',
+		selected = this.getSelected();
+	
+	if(selected.seqs.size()>0){ // an activity has been selected for hiding
+		target = 'uSeq';
+		info = '<p>If you hide an activity, it will not appear when viewing the project but will be saved in the Inactive Content section. ' +
+			'You can always move an activity back to Active Content by clicking ' +
+			'<img src="/vlewrapper/vle/images/icons/dark/24x24/show.png" class="icon" alt="show"> (Show).</p>';
+		
+		if(selected.seqs.size()==1){ // one activity has been selected for deletion
+			var seq = $(selected.seqs[0]),
+				seqId = seq.attr('id'),
+				seqPos = '';
+				seqNode = view.getProject().getNodeById(seqId);
+			
+			if(!seq.hasClass('inactive')){
+				seqPos = 'Activity ' + seq.attr('data-pos') + ': ';
+			} else {
+				seqPos = 'Activity: ';
+			}
+			message = '<p>Are you sure you want to hide "' + seqPos + seqNode.getTitle() + '"?<p>';
+		} else if(selected.seqs.size()>1){ // more than one activity has been selected for hiding
+			message = '<p>Are you sure you want to hide ' + selected.seqs.size() + ' activities?</p>';
+		}
+	} else if(selected.nodes.size>0){
+		target = 'uNode';
+		info = '<p>If you hide steps, they will not appear when viewing the project but will be saved as "Unused Nodes" in the Inactive Content section. ' +
+			'You can always move steps back to Active Content by selecting one or more steps and clicking ' +
+			'the "Move" button in the toolbar and then choosing an active activity as your destination.</p>';
+		
+		if(selected.nodes.size()==1){ // one step has been selected for hiding
+			var node = $(selected.nodes[0]),
+				nodeId = node.attr('id'),
+				nodeTitle = view.getProject().getNodeById(nodeId).getTitle();
+			
+			message = '<p>Are you sure you want to move "Step: ' + nodeTitle + '" to Inactive Content?<p>';
+		} else if(selected.nodes.size()>1){ // more than one step has been selected for hiding
+			message = '<p>Are you sure you want to move ' + selected.nodes.size() + ' Steps to Inactive Content?</p>';
+		}
+		
+		// check if any steps are part of a review sequence
+		for(var i=0;i<selected.nodes.size();i++){
+			var id = selected.nodes[i].id.split('--')[1];
+			var projectNode = view.getProject().getNodeById(id);
+			if(projectNode.reviewGroup){
+				reviewAlert = '<p>Also please note that hiding steps that are part of a Student or Teacher Review Sequence will remove that review sequence.</p>';
+			}
+		}
+	} else {
+		return;
+	}
+	
+	var dialogContent = message + info + reviewAlert;
+	
+	function doHide(){
+		view.moveNodes(target);
+	};
+	
+	// open confirmation dialog
+	$('#hideContentDialog').html('').html(dialogContent).dialog({modal:true, resizable:false, draggable:false, width:500, dialogClass: 'alert',
+		title: 'Hide Content',
+		buttons: [{text: this.getI18NString("cancel"), click: function(){ $(this).dialog('close'); }},
+		          {text: this.getI18NString("ok"), click: doHide}]
+	});
+};
+
+/**
+ * Performs the actual moving of the selected nodes, depending on the target location (@param id) 
+ * and the types and locations of the selected nodes.
+ * 
+ * @param id String or object (e.g. {after:true, id:"seq1--node20.html--4"}) representing new location
+ * @param className String specifying element class name that identifies selected nodes (Optional;
+ * default is "selected")
+ */
+View.prototype.moveNodes = function(id, className){
+	// get selected nodes to move
+	var selected = this.getSelected(className);
+	
+	if(id=='uSeq'){//only move sequences to unattached sequences
+		if(selected.nodes.size()>0){
+			this.notificationManager.notify('Only Activities can be moved into the Inactive Activities area.', 3);
+		}
+		//var removed = this.removeFromProject(selected.seqs, use2x);
+		var removed = this.removeFromProject(selected.seqs);
+		
+		//place them back in the beginning of the projectList
+		for(var b=0;b<removed.length;b++){
+			this.project.getSequenceNodes().unshift(removed[b]);
+		}
+	} else if(id=='uNode'){//only move nodes to unattached nodes
+		if(selected.seqs.size()>0){
+			this.notificationManager.notify('Only Steps can be moved into the Inactive Steps area.', 3);
+		}	
+		//var removed = this.removeFromProject(selected.nodes, use2x);
+		var removed = this.removeFromProject(selected.nodes);
+		
+		//place them back in the beginning of the projectList
+		for(var b=0;b<removed.length;b++){
+			this.project.getLeafNodes().unshift(removed[b]);
+		}
+	} else {//must be a id object id.after = boolean  id.id = string
+		var pIdLoc = id.id.split('--');
+		var toNode = this.project.getNodeById(pIdLoc[1]);
+		if(id.after){//move selected after node - selected become siblings
+			if(pIdLoc[0]!='null'){
+				var parent = this.project.getNodeById(pIdLoc[0]);
+				
+				//enforce project structure
+				if(this.simpleProject){
+					if(toNode.type=='sequence'){//only sequences can be siblings to sequences in simple project mode
+						//var removed = this.removeFromProject(selected.seqs, use2x);
+						var removed = this.removeFromProject(selected.seqs);
+						if(selected.nodes.size()>0){
+							this.notificationManager.notify('You are attempting to place Steps(s) at the same level as Actvities. If you really wish to do this, switch to Advanced Project mode.', 3);
+						}
+					} else {//must be a node, only nodes can be siblings to nodes in simple project mode
+						//var removed = this.removeFromProject(selected.nodes, use2x);
+						var removed = this.removeFromProject(selected.nodes);
+						if(selected.seqs.size()>0){
+							this.notificationManager.notify('You are attempting to place one or more Actvities at the same level as Steps. If you really wish to do this, switch to Advanced Project mode.', 3);
+						}
+					}
+				} else {
+					//var removed = this.removeFromProject(selected.ordered, use2x);
+					var removed = this.removeFromProject(selected.ordered);
+				}
+				
+				//get ndx after nodes have been removed
+				var ndx = parent.children.indexOf(toNode) + 1;
+				
+				//now add them at appropriate location
+				for(var f=0;f<removed.length;f++){
+					var stack =[];
+					
+					parent.children.splice(ndx, 0, removed[f]);
+					if(!this.project.validateNoLoops(parent.id, stack)){
+						this.notificationManager.notify('Adding ' + removed[f].id + ' to ' + parent.id + ' would cause an infinite loop. Aborting change.', 3);
+						parent.children.splice(ndx, 1);
+					}
+					
+					//if(!use2x){
+						if(removed[f].type=='sequence'){
+							this.project.getSequenceNodes().push(removed[f]);
+						} else {
+							this.project.getLeafNodes().push(removed[f]);
+						}
+					//}
+				}
+			} else {//must exist in an unattached section
+				if(this.project.getSequenceNodes().indexOf(toNode)==-1){//we are trying to move into unattached nodes
+					if(selected.seqs.size()>0){
+						this.notificationManager.notify('Only Steps can be moved into the Inactive Steps area.', 3);
+					}
+					//var removed = this.removeFromProject(selected.nodes, use2x);
+					var removed = this.removeFromProject(selected.nodes);
+					var ndx = this.project.getLeafNodes().indexOf(toNode) + 1;
+					
+					//if(!use2x){
+						for(var g=0;g<removed.length;g++){
+							this.project.getLeafNodes().splice(ndx, 0, removed[g]);
+						}
+					//}
+				} else {//we are trying to move into unattached sequences
+					if(selected.nodes.size()>0){
+						this.notificationManager.notify('Only Activities can be moved into the Inactive Activities area.', 3);
+					}
+					//var removed = this.removeFromProject(selected.seqs, use2x);
+					var removed = this.removeFromProject(selected.seqs);
+					var ndx = this.project.getSequenceNodes().indexOf(toNode) + 1;
+					
+					//if(!use2x){
+						for(var h=0;h<removed.length;h++){
+							this.project.getSequenceNodes().splice(ndx, 0, removed[h]);
+						}
+					//}
+				}
+			}
+		} else {//move selected to first location inside of node - selected become children
+			if(toNode){
+				//enforce project structure
+				if(this.simpleProject){
+					if(this.project.getRootNode().id==toNode.id){//this is the master, only allow sequences
+						//var removed = this.removeFromProject(selected.seqs, use2x);
+						var removed = this.removeFromProject(selected.seqs);
+						if(selected.nodes.size()>0){
+							this.notificationManager.notify('You are attempting to place Step(s) outside of an Activity. If you  wish to do this, switch to Advanced Project mode.', 3);
+						}
+					} else {//must be a seq only process nodes in simple project mode
+						//var removed = this.removeFromProject(selected.nodes, use2x);
+						var removed = this.removeFromProject(selected.nodes);
+						if(selected.seqs.size()>0){
+							this.notificationManager.notify('You are attempting to place one or more Activities within an Activity. If you  wish to do this, switch to Advanced Project mode.', 3);
+						}
+					}
+				} else {//advanced project mode, proceed
+					//var removed = this.removeFromProject(selected.ordered, use2x);
+					var removed = this.removeFromProject(selected.ordered);
+				}
+				
+				for(var j=0;j<removed.length;j++){
+					var stack = [];
+					//add to node
+					toNode.children.splice(0, 0, removed[j]);
+					
+					//verify no infinite loops
+					if(!this.project.validateNoLoops(toNode.id, stack)){
+						this.notificationManager.notify('Adding ' + removed[j].id + ' to ' + toNode.id + ' would cause an infinite loop. Undoing change.', 3);
+						toNode.children.splice(0, 1);
+					}
+					
+					//add to project's node lists
+					//if(!use2x){
+						if(removed[j].type=='sequence'){
+							this.project.getSequenceNodes().push(removed[j]);
+						} else {
+							this.project.getLeafNodes().push(removed[j]);
+						}
+					//}
+				}
+			} else {
+				this.notificationManager.notify('Problems trying to move Steps. No items were moved.', 3);
+			}
+		}
+	}
+	$('.moving').each(function(){ // TODO: remove
+		$(this).removeClass('moving');
+	});
+	
+	this.saveProject();
+	this.generateAuthoring();
+	this.populateMaxScores(); // TODO: necessary?
+	this.setPostLevel(); // TODO: necessary?
+	$('.reviewAdded').each(function(){ // TODO: necessary?
+		$(this).removeClass('reviewAdded');
+	});
+};
+
+/**
+ * Given @param list (a nodeList), removes the nodes from their respective
+ * locations in the project puts them in an array and returns the array.
+ */
+View.prototype.removeFromProject = function(list, removeFromProject){
+	if(removeFromProject){
+		return this.getProjectNodesFromList(list);
+	};
+	
+	var removed = [];
+	
+	//remove in reverse to preserve positioning of previous
+	for(var e=list.size()-1;e>=0;e--){
+		var node = list.get(e);
+		
+		if($('#' + $.escapeId(node.id)).hasClass('master')){
+			//skip remaining, don't want to remove it
+			this.notificationManager.notify('The master activity cannot be deleted.', 2);
+		} else {
+			var pIdLoc = $(node).data('absid').split('--');
+			var projectNode = this.project.getNodeById(pIdLoc[1]);
+			
+			//put node in removed
+			removed.push(projectNode);
+			
+			//if it has a parent, remove from parent
+			if(pIdLoc[0]!='null'){
+				this.project.removeReferenceFromSequence(pIdLoc[0], pIdLoc[2]);
+			};
+			
+			//now remove from appropriate node list
+			if(this.getProject().getNodeById(pIdLoc[1]).type=='sequence'){//remove from seqs
+				this.project.getSequenceNodes().splice(this.project.getSequenceNodes().indexOf(projectNode), 1);
+			} else {//remove from nodes
+				this.project.getLeafNodes().splice(this.project.getLeafNodes().indexOf(projectNode), 1);
+			}
+		}
+	}
+	
+	return removed;
+};
+
+/**
+ * Check that the review sequences are in correct order of
+ * 'start', 'annotate', 'revise'. If we find that the nodes
+ * are out of order we will notify the user with a message.
+ * 
+ * TODO: Highlight out of order review sequences in activity display (and add alert icon to activities in project display)
+ */
+View.prototype.checkReviewSequenceOrder = function() {
+	var project = this.getProject(),
+		nodeIds = project.getNodeIds(),
+		reviewSeqs = {},
+		outOfOrder = false,
+		checked = [];
+	
+	// loop through all nodes in project
+	for(var i=0; i<nodeIds.length; i++){
+		var node = project.getNodeById(nodeIds[i]),
+			nodeId = node.id;
+		if(node.reviewGroup && (jQuery.inArray(nodeId,checked) < 0)){
+			/*
+			 * the node is in a review group so we need to check that the
+			 * node isn't being placed out of order
+			 */
+			
+			checked.push(nodeId);
+			var currentNodePhase = "";
+			
+			//get this node's review phase (e.g. 'start', 'annotate', or 'revise')
+			if(node.peerReview) {
+				currentNodePhase = node.peerReview;
+			} else if(node.teacherReview) {
+				currentNodePhase = node.teacherReview;
+			}
+			
+			//variables to hold the positions of the phases
+			var startPhasePosition = null;
+			var annotatePhasePosition = null;
+			var revisePhasePosition = null;
+			
+			//get the position of the current node
+			var position = this.getProject().getPositionById(nodeId);
+			
+			//set the position for this node's phase
+			if(currentNodePhase == 'start') {
+				startPhasePosition = position;
+			} else if(currentNodePhase == 'annotate') {
+				annotatePhasePosition = position;
+			} else if(currentNodePhase == 'revise') {
+				revisePhasePosition = position;
+			}
+			
+			/*
+			 * get the other nodes that are in the review group,
+			 * this will not contain any of the nodes that were
+			 * selected for moving because they have been removed
+			 * from the project during this move process
+			 */
+			var nodesInGroup = this.getProject().getNodesInReviewSequenceGroup(node.reviewGroup);
+			
+			//loop through all the nodes in the review group
+			for(var x=0; x<nodesInGroup.length; x++) {
+				var tempNode = nodesInGroup[x];
+				var tempNodeId = tempNode.identifier;
+				checked.push(tempNodeId);
+				var tempNodePosition = this.getProject().getPositionById(tempNodeId);
+				var tempNodePhase = this.getProject().getReviewSequencePhaseByNodeId(tempNodeId);
+
+				// set the phase position
+				if(tempNodePhase == 'start') {
+					startPhasePosition = tempNodePosition;	
+				} else if(tempNodePhase == 'annotate') {
+					annotatePhasePosition = tempNodePosition;
+				} else if(tempNodePhase == 'revise') {
+					revisePhasePosition = tempNodePosition;
+				}
+			}
+			
+			//check if the start and annotate positions are the same
+			if(startPhasePosition == annotatePhasePosition) {
+				//check if this node's phase was the start
+				if(currentNodePhase == 'start') {
+					/*
+					 * the start node was dropped onto the annotate node
+					 * so they have the same position. when a node is moved
+					 * on to another node, the node that is moved ends
+					 * up after the other node. this means the start
+					 * node will be after the annotate node which will make
+					 * them out of order
+					 */
+					outOfOrder = true;
+					//this.notificationManager.notify('Warning: You have placed the first step in a Review Sequence after the critique step. This will break the Review Sequence. Move aborted.', 3);
+				}
+			}
+			
+			//check if the start is after the annotate
+			if(startPhasePosition && annotatePhasePosition &&
+					this.getProject().positionAfter(startPhasePosition, annotatePhasePosition)) {
+				//start is after annotate so this is out of order
+				//if(currentNodePhase == 'start') {
+					//this.notificationManager.notify('Warning: You have placed the first step in a Review Sequence after the critique step. This will break the Review Sequence.', 3);
+				//} else if(currentNodePhase == 'annotate') {
+					//this.notificationManager.notify('Warning: You have placed the critique step in a Review Sequence before the first step in the Sequence. This will break the Review Sequence.', 3);
+				//}
+				outOfOrder = true;
+			}
+			
+			//check if the annotate and revise positions are the same
+			if(annotatePhasePosition == revisePhasePosition) {
+				//check if this node's phase was annotate
+				if(currentNodePhase == 'annotate') {
+					/*
+					 * the annotate node was dropped onto the revise node
+					 * so they have the same position. when a node is moved
+					 * on to another node, the node that is moved ends
+					 * up after the other node. this means the annotate
+					 * node will be after the revise node which will make
+					 * them out of order
+					 */
+					outOfOrder = true;
+					//this.notificationManager.notify('Warning: You have placed the critique step in a Review Sequence after the revise step. This will break the Review Sequence.', 3);
+				}
+			}
+			
+			//check if the annotate is after the revise
+			if(annotatePhasePosition && revisePhasePosition &&
+					this.getProject().positionAfter(annotatePhasePosition, revisePhasePosition)) {
+				//annotate is after the revise so this is out of order
+				//if(currentNodePhase == 'annotate') {
+					//this.notificationManager.notify('Warning: You have placed the critique step in a Review Sequence after the revise step. This will break the Review Sequence.', 3);							
+				//} else if(currentNodePhase == 'revise') {
+					//this.notificationManager.notify('Warning: You have placed the critique step in a Review Sequence after the revise step. This will break the Review Sequence.', 3);
+				//}
+				outOfOrder = true;
+			}
+		}
+	}
+	if(outOfOrder){
+		// project contains out of order review sequences, so alert user
+		// TODO: change to jqueryui alert dialog, perhaps identify which activities contain problematic review sequences
+		alert('Warning: One or more Review Sequences in your project are out of order and will not function correctly! Please fix before running project in a classroom.');
+		
+		//$('.reviewWarning').remove();
+		//this.notificationManager.notify('Warning: One or more Review Sequences in your project are out of order and will not function correctly! Please fix before running project in a classroom.', 3, 'keepMsg reviewWarning');
+	}
 };
 
 
@@ -754,7 +1194,7 @@ View.prototype.moveCallback = function(id, args){
  * @param removed, an array of nodes that were selected to be moved
  * @param toNode, the node that the array of nodes was moved to
  */
-View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
+/*View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 	var project = this.getProject();
 	var nodeIds = project.getNodeIds();
 	var reviewSeqs = {};
@@ -773,13 +1213,13 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 		var removedNodeId = removedEl.id;
 		
 		//check if the node is in a review group
-		if(removedEl.reviewGroup) {
+		if(removedEl.reviewGroup) {*/
 			/*
 			 * the node is in a review group so we need to check that the
 			 * node isn't being placed out of order
 			 */
 			
-			var currentNodePhase = "";
+			/*var currentNodePhase = "";
 			
 			//get this node's review phase (e.g. 'start', 'annotate', or 'revise')
 			if(removedEl.peerReview) {
@@ -803,7 +1243,7 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 				annotatePhasePosition = toPosition;
 			} else if(currentNodePhase == 'revise') {
 				revisePhasePosition = toPosition;
-			}
+			}*/
 			
 			/*
 			 * get the other nodes that are in the review group,
@@ -811,19 +1251,19 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 			 * selected for moving because they have been removed
 			 * from the project during this move process
 			 */
-			var nodesInGroup = this.getProject().getNodesInReviewSequenceGroup(removedEl.reviewGroup);
+			/*var nodesInGroup = this.getProject().getNodesInReviewSequenceGroup(removedEl.reviewGroup);
 			
 			//loop through all the nodes in the review group
 			for(var x=0; x<nodesInGroup.length; x++) {
 				var tempNode = nodesInGroup[x];
 				var tempNodeId = tempNode.identifier;
 				var tempNodePosition = this.getProject().getPositionById(tempNodeId);
-				var tempNodePhase = this.getProject().getReviewSequencePhaseByNodeId(tempNodeId);
+				var tempNodePhase = this.getProject().getReviewSequencePhaseByNodeId(tempNodeId);*/
 
 				/*
 				 * set the phase position
 				 */
-				if(tempNodePhase == 'start') {
+				/*if(tempNodePhase == 'start') {
 					startPhasePosition = tempNodePosition;	
 				} else if(tempNodePhase == 'annotate') {
 					annotatePhasePosition = tempNodePosition;
@@ -836,7 +1276,7 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 			//check if the start and annotate positions are the same
 			if(startPhasePosition == annotatePhasePosition) {
 				//check if this node's phase was the start
-				if(currentNodePhase == 'start') {
+				if(currentNodePhase == 'start') {*/
 					/*
 					 * the start node was dropped onto the annotate node
 					 * so they have the same position. when a node is moved
@@ -845,7 +1285,7 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 					 * node will be after the annotate node which will make
 					 * them out of order
 					 */
-					outOfOrder = true;
+					/*outOfOrder = true;
 					//this.notificationManager.notify('Warning: You have placed the first step in a Review Sequence after the critique step. This will break the Review Sequence. Move aborted.', 3);
 				}
 			}
@@ -865,7 +1305,7 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 			//check if the annotate and revise positions are the same
 			if(annotatePhasePosition == revisePhasePosition) {
 				//check if this node's phase was annotate
-				if(currentNodePhase == 'annotate') {
+				if(currentNodePhase == 'annotate') {*/
 					/*
 					 * the annotate node was dropped onto the revise node
 					 * so they have the same position. when a node is moved
@@ -874,7 +1314,7 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 					 * node will be after the revise node which will make
 					 * them out of order
 					 */
-					outOfOrder = true;
+					/*outOfOrder = true;
 					//this.notificationManager.notify('Warning: You have placed the critique step in a Review Sequence after the revise step. This will break the Review Sequence.', 3);
 				}
 			}
@@ -893,19 +1333,19 @@ View.prototype.checkReviewSequenceOrder = function(removed, toNode) {
 			
 			if(outOfOrder){
 				$('.reviewWarning').remove();
-				this.notificationManager.notify('Warning: One or more Review Sequences in your project are out of order and will not function correctly. Please fix before running project in a classroom.', 3, 'keepMsg reviewWarning');
+				this.notificationManager.notify('Warning: One or more Review Sequences in your project are out of order and will not function correctly! Please fix before running project in a classroom.', 3, 'keepMsg reviewWarning');
 			} else {
 				$('.reviewWarning').remove();
 			}
 		}
 	}
-};
+};*/
 
 /**
  * Given @param list (a nodeList), removes the nodes from their respective
  * locations in the project puts them in an array and returns the array.
  */
-View.prototype.removeFromProject = function(list, removeFromProject){
+/*View.prototype.removeFromProject = function(list, removeFromProject){
 	if(removeFromProject){
 		return this.getProjectNodesFromList(list);
 	};
@@ -941,7 +1381,7 @@ View.prototype.removeFromProject = function(list, removeFromProject){
 	}
 	
 	return removed;
-};
+};*/
 
 /**
  * Given a nodeList (@param list), returns an array of associated project nodes.
@@ -1211,7 +1651,11 @@ View.prototype.checkModeAndDeselect = function(id){
  */
 View.prototype.placeNewNode = function(id){
 	this.clearAllSelected();
-	$('.projectNode').filter(function(){return $(this).attr('id').split('--')[0]=='null' && $(this).attr('id').split('--')[1]==id;}).addClass('selected');
+	$('.projectNode').filter(function(){
+		if($(this).attr('id')){
+			return $(this).attr('id').split('--')[0]=='null' && $(this).attr('id').split('--')[1]==id;}
+		}
+	).addClass('selected');
 	
 	this.moveSelected();
 	this.placeNodeId = undefined;
