@@ -73,14 +73,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		var nodeId = args[0];
 		var node = obj.getProject().getNodeById(nodeId);
 		
-		//node.view.eventManager.fire('renderConstraints', node.id, node);
-	} else if(type=='renderConstraints'){
-		//get the node
-		var nodeId = args[0];
-		var node = obj.getProject().getNodeById(nodeId);
-		
-		//tell the node to render any constraints if applicable
-		//node.renderConstraints();
 	} else if (type=='importWork') {
 		//get importFrom and importTo node
 		var fromNodeId = args[0];
@@ -181,7 +173,7 @@ View.prototype.displayGlobalTools = function() {
 	$('#viewFlagged').html(flaggedLink);
 	
 	// Journal is disabled for now in WISE4
-	//var journalLink = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='eventManager.fire(\"showJournal\")' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.getI18NString("journal_button_text")+"</a></li>";
+	//var journalLink = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='view.showJournal()' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.getI18NString("journal_button_text")+"</a></li>";
 	
 	// Insert navigation toggle
 	var toggleNavLink = "<a id='toggleNavLink' onclick='eventManager.fire(\"navigationPanelToggleVisibilityButtonClicked\")' title='"+this.getI18NString("toggle_nav_button_title")+"'>"+this.getI18NString("toggle_nav_button_text")+"</a>";
@@ -198,7 +190,7 @@ View.prototype.displayGlobalTools = function() {
 	if (userType && userType == "teacher") {
 		goHomeHref = "/webapp/teacher/index.html";
 	}
-	var signOutLink = '<a id="signOutLink" title="'+this.getI18NString("signout_button_title")+'" onclick="eventManager.fire(\'logout\')">'+this.getI18NString("signout_button_text")+'</a>';
+	var signOutLink = '<a id="signOutLink" title="'+this.getI18NString("signout_button_title")+'" onclick="view.logout()">'+this.getI18NString("signout_button_text")+'</a>';
 	var exitLink = '<a id="exitLink" target="_parent" title="'+this.getI18NString("gohome_button_title")+'" onclick="window.parent.location=\'' + goHomeHref + '\'">'+this.getI18NString("gohome_button_text")+'</a>';
 	$("#signOutLinks").html(exitLink +  ' / ' + signOutLink);
 	

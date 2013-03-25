@@ -8,11 +8,7 @@ View.prototype.navigationDispatcher = function(type,args,obj){
 		obj.preloadNextNode(args[0]);
 	} else if(type=='processLoadViewStateResponseComplete'){
 		obj.eventManager.fire('navigationLoadingComplete');
-	} else if(type=='addActiveTagMapConstraint') {
-		obj.addActiveTagMapConstraint(args[0], args[1], args[2], args[3], args[4], args[5]);
-	} else if(type=='removeActiveTagMapConstraint') {
-		obj.removeActiveTagMapConstraint(args[0], args[1], args[2], args[3], args[4], args[5]);
-	} 
+	}
 };
 
 /**

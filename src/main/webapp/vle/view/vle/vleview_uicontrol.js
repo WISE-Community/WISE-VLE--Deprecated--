@@ -8,8 +8,6 @@ View.prototype.uicontrolDispatcher = function(type,args,obj){
 		} else {
 			obj.unlockscreen();
 		}
-	} else if(type=='logout') {
-		obj.logout();
 	} else if(type=='lockScreenAndShareWithClass') {
 		obj.lockScreenAndShareWithClass(args[0]);
 	}

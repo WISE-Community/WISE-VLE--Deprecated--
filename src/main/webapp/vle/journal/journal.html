@@ -21,19 +21,19 @@
 		<div id='journalPanel'>
 
 		   	<div id='buttonBoxJournal'>
-					<button onclick="eventManager.fire('resizeJournal', ['narrow'])">Tall</button>
-					<button onclick="eventManager.fire('resizeJournal', ['wide'])">Wide</button>
-					<button onclick="eventManager.fire('resizeJournal', ['original'])">Basic</button>
-					<button onclick="eventManager.fire('resizeJournal', ['maximize'])">Large</button>
+					<button onclick="view.utils.resizePanel('vleJournalPanel', ['narrow'])">Tall</button>
+					<button onclick="view.utils.resizePanel('vleJournalPanel', ['wide'])">Wide</button>
+					<button onclick="view.utils.resizePanel('vleJournalPanel', ['original'])">Basic</button>
+					<button onclick="view.utils.resizePanel('vleJournalPanel', ['maximize'])">Large</button>
 			</div>
 			
 			<div id='journalToolbar'>
-				<button type='button' onclick='eventManager.fire("saveJournalToServer")'>Save Journal</button>
+				<button type='button' onclick='view.saveJournalToServer()'>Save Journal</button>
 				<br></br>
-				<button type='button' id='journalCreateNewPageButton' onclick='eventManager.fire("journalCreateNewEntry")'>Create New Page</button>
-				<button type='button' onclick='eventManager.fire("journalShowAllPages")'>Show All Pages</button>
-				<button type='button' onclick='eventManager.fire("journalHideAllPages")'>Hide All Pages</button>
-				<button type='button' onclick='eventManager.fire("journalShowPagesForCurrentNode")'>Display Pages For Current Node</button>
+				<button type='button' id='journalCreateNewPageButton' onclick='view.journalCreateNewEntry()'>Create New Page</button>
+				<button type='button' onclick='view.journalShowAllPages()'>Show All Pages</button>
+				<button type='button' onclick='view.journalHideAllPages()'>Hide All Pages</button>
+				<button type='button' onclick='view.journalShowPagesForCurrentNode()'>Display Pages For Current Node</button>
 			</div>
 			<div id='journalPages'></div>
 		</div>

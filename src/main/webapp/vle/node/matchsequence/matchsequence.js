@@ -399,7 +399,7 @@ MS.prototype.render = function() {
     		
     	    if(this.isChallengeEnabled()) {
     	    	//challenge question is enabled so we will create the constraint
-    	    	this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null]);
+    	    	this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeAdvancing', null);
     	    }
     	}
     } else {
@@ -782,7 +782,7 @@ MS.prototype.checkAnswer = function() {
 					};
 					
 					//create the constraint to make the student visit the navigateTo step
-					this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustVisitXBefore', null, additionalFunctionArgs]);
+					this.view.addActiveTagMapConstraint(this.node.id, null, 'mustVisitXBefore', null, additionalFunctionArgs);
 					
 					/*
 					 * the student answered incorrectly so we will make the 

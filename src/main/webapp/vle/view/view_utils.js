@@ -20,9 +20,7 @@ View.prototype.utilDispatcher = function(type, args, obj) {
 	} else if (type == 'checkSession') {
 		// check if session has been expired
 		obj.sessionManager.checkSession();
-	} else if(type == 'forceLogout') {
-		obj.forceLogout();
-	};
+	} 
 };
 
 /**

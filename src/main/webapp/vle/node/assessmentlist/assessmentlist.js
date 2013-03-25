@@ -261,7 +261,7 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
 		//original step is not locked
 		
 		//display message telling student to go back and submit that original step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'goToNodePosition\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"view.goToNodePosition(' + this.view.getProject().getPositionById(this.associatedStartNode.id) + ')\">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
 	} else {
 		//original step is locked
 		
@@ -327,7 +327,7 @@ ASSESSMENTLIST.prototype.render = function() {
 			 * existence of any work and we don't have to specifically check
 			 * for all parts.
 			 */
-			this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeExiting', null, null]);
+			this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeExiting', null, null);
 		}
 	}
 	

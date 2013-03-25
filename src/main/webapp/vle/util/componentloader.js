@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', /*'journal',*/ 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		//grading_min: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
@@ -41,7 +41,6 @@ var componentloader = function(em, sl){
 				'loadingProjectComplete':[null, null],
 				'pageRenderComplete':[null,null],
 				'contentRenderComplete':[null,null], 
-				'alert':[null,null], 
 				'contentTimedOut':[null,null], 
 				'fatalError':[null,null],
 				'getProjectMetaDataComplete':[null,null], 
@@ -57,12 +56,10 @@ var componentloader = function(em, sl){
 				notificationManager:function(){return window.notificationManager;},
 				connectionManager:function(){return new ConnectionManager(eventManager);},
 				init:function(view){
-					view.eventManager.subscribe('alert', function(type,args,obj){obj.notificationManager.notify(args[0],3);}, view);
 					view.eventManager.subscribe('contentTimedOut', function(type,args,obj){obj.notificationManager.notify('Retrieval of content from url ' + args[0] + ' is taking a long time! The server may be slow or is not responding. If content does not load shortly, check with an administrator.', 3);}, view);
 					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
 					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
 					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('forceLogout', view.utilDispatcher, view);
 					
 					/* set up the notePanel dialog in the view */
 					document.body.appendChild(createElement(document, 'div', {id:'notePanel'}));
@@ -146,8 +143,7 @@ var componentloader = function(em, sl){
 			events: {				
 				'maintainConnection':[null,null],
 				'renewSession':[null,null],
-				'checkSession':[null,null],
-				'forceLogout':[null,null]
+				'checkSession':[null,null]
 			},
 			methods: {},
 			initialize: {
@@ -156,7 +152,6 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
 					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
 					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('forceLogout', view.utilDispatcher, view);
 				}
 			}
 		},
@@ -712,7 +707,6 @@ var componentloader = function(em, sl){
 				'saveAndLockNote':[null,null],
 				'noteHandleEditorKeyPress':[null,null],
 				'noteShowStarter':[null,null],
-				'renderConstraints':[null,null],
 				'saveAndCloseNote':[null,null],
 				'importWork':[null,null],
 				'loadingThemeComplete':[null,null],
@@ -746,7 +740,6 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('noteHandleEditorKeyPress', view.vleDispatcher, view);
 						view.eventManager.subscribe('noteShowStarter', view.vleDispatcher, view);
 						view.eventManager.subscribe('contentRenderComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('renderConstraints', view.vleDispatcher, view);
 						view.eventManager.subscribe('saveAndCloseNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('importWork', view.vleDispatcher, view);
 						view.eventManager.subscribe('startVLEComplete', view.vleDispatcher, view);
@@ -817,11 +810,7 @@ var componentloader = function(em, sl){
 				navigationPanel:undefined
 			},
 			events:{
-				'navigationLoadingComplete':[null,null],
-				'updateNavigationConstraints':[null,null],
-				'addActiveTagMapConstraint':[null,null],
-				'removeActiveTagMapConstraint':[null,null],
-				'logout':[null,null]
+				'navigationLoadingComplete':[null,null]
 			},
 			initialize:{
 				init:function(view){
@@ -829,8 +818,6 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('renderNodeComplete', view.navigationDispatcher, view);
 					view.eventManager.subscribe('navigationLoadingComplete', view.vleDispatcher, view);
 					view.eventManager.subscribe('processLoadViewStateResponseComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('addActiveTagMapConstraint', view.navigationDispatcher, view);
-					view.eventManager.subscribe('removeActiveTagMapConstraint', view.navigationDispatcher, view);
 				}
 			}
 		},
@@ -844,38 +831,10 @@ var componentloader = function(em, sl){
 				init:function(view){
 					view.eventManager.subscribe('lockScreenAndShareWithClass', view.uicontrolDispatcher, view);
 					view.eventManager.subscribe('unlockScreenEvent', view.uicontrolDispatcher, view);
-					view.eventManager.subscribe('logout', view.uicontrolDispatcher, view);
 				}
 			}
 		},
 		ddMenu:{
-		},
-		journal:{
-			variables:{},
-			events:{'showJournal':[null,null],
-					'journalCreateNewEntry':[null,null],
-					'journalShowAllPages':[null,null],
-					'journalHideAllPages':[null,null],
-					'journalShowPagesForCurrentNode':[null,null],
-					'journalSavePage':[null,null],
-					'journalDeletePage':[null,null],
-					'journalAssociateStep':[null,null],
-					'saveJournalToServer':[null,null],
-					'resizeJournal':[null,null]},
-			initialize:{
-				init:function(view){
-					view.eventManager.subscribe('showJournal', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalCreateNewEntry', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalShowAllPages', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalHideAllPages', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalShowPagesForCurrentNode', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalSavePage', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalDeletePage', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalAssociateStep', view.journalDispatcher, view);
-					view.eventManager.subscribe('saveJournalToServer', view.journalDispatcher, view);
-					view.eventManager.subscribe('resizeJournal', view.journalDispatcher, view);
-				}
-			}
 		},
 		topMenu:{
 			variables:{studentProgressArray:new Array("onlyLatestAsCSV")},
@@ -903,7 +862,6 @@ var componentloader = function(em, sl){
 			methods:{},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('showJournal', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showAllWork', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('displayProgress', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showFlaggedWork', view.dropDownMenuDispatcher, view);

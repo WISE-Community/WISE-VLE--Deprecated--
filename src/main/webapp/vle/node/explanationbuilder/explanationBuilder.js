@@ -148,7 +148,7 @@ ExplanationBuilder.prototype.render = function() {
 		 * create the constraint that the student must complete the step
 		 * before they can move forward in the project
 		 */
-		this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null, message]);
+		this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeAdvancing', null, null, message);
 	}
 	
 	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {

@@ -412,44 +412,6 @@ Node.prototype.pageRenderComplete = function(type, args, obj){
 	}
 };
 
-/**
- * Creates constraints for this node if necessary
- */
-Node.prototype.renderConstraints = function() {
-	//check if there is content
-	if(this.content != null) {
-		//check if there is a getContentJSON function
-		if(this.content.getContentJSON) {
-
-			//get the content JSON
-			var contentJSON = this.content.getContentJSON();
-
-			/*
-			 * check if this step contains the constraint that it must
-			 * be completed before moving on to future steps. they
-			 * will still be able to visit previous steps if they
-			 * haven't completed the step.
-			 */ 
-			if(contentJSON.workOnXBeforeAdvancing) {
-				var buttonName = null;
-
-				if(this.isPartOfReviewSequence()) {
-					/*
-					 * if this step is a review sequence start or annotate node
-					 * we will tell the student they need to click the 'submit'
-					 * button. for all other steps it will default to tell them
-					 * to click the 'save' button.
-					 */
-					if(this.peerReview == 'start' || this.peerReview == 'annotate' ||
-							this.teacherReview == 'start' || this.teacherReview == 'annotate') {
-						buttonName = 'submit';
-					}
-				}
-			}
-		}
-	}
-};
-
 Node.prototype.loadContentAfterScriptsLoad = function(type, args, obj){
 	if(obj.id==args[0]) {
 		if (obj.contentPanel) {

@@ -1,29 +1,3 @@
-View.prototype.journalDispatcher = function(type,args,obj){
-	if(type=='showJournal'){
-		obj.showJournal();
-	} else if(type=='journalCreateNewEntry') {
-		obj.journalCreateNewEntry();
-	} else if(type=='journalShowAllPages') {
-		obj.journalShowAllPages();
-	} else if(type=='journalHideAllPages') {
-		obj.journalHideAllPages();
-	} else if(type=='journalShowPagesForCurrentNode') {
-		obj.journalShowPagesForCurrentNode();
-	} else if(type=='journalSavePage') {
-		obj.journalSavePage(args[0]);
-	} else if(type=='journalDeletePage') {
-		obj.journalDeletePage(args[0]);
-	} else if(type=='journalAssociateStep') {
-		obj.journalAssociateStep(args[0], args[1]);
-	} else if(type=='saveJournalToServer') {
-		obj.saveJournalToServer();
-	} else if(type=='resizeJournal'){
-		obj.utils.resizePanel('vleJournalPanel', args[0]);
-	} else if(type=='displayJournalPages') {
-		obj.displayJournalPages();
-	}
-};
-
 View.prototype.journalPanelGetElementById = function(id) {
 	return window.frames['journalFrame'].document.getElementById(id);
 };
@@ -366,24 +340,24 @@ View.prototype.addJournalPageToDisplay = function(journalPage, newPage) {
 	journalPageHTML = "<table border='1'>";
 	
 	journalPageHTML += "<tr>";
-	journalPageHTML += "<td>Title <input type='text' id='journalPageTitle" + journalPageId + "' size='40' onBlur='eventManager.fire(\"journalSavePage\", [\"" + journalPageId + "\"])' value='" + title + "'/></td>";
+	journalPageHTML += "<td>Title <input type='text' id='journalPageTitle" + journalPageId + "' size='40' onBlur='view.journalSavePage("+ journalPageId + ")' value='" + title + "'/></td>";
 	journalPageHTML += "</tr>";
 	
 	journalPageHTML += "<tr>";
 
 	//add the textarea where the student will type
-	journalPageHTML += "<td width='80%'><textarea id='journalPageText" + journalPageId + "' cols='50' rows='10' onBlur='eventManager.fire(\"journalSavePage\", [\"" + journalPageId + "\"])'>" + data + "</textarea></td>";
+	journalPageHTML += "<td width='80%'><textarea id='journalPageText" + journalPageId + "' cols='50' rows='10' onBlur='view.journalSavePage("+ journalPageId + ")'>" + data + "</textarea></td>";
 
 	journalPageHTML += "<td width='20%'>";
 
 	//add the associate page to step button
-	journalPageHTML += "<input type='button' value='Associate with current step' id='journalAssociate" + journalPageId + "' onClick='eventManager.fire(\"journalAssociateStep\", [\"" + journalPageId + "\", true])' />";
+	journalPageHTML += "<input type='button' value='Associate with current step' id='journalAssociate" + journalPageId + "' onClick='view.journalAssociateStep(" + journalPageId + ", true)' />";
 	
 	//add the unassociate page to step button
-	journalPageHTML += "<input type='button' value='Unassociate from step' id='journalAssociate" + journalPageId + "' onClick='eventManager.fire(\"journalAssociateStep\", [\"" + journalPageId + "\", false])' />";
+	journalPageHTML += "<input type='button' value='Unassociate from step' id='journalAssociate" + journalPageId + "' onClick='view.journalAssociateStep(" + journalPageId + ", false)' />";
 	
 	//add the delete button
-	journalPageHTML += "<input type='button' value='Delete' onclick='eventManager.fire(\"journalDeletePage\", [\"" + journalPageId + "\"])'/>";
+	journalPageHTML += "<input type='button' value='Delete' onclick='view.journalDeletePage(" + journalPageId + ")'/>";
 
 	journalPageHTML += "</td>";
 	journalPageHTML += "</tr>";
@@ -613,7 +587,7 @@ View.prototype.getJournalCreatedTimestampId = function(id) {
  * @param subscribeArgs
  */
 View.prototype.saveJournalOnClose = function(type, fireArgs, subscribeArgs) {
-	eventManager.fire("saveJournalToServer");
+	this.saveJournalToServer();
 };
 
 /**

@@ -237,7 +237,7 @@ MC.prototype.render = function() {
 		//check if challenge question is enabled
 		if(this.isChallengeEnabled()) {
 			//challenge question is enabled so we will create the constraint
-			this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null]);
+			this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeAdvancing', null, null);
 		}
 	}
 	
@@ -655,7 +655,7 @@ MC.prototype.getResultMessage = function(isCorrect){
 				};
 				
 				//create the constraint to make the student visit the navigateTo step
-				this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustVisitXBefore', null, additionalFunctionArgs]);
+				this.view.addActiveTagMapConstraint(this.node.id, null, 'mustVisitXBefore', null, additionalFunctionArgs);
 				
 				message = msg;
 			}
