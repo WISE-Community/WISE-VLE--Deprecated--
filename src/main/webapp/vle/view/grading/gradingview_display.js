@@ -2062,13 +2062,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
 		//post level is set to low so we only want to get the nodes types that have student work
 		onlyGetNodesWithGradingView = true;
 	}
-	
-	/*
-	 * get all the leaf nodes in the project except for HtmlNodes
-	 * this is a : delimited string of nodeIds
-	 */
-	var nodeIds = this.getProject().getNodeIds(onlyGetNodesWithGradingView);
-	
+
 	//get the run id
 	var runId = this.getConfig().getConfigParam('runId');
 	
@@ -2091,6 +2085,9 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
 		
 		//the number of steps the current workgroupId has completed
 		var numStepsCompleted = 0;
+		
+		//get the node ids this student can visit except steps that can't be graded such as Html steps
+		var nodeIds = this.getStepNodeIdsStudentCanVisit(vleState);
 		
 		//loop through all the nodeIds
 		for(var y=0; y<nodeIds.length; y++) {

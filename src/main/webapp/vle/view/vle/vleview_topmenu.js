@@ -348,10 +348,10 @@ View.prototype.displayShowAllWork = function() {
 	    
 	    var vleState = this.state;
 	    
-	    //get all the nodeIds in the projecte except nodes that do not have a grading view
-	    var nodeIds = this.getProject().getNodeIds(true);
-	    
 	    var numStepsCompleted = 0;
+	    
+	    //get all the node ids that the student can potentially visit
+	    var nodeIds = this.getStepNodeIdsStudentCanVisit(vleState);
 	    
 		//loop through all the nodeIds
 		for(var y=0; y<nodeIds.length; y++) {
