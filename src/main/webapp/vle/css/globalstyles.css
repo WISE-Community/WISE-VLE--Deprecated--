@@ -431,7 +431,7 @@ img.tooltip {
 
 /* Add an Idea Dialog Form */
 #addAnIdeaForm {
-	font-size:.9em;
+	/*font-size:.9em;*/
 }
 
 #addAnIdeaForm > div  {
@@ -444,6 +444,12 @@ img.tooltip {
 
 #addAnIdeaForm div.attribute div {
 	line-height:24px;
+}
+
+#addAnIdeaForm div.attribute.icon {
+	height:auto;
+	vertical-align:inherit;
+	width:auto;
 }
 
 #addAnIdeaForm div.attribute.icon div img {
