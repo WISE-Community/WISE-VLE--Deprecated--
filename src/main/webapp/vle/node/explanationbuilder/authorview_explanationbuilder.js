@@ -159,7 +159,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 		//the label for the background align drop-down select
 		var chooseAttributeLabel = $(document.createTextNode("Choose which idea attribute to show: "));
 		var chooseAttribute = $(createElement(document,'select',{id: 'attributeSelect', onchange: 'eventManager.fire("explanationBuilderUpdateAttribute")'}));
-		var attributes = this.view.projectMetadata.tools.ideaManagerSettings.ideaAttributes;
+		var attributes = this.view.getProjectMetadata().tools.ideaManagerSettings.ideaAttributes;
 		for(var i=0;i<attributes.length;i++){
 			var option = $(createElement(document, 'option', {value: attributes[i].id})).append($(document.createTextNode((i+1).toString() + ': ' + attributes[i].name + ' (Type: ' + this.view.utils.capitalize(attributes[i].type) + ')')));
 			if(i==0){

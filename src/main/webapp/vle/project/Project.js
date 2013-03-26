@@ -837,7 +837,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * @param showGrades whether to show grades
 		 */
 		var getShowAllWorkHtml = function(node, showGrades) {
-			var lastTimeVisited = view.state.getLastTimeVisited();
+			var lastTimeVisited = view.getState().getLastTimeVisited();
 			
 			//initialize the counters for activities and steps
 			this.showAllWorkStepCounter = 1;
@@ -929,8 +929,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					var title = project.stepTerm + ' ' + getStepNumberAndTitle(nodeId);
 					var currentStepNum = vlePosition;
 					
-					tempAllFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
-					tempNewFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
+					tempAllFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('nodeLinkClicked', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
+					tempNewFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('nodeLinkClicked', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
 				    if (showGrades) {
 				    	
 				    	//tempAllFeedback += "<div class='sectionContent'>Status: " + node.getShowAllWorkHtml(view) + "</div>";
@@ -971,7 +971,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						}
 						
 						//get the latest score annotation
-						var annotationScore = view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'score');
+						var annotationScore = view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'score');
 						
 						if(annotationScore && annotationScore.value != '') {
 							//the p that displays the score
@@ -1000,7 +1000,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						}
 						
 						//get the latest comment annotation
-						var annotationComment = view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'comment');
+						var annotationComment = view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'comment');
 						
 						if(annotationComment && annotationComment.value != '') {
 							//create the p that displays the comment

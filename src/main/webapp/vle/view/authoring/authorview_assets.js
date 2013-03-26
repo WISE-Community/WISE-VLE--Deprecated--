@@ -346,7 +346,7 @@ View.prototype.initializeAssetEditorDialog = function(){
  * If no params object is sent, the assets dialog will simply open (with no dialog buttons and no file extension filters)
  */
 View.prototype.viewAssets = function(params){
-	if(this.project){
+	if(this.getProject()){
 		this.assetEditorParams = params ? params : null;
 		var view = this;
 		
@@ -841,7 +841,7 @@ View.prototype.previewAsset = function(filename,mimetype){
  * Checks to ensure that a project path exists, caulculates storage usage
  */
 View.prototype.getAssetStorage = function(){
-	if(this.project){
+	if(this.getProject()){
 		var callback = function(text, xml, o){
 			var assetsSizeUsed = parseInt(text.split("/")[0]);  // how much space is taken up by existing assets
 			var assetsSizeTotalMax = parseInt(text.split("/")[1]);  // how much total space is available for this project
@@ -857,7 +857,7 @@ View.prototype.getAssetStorage = function(){
 			$('#sizeDiv').html(o.getI18NStringWithParams("authoring_dialog_assets_storage_label", [o.utils.appropriateSizeText(assetsSizeUsed), o.utils.appropriateSizeText(assetsSizeTotalMax)]));
 			$('#sizeBar').progressbar({ value: percentUsed });
 		};
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);
+		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.getProject().getContentBase())}, callback, this);
 	}
 };
 
@@ -936,7 +936,7 @@ View.prototype.assetDownloaded = function(target,view,files){
 
 View.prototype.pluploadAssets = function(){
 	var view = this;
-	var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase());
+	var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.getProject().getContentBase());
 	
 	// set POST parameters
 	view.assetUploader.settings.multipart_params = {
@@ -963,7 +963,7 @@ View.prototype.downloadAsset = function(files){
 	var frameId = 'assetFrame_' + Math.floor(Math.random() * 1000001);
 	var frame = createElement(document, 'iframe', {id:frameId, name:frameId, src:'about:blank', style:'display:none;'});
 	var form = createElement(document, 'form', {id:'assetFrm', method:'POST', enctype:'multipart/form-data', action:view.assetRequestUrl, target:frameId, style:'display:none;'});
-	var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase());
+	var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.getProject().getContentBase());
 	
 	/* create and append elements */
 	document.body.appendChild(frame);
@@ -1024,7 +1024,7 @@ View.prototype.removeAsset = function(filename){
 	
 	var remove = confirm(view.getI18NStringWithParams('authoring_dialog_assets_delete_confirm',[filename]));
 	if(remove){
-		view.connectionManager.request('POST', 1, view.assetRequestUrl, {forward:'assetmanager', projectId:view.portalProjectId, command: 'remove', path: view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase()), asset: filename}, success, view, success);
+		view.connectionManager.request('POST', 1, view.assetRequestUrl, {forward:'assetmanager', projectId:view.portalProjectId, command: 'remove', path: view.utils.getContentPath(view.authoringBaseUrl,view.getProject().getContentBase()), asset: filename}, success, view, success);
 	}
 };
 

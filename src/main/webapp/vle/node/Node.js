@@ -48,6 +48,8 @@ function Node(nodeType, view){
 		                        {functionName:'mustVisitXBefore', functionArgs:[]}
 		                        ];
 	}
+	
+	this.constraintStatus = 'enabled';
 };
 
 Node.statuses = [];
@@ -111,9 +113,9 @@ Node.prototype.getHints = function() {
  */
 Node.prototype.getNodeAnnotations = function() {
 	if (this.view &&
-			this.view.annotations && this.view.annotations != null &&
-			this.view.annotations.getAnnotationsByNodeId(this.id) != null) {
-		var allNodeAnnotations = this.view.annotations.getAnnotationsByNodeId(this.id);
+			this.view.getAnnotations() && this.view.getAnnotations() != null &&
+			this.view.getAnnotations().getAnnotationsByNodeId(this.id) != null) {
+		var allNodeAnnotations = this.view.getAnnotations().getAnnotationsByNodeId(this.id);
 		var filteredNodeAnnotations = [];
 		var loggedInWorkgroupId = this.view.getUserAndClassInfo().getWorkgroupId();
 		for (var i=0; i < allNodeAnnotations.length; i++) {
@@ -407,47 +409,6 @@ Node.prototype.pageRenderComplete = function(type, args, obj){
 	if(obj.id==args[0] && obj.contentPanel && obj.contentPanel.loadContent){
 		obj.contentPanel.loadContent(obj);
 		obj.insertPreviousWorkIntoPage(obj.contentPanel.document);
-	}
-};
-
-/**
- * Creates constraints for this node if necessary
- */
-Node.prototype.renderConstraints = function() {
-	//check if there is content
-	if(this.content != null) {
-		//check if there is a getContentJSON function
-		if(this.content.getContentJSON) {
-
-			//get the content JSON
-			var contentJSON = this.content.getContentJSON();
-
-			/*
-			 * check if this step contains the constraint that it must
-			 * be completed before moving on to future steps. they
-			 * will still be able to visit previous steps if they
-			 * haven't completed the step.
-			 */ 
-			if(contentJSON.workOnXBeforeAdvancing) {
-				var buttonName = null;
-
-				if(this.isPartOfReviewSequence()) {
-					/*
-					 * if this step is a review sequence start or annotate node
-					 * we will tell the student they need to click the 'submit'
-					 * button. for all other steps it will default to tell them
-					 * to click the 'save' button.
-					 */
-					if(this.peerReview == 'start' || this.peerReview == 'annotate' ||
-							this.teacherReview == 'start' || this.teacherReview == 'annotate') {
-						buttonName = 'submit';
-					}
-				}
-
-				//add the constraint
-				//this.view.eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20), updateAfterAdd: true, buttonName: buttonName});				
-			}
-		}
 	}
 };
 
@@ -1079,8 +1040,8 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 
 		//loop through and add any previous work to html
 		for(var n=0;n<this.prevWorkNodeIds.length;n++){
-			if(this.view.state != null) {
-				var work = this.view.state.getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
+			if(this.view.getState() != null) {
+				var work = this.view.getState().getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
 				if(work){
 					//get the node object
 					var node = this.view.getProject().getNodeById(this.prevWorkNodeIds[n]);
@@ -1207,7 +1168,7 @@ Node.prototype.copy = function(eventName, project){
 		};
 
 		/* set up event to listen for when this sequences children finish copying */
-		var seqEventName = this.view.project.generateUniqueCopyEventName();
+		var seqEventName = this.view.getProject().generateUniqueCopyEventName();
 		this.view.eventManager.addEvent(seqEventName);
 		this.view.eventManager.subscribe(seqEventName, listener, [this, eventName]);
 
@@ -1247,11 +1208,11 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
 		divIdPrefix = "";
 	}
 
-	var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
+	var nodeVisitArray = vle.getState().getNodeVisitsByNodeId(this.id);
 	if (nodeVisitArray.length > 0) {
 		var states = [];
 		//get the latest node visit that has student work
-		var latestNodeVisit = vle.state.getLatestNodeVisitByNodeId(this.id);
+		var latestNodeVisit = vle.getState().getLatestNodeVisitByNodeId(this.id);
 		for (var i = 0; i < nodeVisitArray.length; i++) {
 			var nodeVisit = nodeVisitArray[i];
 			for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
@@ -1326,7 +1287,7 @@ Node.prototype.injectKeystrokeManagerScript = function(contentStr){
  */
 Node.prototype.createKeystrokeManager = function(){
 	if(this.contentPanel && !this.contentPanel.keystrokeManager && this.contentPanel.createKeystrokeManager){
-		this.contentPanel.keystrokeManager = this.contentPanel.createKeystrokeManager(this.contentPanel.eventManager,[['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']]]);
+		this.contentPanel.keystrokeManager = this.contentPanel.createKeystrokeManager(this.contentPanel.eventManager,[]);
 	};
 };
 
@@ -1681,7 +1642,7 @@ Node.prototype.getWorkToImport = function(tagName, functionArgs) {
 
 				if(node != null) {
 					//get the latest work for the node
-					var nodeState = this.view.state.getLatestWorkByNodeId(nodeId);
+					var nodeState = this.view.getState().getLatestWorkByNodeId(nodeId);
 
 					if(nodeState != null && nodeState != '') {
 						//add the work to the array of work to import
@@ -1693,6 +1654,13 @@ Node.prototype.getWorkToImport = function(tagName, functionArgs) {
 	}
 
 	return workToImport;
+};
+
+/**
+ * Returns the criteria value for this node based on student response.
+ */
+Node.prototype.getCriteriaValue = function() {
+	// to be overridden by children nodes
 };
 
 /**
@@ -1727,7 +1695,7 @@ Node.prototype.showPreviousWork = function(previousWorkDiv, tagName, functionArg
 
 				if(node != null) {
 					//get the latest work for the node
-					var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId);
+					var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(nodeId);
 
 					//make the id for the div that we will show previous work in for the step
 					var showPreviousWorkDivId = 'showPreviousWork_' + nodeId;
@@ -1793,7 +1761,7 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 
 				if(node != null) {
 					//get the latest work for the node
-					var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId);
+					var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(nodeId);
 
 					//make the id for the div that we will show previous work in for the step
 					var showAggregateWorkDivId = 'showAggregateWork_' + nodeId;
@@ -1969,6 +1937,19 @@ Node.prototype.getStatuses = function() {
 	statuses = Node.statuses;
 	
 	return statuses;
+};
+
+/**
+ * Set the constraint status for this node
+ * @param constraintStatus the constraint status for the node
+ * e.g. 'disabled' or 'enabled'
+ */
+Node.prototype.setConstraintStatus = function(constraintStatus) {
+	//set the constraint status
+	this.constraintStatus = constraintStatus;
+	
+	//fire an event to notify listeners that this node's constraint status has updated
+	eventManager.fire('constraintStatusUpdated', [this.id, constraintStatus]);
 };
 
 //used to notify scriptloader that this script has finished loading

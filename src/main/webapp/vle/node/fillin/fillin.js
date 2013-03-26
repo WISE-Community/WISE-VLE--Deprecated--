@@ -212,9 +212,8 @@ FILLIN.prototype.checkAnswer = function() {
 	// add a new STATE
 	this.states.push(fillinState);
 	
-	//fire the event to push this state to the global view.states object
-	eventManager.fire('pushStudentWork', fillinState);
-
+	//push this state to the global view.states object
+	this.view.pushStudentWork(this.node.id, fillinState);
 };
 
 /**

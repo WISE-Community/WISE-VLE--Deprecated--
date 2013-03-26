@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','vle','hint','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', /*'journal',*/ 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		//grading_min: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
@@ -41,7 +41,6 @@ var componentloader = function(em, sl){
 				'loadingProjectComplete':[null, null],
 				'pageRenderComplete':[null,null],
 				'contentRenderComplete':[null,null], 
-				'alert':[null,null], 
 				'contentTimedOut':[null,null], 
 				'fatalError':[null,null],
 				'getProjectMetaDataComplete':[null,null], 
@@ -57,12 +56,10 @@ var componentloader = function(em, sl){
 				notificationManager:function(){return window.notificationManager;},
 				connectionManager:function(){return new ConnectionManager(eventManager);},
 				init:function(view){
-					view.eventManager.subscribe('alert', function(type,args,obj){obj.notificationManager.notify(args[0],3);}, view);
 					view.eventManager.subscribe('contentTimedOut', function(type,args,obj){obj.notificationManager.notify('Retrieval of content from url ' + args[0] + ' is taking a long time! The server may be slow or is not responding. If content does not load shortly, check with an administrator.', 3);}, view);
 					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
 					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
 					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('forceLogout', view.utilDispatcher, view);
 					
 					/* set up the notePanel dialog in the view */
 					document.body.appendChild(createElement(document, 'div', {id:'notePanel'}));
@@ -89,10 +86,16 @@ var componentloader = function(em, sl){
 							// add transparent overlay to step content to disable editing of previous step when note is opened
 							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'fixed', 'left':0, 'width':'100%', 'top':0, 'height':'100%', 'z-index':99999 });
 							$('body',$('#ifrm')[0].contentWindow.document).append(contentOverlay);
-							
+
 							// bind click event to X link in dialog that saves and closes note
 							$(this).parent().children().children("a.ui-dialog-titlebar-close").click(function(){
-								window.eventManager.fire('saveAndCloseNote');
+								//save the note
+								if(view.activeNote){
+									view.activeNote.save();
+								}
+								
+								//close the note dialog
+								view.utils.closeDialog('notePanel');
 							});
 						}
 					});
@@ -140,8 +143,7 @@ var componentloader = function(em, sl){
 			events: {				
 				'maintainConnection':[null,null],
 				'renewSession':[null,null],
-				'checkSession':[null,null],
-				'forceLogout':[null,null]
+				'checkSession':[null,null]
 			},
 			methods: {},
 			initialize: {
@@ -150,7 +152,6 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
 					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
 					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('forceLogout', view.utilDispatcher, view);
 				}
 			}
 		},
@@ -701,8 +702,9 @@ var componentloader = function(em, sl){
 				}
 			}
 		},
-		vle:{
+		student:{
 			variables:{
+				model:null,
 				allowedStudentAssetExtensions:['jpg', 'jpeg', 'gif', 'png', 'bmp', 'pdf', 'txt', 'doc'],
 				userAndClassInfoLoaded:false,
 				viewStateLoaded:false,
@@ -712,21 +714,32 @@ var componentloader = function(em, sl){
 				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
-				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'retrieveLocalesComplete':[null,null],'retrieveThemeLocalesComplete':[null,null],'renderNode':[null,null],
-				'renderNodeComplete':[null,null],'resizeNote':[null,null],'onNotePanelResized':[null,null],
-				'startVLEComplete':[null,null], 'setStyleOnElement':[null,null], 'closeDialogs':[null,null], 'closeDialog':[null,null],
-				'postAllUnsavedNodeVisits':[null,null], 'pushStudentWork':[null,null],
-				'ifrmLoaded':[null,null], 'processLoadViewStateResponseComplete':[null,null], 'saveNote':[null,null],
-				'saveAndLockNote':[null,null], 'noteHandleEditorKeyPress':[null,null], 'noteShowStarter':[null,null],
-				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null], 'loadingThemeComplete':[null,null],
-				'assetUploaded':[null,null],'chatRoomTextEntrySubmitted':[null, null], 'setStepIcon':[null, null]
+				'retrieveLocalesComplete':[null,null],
+				'retrieveThemeLocalesComplete':[null,null],
+				'renderNodeComplete':[null,null],
+				'resizeNote':[null,null],
+				'onNotePanelResized':[null,null],
+				'startVLEComplete':[null,null],
+				'setStyleOnElement':[null,null],
+				'ifrmLoaded':[null,null],
+				'processLoadViewStateResponseComplete':[null,null],
+				'saveAndLockNote':[null,null],
+				'noteHandleEditorKeyPress':[null,null],
+				'noteShowStarter':[null,null],
+				'saveAndCloseNote':[null,null],
+				'importWork':[null,null],
+				'loadingThemeComplete':[null,null],
+				'assetUploaded':[null,null],
+				'chatRoomTextEntrySubmitted':[null, null],
+				'setStepIcon':[null, null],
+				'studentWorkUpdated':[null,null],
+				'currentNodePositionUpdated':[null,null],
+				'constraintStatusUpdated':[null,null],
+				'nodeLinkClicked':[null,null]
 			},
 			methods:{},
 			initialize:{
 				init:function(view){
-						view.setViewState(new VLE_STATE());
-						view.eventManager.subscribe('startVLEFromConfig',view.vleDispatcher, view);
-						view.eventManager.subscribe('startVLEFromParams', view.vleDispatcher, view);
 						view.eventManager.subscribe('retrieveLocalesComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('retrieveThemeLocalesComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('loadingProjectStart', view.vleDispatcher, view);
@@ -734,25 +747,18 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('getUserAndClassInfoBegin', view.vleDispatcher, view);
 						view.eventManager.subscribe('getUserAndClassInfoComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('processLoadViewStateResponseComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('renderNode', view.vleDispatcher, view);
 						view.eventManager.subscribe('renderNodeComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('resizeNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('onNotePanelResized', view.vleDispatcher, view);
 						view.eventManager.subscribe('setStyleOnElement', view.vleDispatcher, view);
-						view.eventManager.subscribe('closeDialog', view.vleDispatcher, view);
-						view.eventManager.subscribe('closeDialogs', view.vleDispatcher, view);
-						view.eventManager.subscribe('postAllUnsavedNodeVisits', view.vleDispatcher, view);
-						view.eventManager.subscribe('pushStudentWork', view.vleDispatcher, view);
 						view.eventManager.subscribe('getAnnotationsComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getProjectMetaDataComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getRunExtrasComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('ifrmLoaded', view.vleDispatcher, view);
-						view.eventManager.subscribe('saveNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('saveAndLockNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('noteHandleEditorKeyPress', view.vleDispatcher, view);
 						view.eventManager.subscribe('noteShowStarter', view.vleDispatcher, view);
 						view.eventManager.subscribe('contentRenderComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('renderConstraints', view.vleDispatcher, view);
 						view.eventManager.subscribe('saveAndCloseNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('importWork', view.vleDispatcher, view);
 						view.eventManager.subscribe('startVLEComplete', view.vleDispatcher, view);
@@ -761,6 +767,10 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('assetUploaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('chatRoomTextEntrySubmitted', view.vleDispatcher, view);
 						view.eventManager.subscribe('setStepIcon', view.vleDispatcher, view);
+						view.eventManager.subscribe('studentWorkUpdated', view.vleDispatcher, view);
+						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
+						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
+						view.eventManager.subscribe('nodeLinkClicked', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);
@@ -770,7 +780,7 @@ var componentloader = function(em, sl){
 						$('#onUnloadSaveDiv').dialog({autoOpen:false,width:300,height:100,modal:true,draggable:false,resizable:false,closeText:'',dialogClass:'no-title'});
 					},
 				keystrokeManager:function(){
-						var keystrokes = [['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']]];
+						var keystrokes = [];
 						return createKeystrokeManager(eventManager,keystrokes);
 					}
 			}
@@ -814,67 +824,19 @@ var componentloader = function(em, sl){
 				navigationLogic:undefined,
 				isNavigationComponentPresent:true,
 				isNavigationComponentLoaded:false,
-				isProjectConstraintProcessingComplete:false
+				isProjectConstraintProcessingComplete:false,
+				myMenu:undefined,
+				navigationPanel:undefined
 			},
 			events:{
-				'renderPrevNode':[null,null],
-				'renderNextNode':[null,null], 
-				'addConstraint':[null,null],
-				'removeConstraint':[null,null],
-				'navigationLoadingComplete':[null,null],
-				'updateNavigationConstraints':[null,null],
-				'addActiveTagMapConstraint':[null,null],
-				'removeActiveTagMapConstraint':[null,null]
+				'navigationLoadingComplete':[null,null]
 			},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('renderNextNode', view.navigationDispatcher, view);
-					view.eventManager.subscribe('renderPrevNode', view.navigationDispatcher, view);
 					view.eventManager.subscribe('loadingProjectComplete', view.navigationDispatcher, view);
 					view.eventManager.subscribe('renderNodeComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('addConstraint', view.navigationDispatcher, view);
-					view.eventManager.subscribe('removeConstraint', view.navigationDispatcher, view);
 					view.eventManager.subscribe('navigationLoadingComplete', view.vleDispatcher, view);
 					view.eventManager.subscribe('processLoadViewStateResponseComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('addActiveTagMapConstraint', view.navigationDispatcher, view);
-					view.eventManager.subscribe('removeActiveTagMapConstraint', view.navigationDispatcher, view);
-				}
-			}
-		},
-		menu:{
-			variables:{myMenu:undefined,navigationPanel:undefined},
-			events:{//'toggleNavigationPanelVisibility':[null,null],
-				'menuExpandAll':[null,null],
-				'menuCollapseAll':[null,null],
-				'menuCollapseAllNonImmediate':[null,null],
-				'toggleSequence':[null,null],
-				'resizeMenu':[null,null],
-				'logout':[null,null],
-				'displayMenuBubble':[null,null],
-				'removeMenuBubble':[null,null],
-				'removeAllMenuBubbles':[null,null],
-				'highlightStepInMenu':[null,null],
-				'unhighlightStepInMenu':[null,null],
-				'updateStepStatusIcon':[null,null],
-				'menuCreated': [null,null]
-			},
-			initialize:{
-				init:function(view){
-					view.eventManager.subscribe('menuCreated', view.menuDispatcher, view);
-					view.eventManager.subscribe('renderNodeComplete', view.menuDispatcher, view);
-					//view.eventManager.subscribe('toggleNavigationPanelVisibility', view.menuDispatcher, view);
-					view.eventManager.subscribe('menuExpandAll', view.menuDispatcher, view);
-					view.eventManager.subscribe('menuCollapseAll', view.menuDispatcher, view);
-					view.eventManager.subscribe('menuCollapseAllNonImmediate', view.menuDispatcher, view);
-					view.eventManager.subscribe('toggleSequence', view.menuDispatcher, view);
-					view.eventManager.subscribe('resizeMenu', view.menuDispatcher, view);
-					view.eventManager.subscribe('updateNavigationConstraints', view.menuDispatcher, view);
-					view.eventManager.subscribe('displayMenuBubble', view.menuDispatcher, view);
-					view.eventManager.subscribe('removeMenuBubble', view.menuDispatcher, view);
-					view.eventManager.subscribe('removeAllMenuBubbles', view.menuDispatcher, view);
-					view.eventManager.subscribe('highlightStepInMenu', view.menuDispatcher, view);
-					view.eventManager.subscribe('unhighlightStepInMenu', view.menuDispatcher, view);
-					view.eventManager.subscribe('updateStepStatusIcon', view.menuDispatcher, view);
 				}
 			}
 		},
@@ -888,38 +850,10 @@ var componentloader = function(em, sl){
 				init:function(view){
 					view.eventManager.subscribe('lockScreenAndShareWithClass', view.uicontrolDispatcher, view);
 					view.eventManager.subscribe('unlockScreenEvent', view.uicontrolDispatcher, view);
-					view.eventManager.subscribe('logout', view.uicontrolDispatcher, view);
 				}
 			}
 		},
 		ddMenu:{
-		},
-		journal:{
-			variables:{},
-			events:{'showJournal':[null,null],
-					'journalCreateNewEntry':[null,null],
-					'journalShowAllPages':[null,null],
-					'journalHideAllPages':[null,null],
-					'journalShowPagesForCurrentNode':[null,null],
-					'journalSavePage':[null,null],
-					'journalDeletePage':[null,null],
-					'journalAssociateStep':[null,null],
-					'saveJournalToServer':[null,null],
-					'resizeJournal':[null,null]},
-			initialize:{
-				init:function(view){
-					view.eventManager.subscribe('showJournal', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalCreateNewEntry', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalShowAllPages', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalHideAllPages', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalShowPagesForCurrentNode', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalSavePage', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalDeletePage', view.journalDispatcher, view);
-					view.eventManager.subscribe('journalAssociateStep', view.journalDispatcher, view);
-					view.eventManager.subscribe('saveJournalToServer', view.journalDispatcher, view);
-					view.eventManager.subscribe('resizeJournal', view.journalDispatcher, view);
-				}
-			}
 		},
 		topMenu:{
 			variables:{studentProgressArray:new Array("onlyLatestAsCSV")},
@@ -947,7 +881,6 @@ var componentloader = function(em, sl){
 			methods:{},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('showJournal', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showAllWork', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('displayProgress', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showFlaggedWork', view.dropDownMenuDispatcher, view);

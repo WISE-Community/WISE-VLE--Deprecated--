@@ -30,10 +30,10 @@ View.prototype.populateToCol = function(){
 	if(tos){
 		for(var q=0;q<tos.length;q++){
 			//generate the node label e.g. "1.3: Analyze the data"
-			var toNode = this.project.getNodeById(tos[q]);
+			var toNode = this.getProject().getNodeById(tos[q]);
 			var nodeId = toNode.id;
 			var title = toNode.title;
-			var vlePosition = this.project.getVLEPositionById(nodeId);
+			var vlePosition = this.getProject().getVLEPositionById(nodeId);
 			var nodeLabel = vlePosition + ": " + title;
 			
 			parent.appendChild(this.createOptionElement(nodeId, nodeLabel));
@@ -48,13 +48,13 @@ View.prototype.populateToCol = function(){
  */
 View.prototype.populateFromCol = function(){
 	var parent = document.getElementById('selectFrom');
-	var fromNodes = this.removeUnwanted(this.project.getLeafNodes());
+	var fromNodes = this.removeUnwanted(this.getProject().getLeafNodes());
 	
 	//the array that will store the nodes in the order they appear in the project
 	var fromNodesOrdered = [];
 	
 	//get all the node ids in the project in the order they appear in the project
-	var projectNodeIds = this.project.getNodeIds();
+	var projectNodeIds = this.getProject().getNodeIds();
 	
 	/*
 	 * we will loop through all the node ids in the project
@@ -80,7 +80,7 @@ View.prototype.populateFromCol = function(){
 			//generate the node label e.g. "1.3: Analyze the data"
 			var nodeId = fromNodesOrdered[w].id;
 			var title = fromNodesOrdered[w].title;
-			var vlePosition = this.project.getVLEPositionById(nodeId);
+			var vlePosition = this.getProject().getVLEPositionById(nodeId);
 			var nodeLabel = vlePosition + ": " + title;
 			
 			parent.appendChild(this.createOptionElement(nodeId, nodeLabel));

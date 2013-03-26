@@ -28,9 +28,6 @@ ChallengeNode.prototype.processStateConstraints = function() {
 	if(this.isConstraintNeededForChallenge(challengeVisits[this.id])){
 		/* set up vars for creating constraint */
 		var toNodeId = this.content.getContentJSON().assessmentItem.interaction.attempts.navigateTo;
-		
-		/* create the constraint */
-		//this.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:toNodeId, mode:'node'}, y:{id:this.id, mode:'node'}, status: 1, menuStatus:0, effective:  Date.parse(new Date())});
 	}
 };
 
@@ -80,7 +77,7 @@ ChallengeNode.prototype.isConstraintNeededForChallenge = function(nodeVisits){
  */
 ChallengeNode.prototype.visitedNavigateToNode = function(node, startTime){
 	var toVisitId = node.getContent().getContentJSON().assessmentItem.interaction.attempts.navigateTo;
-	var nodeVisits = this.view.state.getNodeVisitsByNodeId(toVisitId);
+	var nodeVisits = this.view.getState().getNodeVisitsByNodeId(toVisitId);
 	var nodeVisits = Constraint.prototype.getEffectiveNodeVisits(nodeVisits.slice(), startTime);
 	for(var a=0;a<nodeVisits.length;a++){
 		if(nodeVisits[a].nodeId == toVisitId){
@@ -127,11 +124,11 @@ ChallengeNode.prototype.showFeedbackDialog = function(feedback, isCorrect){
             		 * the evidence step and the challenge question step
             		 */
             		if (!visited) {
-            			eventManager.fire("renderNode", toVisitPosition);
+            			view.setCurrentNodePosition(toVisitPosition);
             			$('.challenge-button > .ui-button-text').text('Back to Challenge Question');
             			visited = true;
             		} else {
-            			eventManager.fire("renderNode", challengePosition);
+            			view.setCurrentNodePosition(challengePosition);
             			$('.challenge-button > .ui-button-text').text('Take me there!');
             			visited = false;
             		}            		

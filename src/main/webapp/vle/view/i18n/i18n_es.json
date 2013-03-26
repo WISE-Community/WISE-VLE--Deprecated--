@@ -400,7 +400,8 @@
         "description": "Flag, for flagging student's work using the flagging tool"
     },
     "flag_as_inappropriate": {
-        "value": "Marcar como inapropiado"
+        "value": "Marcar como inapropiado",
+        "description": "\"Flag as inappropriate\" text, for flagging inappropriate student's work using the flagging tool"
     },
     "timestamp": {
         "value": "Fecha y hora",
@@ -488,24 +489,27 @@
     },
     "authoring_hint_forceShow": {
         "value": "Forzar mostrar:",
-        "description": "Text to display for the label of the \"Force Show: \" drop down in the step hint authoring panel"
+        "description": "Text to display for the label of the 'Force Show: ' drop down in the step hint authoring panel"
     },
     "authoring_hint_option_never": {
         "value": "Nunca",
-        "description": "The text \"Never\" to display in \"force show:\" drop down in the step hint authoring panel"
+        "description": "The text 'Never' to display in 'force show:' drop down in the step hint authoring panel"
     },
     "authoring_hint_option_firstTimeOnly": {
         "value": "Sólo primera vez",
-        "description": "The text \"First Time Only\" to display in \"force show:\" drop down in the step hint authoring panel"
+        "description": "The text 'First Time Only' to display in 'force show:' drop down in the step hint authoring panel"
     },
     "authoring_hint_option_always": {
-        "value": "Siempre"
+        "value": "Siempre",
+        "description": "The text 'Always' to display in 'force show:' drop down in the step hint authoring panel"
     },
     "authoring_hint_modal": {
-        "value": "Modo diálogo"
+        "value": "Modo diálogo",
+        "description": "Text to display for the label of the 'Modal Dialog' checkbox in the step hint authoring panel"
     },
     "authoring_hint_isMustViewAllPartsBeforeClosing": {
-        "value": "Debe ver todas las partes antes de cerrar"
+        "value": "Debe ver todas las partes antes de cerrar",
+        "description": "Text to display for the label of the 'Must View All Parts Before Closing' checkbox in the step hint authoring panel"
     },
     "authoring_hint_options_label": {
         "value": "Opciones",

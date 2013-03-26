@@ -4,10 +4,8 @@
  * Given the type and optional arguments, creates a new 
  * state of the type, passing in the arguments.
  */
-View.prototype.pushStudentWork = function(nodeState){
-	this.state.getCurrentNodeVisit().nodeStates.push(nodeState);
-	this.updateActiveTagMapConstraints();
-	this.setStepIcon();
+View.prototype.pushStudentWork = function(nodeId, nodeState){
+	this.model.pushStudentWorkToLatestNodeVisit(nodeId, nodeState);
 };
 
 /**
@@ -15,7 +13,7 @@ View.prototype.pushStudentWork = function(nodeState){
  * state of the type, passing in the arguments.
  */
 View.prototype.pushHintState = function(hintState){
-	this.state.getCurrentNodeVisit().hintStates.push(hintState);
+	this.getState().getCurrentNodeVisit().hintStates.push(hintState);
 };
 
 /**
@@ -49,7 +47,7 @@ View.prototype.postCurrentNodeVisit = function(successCallback, failureCallback,
 	}
 
 	//obtain the current node visit
-	var currentNodeVisit = this.state.getCurrentNodeVisit();
+	var currentNodeVisit = this.getState().getCurrentNodeVisit();
 
 	//obtain the step work id for the visit
 	var stepWorkId = currentNodeVisit.id;
@@ -162,8 +160,8 @@ View.prototype.postAllUnsavedNodeVisits = function(sync) {
 	// get all node_visits that does not have a visitPostTime set.
 	// then post them one at a time, and set its visitPostTime based on what the
 	// server returns.
-	for (var i=0; i<this.state.visitedNodes.length; i++) {
-		var nodeVisit = this.state.visitedNodes[i];
+	for (var i=0; i<this.getState().visitedNodes.length; i++) {
+		var nodeVisit = this.getState().visitedNodes[i];
 		if (nodeVisit != null && nodeVisit.visitPostTime == null && nodeVisit.visitEndTime != null) {
 			this.postUnsavedNodeVisit(nodeVisit,sync);
 		}
@@ -311,8 +309,8 @@ View.prototype.getStudentWorkForNodeId = function(nodeId) {
 	}
 
 	var nodeStates = [];
-	for (var i=0; i < this.state.visitedNodes.length; i++) {
-		var nodeVisit = this.state.visitedNodes[i];
+	for (var i=0; i < this.getState().visitedNodes.length; i++) {
+		var nodeVisit = this.getState().visitedNodes[i];
 		if (nodeVisit.getNodeId() == nodeId) {
 			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
 				nodeStates.push(nodeVisit.nodeStates[j]);
@@ -350,7 +348,7 @@ View.prototype.saveState = function(state, node) {
 		return;
 	}
 	// now add the state to the VLE_STATE
-	var nodeVisitsForCurrentNode = this.state.getNodeVisitsByNodeId(currentNode.getNodeId());
+	var nodeVisitsForCurrentNode = this.getState().getNodeVisitsByNodeId(currentNode.getNodeId());
 	var nodeVisitForCurrentNode = nodeVisitsForCurrentNode[nodeVisitsForCurrentNode.length - 1];
 	nodeVisitForCurrentNode.nodeStates.push(newState);
 };
@@ -369,7 +367,7 @@ View.prototype.onWindowUnload = function(logout){
 	}
 
 	/* set the endVisitTime to the current time for the current state */
-	this.state.endCurrentNodeVisit();
+	this.getState().endCurrentNodeVisit();
 
 	/* synchronously save any unsaved node visits */
 	this.postAllUnsavedNodeVisits(true);
@@ -673,7 +671,7 @@ View.prototype.getTeamProjectCompletionPercentage = function() {
 
 
 	//get a vleState
-	var vleState = this.state;
+	var vleState = this.getState();
 
 	//get the workgroup id
 	var workgroupId = vleState.dataId;
@@ -795,7 +793,7 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 			var cRaterAnnotation = Annotation.prototype.parseDataJSONObj(annotationJSON);
 
 			//add the CRater annotation to our local collection of annotations
-			vle.annotations.updateOrAddAnnotation(cRaterAnnotation);
+			vle.getAnnotations().updateOrAddAnnotation(cRaterAnnotation);
 
 			if (displayCRaterScoreToStudent || displayCRaterFeedbackToStudent) {
 				//we will display the score or feedback (or both) to the student
@@ -834,7 +832,7 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					 */
 
 					//get the current node visit
-					var currentNodeVisit = vle.state.getCurrentNodeVisit();
+					var currentNodeVisit = vle.getState().getCurrentNodeVisit();
 
 					//get the current node state
 					var latestNodeState = currentNodeVisit.getLatestState();
@@ -891,6 +889,14 @@ View.prototype.getCRaterNodeStateAnnotationByNodeStateId = function(cRaterAnnota
 View.prototype.getCRaterResponseCallbackFail = function(responseText, responseXML, args) {
 	//console.log("fail");
 	//console.log(responseText);
+};
+
+/**
+ * Gets called when student work is updated and the studentWorkUpdated event
+ * is fired.
+ */
+View.prototype.studentWorkUpdatedListener = function() {
+	this.updateActiveTagMapConstraints();
 };
 
 //used to notify scriptloader that this script has finished loading

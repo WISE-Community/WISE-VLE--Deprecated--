@@ -78,9 +78,9 @@ Table.prototype.populatePreviousWork = function() {
 	if(populatePreviousWorkNodeId != null && populatePreviousWorkNodeId != "") {
 		//populatePreviousWorkNodeId has been set
 		
-		if(this.view.state != null) {
+		if(this.view.getState() != null) {
 			//get the state from the previous step that this step is linked to
-			var previousWorkState = this.view.state.getLatestWorkByNodeId(populatePreviousWorkNodeId);
+			var previousWorkState = this.view.getState().getLatestWorkByNodeId(populatePreviousWorkNodeId);
 			
 			if(previousWorkState != null && previousWorkState != "") {
 				//make a copy of the previous work
@@ -619,7 +619,7 @@ Table.prototype.save = function() {
 		 * the student work is saved to the server once they move on to the
 		 * next step.
 		 */
-		eventManager.fire('pushStudentWork', tableState);
+		this.view.pushStudentWork(this.node.id, tableState);
 
 		//push the state object into this or object's own copy of states
 		this.states.push(tableState);		
@@ -700,7 +700,7 @@ Table.prototype.reset = function() {
 			//there is a populatePreviousWorkNodeId
 			
 			//get the latest work from the populatePreviousWorkNodeId
-			var previousWorkState = this.view.state.getLatestWorkByNodeId(populatePreviousWorkNodeId);
+			var previousWorkState = this.view.getState().getLatestWorkByNodeId(populatePreviousWorkNodeId);
 			
 			if(previousWorkState != null && previousWorkState != "") {
 				//use the data from this populatePreviousWorkNodeId to reset the table
@@ -1435,6 +1435,8 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 		 */
 		options.title = this.getDropDownTitleSelected();
 	}
+	
+	options.colors = ['red', 'green'];
 	
 	return options;
 };

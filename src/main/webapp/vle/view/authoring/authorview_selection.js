@@ -191,7 +191,7 @@ View.prototype.deleteSelected = function(){
 		//remove selected sequences - any attached nodes will remain as leaf nodes in project
 		selected.seqs.each(function(){
 			var id = $(this).attr('id');
-			view.project.removeNodeById(id);
+			view.getProject().removeNodeById(id);
 		});
 		
 		//remove selected nodes
@@ -230,7 +230,7 @@ View.prototype.deleteSelected = function(){
 		
 		// cancel reviewGroups to be deleted
 		for(var a=0;a<reviewGroupNumbers.length;a++){
-			view.project.cancelReviewSequenceGroup(reviewGroupNumbers[a]);
+			view.getProject().cancelReviewSequenceGroup(reviewGroupNumbers[a]);
 		}
 		
 		view.saveProject();
@@ -352,7 +352,7 @@ View.prototype.moveNodes = function(id, className){
 		
 		//place them back in the beginning of the projectList
 		for(var b=0;b<removed.length;b++){
-			this.project.getSequenceNodes().unshift(removed[b]);
+			this.getProject().getSequenceNodes().unshift(removed[b]);
 		}
 	} else if(id=='uNode'){//only move nodes to unattached nodes
 		if(selected.seqs.size()>0){
@@ -363,14 +363,14 @@ View.prototype.moveNodes = function(id, className){
 		
 		//place them back in the beginning of the projectList
 		for(var b=0;b<removed.length;b++){
-			this.project.getLeafNodes().unshift(removed[b]);
+			this.getProject().getLeafNodes().unshift(removed[b]);
 		}
 	} else {//must be a id object id.after = boolean  id.id = string
 		var pIdLoc = id.id.split('--');
-		var toNode = this.project.getNodeById(pIdLoc[1]);
+		var toNode = this.getProject().getNodeById(pIdLoc[1]);
 		if(id.after){//move selected after node - selected become siblings
 			if(pIdLoc[0]!='null'){
-				var parent = this.project.getNodeById(pIdLoc[0]);
+				var parent = this.getProject().getNodeById(pIdLoc[0]);
 				
 				//enforce project structure
 				if(this.simpleProject){
@@ -400,31 +400,31 @@ View.prototype.moveNodes = function(id, className){
 					var stack =[];
 					
 					parent.children.splice(ndx, 0, removed[f]);
-					if(!this.project.validateNoLoops(parent.id, stack)){
+					if(!this.getProject().validateNoLoops(parent.id, stack)){
 						this.notificationManager.notify('Adding ' + removed[f].id + ' to ' + parent.id + ' would cause an infinite loop. Aborting change.', 3);
 						parent.children.splice(ndx, 1);
 					}
 					
 					//if(!use2x){
 						if(removed[f].type=='sequence'){
-							this.project.getSequenceNodes().push(removed[f]);
+							this.getProject().getSequenceNodes().push(removed[f]);
 						} else {
-							this.project.getLeafNodes().push(removed[f]);
+							this.getProject().getLeafNodes().push(removed[f]);
 						}
 					//}
 				}
 			} else {//must exist in an unattached section
-				if(this.project.getSequenceNodes().indexOf(toNode)==-1){//we are trying to move into unattached nodes
+				if(this.getProject().getSequenceNodes().indexOf(toNode)==-1){//we are trying to move into unattached nodes
 					if(selected.seqs.size()>0){
 						this.notificationManager.notify('Only Steps can be moved into the Inactive Steps area.', 3);
 					}
 					//var removed = this.removeFromProject(selected.nodes, use2x);
 					var removed = this.removeFromProject(selected.nodes);
-					var ndx = this.project.getLeafNodes().indexOf(toNode) + 1;
+					var ndx = this.getProject().getLeafNodes().indexOf(toNode) + 1;
 					
 					//if(!use2x){
 						for(var g=0;g<removed.length;g++){
-							this.project.getLeafNodes().splice(ndx, 0, removed[g]);
+							this.getProject().getLeafNodes().splice(ndx, 0, removed[g]);
 						}
 					//}
 				} else {//we are trying to move into unattached sequences
@@ -433,11 +433,11 @@ View.prototype.moveNodes = function(id, className){
 					}
 					//var removed = this.removeFromProject(selected.seqs, use2x);
 					var removed = this.removeFromProject(selected.seqs);
-					var ndx = this.project.getSequenceNodes().indexOf(toNode) + 1;
+					var ndx = this.getProject().getSequenceNodes().indexOf(toNode) + 1;
 					
 					//if(!use2x){
 						for(var h=0;h<removed.length;h++){
-							this.project.getSequenceNodes().splice(ndx, 0, removed[h]);
+							this.getProject().getSequenceNodes().splice(ndx, 0, removed[h]);
 						}
 					//}
 				}
@@ -446,7 +446,7 @@ View.prototype.moveNodes = function(id, className){
 			if(toNode){
 				//enforce project structure
 				if(this.simpleProject){
-					if(this.project.getRootNode().id==toNode.id){//this is the master, only allow sequences
+					if(this.getProject().getRootNode().id==toNode.id){//this is the master, only allow sequences
 						//var removed = this.removeFromProject(selected.seqs, use2x);
 						var removed = this.removeFromProject(selected.seqs);
 						if(selected.nodes.size()>0){
@@ -470,7 +470,7 @@ View.prototype.moveNodes = function(id, className){
 					toNode.children.splice(0, 0, removed[j]);
 					
 					//verify no infinite loops
-					if(!this.project.validateNoLoops(toNode.id, stack)){
+					if(!this.getProject().validateNoLoops(toNode.id, stack)){
 						this.notificationManager.notify('Adding ' + removed[j].id + ' to ' + toNode.id + ' would cause an infinite loop. Undoing change.', 3);
 						toNode.children.splice(0, 1);
 					}
@@ -478,9 +478,9 @@ View.prototype.moveNodes = function(id, className){
 					//add to project's node lists
 					//if(!use2x){
 						if(removed[j].type=='sequence'){
-							this.project.getSequenceNodes().push(removed[j]);
+							this.getProject().getSequenceNodes().push(removed[j]);
 						} else {
-							this.project.getLeafNodes().push(removed[j]);
+							this.getProject().getLeafNodes().push(removed[j]);
 						}
 					//}
 				}
@@ -522,21 +522,21 @@ View.prototype.removeFromProject = function(list, removeFromProject){
 			this.notificationManager.notify('The master activity cannot be deleted.', 2);
 		} else {
 			var pIdLoc = $(node).data('absid').split('--');
-			var projectNode = this.project.getNodeById(pIdLoc[1]);
+			var projectNode = this.getProject().getNodeById(pIdLoc[1]);
 			
 			//put node in removed
 			removed.push(projectNode);
 			
 			//if it has a parent, remove from parent
 			if(pIdLoc[0]!='null'){
-				this.project.removeReferenceFromSequence(pIdLoc[0], pIdLoc[2]);
+				this.getProject().removeReferenceFromSequence(pIdLoc[0], pIdLoc[2]);
 			};
 			
 			//now remove from appropriate node list
 			if(this.getProject().getNodeById(pIdLoc[1]).type=='sequence'){//remove from seqs
-				this.project.getSequenceNodes().splice(this.project.getSequenceNodes().indexOf(projectNode), 1);
+				this.getProject().getSequenceNodes().splice(this.getProject().getSequenceNodes().indexOf(projectNode), 1);
 			} else {//remove from nodes
-				this.project.getLeafNodes().splice(this.project.getLeafNodes().indexOf(projectNode), 1);
+				this.getProject().getLeafNodes().splice(this.getProject().getLeafNodes().indexOf(projectNode), 1);
 			}
 		}
 	}
@@ -708,7 +708,7 @@ View.prototype.selectClick = function(id){
 		} else {
 			this.processSelected(id);
 		}
-	} /*else if(id!='uSeq' && id!='uNode' && id.split('--')[1]!=this.project.getRootNode().id) {
+	} /*else if(id!='uSeq' && id!='uNode' && id.split('--')[1]!=this.getProject().getRootNode().id) {
 		var node = $('#' + $.escapeId(id));
 		
 		//if(this.keystrokeManager.isShiftkeydown()){ //toggle selected for node
@@ -727,7 +727,7 @@ View.prototype.selectClick = function(id){
 View.prototype.selectBoxClick = function(id){
 	if(this.selectModeEngaged){
 		return;
-	} else if(id!='uSeq' && id!='uNode' && id.split('--')[1]!=this.project.getRootNode().id) {
+	} else if(id!='uSeq' && id!='uNode' && id.split('--')[1]!=this.getProject().getRootNode().id) {
 		var node = $('#' + $.escapeId(id));
 		
 		//if(this.keystrokeManager.isShiftkeydown()){ //toggle selected for node
@@ -827,6 +827,128 @@ View.prototype.updateSelectCounts = function(){
 };
 
 /**
+ * Returns a custom object of nodes represented by the elements on this page
+ * that are currently 'selected'.
+ * 
+ * obj.master = node (master sequence)	- null if master seq is not selected
+ * obj.seqs = [seq 1, seq 2...]			- empty list if no seqs are selected
+ * obj.nodes = [node 1, node 2...]		- empty list if no nodes are selected
+ */
+/*View.prototype.getSelected = function(){
+	var o = {master: null, seqs: [], nodes: []};
+	o.master = $('.selected.master');
+	o.seqs = $('.selected.seq');
+	o.nodes = $('.selected.node');
+	o.ordered = $('.projectNode.selected');
+	return o;
+};*/
+
+/**
+ * Removes the selected nodes and sequences from the project and refreshes authoring.
+ */
+/*View.prototype.deleteSelected = function(){
+	var selected = this.getSelected();
+	var view = this;
+	var reviewAlert = '';
+	var seqAlert = '';
+	
+	if(selected.nodes.size()>0){
+		for(var i=0;i<selected.nodes.size();i++){
+			var id = selected.nodes[i].id.split('--')[1];
+			var projectNode = view.getProject().getNodeById(id);
+			if(projectNode.reviewGroup){
+				reviewAlert = '\n\nAlso, deleting any Steps that are part of a Student or Teacher Review Sequence will also remove that Review Sequence.';
+			}
+		}
+	}
+	if(selected.seqs.size()<1 && selected.nodes.size()<1){//if none are selected, notify user
+		this.notificationManager.notify('Select one or more items before activating this tool.', 3);
+	} else {
+		var message = 'Are you sure you want to delete ';
+		if(selected.seqs.size()>0){
+			seqAlert = '\n\nIf you delete an Activity, any Steps that Activity contains will be unattached and will be moved to the Inactive Steps section.';
+			if(selected.seqs.size()==1){
+				message = message + '1 Activity';
+			}
+			if(selected.seqs.size()>1){
+				message = message + selected.seqs.size() + ' Activities';
+			}
+			if(selected.nodes.size()>0){
+				message = message + ' and ';
+			} else {
+				message = message + '?';
+			}
+		}
+		
+		if(selected.nodes.size()==1){
+			message = message + '1 Step?';
+		}
+		if(selected.nodes.size()>1){
+			message = message + selected.nodes.size() + ' Steps?';
+		}
+		
+		message = message + '\n\nWARNING: This operation is permanent!\n\nAs an alternative, you can move items to the Inactive Activities & Steps sections.  Those items do not show up when students run the project, but are saved for possible future use.' + seqAlert + reviewAlert;
+		
+		
+		if(confirm(message)){
+		
+			if(selected.master.size()>0){
+				this.notificationManager.notify('Deleting the master activity for a project is not allowed.');
+			};
+			
+			//remove selected seqs - any attached nodes will remain as leaf nodes in project
+			selected.seqs.each(function(ndx){
+				var id = this.id.split('--')[1];
+				view.getProject().removeNodeById(id);
+			});
+			
+			//remove selected nodes
+			var reviewGroupNumbers = [];
+			selected.nodes.each(function(ndx){
+				var id = this.id.split('--')[1];
+				var projectNode = view.getProject().getNodeById(id);*/
+				
+				/* if this is a regular node, we need to remove its file from the server as well
+				 * as any duplicate nodes from the project, otherwise, we just need to remove the
+				 * the duplicate node from the project */
+				//if(projectNode.type=='DuplicateNode'){
+					/* this is a duplicate node, so just remove it from the project */
+					//view.getProject().removeNodeById(id);
+				//} else {
+					/* this is a regular node, remove file from server as well as project, also
+					 * need to remove any duplicates of this node from the project. */
+					
+					// if this node is part of review sequence, also remove the review sequence
+					/*if(projectNode.reviewGroup){
+						// check if we've already added this reviewGroup number to the array to be deleted
+						if(reviewGroupNumbers.indexOf(projectNode.reviewGroup)==-1){
+							reviewGroupNumbers.push(projectNode.reviewGroup); //add to array of reviewGroups to be deleted
+						}
+					}
+					
+					var dups = view.getProject().getDuplicatesOf(id, true);
+					
+					view.utils.removeNodeFileFromServer(view,id);
+					
+					for(var x=0;x<dups.length;x++){
+						view.getProject().removeNodeById(dups[x].id);
+					}
+				}
+			});
+			//cancel reviewGroups to be deleted
+			for(var a=0;a<reviewGroupNumbers.length;a++){
+				view.getProject().cancelReviewSequenceGroup(reviewGroupNumbers[a]);
+			}
+			
+			this.saveProject();
+			
+			//refresh
+			this.generateAuthoring();
+		}
+	};
+};*/
+
+/**
  * Duplicates the selected sequences and nodes and refreshes project.
  */
 View.prototype.duplicateSelected = function(){
@@ -862,14 +984,14 @@ View.prototype.duplicateSelected = function(){
 			};
 			
 			obj.notificationManager.notify(msg, 3);
-			obj.loadProject(obj.project.getUrl(), obj.project.getContentBase(), true);
+			obj.loadProject(obj.getProject().getUrl(), obj.getProject().getContentBase(), true);
 		};
 		
-		var eventName = this.project.generateUniqueCopyEventName();
+		var eventName = this.getProject().generateUniqueCopyEventName();
 		this.eventManager.addEvent(eventName);
 		this.eventManager.subscribe(eventName, allCopied, this);
 
-		this.project.copyNodes(nodeIds, eventName);
+		this.getProject().copyNodes(nodeIds, eventName);
 	};
 };
 
@@ -1041,7 +1163,7 @@ View.prototype.moveCallback = function(id, args){
 		//place them back in the beginning of the projectList
 		if(!use2x){
 			for(var b=0;b<removed.length;b++){
-				this.project.getSequenceNodes().unshift(removed[b]);
+				this.getProject().getSequenceNodes().unshift(removed[b]);
 			}
 		}
 	} else if(id=='uNode'){//only move nodes to unattached nodes
@@ -1053,15 +1175,15 @@ View.prototype.moveCallback = function(id, args){
 		//place them back in the beginning of the projectList
 		if(!use2x){
 			for(var b=0;b<removed.length;b++){
-				this.project.getLeafNodes().unshift(removed[b]);
+				this.getProject().getLeafNodes().unshift(removed[b]);
 			}
 		}
 	} else {//must be a id object id.after = boolean  id.id = string
 		var pIdLoc = id.id.split('--');
-		var toNode = this.project.getNodeById(pIdLoc[1]);
+		var toNode = this.getProject().getNodeById(pIdLoc[1]);
 		if(id.after){//move selected after node - selected become siblings
 			if(pIdLoc[0]!='null'){
-				var parent = this.project.getNodeById(pIdLoc[0]);
+				var parent = this.getProject().getNodeById(pIdLoc[0]);
 				
 				//enforce project structure
 				if(this.simpleProject){
@@ -1091,30 +1213,30 @@ View.prototype.moveCallback = function(id, args){
 					var stack =[];
 					
 					parent.children.splice(ndx, 0, removed[f]);
-					if(!this.project.validateNoLoops(parent.id, stack)){
+					if(!this.getProject().validateNoLoops(parent.id, stack)){
 						this.notificationManager.notify('Adding ' + removed[f].id + ' to ' + parent.id + ' would cause an infinite loop. Aborting change.', 3);
 						parent.children.splice(ndx, 1);
 					}
 					
 					if(!use2x){
 						if(removed[f].type=='sequence'){
-							this.project.getSequenceNodes().push(removed[f]);
+							this.getProject().getSequenceNodes().push(removed[f]);
 						} else {
-							this.project.getLeafNodes().push(removed[f]);
+							this.getProject().getLeafNodes().push(removed[f]);
 						}
 					}
 				}
 			} else {//must exist in an unattached section
-				if(this.project.getSequenceNodes().indexOf(toNode)==-1){//we are trying to move into unattached nodes
+				if(this.getProject().getSequenceNodes().indexOf(toNode)==-1){//we are trying to move into unattached nodes
 					if(selected.seqs.size()>0){
 						this.notificationManager.notify('Only Steps can be moved into the Inactive Steps area.', 3);
 					}
 					var removed = this.removeFromProject(selected.nodes, use2x);
-					var ndx = this.project.getLeafNodes().indexOf(toNode) + 1;
+					var ndx = this.getProject().getLeafNodes().indexOf(toNode) + 1;
 					
 					if(!use2x){
 						for(var g=0;g<removed.length;g++){
-							this.project.getLeafNodes().splice(ndx, 0, removed[g]);
+							this.getProject().getLeafNodes().splice(ndx, 0, removed[g]);
 						}
 					}
 				} else {//we are trying to move into unattached sequences
@@ -1122,11 +1244,11 @@ View.prototype.moveCallback = function(id, args){
 						this.notificationManager.notify('Only Activities can be moved into the Inactive Activities area.', 3);
 					}
 					var removed = this.removeFromProject(selected.seqs, use2x);
-					var ndx = this.project.getSequenceNodes().indexOf(toNode) + 1;
+					var ndx = this.getProject().getSequenceNodes().indexOf(toNode) + 1;
 					
 					if(!use2x){
 						for(var h=0;h<removed.length;h++){
-							this.project.getSequenceNodes().splice(ndx, 0, removed[h]);
+							this.getProject().getSequenceNodes().splice(ndx, 0, removed[h]);
 						}
 					}
 				}
@@ -1135,7 +1257,7 @@ View.prototype.moveCallback = function(id, args){
 			if(toNode){
 				//enforce project structure
 				if(this.simpleProject){
-					if(this.project.getRootNode().id==toNode.id){//this is the master, only allow sequences
+					if(this.getProject().getRootNode().id==toNode.id){//this is the master, only allow sequences
 						var removed = this.removeFromProject(selected.seqs, use2x);
 						if(selected.nodes.size()>0){
 							this.notificationManager.notify('You are attempting to place Step(s) outside of an Activity. If you  wish to do this, switch to Advanced Project mode.', 3);
@@ -1159,7 +1281,7 @@ View.prototype.moveCallback = function(id, args){
 					toNode.children.splice(0, 0, removed[j]);
 					
 					//verify no infinite loops
-					if(!this.project.validateNoLoops(toNode.id, stack)){
+					if(!this.getProject().validateNoLoops(toNode.id, stack)){
 						this.notificationManager.notify('Adding ' + removed[j].id + ' to ' + toNode.id + ' would cause an infinite loop. Undoing change.', 3);
 						toNode.children.splice(0, 1);
 					}
@@ -1167,9 +1289,9 @@ View.prototype.moveCallback = function(id, args){
 					//add to project's node lists
 					if(!use2x){
 						if(removed[j].type=='sequence'){
-							this.project.getSequenceNodes().push(removed[j]);
+							this.getProject().getSequenceNodes().push(removed[j]);
 						} else {
-							this.project.getLeafNodes().push(removed[j]);
+							this.getProject().getLeafNodes().push(removed[j]);
 						}
 					}
 				}
@@ -1361,21 +1483,21 @@ View.prototype.moveCallback = function(id, args){
 			this.notificationManager.notify('The master activity cannot be deleted.', 2);
 		} else {
 			var pIdLoc = node.id.split('--');
-			var projectNode = this.project.getNodeById(pIdLoc[1]);
+			var projectNode = this.getProject().getNodeById(pIdLoc[1]);
 			
 			//put node in removed
 			removed.push(projectNode);
 			
 			//if it has a parent, remove from parent
 			if(pIdLoc[0]!='null'){
-				this.project.removeReferenceFromSequence(pIdLoc[0], pIdLoc[2]);
+				this.getProject().removeReferenceFromSequence(pIdLoc[0], pIdLoc[2]);
 			};
 			
 			//now remove from appropriate node list
 			if(this.getProject().getNodeById(pIdLoc[1]).type=='sequence'){//remove from seqs
-				this.project.getSequenceNodes().splice(this.project.getSequenceNodes().indexOf(projectNode), 1);
+				this.getProject().getSequenceNodes().splice(this.getProject().getSequenceNodes().indexOf(projectNode), 1);
 			} else {//remove from nodes
-				this.project.getLeafNodes().splice(this.project.getLeafNodes().indexOf(projectNode), 1);
+				this.getProject().getLeafNodes().splice(this.getProject().getLeafNodes().indexOf(projectNode), 1);
 			}
 		}
 	}
@@ -1390,7 +1512,7 @@ View.prototype.getProjectNodesFromList = function(list){
 	var nodes = [];
 	
 	for(var e=list.size()-1;e>=0;e--){
-		nodes.push(this.project.getNodeById(list.get(e).attr('id').split('--')[1]));
+		nodes.push(this.getProject().getNodeById(list.get(e).attr('id').split('--')[1]));
 	};
 	
 	return nodes;
@@ -1483,10 +1605,10 @@ View.prototype.processSelected = function(id){
 			var nodeId = id.split("--")[1];
 			
 			//get the node type
-			var nodeType = this.project.getNodeById(nodeId).type;
+			var nodeType = this.getProject().getNodeById(nodeId).type;
 			
 			//get the node object
-			var nodeObject = this.project.getNodeById(nodeId);
+			var nodeObject = this.getProject().getNodeById(nodeId);
 			
 			if(nodeObject.peerReview != null || nodeObject.teacherReview != null) {
 				//the node selected is already in a review sequence so we will display an error message
@@ -1499,7 +1621,7 @@ View.prototype.processSelected = function(id){
 				 */
 				
 				//get the node position
-				var nodePosition = this.project.getPositionById(nodeId);
+				var nodePosition = this.getProject().getPositionById(nodeId);
 				
 				//check if the review sequence array has been set
 				if(this.createReviewSequenceArray != null) {
@@ -1509,7 +1631,7 @@ View.prototype.processSelected = function(id){
 						var prevReviewSequenceNodeId = this.createReviewSequenceArray[x];
 						
 						//get the position for the node
-						var prevReviewSequenceNodePosition = this.project.getPositionById(prevReviewSequenceNodeId);
+						var prevReviewSequenceNodePosition = this.getProject().getPositionById(prevReviewSequenceNodeId);
 						
 						/*
 						 * check that the current node position that was just clicked comes before
@@ -1688,7 +1810,7 @@ View.prototype.cancelReviewSequence = function(reviewGroupNumber) {
 		 * tell the project to remove the review group attributes from
 		 * the nodes in the specified review group number
 		 */
-		this.project.cancelReviewSequenceGroup(reviewGroupNumber);
+		this.getProject().cancelReviewSequenceGroup(reviewGroupNumber);
 		
 		//hide the right-click pop up dialog
 		//hideElement("contextMenu");
@@ -1761,7 +1883,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 	$node.addClass('reviewAdded'); // add reviewAdded class to selected node
 	
 	//get the next available review group number
-	var reviewGroup = this.project.getNextReviewGroupNumber();
+	var reviewGroup = this.getProject().getNextReviewGroupNumber();
 	
 	if(this.createReviewSequenceArray.length == 1) {
 		//create a p element that will display the review label (e.g. PR1.1, PR1.2, PR1.3)
@@ -1788,10 +1910,10 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		//the user is done selecting the third node
 		
 		//get the next available review group number
-		//var reviewGroup = this.project.getNextReviewGroupNumber();
+		//var reviewGroup = this.getProject().getNextReviewGroupNumber();
 		
 		//get the first node
-		var node1 = this.project.getNodeById(this.createReviewSequenceArray[0]);
+		var node1 = this.getProject().getNodeById(this.createReviewSequenceArray[0]);
 		
 		//set the peerReview or teacherReview attribute to 'start'
 		if(reviewSequenceType == 'Peer') {
@@ -1820,7 +1942,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		this.saveStep(false, true);
 		
 		//get the second node
-		var node2 = this.project.getNodeById(this.createReviewSequenceArray[1]);
+		var node2 = this.getProject().getNodeById(this.createReviewSequenceArray[1]);
 		
 		//set the peerReview or teacherReview attribute to 'annotate'
 		if(reviewSequenceType == 'Peer') {
@@ -1877,7 +1999,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		this.saveStep(false, true);
 		
 		//get the third node
-		var node3 = this.project.getNodeById(this.createReviewSequenceArray[2]);
+		var node3 = this.getProject().getNodeById(this.createReviewSequenceArray[2]);
 		
 		//set the peerReview or teacherReview attribute to 'revise'
 		if(reviewSequenceType == 'Peer') {
@@ -1944,7 +2066,7 @@ View.prototype.getReviewSequenceNodeTitles = function() {
 			var nodeId = this.createReviewSequenceArray[x];
 			
 			//get the node object
-			var node = this.project.getNodeById(nodeId);
+			var node = this.getProject().getNodeById(nodeId);
 			
 			if(x == 0) {
 				//display the first node

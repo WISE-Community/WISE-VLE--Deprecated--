@@ -559,7 +559,7 @@ View.prototype.saveStep = function(close, bypassUpdateSource){
 			};
 			
 			/* update content to server */
-			this.connectionManager.request('POST', 3, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command:'updateFile', fileName:this.activeContent.getFilename(this.project.getContentBase()), data:contentString},success,this,failure);			
+			this.connectionManager.request('POST', 3, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command:'updateFile', fileName:this.activeContent.getFilename(this.getProject().getContentBase()), data:contentString},success,this,failure);			
 		}
 	}
 };
@@ -650,7 +650,7 @@ View.prototype.injectAssetPath = function(contentString) {
 
 	var fullProjectFolderPath = null;
 	
-	if(this.projectMetadata.projectFolder != null) {
+	if(this.getProjectMetadata().projectFolder != null) {
 		/*
 		 * the project folder is in the project meta data
 		 * e.g.
@@ -659,7 +659,7 @@ View.prototype.injectAssetPath = function(contentString) {
 		 * so the full project folder path will look like
 		 * http://wise4.berkeley.edu/curriculum/135
 		 */
-		fullProjectFolderPath = contentBaseUrl + this.projectMetadata.projectFolder;
+		fullProjectFolderPath = contentBaseUrl + this.getProjectMetadata().projectFolder;
 	}
 	
 	//make sure the projectFolder ends with '/'
@@ -702,7 +702,7 @@ View.prototype.injectAssetPath = function(contentString) {
 
 	var fullProjectFolderPath = null;
 	
-	if(this.projectMetadata.projectFolder != null) {*/
+	if(this.getProjectMetadata().projectFolder != null) {
 		/*
 		 * the project folder is in the project meta data
 		 * e.g.
@@ -711,7 +711,7 @@ View.prototype.injectAssetPath = function(contentString) {
 		 * so the full project folder path will look like
 		 * http://wise4.berkeley.edu/curriculum/135
 		 */
-		/*fullProjectFolderPath = contentBaseUrl + this.projectMetadata.projectFolder;
+		/*fullProjectFolderPath = contentBaseUrl + this.getProjectMetadata().projectFolder;
 	}
 	
 	//make sure the projectFolder ends with '/'

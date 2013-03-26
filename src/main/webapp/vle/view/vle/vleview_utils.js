@@ -32,15 +32,11 @@ View.prototype.utils.setStyleOnElement = function(elementToHighlight, styleName,
  * @name optional, name of the poup. if none specified, 
  * tries to close all popups. Choices: {notePanel, journalPanel, hintsPanel, addAnIdeaDiv}
  */
-View.prototype.utils.closeDialogs = function(name){
-	if (name != null) {
-		this.closeDialog(name);
-	} else {
-		this.closeDialog('journalPanel');
-		this.closeDialog('notePanel');
-		this.closeDialog('hintsPanel');
-		this.closeDialog('addAnIdeaDiv');
-	}
+View.prototype.utils.closeDialogs = function(){
+	this.closeDialog('journalPanel');
+	this.closeDialog('notePanel');
+	this.closeDialog('hintsPanel');
+	this.closeDialog('addAnIdeaDiv');
 };
 
 /**
@@ -82,6 +78,38 @@ View.prototype.utils.resizePanel = function(panelname, size){
 		$('#' + panelname).parent().css({width:maxWidth + 'px', top:centeredTop-4 + 'px', height:'auto', left:centeredLeft + 'px'});
 		$("#" + panelname).css({height:maxHeight-titlebarHeight + 'px'});
 	}
+};
+
+/**
+ * Detects array equality by recursively checking equality of elements and sub-elements.
+ */
+View.prototype.utils.recursiveCompare = function(obj, reference){
+    if(obj === reference) return true;
+    if(obj instanceof Array){
+         if(obj.length !== reference.length) return false;
+         for(var i=0, len=obj.length; i<len; i++){
+             if(typeof obj[i] == "object" && typeof reference[j] == "object"){
+                 if(!this.recursiveCompare(obj[i], reference[i])) return false;
+             }
+             else if(obj[i] !== reference[i]) return false;
+         }
+    }
+    else if (!isNaN(obj) && !isNaN(reference)) {
+    	return obj == reference;
+    } else {
+        var objListCounter = 0;
+        var refListCounter = 0;
+        for(var i in obj){
+            objListCounter++;
+            if(typeof obj[i] == "object" && typeof reference[i] == "object"){
+                if(!this.recursiveCompare(obj[i], reference[i])) return false;
+            }
+            else if(obj[i] !== reference[i]) return false;
+        }
+        for(var i in reference) refListCounter++;
+        if(objListCounter !== refListCounter) return false;
+    }
+    return true; //Every object and array is equal
 };
 
 /* used to notify scriptloader that this script has finished loading */

@@ -90,7 +90,7 @@ OpenResponseNode.prototype.getPeerReviewOtherStudentWork = function(otherStudent
  */
 OpenResponseNode.prototype.importWork = function(importFromNode) {
 	if (this.canImportWork(importFromNode)) {
-		var studentWorkState = this.view.state.getLatestWorkByNodeId(importFromNode.id);
+		var studentWorkState = this.view.getState().getLatestWorkByNodeId(importFromNode.id);
 		if (studentWorkState != null) {
 			var studentWork = studentWorkState.response;
 
@@ -151,32 +151,8 @@ OpenResponseNode.prototype.importFile = function(filename) {
  * @param studentWork
  */
 OpenResponseNode.prototype.render = function(contentPanel,studentWork, disable) {
-	// add constraints
-	this.addConstraints();
-	
 	/* call super */
 	Node.prototype.render.call(this, contentPanel, studentWork, disable);
-};
-
-/**
- * Adds a new constraint for this open response if the content specifies that
- * student must complete work before exiting to another step
- */
-OpenResponseNode.prototype.addConstraints = function() {
-	if (this.content.getContentJSON().isMustCompleteAllPartsBeforeExit) {
-		//this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
-	}
-};
-
-/**
- * Override of Node.processStateConstraints
- * Checks to see if the work was completed. If it was, then no constraint is needed.
- * If not, then we need to add a constraint.
- */
-OpenResponseNode.prototype.processStateConstraints = function() {
-	if(!this.isCompleted()){
-		this.addConstraints();
-	}
 };
 
 /**
@@ -265,7 +241,7 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 	var contentJSON = this.content.getContentJSON();
 	
 	//get the CRater annotation for this step work
-	var cRaterAnnotation = this.view.annotations.getAnnotationByStepWorkIdType(stepWorkId, 'cRater');
+	var cRaterAnnotation = this.view.getAnnotations().getAnnotationByStepWorkIdType(stepWorkId, 'cRater');
 	
 	//get the node states
 	var nodeStates = nodeVisit.nodeStates;
@@ -462,13 +438,13 @@ OpenResponseNode.prototype.getAutoGradedFields = function(stepWorkId, runId, nod
 			 */
 			if(stepWorkId != null) {
 				//stepWorkId was provided
-				cRaterAnnotation = this.view.annotations.getAnnotationByStepWorkIdType(parseInt(stepWorkId), 'cRater');
+				cRaterAnnotation = this.view.getAnnotations().getAnnotationByStepWorkIdType(parseInt(stepWorkId), 'cRater');
 			} else {
 				/*
 				 * stepWorkId was not provided so we need to look 
 				 * up the annotation using the other fields
 				 */
-				cRaterAnnotation = this.view.annotations.getLatestAnnotationByAll(runId, nodeId, toWorkgroup, "-1", 'cRater');								
+				cRaterAnnotation = this.view.getAnnotations().getLatestAnnotationByAll(runId, nodeId, toWorkgroup, "-1", 'cRater');								
 			}
 			
 			if(cRaterAnnotation != null) {

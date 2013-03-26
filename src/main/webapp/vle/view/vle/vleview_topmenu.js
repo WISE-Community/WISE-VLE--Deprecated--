@@ -335,7 +335,7 @@ View.prototype.displayShowAllWork = function() {
 	    var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
 	    
 	    //get the scores given to the student by the teachers
-	    var totalScoreAndTotalPossible = this.annotations.getTotalScoreAndTotalPossibleByToWorkgroupAndFromWorkgroups(workgroupId, teacherIds, this.maxScores);
+	    var totalScoreAndTotalPossible = this.getAnnotations().getTotalScoreAndTotalPossibleByToWorkgroupAndFromWorkgroups(workgroupId, teacherIds, this.maxScores);
 	    
 	    //get the total score for the workgroup
 	    var totalScoreForWorkgroup = totalScoreAndTotalPossible.totalScore;
@@ -346,12 +346,12 @@ View.prototype.displayShowAllWork = function() {
 	    //get the max total score for this project
 	    var totalPossibleForProject = this.getMaxScoreForProject();
 	    
-	    var vleState = this.state;
-	    
-	    //get all the nodeIds in the projecte except nodes that do not have a grading view
-	    var nodeIds = this.getProject().getNodeIds(true);
+	    var vleState = this.getState();
 	    
 	    var numStepsCompleted = 0;
+	    
+	    //get all the node ids that the student can potentially visit
+	    var nodeIds = this.getStepNodeIdsStudentCanVisit(vleState);
 	    
 		//loop through all the nodeIds
 		for(var y=0; y<nodeIds.length; y++) {
@@ -379,7 +379,7 @@ View.prototype.displayShowAllWork = function() {
 	    	
 	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForProject + "</td><td class='scoreValue'><div class='pValue'>" + teamPercentProjectCompleted + "</div><div id='teamProgress' class='progress'></td></tr></table>";
 	    
-		allWorkHtml = "<div id='showWorkContainer' class='dialogContent'>" + scoresDiv1 + scoresDiv2 + scoresDiv3 + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
+		allWorkHtml = "<div id='showWorkContainer' class='dialogContent'>" + scoresDiv1 + scoresDiv2 + scoresDiv3 + this.getProject().getShowAllWorkHtml(this.getProject().getRootNode(), true) + "</div>";
 		
 	    if($('#showallwork').size()==0){
 	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'My Work (with Teacher Feedback and Scores)'});
@@ -421,12 +421,12 @@ View.prototype.displayShowAllWork = function() {
 		});
 		
 		//get all the node ids in the project
-		var nodeIds = this.project.getNodeIds();
+		var nodeIds = this.getProject().getNodeIds();
 		
 		//loop through all the node ids
 		for(var x=0; x<nodeIds.length; x++) {
 			//get a node object
-			var node = this.project.getNodeById(nodeIds[x]);
+			var node = this.getProject().getNodeById(nodeIds[x]);
 
 			//only perform this for steps that have a grading view
 			if(node.hasGradingView()) {
@@ -434,7 +434,7 @@ View.prototype.displayShowAllWork = function() {
 				var nodeId = node.id;
 				
 				//get the latest node visit that contains student work for this step
-				var nodeVisit = this.state.getLatestNodeVisitByNodeId(nodeId);
+				var nodeVisit = this.getState().getLatestNodeVisitByNodeId(nodeId);
 				
 				//check if the student has any work for this step
 				if(nodeVisit != null) {
@@ -458,7 +458,7 @@ View.prototype.displayShowAllWork = function() {
 		}
 		
 		//check if there was any new feeback for the student
-		if(this.project.hasNewFeedback()) {
+		if(this.getProject().hasNewFeedback()) {
 			//display a popup to notify the student that there is new feedback
 			alert('You have new feedback from your teacher.\n\nThe new feedback is labelled as [New].');
 		}
@@ -469,13 +469,13 @@ View.prototype.displayShowAllWork = function() {
  * Retrieve all the annotations for the currently-logged in user/workgroup
  * from the teacher.
  */
-View.prototype.getAnnotations = function(callerId) {
+View.prototype.retrieveAnnotations = function(callerId) {
 	var processGetAnnotationResponse = function(responseText, responseXML, args) {
 		var thisView = args[0];
 		var callerId = args[1];
 		
 		//parse the xml annotations object that contains all the annotations
-		thisView.annotations = Annotations.prototype.parseDataJSONString(responseText, true, thisView);
+		thisView.setAnnotations(Annotations.prototype.parseDataJSONString(responseText, true, thisView));
 
 		thisView.annotationsRetrieved = true;
 		eventManager.fire('getAnnotationsComplete', callerId);
@@ -558,7 +558,7 @@ View.prototype.getShowFlaggedWorkData = function() {
 View.prototype.getShowAllWorkData = function() {
 	//make sure annotations are retrieved
 	if(this.annotationsRetrieved == null) {
-		this.getAnnotations('displayShowAllWork');
+		this.retrieveAnnotations('displayShowAllWork');
 	} else {
 		/*
 		 * the annotations were already retrieved so we will make sure
@@ -571,7 +571,7 @@ View.prototype.getShowAllWorkData = function() {
 	
 	//make sure project meta data is retrieved
 	if(this.projectMetaDataRetrieved == null) {
-		this.getProjectMetaData();
+		this.retrieveProjectMetaData();
 	} else {
 		/*
 		 * the annotations were already retrieved so we will make sure
@@ -588,7 +588,7 @@ View.prototype.getShowAllWorkData = function() {
  * to notify the student about
  */
 View.prototype.getAnnotationsToCheckForNewTeacherAnnotations = function() {
-	this.getAnnotations('checkForNewTeacherAnnotations');
+	this.retrieveAnnotations('checkForNewTeacherAnnotations');
 };
 
 /**
@@ -598,13 +598,13 @@ View.prototype.getAnnotationsToCheckForNewTeacherAnnotations = function() {
  * @return
  */
 View.prototype.checkForNewTeacherAnnotations = function() {
-	if(this.state != null) {
+	if(this.getState() != null) {
 		//get the time they last visited in milliseconds
-		var lastTimeVisited = this.state.getLastTimeVisited();
+		var lastTimeVisited = this.getState().getLastTimeVisited();
 		
-		if(this.annotations != null) {
+		if(this.getAnnotations() != null) {
 			//check if there are any new annotations after the last time they visited
-			var areNewAnnotations = this.annotations.annotationsAfterDate(lastTimeVisited);
+			var areNewAnnotations = this.getAnnotations().annotationsAfterDate(lastTimeVisited);
 			
 			if(areNewAnnotations) {
 				//there are new annotations so we will automatically open up the show all work
@@ -705,8 +705,8 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
 		var title = this.getI18NString("idea_basket_add_an_idea");
-		if('ideaManagerSettings' in this.projectMetadata.tools){
-			var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		if('ideaManagerSettings' in this.getProjectMetadata().tools){
+			var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 			if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
 				title = imSettings.addIdeaTerm;
 			}
@@ -741,9 +741,9 @@ View.prototype.displayAddAnIdeaDialog = function() {
     var addAnIdeaHtml = "";
     
     var imVersion = 1, imSettings = {};
-    if('ideaManagerSettings' in this.projectMetadata.tools){
-    	imSettings = this.projectMetadata.tools.ideaManagerSettings;
-    	imVersion = this.projectMetadata.tools.ideaManagerSettings.version;
+    if('ideaManagerSettings' in this.getProjectMetadata().tools){
+    	imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
+    	imVersion = this.getProjectMetadata().tools.ideaManagerSettings.version;
     }
     
     if(imVersion > 1){
@@ -810,7 +810,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
     }
 	
     // close all dialogs
-    this.eventManager.fire('closeDialogs');
+    view.utils.closeDialogs();
     
 	//make the popup visible
 	$('#addAnIdeaDiv').dialog('open');
@@ -860,8 +860,8 @@ View.prototype.getIdeaAttributes = function(){
 View.prototype.addIdeaToBasket = function() {
 	var view = this;
 	var imVersion = 1;
-	if('ideaManagerSettings' in this.projectMetadata.tools){
-		imVersion = this.projectMetadata.tools.ideaManagerSettings.version;
+	if('ideaManagerSettings' in this.getProjectMetadata().tools){
+		imVersion = this.getProjectMetadata().tools.ideaManagerSettings.version;
 	}
 	
 	//get the node id, node name and vle position for the step
@@ -1097,8 +1097,8 @@ View.prototype.displayIdeaBasket = function() {
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe><div id="ideaBasketOverlay" style="display:none;"></div>');
 		
 		var title = this.getI18NString("idea_basket");
-		if('ideaManagerSettings' in this.projectMetadata.tools){
-			var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		if('ideaManagerSettings' in this.getProjectMetadata().tools){
+			var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 			if('basketTerm' in imSettings && this.utils.isNonWSString(imSettings.basketTerm)){
 				title = imSettings.basketTerm;
 			}
@@ -1129,7 +1129,7 @@ View.prototype.displayIdeaBasket = function() {
 	 */
 	if($('#ideaBasketDiv').is(':hidden')) {
 		// close all dialogs
-		this.eventManager.fire('closeDialogs');
+		view.utils.closeDialogs();
 		
 		//open the dialog
 		var docHeight = $(document).height()-25;
@@ -1154,8 +1154,8 @@ View.prototype.displayIdeaBasket = function() {
 			 * so we just need to reload the idea basket contents
 			 */
 			var imSettings = null;
-			if('ideaManagerSettings' in this.projectMetadata.tools){
-				imSettings = this.projectMetadata.tools.ideaManagerSettings;
+			if('ideaManagerSettings' in this.getProjectMetadata().tools){
+				imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 			}
 			window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this, imSettings);
 		}		
@@ -1304,8 +1304,8 @@ View.prototype.loadIdeaBasket = function() {
 	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
 	
 	var imSettings = null;
-	if('ideaManagerSettings' in this.projectMetadata.tools){
-		imSettings = this.projectMetadata.tools.ideaManagerSettings;
+	if('ideaManagerSettings' in this.getProjectMetadata().tools){
+		imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 	}
 	
 	//load the idea basket into the iframe
@@ -1323,8 +1323,8 @@ View.prototype.loadIdeaBasket = function() {
  */
 View.prototype.createIdeaBasket = function(ideaBasketJSONObj) {
 	var imSettings = null;
-	if('ideaManagerSettings' in this.projectMetadata.tools){
-		imSettings = this.projectMetadata.tools.ideaManagerSettings;
+	if('ideaManagerSettings' in this.getProjectMetadata().tools){
+		imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 	}
 	return new IdeaBasket(ideaBasketJSONObj,null,null,imSettings);
 };

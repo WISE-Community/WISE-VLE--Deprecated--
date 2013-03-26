@@ -300,7 +300,7 @@ MustVisitXBeforeConstraint.prototype.isVisitedAfterCreateTime = function(nodeId)
 			var tempNodeId = nodeIds[x];
 			
 			var canBeEmpty = true;
-			var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(tempNodeId, canBeEmpty);
+			var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(tempNodeId, canBeEmpty);
 			
 			if(nodeVisit != null) {
 				if(nodeVisit.visitStartTime > this.createTime) {
@@ -318,7 +318,7 @@ MustVisitXBeforeConstraint.prototype.isVisitedAfterCreateTime = function(nodeId)
 
 		//get the latest visit for the step
 		var canBeEmpty = true;
-		var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId, canBeEmpty);
+		var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(nodeId, canBeEmpty);
 		
 		if(nodeVisit != null) {
 			if(nodeVisit.visitStartTime > this.createTime) {

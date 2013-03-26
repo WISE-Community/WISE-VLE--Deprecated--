@@ -147,8 +147,7 @@ Box2dModelNode.prototype.render = function(contentPanel,studentWork, disable) {
  */
 Box2dModelNode.prototype.addConstraints = function() {
 	if (!this.isCompleted()){
-		//this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
-		this.view.eventManager.fire('addActiveTagMapConstraint', [this.id, null, 'mustCompleteBeforeAdvancing', null, null]);
+		this.view.addActiveTagMapConstraint(this.id, null, 'mustCompleteBeforeAdvancing', null, null);
 	}
 		
 };

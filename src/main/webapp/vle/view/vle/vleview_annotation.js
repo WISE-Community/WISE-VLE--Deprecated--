@@ -41,7 +41,7 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 		};
 
 		// set the title of the dialog based on step title
-		$('#nodeAnnotationsPanel').dialog("option","title",this.getI18NString("node_annotations_title")+" "+this.project.getVLEPositionById(currentNode.id)+": "+currentNode.getTitle());
+		$('#nodeAnnotationsPanel').dialog("option","title",this.getI18NString("node_annotations_title")+" "+this.getProject().getVLEPositionById(currentNode.id)+": "+currentNode.getTitle());
 		var nodeAnnotationComment = null;  // latest comment
 		var nodeAnnotationScore = null;    // latest score
 		var nodeAnnotationCRater = null;    // latest cRater feedback
@@ -80,8 +80,8 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 			}
 			if (currentNode.content.getContentJSON().cRater.displayCRaterFeedbackToStudent) {
 				// get the feedback that the student saw in the nodestate
-				if (this.state.getLatestCRaterFeedbackByNodeId(currentNode.id) != null) {
-					var cRaterFeedbackText = this.state.getLatestCRaterFeedbackByNodeId(currentNode.id);
+				if (this.getState().getLatestCRaterFeedbackByNodeId(currentNode.id) != null) {
+					var cRaterFeedbackText = this.getState().getLatestCRaterFeedbackByNodeId(currentNode.id);
 					if (cRaterFeedbackText != null) {
 						cRaterFeedbackStringSoFar += cRaterFeedbackText+"<br/>";						
 					}

@@ -1,43 +1,43 @@
 {
 	"file_button_text":{
 		"value":"檔案",
-		"description":"Text on the File Manager button"
+		"description":"Text on the File Manager button on Top Toolbar"
 	},
 	"ideas_button_text":{
 		"value":"想法",
-		"description":"Text on the Idea Manager button"
+		"description":"Text on the Idea Manager button on Top Toolbar"
 	},
 	"addidea_button_text":{
 		"value":"新增想法",
-		"description":"Text on the Add Idea button"
+		"description":"Text on the Add Idea button on Top Toolbar"
 	},
 	"mywork_button_text":{
 		"value":"我的作業",
-		"description":"Text on the My Work button"
+		"description":"Text on the My Work button on Top Toolbar"
 	},
 	"flagged_button_text":{
 		"value":"標記",
-		"description":"Text on the Flagged button"
+		"description":"Text on the Flagged button on Top Toolbar"
 	},
 	"journal_button_text":{
 		"value":"筆記",
-		"description":"Text on the Journal button"
+		"description":"Text on the Journal button on Top Toolbar"
 	},
-	"toggle_nav_button_text":{
+	"fullscreen_button_text":{
 		"value":"全螢幕",
-		"description":"Text on the Toggle Navigation button when navigation UI is on (visible)"
+		"description":"Text on the Full Screen button on Top Toolbar"
 	},
 	"signout_button_text":{
 		"value":"登出",
-		"description":"Text on the Log out button"
+		"description":"Text on the Log out button on Top Toolbar"
 	},
 	"gohome_button_text":{
 		"value":"首頁",
-		"description":"Text on the Home button"
+		"description":"Text on the Home button on Top Toolbar"
 	},		
 	"hint_button_text":{
 		"value":"提示",
-		"description":"Text that shows up next to the Hint button"
+		"description":"Text that shows up next to the Hint button in the top tool bar"
 	},
 	"hint_title":{
 		"value":"步驟提示",

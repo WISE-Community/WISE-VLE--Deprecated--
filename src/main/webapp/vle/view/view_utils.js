@@ -20,9 +20,7 @@ View.prototype.utilDispatcher = function(type, args, obj) {
 	} else if (type == 'checkSession') {
 		// check if session has been expired
 		obj.sessionManager.checkSession();
-	} else if(type == 'forceLogout') {
-		obj.forceLogout();
-	};
+	} 
 };
 
 /**
@@ -44,7 +42,7 @@ View.prototype.getMaxScoresSum = function(nodeIds) {
 /**
  * Get the project meta data such as max score values
  */
-View.prototype.getProjectMetaData = function() {
+View.prototype.retrieveProjectMetaData = function() {
 	//get the url to retrieve the project meta data
 	var projectMetaDataUrl = this.getConfig().getConfigParam('projectMetaDataUrl');
 	
@@ -54,9 +52,9 @@ View.prototype.getProjectMetaData = function() {
 			
 			if(text != null && text != "") {
 				//thisView.processMaxScoresJSON(text);
-				thisView.projectMetadata = thisView.$.parseJSON(text);
+				thisView.setProjectMetadata(thisView.$.parseJSON(text));
 				
-				var maxScores = thisView.projectMetadata.maxScores;
+				var maxScores = thisView.getProjectMetadata().maxScores;
 				if(maxScores == null || maxScores == "") {
 					maxScores = "[]";
 				}
@@ -278,9 +276,9 @@ View.prototype.getElementsByClassName = function(node,searchClass,tag) {
 View.prototype.getLatestStateForNode = function(nodeId) {
 	var nodeState = null;
 	
-	if(this.state != null) {
-		for (var i=this.state.visitedNodes.length - 1; i>=0 ; i--) {
-			var nodeVisit = this.state.visitedNodes[i];
+	if(this.getState() != null) {
+		for (var i=this.getState().visitedNodes.length - 1; i>=0 ; i--) {
+			var nodeVisit = this.getState().visitedNodes[i];
 			if (nodeVisit.getNodeId() == nodeId) {
 				for (var j=nodeVisit.nodeStates.length - 1; j>=0; j--) {
 					nodeState = nodeVisit.nodeStates[j];
@@ -324,8 +322,8 @@ View.prototype.getLatestStateForCurrentNode = function() {
 	} 
 	var stringSoFar = "";   // build the data
 	
-	if(this.state != null) {
-		var allNodeVisitsForCurrentNode = this.state.getNodeVisitsByNodeId(currentNode.id);
+	if(this.getState() != null) {
+		var allNodeVisitsForCurrentNode = this.getState().getNodeVisitsByNodeId(currentNode.id);
 		for (var i=0; i<allNodeVisitsForCurrentNode.length; i++) {
 			var nodeStates = allNodeVisitsForCurrentNode[i].nodeStates;
 			if (nodeStates != null) {
@@ -1660,7 +1658,7 @@ View.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphTyp
 	var workgroupIdsInClass = this.userAndClassInfo.getWorkgroupIdsInClass();
 	var mcChoices = [];
 	var mcChoiceColors = [];  // display color for each choice.
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	var mcContent = node.content.getContentJSON();
 	/* add each choice object from the content to the choices array */
 	for(var a=0;a<mcContent.assessmentItem.interaction.choices.length;a++){
@@ -1743,6 +1741,170 @@ View.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphTyp
 	}
 
 	$(dom).show();
+};
+
+
+/**
+ * Get all the node ids the student can visit. This is necessary in order
+ * to properly calculate the project percentage completion while taking into
+ * consideration branching. If the student has not reached a branch point,
+ * we will accumulate all node ids from all the paths in that branch point
+ * because at the moment they can potentially visit any of those steps
+ * depending on what happens when they reach the branch point. If the student
+ * has reached a branch point and has been assigned a path, we will only
+ * accumulate the node ids for the path that they have been assigned to.
+ * @param vleState all the work for a student
+ * @return an array of node ids that the student can potentially visit
+ */
+View.prototype.getStepNodeIdsStudentCanVisit = function(vleState) {
+	//get the project content
+	var project = this.getProject();
+	
+	//get the project JSON object
+	var projectJSON = project.projectJSON();
+	
+	//get the starting point of the project
+	var startPoint = projectJSON.startPoint;
+	
+	//create the array that we will store the nodeIds in
+	var nodeIds = [];
+	
+	//get the start node
+	var startNode = project.getNodeById(startPoint);
+	
+	//get the leaf nodeIds
+	nodeIds = this.getStepNodeIdsStudentCanVisitHelper(nodeIds, startNode, vleState);
+	
+	//return the populated array containing nodeIds
+	return nodeIds;
+};
+
+/**
+ * The recursive function that accumulates the node ids that
+ * the student can potentially visit at the moment.
+ * @param nodeIds the array of accumulated node ids that the student
+ * can potentially visit
+ * @param currentNode the current node we are on as we traverse the project
+ * @param vleState all of the work for a student
+ * @return the accumulated array of node ids that the student can 
+ * potentially visit
+ */
+View.prototype.getStepNodeIdsStudentCanVisitHelper = function(nodeIds, currentNode, vleState) {
+	if(currentNode.type == 'sequence') {
+		//current node is a sequence
+		
+		//get the child nodes
+		var childNodes = currentNode.children;
+		
+		if(childNodes.length > 0) {
+			var firstChild = childNodes[0];
+			if(firstChild != null && firstChild.type == 'BranchingNode') {
+				/*
+				 * the first step in the sequence is a branch node so we will check
+				 * if the student has been assigned a path yet. If they have been 
+				 * assigned to a path, we will only get the node ids in that path.
+				 * If they have not been assigned to a path we will get all the
+				 * node ids in all the paths.
+				 */
+				
+				//get the work from the branch node
+				var branchingNodeWork = vleState.getLatestNodeVisitByNodeId(firstChild.id);
+				
+				if(branchingNodeWork != null) {
+					//the student has branched
+					
+					//get the latest node state for the branch node 
+					var latestWork = branchingNodeWork.getLatestWork();
+					
+					if(latestWork != null) {
+						//get the response
+						var response = latestWork.response;
+						
+						if(response != null) {
+							//get the chosen path id e.g. 'path1'
+							var chosenPathId = response.chosenPathId;
+							
+							//get the step content for the branch node
+							var branchingNodeContent = firstChild.getContent().getContentJSON();
+							
+							//get all the possible paths for this branch node
+							var paths = branchingNodeContent.paths;
+							
+							var chosenPathSequenceId = '';
+							
+							if(paths != null) {
+								//loop through all the paths
+								for(var x=0; x<paths.length; x++) {
+									//get a path
+									var path = paths[x];
+									
+									if(path != null && path.identifier == chosenPathId) {
+										//we have found the path that the student has been assigned to
+										chosenPathSequenceId = path.sequenceRef;
+									}
+								}								
+							}
+							
+							if(chosenPathSequenceId != '') {
+								//get the sequence node for the path that the student has been assigned to
+								var chosenPathSequenceNode = this.getProject().getNodeById(chosenPathSequenceId);
+								
+								//traverse the sequence for the child node ids
+								this.getStepNodeIdsStudentCanVisitHelper(nodeIds, chosenPathSequenceNode, vleState);								
+							}
+						}
+					}
+				} else {
+					/*
+					 * the student has not been assigned to a path yet so we will just accumulate
+					 * all the node ids in all the paths.
+					 */ 
+					
+					//loop through all the child nodes
+					for(var x=0; x<childNodes.length; x++) {
+						//get a child node
+						var childNode = childNodes[x];
+						
+						//recursively call this function with the child node
+						nodeIds = this.getStepNodeIdsStudentCanVisitHelper(nodeIds, childNode, vleState);
+					}
+				}
+				
+			} else {
+				/*
+				 * the first step in the sequence is not a branch node so we will
+				 * loop through the child nodes like normal
+				 */ 
+				
+				//loop through all the child nodes
+				for(var x=0; x<childNodes.length; x++) {
+					//get a child node
+					var childNode = childNodes[x];
+					
+					//recursively call this function with the child node
+					nodeIds = this.getStepNodeIdsStudentCanVisitHelper(nodeIds, childNode, vleState);
+				}
+			}
+		}
+	} else {
+		//current node is a leaf node
+		
+		//get the node type
+		var nodeType = currentNode.type;
+		
+		/*
+		 * if there are no node types to exclude or if the current node type
+		 * is not in the : delimited string of node types to exclude or if
+		 * the node type is FlashNode and grading is enabled, we will
+		 * add the node id to the array
+		 */
+		if(currentNode.hasGradingView()) {
+			nodeIds.push(currentNode.id);					
+		}
+	}
+	
+	//return the updated array of nodeIds
+	return nodeIds;
 };
 
 /* used to notify scriptloader that this script has finished loading */

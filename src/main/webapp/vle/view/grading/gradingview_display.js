@@ -764,11 +764,11 @@ View.prototype.populateRealTimeMonitorDropDowns = function() {
 	$('#realTimeMonitorSelectStepDropDown').append('<option value="all" onclick="eventManager.fire(\'realTimeMonitorSelectStepDropDownClicked\')">All</option>');
 	
 	var onlyGetNodesWithGradingView = true;
-	var allNodeIdsInProject = this.project.getNodeIds(onlyGetNodesWithGradingView);
+	var allNodeIdsInProject = this.getProject().getNodeIds(onlyGetNodesWithGradingView);
 	for(var i=0; i<allNodeIdsInProject.length; i++) {
 		var nodeIdInProject = allNodeIdsInProject[i];
-		var nodeNumberAndTitle = this.project.getStepNumberAndTitle(nodeIdInProject);
-		var nodeType = this.project.getNodeById(nodeIdInProject).type;
+		var nodeNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeIdInProject);
+		var nodeType = this.getProject().getNodeById(nodeIdInProject).type;
 		
 		$('#realTimeMonitorSelectStepDropDown').append('<option value=' + nodeIdInProject + ' onclick="eventManager.fire(\'realTimeMonitorSelectStepDropDownClicked\')">' + nodeNumberAndTitle + ' ('+ nodeType + ')</option>');
 	}
@@ -803,7 +803,7 @@ View.prototype.realTimeMonitorFilterClicked = function() {
 	$("#realTimeMonitorStepSummaryDiv").hide();
 
 	if (selectedNodeIdValue != null) {
-		var node = this.project.getNodeById(selectedNodeIdValue);
+		var node = this.getProject().getNodeById(selectedNodeIdValue);
 		if (node != null) {
 			if (node.type == "MultipleChoiceNode") {
 				// clear graph image and show real time monitor statistics graph
@@ -1081,7 +1081,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		var studentTRClass = "showScoreRow studentWorkRow period" + periodName;
 		
 		//get the cumulative score for the workgroup
-		var totalScoreForWorkgroup = this.annotations.getTotalScoreByToWorkgroupAndFromWorkgroups(workgroupId, teacherIds);
+		var totalScoreForWorkgroup = this.getAnnotations().getTotalScoreByToWorkgroupAndFromWorkgroups(workgroupId, teacherIds);
 		
 		var teacherScorePercentage = "";
 		
@@ -1553,7 +1553,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the node content
 	var nodeContent = node.getContent().getContentJSON();
@@ -1821,7 +1821,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var periodName = this.getUserAndClassInfo().getClassmatePeriodNameByWorkgroupId(workgroupId);
 
 		//get the latest flag value
-		var latestFlag = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, 'flag');
+		var latestFlag = this.getAnnotations().getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, 'flag');
 
 		//default will be unchecked/unflagged
 		var flagChecked = "";
@@ -2028,7 +2028,7 @@ View.prototype.calculateGradingStatistics = function(gradingType) {
 	 * check to make sure the student work has been retrieved otherwise
 	 * we can't calculate the statistics
 	 */
-	if(this.vleStates != null) {
+	if(this.getStates() != null) {
 		//check if gradingType was passed into this fuction
 		if(gradingType == null) {
 			//gradingType was not passed in so we will retrieve it from the config
@@ -2062,13 +2062,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
 		//post level is set to low so we only want to get the nodes types that have student work
 		onlyGetNodesWithGradingView = true;
 	}
-	
-	/*
-	 * get all the leaf nodes in the project except for HtmlNodes
-	 * this is a : delimited string of nodeIds
-	 */
-	var nodeIds = this.getProject().getNodeIds(onlyGetNodesWithGradingView);
-	
+
 	//get the run id
 	var runId = this.getConfig().getConfigParam('runId');
 	
@@ -2079,9 +2073,9 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
 	var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
 	
 	//loop through all the vleStates, each vleState is for a workgroup
-	for(var x=0; x<this.vleStates.length; x++) {
+	for(var x=0; x<this.getStates().length; x++) {
 		//get a vleState
-		var vleState = this.vleStates[x];
+		var vleState = this.getStates()[x];
 		
 		//get the workgroup id
 		var workgroupId = vleState.dataId;
@@ -2091,6 +2085,9 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
 		
 		//the number of steps the current workgroupId has completed
 		var numStepsCompleted = 0;
+		
+		//get the node ids this student can visit except steps that can't be graded such as Html steps
+		var nodeIds = this.getStepNodeIdsStudentCanVisit(vleState);
 		
 		//loop through all the nodeIds
 		for(var y=0; y<nodeIds.length; y++) {
@@ -2363,9 +2360,9 @@ View.prototype.getGradeByStepGradingStatistics = function(nodeId) {
 	var maxScore = this.getMaxScoreValueByNodeId(nodeId);
 	
 	//loop through all the vleStates, each vleState is for a workgroup
-	for(var x=0; x<this.vleStates.length; x++) {
+	for(var x=0; x<this.getStates().length; x++) {
 		//get a vleState
-		var vleState = this.vleStates[x];
+		var vleState = this.getStates()[x];
 		
 		//get the workgroup id
 		var workgroupId = vleState.dataId;
@@ -2427,7 +2424,7 @@ View.prototype.getGradeByStepGradingStatistics = function(nodeId) {
 	}
 
 	//calculate the percentage of students who have completed this step
-	var percentStudentsCompletedStep = Math.floor((numStudentsCompletedStep / this.vleStates.length) * 100) + "%";
+	var percentStudentsCompletedStep = Math.floor((numStudentsCompletedStep / this.getStates().length) * 100) + "%";
 	
 	//calculate the average score for the scores that were given for this step
 	var averageScore = sumOfScoredValues / numOfScoredValues;
@@ -2620,12 +2617,12 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 	
 	if(stepWorkId == null) {
 		//obtain the annotation for this workgroup and step if any
-		annotationComment = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "comment");
-		annotationScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "score");
+		annotationComment = this.getAnnotations().getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "comment");
+		annotationScore = this.getAnnotations().getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "score");
 	} else {
 		//obtain the annotation for this workgroup and step if any
-		annotationComment = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "comment");
-		annotationScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "score");
+		annotationComment = this.getAnnotations().getAnnotationByStepWorkIdType(stepWorkId, "comment");
+		annotationScore = this.getAnnotations().getAnnotationByStepWorkIdType(stepWorkId, "score");
 	}
 	
 	//the value to display in the comment text box
@@ -2891,9 +2888,9 @@ View.prototype.getPeerOrTeacherReviewData = function(studentWork, node, workgrou
 			
 			var teacherAnnotation = "";
 			
-			if(this.annotations != null) {
+			if(this.getAnnotations() != null) {
 				//get the latest comment annotation for the original step written by the teacher
-				var latestCommentAnnotationForStep = this.annotations.getLatestAnnotation(
+				var latestCommentAnnotationForStep = this.getAnnotations().getLatestAnnotation(
 						this.getConfig().getConfigParam('runId'),
 						associatedOriginalNodeId,
 						workgroupId,
@@ -2967,7 +2964,7 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	scoringAndCommentingTdHtml += "<td class='" + scoringAndCommentingTdClass + "'>";
 	
 	//get the content for the step
-	var nodeContent = this.project.getNodeById(nodeId).getContent().getContentJSON();
+	var nodeContent = this.getProject().getNodeById(nodeId).getContent().getContentJSON();
 	
 	//the td will contain a table
 	scoringAndCommentingTdHtml += "<table class='teacherAnnotationTable'>";
@@ -3167,7 +3164,7 @@ View.prototype.getToolsTdHtml = function(workgroupId, nodeId, teacherId, runId, 
 	
 	if (node.type == "BrainstormNode") {
 		//get the inappropriate flag value for the stepwork
-		var inappropriateFlagForStepWork = this.annotations.getAnnotationByStepWorkIdType(stepWorkId,'inappropriateFlag');
+		var inappropriateFlagForStepWork = this.getAnnotations().getAnnotationByStepWorkIdType(stepWorkId,'inappropriateFlag');
 		
 		//default will be unchecked/unflagged
 		var flagChecked = "";
@@ -3250,7 +3247,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	}
 	
 	//get the automatically assigned groups in this project, if any
-	var autoGroupsUsed = this.project.getAutoGroupsUsed();
+	var autoGroupsUsed = this.getProject().getAutoGroupsUsed();
 	
 	if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
 		gradeByTeamGradingPageHtml += "<div id='autoGroups_" + workgroupId + "'>";
@@ -3270,7 +3267,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	}
 	
 	//get the groups used in this project, if any
-	var allGroupsUsed = this.project.getManualGroupsUsed();
+	var allGroupsUsed = this.getProject().getManualGroupsUsed();
 	
 	if(allGroupsUsed != null && allGroupsUsed.length > 0) {
 		//get the groups that have been assigned to this workgroup
@@ -3394,7 +3391,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			}
 
 			//get the latest flag value
-			var latestFlag = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, 'flag');
+			var latestFlag = this.getAnnotations().getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, 'flag');
 			
 			//default will be unchecked/unflagged
 			var flagChecked = "";
@@ -3587,7 +3584,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
  * @return
  */
 View.prototype.getVleStatesSortedByUserName = function() {
-	var vleStates = this.vleStates;
+	var vleStates = this.getStates();
 	
 	/*
 	 * set this view to a local variable so it can be referenced
@@ -3825,7 +3822,7 @@ View.prototype.refreshGradingScreen = function() {
 	 * also get the student work and flags and also reloads the page
 	 * that the teacher was last on
 	 */
-	this.getAnnotations();
+	this.retrieveAnnotations();
 };
 
 /**
@@ -4931,7 +4928,7 @@ View.prototype.editGroups = function(workgroupId) {
     editGroupsHtml += "<div>";
 
     //get all the groups used in the project
-    var allGroupsUsed = this.project.getManualGroupsUsed();
+    var allGroupsUsed = this.getProject().getManualGroupsUsed();
     
     //get all the groups this workgroup is in
 	var groupsForWorkgroupId = this.getManualGroupsByWorkgroupId(workgroupId);
@@ -5047,7 +5044,7 @@ View.prototype.groupClicked = function(workgroupId) {
  */
 View.prototype.getRunAnnotationByWorkgroupId = function(workgroupId) {
 	//get the run annotations for this workgroup id
-	var runAnnotations = this.annotations.getAnnotationsByToWorkgroupType(workgroupId, "run");
+	var runAnnotations = this.getAnnotations().getAnnotationsByToWorkgroupType(workgroupId, "run");
 	var runAnnotation = null;
 	
 	if(runAnnotations != null && runAnnotations.length > 0){
@@ -5186,7 +5183,7 @@ View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId) {
 	var groupAssignmentsHtml = "";
 	
 	//get the automatically assigned groups used in this project, if any
-	var autoGroupsUsed = this.project.getAutoGroupsUsed();
+	var autoGroupsUsed = this.getProject().getAutoGroupsUsed();
 	
 	if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
 		groupAssignmentsHtml += "<div id='autoGroups_" + workgroupId + "'>";
@@ -5222,7 +5219,7 @@ View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId) {
 	}
 	
 	//get the manual assigned groups used in this project, if any
-	var manualGroupsUsed = this.project.getManualGroupsUsed();
+	var manualGroupsUsed = this.getProject().getManualGroupsUsed();
 	
 	if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
 		groupAssignmentsHtml += "<div id='manualGroups_" + workgroupId + "'>";

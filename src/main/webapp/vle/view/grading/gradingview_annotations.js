@@ -21,7 +21,7 @@ View.prototype.saveScore = function(nodeId, toWorkgroupId, fromWorkgroupId, runI
 		alert('Please enter a number');
 		
 		//get the last score so we can revert back to it
-		var annotationScore = this.annotations.getLatestAnnotation(runId, nodeId, toWorkgroupId, fromWorkgroupIds, "score");
+		var annotationScore = this.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroupId, fromWorkgroupIds, "score");
 		
 		if(annotationScore != null) {
 			//revert back to the previous score
@@ -154,7 +154,7 @@ View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, typ
 				 * our local array is up to date
 				 */
 				var annotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, postTime, stepWorkId);
-				thisView.annotations.updateOrAddAnnotation(annotation);
+				thisView.getAnnotations().updateOrAddAnnotation(annotation);
 				
 				if(type != 'run') {
 					/*
@@ -232,7 +232,7 @@ View.prototype.revertAnnotation = function(nodeId, toWorkgroupId, fromWorkgroupI
 	alert("Failed to save " + type + ", the " + type + " will be reverted back to its previous value.");
 	
 	//try to obtain the annotation so we can revert the value back
-	var annotation = this.annotations.getLatestAnnotation(runId, nodeId, toWorkgroupId, fromWorkgroupIds, type);
+	var annotation = this.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroupId, fromWorkgroupIds, type);
 	
 	//get the prefix for the element id depending on whether it is a score or comment
 	var elementIdPrefix = "";
@@ -299,7 +299,7 @@ View.prototype.saveInappropriateFlag = function(nodeId, toWorkgroup, fromWorkgro
 
 			//create the flag annotation and update or add it to our local copy of annotations
 			var flagAnnotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, 'inappropriateFlag', value, text, stepWorkId);
-			thisView.annotations.updateOrAddAnnotation(flagAnnotation);
+			thisView.getAnnotations().updateOrAddAnnotation(flagAnnotation);
 			
 			// update isflagged attribute on the studentWorkRow. Also update what gets shown, based on if "only show flagged items" is checked.
 			if (deleteFlag) {
@@ -395,7 +395,7 @@ View.prototype.saveFlag = function(nodeId, toWorkgroup, fromWorkgroup, runId, it
 
 			//create the flag annotation and update or add it to our local copy of annotations
 			var flagAnnotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, 'flag', value, text, stepWorkId);
-			thisView.annotations.updateOrAddAnnotation(flagAnnotation);
+			thisView.getAnnotations().updateOrAddAnnotation(flagAnnotation);
 			
 			// update isflagged attribute on the studentWorkRow. Also update what gets shown, based on if "only show flagged items" is checked.
 			if (deleteFlag) {
@@ -447,10 +447,10 @@ View.prototype.saveFlag = function(nodeId, toWorkgroup, fromWorkgroup, runId, it
 /**
  * Retrieve all the annotations for this run
  */
-View.prototype.getAnnotations = function() {
+View.prototype.retrieveAnnotations = function() {
 	var getAnnotationsCallback = function(text, xml, args) {
 		var thisView = args[0];
-		thisView.annotations = Annotations.prototype.parseDataJSONString(text);
+		thisView.setAnnotations(Annotations.prototype.parseDataJSONString(text));
 		eventManager.fire("getAnnotationsComplete");
 		thisView.getFlags();
 	};

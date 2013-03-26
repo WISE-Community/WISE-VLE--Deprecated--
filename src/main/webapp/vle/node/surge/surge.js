@@ -74,7 +74,7 @@ Surge.prototype.checkScoreForTags = function(tagName, functionArgs) {
 			
 			if(nodeId != null) {
 				//get the latest work for the node
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 				
 				if(latestWork != "") {
 					//get the top score for the step
@@ -140,7 +140,7 @@ Surge.prototype.getAccumulatedScoreForTags = function(tagName, functionArgs) {
 			
 			if(nodeId != null) {
 				//get the latest work for the node
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 				
 				if(latestWork != "" && latestWork.response != null) {
 					
@@ -412,7 +412,7 @@ Surge.prototype.save = function(st) {
 	 * the student work is saved to the server once they move on to the
 	 * next step.
 	 */
-	eventManager.fire('pushStudentWork', surgeState);
+	this.view.pushStudentWork(this.node.id, surgeState);
 
 	//push the state object into this or object's own copy of states
 	this.states.push(surgeState);

@@ -233,7 +233,7 @@ BranchingNode.prototype.getPathJSON = function(pathId) {
  * If no, hide all paths.
  */
 BranchingNode.prototype.onBeforeCreateNavigationHtml = function() {
-	var latestState = this.view.state.getLatestWorkByNodeId(this.id);
+	var latestState = this.view.getState().getLatestWorkByNodeId(this.id);
 	if (latestState != null && latestState.response != null && latestState.response.chosenPathId != null) {
 		// student has already been to this branch and has been "branched"
 		if (!this.content.showBranchNodeAfterBranching) {

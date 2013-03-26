@@ -39,7 +39,7 @@ View.prototype.utils.removeNodeFileFromServer = function(view, nodeId){
 	};
 
 	if(filename){
-		view.connectionManager.request('POST', 1, view.requestUrl, {forward:'filemanager', projectId:view.portalProjectId, command: 'removeFile', projectPath: this.getContentPath(view.authoringBaseUrl,view.project.getContentBase()), fileName: filename}, callback, view);
+		view.connectionManager.request('POST', 1, view.requestUrl, {forward:'filemanager', projectId:view.portalProjectId, command: 'removeFile', projectPath: this.getContentPath(view.authoringBaseUrl,view.getProject().getContentBase()), fileName: filename}, callback, view);
 	};
 };
 
@@ -160,7 +160,7 @@ View.prototype.getProjectFolderPath = function() {
 
 	var fullProjectFolderPath = null;
 	
-	if(this.projectMetadata.projectFolder != null) {
+	if(this.getProjectMetadata().projectFolder != null) {
 		/*
 		 * the project folder is in the project meta data
 		 * e.g.
@@ -169,7 +169,7 @@ View.prototype.getProjectFolderPath = function() {
 		 * so the full project folder path will look like
 		 * http://wise.berkeley.edu/curriculum/135
 		 */
-		fullProjectFolderPath = contentBaseUrl + this.projectMetadata.projectFolder;
+		fullProjectFolderPath = contentBaseUrl + this.getProjectMetadata().projectFolder;
 	}
 	
 	//make sure the projectFolder ends with '/'

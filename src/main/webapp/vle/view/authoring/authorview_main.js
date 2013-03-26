@@ -43,8 +43,8 @@
 	existingTable.appendChild(existingTH);
 	existingTable.appendChild(existingTB);
 	
-	if(this.project.getRootNode()){
-		this.generateNodeElement(this.project.getRootNode(), null, existingTable, 0, 0);
+	if(this.getProject().getRootNode()){
+		this.generateNodeElement(this.getProject().getRootNode(), null, existingTable, 0, 0);
 	};
 	
 	//generate unattached nodes
@@ -64,7 +64,7 @@
 	
 	var unusedSeqDiv = createElement(document, 'div', {id: 'uSeq', 'class': 'uSeq', onclick: 'eventManager.fire("selectClick","uSeq")', onMouseOver: 'eventManager.fire("checkAndSelect","uSeq")', onMouseOut: 'eventManager.fire("checkAndDeselect","uSeq")'});
 	var unusedSeqText = document.createTextNode('Inactive Activities');
-	var unusedSeqs = this.project.getUnattached('sequence');
+	var unusedSeqs = this.getProject().getUnattached('sequence');
 	
 	uSeqTD.appendChild(unusedSeqDiv);
 	unusedSeqDiv.appendChild(unusedSeqText);
@@ -89,7 +89,7 @@
 	
 	var unusedNodeDiv = createElement(document, 'div', {id: 'uNode', onclick: 'eventManager.fire("selectClick","uNode")', onMouseOver: 'eventManager.fire("checkAndSelect","uNode")', onMouseOut: 'eventManager.fire("checkAndDeselect","uNode")'});
 	var unusedNodesText = document.createTextNode('Inactive Steps');
-	var unusedNodes = this.project.getUnattached('node');
+	var unusedNodes = this.getProject().getUnattached('node');
 	
 	uNodeTD.appendChild(unusedNodeDiv);
 	unusedNodeDiv.appendChild(unusedNodesText);
@@ -213,13 +213,13 @@
 		choiceDiv.style.display = 'none';
 		choiceDiv.className = 'choice';
 		
-		if(this.getProject().getRootNode() && node.id==this.project.getRootNode().id){
+		if(this.getProject().getRootNode() && node.id==this.getProject().getRootNode().id){
 			mainDiv.className = 'projectNode master';
 			mainDiv.innerHTML = 'Project Sequence <span>(Active Activities & Steps)</span>';
 		} else {
 			mainDiv.className = 'projectNode seq';
 		}
-		if(this.project.useStepLevelNumbering()){
+		if(this.getProject().useStepLevelNumbering()){
 			this.currentStepNum = 1;
 		}
 	} else {
@@ -402,16 +402,16 @@ View.prototype.generateAuthoring = function(){
 	this.currentStepNum = 1;
 	this.currentSeqNum = 1;
 
-	if(this.project.getRootNode()){
-		this.generateNodeElement(this.project.getRootNode(), null, activeContainer, 0, 0);
+	if(this.getProject().getRootNode()){
+		this.generateNodeElement(this.getProject().getRootNode(), null, activeContainer, 0, 0);
 	}
 
-	var unusedSeqs = this.project.getUnattached('sequence');
+	var unusedSeqs = this.getProject().getUnattached('sequence');
 	for(var d=0;d<unusedSeqs.length;d++){
 		this.generateNodeElement(unusedSeqs[d], null, inactiveContainer, 0, 0);
 	}
 
-	var unusedNodes = this.project.getUnattached('node');
+	var unusedNodes = this.getProject().getUnattached('node');
 	if(unusedNodes.length>0){
 		var stepTerm = view.getI18NString('step');
 		if(unusedNodes.length>1){
@@ -456,7 +456,7 @@ View.prototype.generateAuthoring = function(){
 			target = {after:true, id:''};
 			if(position===0){
 				// new position is first activity in project, so set target as root/master node
-				target.id = view.project.getRootNode().id;
+				target.id = view.getProject().getRootNode().id;
 			} else {
 				// set target as previous activity in project
 				target.id = ui.item.prev().data('absid');
@@ -542,7 +542,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	//taskTD.appendChild(taskDiv);
 	//mainTD.appendChild(mainDiv);
 
-	if(node.type==='sequence' && (this.getProject().getRootNode() && node.id!==this.project.getRootNode().id)){
+	if(node.type==='sequence' && (this.getProject().getRootNode() && node.id!==this.getProject().getRootNode().id)){
 		var isActive = ($(el).attr('id')==='activeContainer');
 
 		var sequenceEl = createElement(document, 'li', {id: node.id, 'class': 'projectNode seq'}),
@@ -591,7 +591,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		
 		//mainDiv.className = 'projectNode seq';
 		
-		if(this.project.useStepLevelNumbering()){
+		if(this.getProject().useStepLevelNumbering()){
 			this.currentStepNum = 1;
 		}
 		
@@ -1026,7 +1026,7 @@ View.prototype.editSequence = function(target){
 		$('li.node',content).each(function(){
 			// get node
 			var stepid = $(this).data('nodeid');
-			var step = view.project.getNodeById(stepid);
+			var step = view.getProject().getNodeById(stepid);
 			
 			$(this).attr('id',stepid);
 			
@@ -1095,7 +1095,7 @@ View.prototype.editSequence = function(target){
 			
 			// add icon select menu - TODO: move this to the step editing panel
 			/*var stepid = $(this).data('nodeid');
-			var step = view.project.getNodeById(stepid);
+			var step = view.getProject().getNodeById(stepid);
 			var iconSelect = $(createElement(document, 'select', {id: 'nodeIcon_' + step.id}));
 			
 			var nodeClassesForNode = [];*/
@@ -1225,7 +1225,7 @@ View.prototype.editSequence = function(target){
  * restrictions for title length.
  */
 View.prototype.nodeTitleChanged = function(id){
-	var node = this.project.getNodeById(id);
+	var node = this.getProject().getNodeById(id);
 	var val = document.getElementById('titleInput_' + id).value;
 
 	if(val.length>60 && node.type!=='sequence'){
@@ -1266,7 +1266,7 @@ View.prototype.projectTitleChanged = function(newTitle){
 	
 	/* update project and save */
 	// TODO: this is a pretty large post (entire project file) for just updating the title
-	this.project.setTitle(newTitle);
+	this.getProject().setTitle(newTitle);
 	this.saveProject();
 	// update project structure
 	this.generateAuthoring();
@@ -1295,7 +1295,7 @@ View.prototype.saveProject = function(){
 			alert(data);
 		};
 		
-		this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', fileName: this.project.getProjectFilename(), data: encodeURIComponent(data)}, success_callback, this, failure_callback);
+		this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', fileName: this.getProject().getProjectFilename(), data: encodeURIComponent(data)}, success_callback, this, failure_callback);
 	} else {
 		this.notificationManager.notify('Please open or create a Project before attempting to save.', 3);
 	}
@@ -1305,7 +1305,7 @@ View.prototype.saveProject = function(){
  * Updates the class of the node with the given id to that selected by the user
  */
 View.prototype.nodeIconUpdated = function(id){
-	var node = this.project.getNodeById(id);
+	var node = this.getProject().getNodeById(id);
 	var select = document.getElementById('nodeIcon_' + id);
 	
 	/* even if this is a duplicate, setting the node class will update
@@ -1322,8 +1322,8 @@ View.prototype.nodeIconUpdated = function(id){
  * Updates the project's stepTerm value
  */
 View.prototype.stepTermChanged = function(){
-	if(this.project){
-		this.project.setStepTerm(document.getElementById('stepTerm').value);
+	if(this.getProject()){
+		this.getProject().setStepTerm(document.getElementById('stepTerm').value);
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
@@ -1335,7 +1335,7 @@ View.prototype.stepTermChanged = function(){
  */
 View.prototype.activityTermChanged = function(){
 	if(this.project){
-		this.project.setActivityTerm(document.getElementById('activityTerm').value);
+		this.getProject().setActivityTerm(document.getElementById('activityTerm').value);
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
@@ -1362,9 +1362,9 @@ View.prototype.stepNumberChanged = function(){
  * TODO: remove, not used anymore
  */
 View.prototype.autoStepChanged = function(){
-	if(this.project){
-		this.project.setAutoStep(true);
-		this.project.setStepLevelNumbering(false);
+	if(this.getProject()){
+		this.getProject().setAutoStep(true);
+		this.getProject().setStepLevelNumbering(false);
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
@@ -1378,9 +1378,9 @@ View.prototype.autoStepChanged = function(){
  * TODO: remove, not used anymore
  */
 View.prototype.stepLevelChanged = function(){
-	if(this.project){
-		this.project.setStepLevelNumbering(true);
-		this.project.setAutoStep(false);
+	if(this.getProject()){
+		this.getProject().setStepLevelNumbering(true);
+		this.getProject().setAutoStep(false);
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
@@ -1394,12 +1394,12 @@ View.prototype.stepLevelChanged = function(){
  */
 View.prototype.launchPrevWork = function(nodeId){
 	showElement('previousWorkDialog');
-	this.activeNode = this.project.getNodeById(nodeId).getNode(); //calling getNode gets the original node even if this is a duplicate
+	this.activeNode = this.getProject().getNodeById(nodeId).getNode(); //calling getNode gets the original node even if this is a duplicate
 	
 	//generate the node label e.g. "1.3: Analyze the data"
 	var nodeId = this.activeNode.getNodeId();
 	var nodeTitle = this.activeNode.getTitle();
-	var vlePosition = this.project.getVLEPositionById(nodeId);
+	var vlePosition = this.getProject().getVLEPositionById(nodeId);
 	var nodeLabel = vlePosition + ": " + nodeTitle;
 	
 	document.getElementById('nodeTitle').innerHTML = nodeLabel;
@@ -1423,8 +1423,7 @@ View.prototype.createNewProject = function(){
  * shows create sequence dialog.
  */
 View.prototype.createNewSequence = function(){
-	if(this.project){
-		showElement('createSequenceDialog');
+	if(this.getProject()){
 		$('#createSequenceDialog').dialog('open');
 	} else {
 		this.notificationManager.notify('Please open or create a Project before creating an Activity', 3);
@@ -1436,13 +1435,12 @@ View.prototype.createNewSequence = function(){
  * shows create node dialog.
  */
 View.prototype.createNewNode = function(){
-	if(this.project){
+	if(this.getProject()){
 		$('#createNodeDialog').dialog('open');
 	} else {
 		this.notificationManager.notify('Please open or create a Project before adding a Step', 3);
 	}
 };
-
 /**
  * Sets necessary form variables, confirms that project has been saved and
  * shows edit project dialog.
@@ -1450,7 +1448,6 @@ View.prototype.createNewNode = function(){
 View.prototype.editProjectFile = function(){
 	if(this.getProject()){
 		$('#projectText').val($.stringify(this.getProject().projectJSON(),null,3));
-		showElement('editProjectFileDialog');
 		$('#editProjectFileDialog').dialog('open');
 	} else {
 		this.notificationManager.notify('Please open or create a Project before editing the project data file.', 3);
@@ -1461,7 +1458,7 @@ View.prototype.editProjectFile = function(){
  * Export currently-opened project as a zip file. Simply directs user to a servlet that does all the work.
  */
 View.prototype.exportProject = function(params){
-	if(this.project && this.portalProjectId){
+	if(this.getProject() && this.portalProjectId){
 		window.open("/webapp/author/project/exportproject.html?projectId=" + this.portalProjectId);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to export.", 3);
@@ -1476,7 +1473,7 @@ View.prototype.exportProject = function(params){
  * @param params Object (optional) specifying asset editor options (type, extensions to show, optional text for new button, callback function)
  */
 View.prototype.viewAssets = function(params){
-	if(this.project){
+	if(this.getProject()){
 		if (params){
 			this.assetEditorParams = params;
 		} else {
@@ -1666,8 +1663,8 @@ View.prototype.viewAssets = function(params){
  * Launches the currently opened project in the vle.
  */
 View.prototype.previewProject = function(){
-	if(this.project){
-		if(this.project.getStartNodeId() || confirm('Could not find a start node for the project. You can add sequences and/or nodes to remedy this. Do you still wish to preview the project (you will not see any steps)?')){
+	if(this.getProject()){
+		if(this.getProject().getStartNodeId() || confirm('Could not find a start node for the project. You can add sequences and/or nodes to remedy this. Do you still wish to preview the project (you will not see any steps)?')){
 			if(this.portalProjectId){
 				window.open(this.requestUrl + '?command=preview&projectId=' + this.portalProjectId);
 			} else {
@@ -1686,7 +1683,7 @@ View.prototype.previewProject = function(){
  */
 View.prototype.startPreview = function(em){
 	var obj = {'mode':'standaloneauthorpreview','getContentUrl':this.getProject().getUrl(),'getContentBaseUrl':this.getProject().getContentBase(),'updateAudio':this.updateAudioInVLE};
-	em.fire('startVLEFromParams', obj);
+	this.startVLEFromParams(obj);
 	this.updateAudioInVLE = false;
 };
 
@@ -1924,7 +1921,7 @@ View.prototype.toggleProjectMode = function(){
 		$('#projectModeDiv > span').text('Simple Mode');
 	}
 	//regenerate authoring if a project is open
-	if(this.project){
+	if(this.getProject()){
 		this.generateAuthoring();
 	}
 };
@@ -2428,21 +2425,21 @@ View.prototype.onProjectLoaded = function(){
 			this.disengageSelectMode(-1);
 		}
 
-		if(this.project && this.project.getStepTerm()){
-			document.getElementById('stepTerm').value = this.project.getStepTerm();
+		if(this.getProject() && this.getProject().getStepTerm()){
+			document.getElementById('stepTerm').value = this.getProject().getStepTerm();
 		} else {
 			var stepTerm = this.getI18NString('stepTerm');
 			document.getElementById('stepTerm').value = stepTerm;
-			this.project.setStepTerm(stepTerm);
+			this.getProject().setStepTerm(stepTerm);
 			this.notificationManager.notify('Step term not set in project, setting default value: \"' + stepTerm + '\"', 2);
 		}
 
-		if(this.project && this.project.getActivityTerm()){
-			document.getElementById('activityTerm').value = this.project.getActivityTerm();
+		if(this.getProject() && this.getProject().getActivityTerm()){
+			document.getElementById('activityTerm').value = this.getProject().getActivityTerm();
 		} else {
 			var activityTerm = this.getI18NString('activityTerm');
 			document.getElementById('activityTerm').value = activityTerm;
-			this.project.setActivityTerm(activityTerm);
+			this.getProject().setActivityTerm(activityTerm);
 			this.notificationManager.notify('Activity term not set in project, setting default value: \"' + activityTerm + '\"', 2);
 		}
 
@@ -2454,19 +2451,19 @@ View.prototype.onProjectLoaded = function(){
 
 		$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
 		$('#projectInfo input[type="checkbox"]').toggleSwitch();
-
+		
 		// if we're in portal mode, tell the portal that we've opened this project
 		if (this.portalUrl) {
-			this.notifyPortalOpenProject(this.project.getContentBase(), this.project.getProjectFilename());
+			this.notifyPortalOpenProject(this.getProject().getContentBase(), this.getProject().getProjectFilename());
 		}
 
 		var title = '';
-		if(this.project.getTitle()){
-			title = this.project.getTitle();
+		if(this.getProject().getTitle()){
+			var title = this.getProject().getTitle();
 		} else {
-			title = this.project.getProjectFilename().substring(0, this.project.getProjectFilename().lastIndexOf('.project.json'));
-			this.project.setTitle(title);
-		}
+			var title = this.getProject().getProjectFilename().substring(0, this.getProject().getProjectFilename().lastIndexOf('.project.json'));
+			this.getProject().setTitle(title);
+		};
 
 		// reset thumbnail, toggle as favorite link, hide project info inputs, show project info input display text
 		$('#projectThumb').attr('src','');
@@ -2768,8 +2765,8 @@ View.prototype.author = function(nodeInfo) {
 	setTimeout(function(){$('#' + $.escapeId(absId)).addClass('editing');},1000);
 
 	// retrieve the node from the project
-	var node = this.project.getNodeById(nodeId);
-
+	var node = this.getProject().getNodeById(nodeId);
+	
 	if(node.type==='DuplicateNode'){
 		node = node.getNode();
 		// replace duplicate node with the node it represents
@@ -3541,8 +3538,8 @@ View.prototype.onOpenProjectReady = function(){
 };
 
 View.prototype.reviewUpdateProject = function() {
-
-	if(this.projectMetadata !== null && this.projectMetadata.parentProjectId === null) {
+	
+	if(this.getProjectMetadata() != null && this.getProjectMetadata().parentProjectId == null) {
 		/*
 		 * there is no parent project id in the metadata which means there is no parent project.
 		 * this means we can't update project.
@@ -3670,10 +3667,9 @@ View.prototype.updateProject = function() {
 		var failure = function(t,o){
 			//o.notificationManager.notify('Fail', 3);
 		};
-
-
-		var contentPath = this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase());
-
+		
+		var contentPath = this.utils.getContentPath(this.authoringBaseUrl,this.getProject().getContentBase());
+		
 		var requestParams = {
 				command: 'updateProject',
 				forward: 'filemanager',
@@ -3692,8 +3688,8 @@ View.prototype.updateProject = function() {
  */
 View.prototype.deleteProject = function() {
 	//get the project title
-	var projectTitle = this.project.getTitle();
-
+	var projectTitle = this.getProject().getTitle();
+	
 	//get the project id
 	var projectId = this.portalProjectId;
 
@@ -3727,7 +3723,7 @@ View.prototype.deleteProjectSuccess = function(text, xml, obj) {
 		//the project was successfully deleted
 
 		//get the title and project id
-		var projectTitle = thisView.project.getTitle();
+		var projectTitle = thisView.getProject().getTitle();
 		var projectId = thisView.portalProjectId;
 
 		//display the success message to the user
