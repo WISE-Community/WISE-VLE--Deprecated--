@@ -12,7 +12,7 @@ View.prototype.showStepHints = function() {
 	var currentNode = this.getCurrentNode();
 	
 	// hide all dialogs
-	this.eventManager.fire('closeDialogs');
+	this.utils.closeDialogs();
 	
 	// show the hints panel
     $('#hintsPanel').dialog('open');
@@ -100,10 +100,10 @@ View.prototype.displayHint = function(){
 			}).on( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
 				// check if isMustViewAllPartsBeforeClosing is true. If true, check if this is the first time they view the hints, and student has viewed all parts.
 				var currHints = event.data.view.getCurrentNode().getHints();
-				if ($(this).data("uiDialog").isOpen() && currHints && currHints.isMustViewAllPartsBeforeClosing && event.data.view.state) {
+				if ($(this).data("uiDialog").isOpen() && currHints && currHints.isMustViewAllPartsBeforeClosing && event.data.view.getState()) {
 					
 					var studentHasSeenAllParts = false;
-					var nodeVisitsForThisNode = event.data.view.state.getNodeVisitsByNodeId(event.data.view.getCurrentNode().id);
+					var nodeVisitsForThisNode = event.data.view.getState().getNodeVisitsByNodeId(event.data.view.getCurrentNode().id);
 					for (var h=0;h<nodeVisitsForThisNode.length; h++) { // h is for hints
 						var nodeVisitForThisNode = nodeVisitsForThisNode[h];
 						if (nodeVisitForThisNode.hintStates) {
@@ -210,14 +210,14 @@ View.prototype.displayHint = function(){
 				this.eventManager.fire("showStepHints");
 			},1000);
 		} else if (forceShow == "firsttime") {  // only show hints if this is the first time
-		    var nodeVisitArray = this.state.getNodeVisitsByNodeId(currentNode.id);
+		    var nodeVisitArray = view.getState().getNodeVisitsByNodeId(currentNode.id);
 		    if (nodeVisitArray.length == 1) {  // if this is the first time, the first nodevisit will already be created.
 		    	setTimeout(function(){ // TODO: remove - for some reason, if this timeout isn't set and the hints dialog is modal, it does not show the modal overlay
 					this.eventManager.fire("showStepHints");
 				},1000);
 		    }
 		} else {
-			var nodeVisitArray = this.state.getNodeVisitsByNodeId(currentNode.id);
+			var nodeVisitArray = view.getState().getNodeVisitsByNodeId(currentNode.id);
 		    if (nodeVisitArray.length == 1) {  // if this is the first time and hint is never shown automatically, highlight hints link.
 		    	highlight();
 		    }

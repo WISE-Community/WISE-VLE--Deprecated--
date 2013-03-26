@@ -175,7 +175,7 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 		if(peerWorkToReview.error) {
 			if(peerWorkToReview.error == 'peerReviewUserHasNotSubmittedOwnWork') {
 				//the user has not submitted work for the original step
-				thisAl.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisAl.view.getProject().getPositionById(thisAl.associatedStartNode.id) + '\']) \">' + thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id) + '</a></b> (link).</p>');
+				thisAl.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisAl.view.getProject().getPositionById(thisAl.associatedStartNode.id) + '\']) \">' + thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id) + '</a></b> (link).</p>');
 			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork' || peerWorkToReview.error == 'peerReviewNotOpen') {
 				/*
 				 * server was unable to assign student any work to review, most likely because there was no available work to assign
@@ -261,7 +261,7 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
 		//original step is not locked
 		
 		//display message telling student to go back and submit that original step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"view.goToNodePosition(' + this.view.getProject().getPositionById(this.associatedStartNode.id) + ')\">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
 	} else {
 		//original step is locked
 		
@@ -327,7 +327,7 @@ ASSESSMENTLIST.prototype.render = function() {
 			 * existence of any work and we don't have to specifically check
 			 * for all parts.
 			 */
-			this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeExiting', null, null]);
+			this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeExiting', null, null);
 		}
 	}
 	
@@ -543,15 +543,15 @@ ASSESSMENTLIST.prototype.postAnnotation = function(response) {
 								  periodId:periodId};
 	
 	//create the view's annotations object if it does not exist
-	if(this.view.annotations == null) {
-		this.view.annotations = new Annotations();
+	if(this.view.getAnnotations() == null) {
+		this.view.setAnnotations(new Annotations());
 	}
 	
 	//create the annotation locally to keep our local copy up to date
 	var annotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, stepWorkId);
 	
 	//add the annotation to the view's annotations
-	this.view.annotations.updateOrAddAnnotation(annotation);
+	this.view.getAnnotations().updateOrAddAnnotation(annotation);
 	
 	//a callback function that does nothing
 	var postAnnotationsCallback = function(text, xml, args) {};
@@ -613,7 +613,7 @@ ASSESSMENTLIST.prototype.save = function(isSubmit) {
 		};
 		
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', alState);
+		this.view.pushStudentWork(this.node.id, alState);
 		
 		this.states.push(alState);
 		

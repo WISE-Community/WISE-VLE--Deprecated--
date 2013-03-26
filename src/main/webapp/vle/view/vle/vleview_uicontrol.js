@@ -8,8 +8,6 @@ View.prototype.uicontrolDispatcher = function(type,args,obj){
 		} else {
 			obj.unlockscreen();
 		}
-	} else if(type=='logout') {
-		obj.logout();
 	} else if(type=='lockScreenAndShareWithClass') {
 		obj.lockScreenAndShareWithClass(args[0]);
 	}
@@ -67,7 +65,7 @@ View.prototype.lockScreenAndShareWithClass = function(teacherShareWithClassObj) 
 	    $('#lockscreen').dialog('option', 'width', 800);
 	    $('#lockscreen').dialog('option', 'height', 600);
 	    
-	    var node = this.project.getNodeById(nodeId);
+	    var node = this.getProject().getNodeById(nodeId);
 	    var divId = 'teacherShareWithClassDiv_' + nodeVisit.id;
 	    var studentWorkDiv = $('#' + divId);
 	    

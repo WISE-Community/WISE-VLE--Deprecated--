@@ -20,9 +20,7 @@ View.prototype.utilDispatcher = function(type, args, obj) {
 	} else if (type == 'checkSession') {
 		// check if session has been expired
 		obj.sessionManager.checkSession();
-	} else if(type == 'forceLogout') {
-		obj.forceLogout();
-	};
+	} 
 };
 
 /**
@@ -44,7 +42,7 @@ View.prototype.getMaxScoresSum = function(nodeIds) {
 /**
  * Get the project meta data such as max score values
  */
-View.prototype.getProjectMetaData = function() {
+View.prototype.retrieveProjectMetaData = function() {
 	//get the url to retrieve the project meta data
 	var projectMetaDataUrl = this.getConfig().getConfigParam('projectMetaDataUrl');
 	
@@ -54,9 +52,9 @@ View.prototype.getProjectMetaData = function() {
 			
 			if(text != null && text != "") {
 				//thisView.processMaxScoresJSON(text);
-				thisView.projectMetadata = thisView.$.parseJSON(text);
+				thisView.setProjectMetadata(thisView.$.parseJSON(text));
 				
-				var maxScores = thisView.projectMetadata.maxScores;
+				var maxScores = thisView.getProjectMetadata().maxScores;
 				if(maxScores == null || maxScores == "") {
 					maxScores = "[]";
 				}
@@ -278,9 +276,9 @@ View.prototype.getElementsByClassName = function(node,searchClass,tag) {
 View.prototype.getLatestStateForNode = function(nodeId) {
 	var nodeState = null;
 	
-	if(this.state != null) {
-		for (var i=this.state.visitedNodes.length - 1; i>=0 ; i--) {
-			var nodeVisit = this.state.visitedNodes[i];
+	if(this.getState() != null) {
+		for (var i=this.getState().visitedNodes.length - 1; i>=0 ; i--) {
+			var nodeVisit = this.getState().visitedNodes[i];
 			if (nodeVisit.getNodeId() == nodeId) {
 				for (var j=nodeVisit.nodeStates.length - 1; j>=0; j--) {
 					nodeState = nodeVisit.nodeStates[j];
@@ -324,8 +322,8 @@ View.prototype.getLatestStateForCurrentNode = function() {
 	} 
 	var stringSoFar = "";   // build the data
 	
-	if(this.state != null) {
-		var allNodeVisitsForCurrentNode = this.state.getNodeVisitsByNodeId(currentNode.id);
+	if(this.getState() != null) {
+		var allNodeVisitsForCurrentNode = this.getState().getNodeVisitsByNodeId(currentNode.id);
 		for (var i=0; i<allNodeVisitsForCurrentNode.length; i++) {
 			var nodeStates = allNodeVisitsForCurrentNode[i].nodeStates;
 			if (nodeStates != null) {
@@ -1543,7 +1541,7 @@ View.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphTyp
 	var workgroupIdsInClass = this.userAndClassInfo.getWorkgroupIdsInClass();
 	var mcChoices = [];
 	var mcChoiceColors = [];  // display color for each choice.
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	var mcContent = node.content.getContentJSON();
 	/* add each choice object from the content to the choices array */
 	for(var a=0;a<mcContent.assessmentItem.interaction.choices.length;a++){

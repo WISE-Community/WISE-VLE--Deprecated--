@@ -2019,39 +2019,6 @@ IdeaBasket.prototype.save = function(action, workgroupId, ideaId) {
 	if(this.isBasketChanged()) {
 		this.saveIdeaBasket(this.view, action, workgroupId, ideaId);
 	}
-
-	/*
-	 * create the student state that will store the new work the student
-	 * just submitted
-	 * 
-	 * TODO: rename TEMPLATESTATE
-	 * 
-	 * make sure you rename TEMPLATESTATE to the state object type
-	 * that you will use for representing student data for this
-	 * type of step. copy and modify the file below
-	 * 
-	 * vlewrapper/WebContent/vle/node/template/templatestate.js
-	 * 
-	 * and use the object defined in your new state.js file instead
-	 * of TEMPLATESTATE. for example if you are creating a new
-	 * quiz step type you would copy the file above to
-	 * 
-	 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
-	 * 
-	 * and in that file you would define QUIZSTATE and therefore
-	 * would change the TEMPLATESTATE to QUIZSTATE below
-	 */
-	//var ideaBasketState = new IdeaBasketState();
-	
-	/*
-	 * fire the event to push this state to the global view.states object.
-	 * the student work is saved to the server once they move on to the
-	 * next step.
-	 */
-	//eventManager.fire('pushStudentWork', ideaBasketState);
-
-	//push the state object into this or object's own copy of states
-	//this.states.push(ideaBasketState);
 };
 
 /**
@@ -2060,7 +2027,7 @@ IdeaBasket.prototype.save = function(action, workgroupId, ideaId) {
  */
 IdeaBasket.prototype.loadIdeaBasket = function() {
 	var settings = null;
-	var projectMeta = this.view.projectMetadata;
+	var projectMeta = this.view.getProjectMetadata();
 	if(projectMeta != null && 'ideaManagerSettings' in projectMeta.tools){
 		settings = projectMeta.tools.ideaManagerSettings;
 	}
@@ -2419,7 +2386,7 @@ IdeaBasket.prototype.displayPublicIdeaBasket = function() {
 IdeaBasket.prototype.isPublicIdeaBasketEnabled = function() {
 	var result = false;
 	
-	if(this.version > 1 && this.view.projectMetadata.tools.isPublicIdeaManagerEnabled) {
+	if(this.version > 1 && this.view.getProjectMetadata().tools.isPublicIdeaManagerEnabled) {
 		/*
 		 * public idea basket is available if the idea versions are
 		 * greater than 1 and the public idea manager is enabled

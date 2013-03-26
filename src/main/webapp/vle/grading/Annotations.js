@@ -185,7 +185,7 @@ Annotations.prototype.insertStepLinks = function(annotationsJSONString, vle) {
 		
 		if(vle == null) {
 			//vle was not passed in so we will display a link regardless of whether the step really exists or not
-			newAnnotationsJSONString += "<a onclick='eventManager.fire(\\\"renderNode\\\", \\\"" + vleStepNumber + "\\\")'>" + wholeMatch + "</a>";
+			newAnnotationsJSONString += "<a onclick='eventManager.fire(\\\"nodeLinkClicked\\\", \\\"" + vleStepNumber + "\\\")'>" + wholeMatch + "</a>";
 		} else {
 			//the vle was passed in so we will try to obtain the node at the vle step number position
 			var node = vle.getProject().getNodeByPosition(vleStepNumber);
@@ -195,7 +195,7 @@ Annotations.prototype.insertStepLinks = function(annotationsJSONString, vle) {
 				newAnnotationsJSONString += wholeMatch;
 			} else {
 				//node exists so we will display a link
-				newAnnotationsJSONString += "<a onclick='eventManager.fire(\\\"renderNode\\\", \\\"" + vleStepNumber + "\\\")'>" + wholeMatch + "</a>";				
+				newAnnotationsJSONString += "<a onclick='eventManager.fire(\\\"nodeLinkClicked\\\", \\\"" + vleStepNumber + "\\\")'>" + wholeMatch + "</a>";				
 			}
 		}
 		

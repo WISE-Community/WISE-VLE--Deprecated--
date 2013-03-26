@@ -103,7 +103,7 @@ Epigame.prototype.getTotalScore = function(tagName, functionArgs, scoreProp, rea
 		for (var i = 0; i < nodeIds.length; ++i) {
 			var nodeId = nodeIds[i];
 			if (nodeId != null) {
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 				var nodeScore = latestWork.response ? parseFloat(latestWork.response[scoreProp]) : NaN;
 				if (!isNaN(nodeScore)) {
 					var multiplier = 1;
@@ -142,7 +142,7 @@ Epigame.prototype.checkStepScore = function(tagName, scoreProp, readableScoreNam
 			var nodeId = nodeIds[i];
 			if (nodeId != null) {
 				//get the latest work for the node
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 				if (latestWork && latestWork.response) {
 					//get the top score for the step
 					var topScore = parseFloat(latestWork.response[scoreProp]);
@@ -728,7 +728,7 @@ Epigame.prototype.save = function(st) {
 	var epigameState = new EpigameState(stateJSON);
 	
 	//Push this state to the global view.states object.
-	eventManager.fire('pushStudentWork', epigameState);
+	this.view.pushStudentWork(this.node.id, epigameState);
 
 	//Push the state object into this or object's own copy of states
 	this.states.push(epigameState);

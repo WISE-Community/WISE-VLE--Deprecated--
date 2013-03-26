@@ -428,7 +428,7 @@ View.prototype.MatchSequenceNode.generateChoice = function(choice,fieldIdentifie
 	var row = createElement(document, 'tr', {id: 'choiceRow_'+ identifier});
 	var td = createElement(document, 'td', {id: 'choiceTD_' + identifier});
 	var radioChoice = createElement(document, 'input', {type: 'radio', name: 'radioChoice_' + fieldIdentifier, onfocus: 'eventManager.fire("msChoiceSelected",["' + identifier + '", "' + fieldIdentifier + '"])', value: identifier});
-	var textChoice = createElement(document, 'input', {type: 'text', id: 'textChoice_' + identifier, onfocus: 'eventManager.fire("msChoiceSelected",["' + identifier + '", "' + fieldIdentifier + '"])', onchange: 'eventManager.fire("msChoiceTextUpdated","' + identifier + '")'});
+	var textChoice = createElement(document, 'input', {type: 'text', id: 'textChoice_' + identifier, size:75, onfocus: 'eventManager.fire("msChoiceSelected",["' + identifier + '", "' + fieldIdentifier + '"])', onchange: 'eventManager.fire("msChoiceTextUpdated","' + identifier + '")'});
 	var ordered = createElement(document, 'input', {type: 'text', size: '1', id: 'orderChoice_' + identifier, onfocus: 'eventManager.fire("msChoiceSelected",["' + identifier + '", "' + fieldIdentifier + '"])', onkeyup: 'eventManager.fire("msOrderUpdated","' + identifier + '")'});
 	var textOrder = document.createTextNode('order pos:');
 	

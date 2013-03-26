@@ -25,6 +25,8 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	this.minifierUrl = this.portalUrl;
 	this.mode = "portal";
 	this.authoringMode = true;
+	
+	this.model = new AuthoringModel();
 
 	//create the config url
 	var configUrl = this.portalUrl + "?command=getConfig";

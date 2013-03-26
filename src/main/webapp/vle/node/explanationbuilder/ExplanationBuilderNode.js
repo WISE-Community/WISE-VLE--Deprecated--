@@ -68,9 +68,6 @@ ExplanationBuilderNode.prototype.render = function(contentPanel,studentWork, dis
 		this.constraintKey = this.utils.generateKey(20);
 	}
 	
-	// add constraints
-	//this.addConstraints();
-	
 	/* call super */
 	Node.prototype.render.call(this, contentPanel, studentWork, disable);
 };
@@ -453,13 +450,10 @@ ExplanationBuilderNode.prototype.addConstraints = function() {
 		} else {
 			message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
 		}
-		
-    	//eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.constraintKey, workCorrect:false, msg:message});
 	}
 };
 
 ExplanationBuilderNode.prototype.removeConstraints = function(){
-	//eventManager.fire('removeConstraint',this.constraintKey);
 };
 
 /**
@@ -469,7 +463,6 @@ ExplanationBuilderNode.prototype.removeConstraints = function(){
  */
 ExplanationBuilderNode.prototype.processStateConstraints = function() {
 	if(!this.isCompleted()){
-		//this.addConstraints();
 	}
 };
 

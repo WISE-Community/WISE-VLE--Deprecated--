@@ -706,7 +706,7 @@ CARGRAPH.prototype.save = function(fromHtml) {
 		this.carGraphState.response = response;
 		
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', this.carGraphState);
+		this.view.pushStudentWork(this.node.id, this.carGraphState);
 
 		//push the state object into the local copy of states
 		this.states.push(this.carGraphState);		
@@ -2275,13 +2275,14 @@ CARGRAPH.prototype.setupAxisValues = function() {
  */
 CARGRAPH.prototype.getPreviousPrediction = function() {
 	if(this.node.prevWorkNodeIds.length > 0) {
-		if(this.view.state != null) {
+		if(this.view.getState() != null) {
 			//get the node type for the previous work
 			var prevWorkNodeType = this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type;
 			//we can only pre populate the work from a previous node if it is a graph step like this one
 			if(prevWorkNodeType == 'SensorNode' || prevWorkNodeType == 'CarGraphNode') {
 				//get the state from the previous step that this step is linked to
-				var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
+				var predictionState = this.view.getState().getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
+				
 				/*
 				 * make sure this step doesn't already have a prediction set 
 				 * and that there was a prediction state from the previous

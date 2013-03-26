@@ -165,7 +165,7 @@ SEASONS2.prototype.save = function() {
    * the student work is saved to the server once they move on to the
    * next step.
    */
-	eventManager.fire('pushStudentWork', seasons2State);
+	this.view.pushStudentWork(this.node.id, seasons2State);
 
 	//push the state object into this or object's own copy of states
 	this.states.push(seasons2State);

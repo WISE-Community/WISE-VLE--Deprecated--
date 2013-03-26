@@ -160,7 +160,13 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 		};
 		
 		var getTeacherWorkgroupId = function() {
-			return teacherUserInfo.workgroupId;
+			var workgroupId = null;
+			
+			if(teacherUserInfo != null) {
+				workgroupId = teacherUserInfo.workgroupId;
+			}
+			
+			return workgroupId;
 		};
 		
 		/**

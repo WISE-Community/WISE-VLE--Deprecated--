@@ -27,8 +27,8 @@ View.prototype.getElementById = function(element, id) {
  * If a project is open, updates the audio for that project.
  */
 View.prototype.updateAudio = function(){
-	if(this.project){
-		if(this.project.getStartNodeId() || confirm('Could not find a start node for the project. You can add sequences and/or nodes to remedy this. Do you still wish to preview the project (you will not see nodes?')){
+	if(this.getProject()){
+		if(this.getProject().getStartNodeId() || confirm('Could not find a start node for the project. You can add sequences and/or nodes to remedy this. Do you still wish to preview the project (you will not see nodes?')){
 			this.updateAudioInVLE = true;
 			window.open('vle.html', 'PreviewWindow', "toolbar=no,width=1024,height=768,menubar=no");
 		};
@@ -41,9 +41,9 @@ View.prototype.updateAudio = function(){
  * Updates AudioFiles for the current project.
  */
 View.prototype.updateAudioFiles = function(){console.warn('UPDATing AudIO');
-	if(this.project){
+	if(this.getProject()){
 		var createdCount = 0;
-		var nodes = this.project.getLeafNodes();
+		var nodes = this.getProject().getLeafNodes();
 		for(var b=0;b<nodes.length;b++){
 			var node = nodes[b];
 			for (var a=0; a<node.audios.length;a++) {

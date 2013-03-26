@@ -2,11 +2,7 @@
  * Dispatches events to the appropriate functions for the vle view.
  */
 View.prototype.vleDispatcher = function(type,args,obj){
-	if(type=='startVLEFromConfig'){
-		obj.startVLEFromConfig(args[0]);
-	} else if(type=='startVLEFromParams'){
-		obj.startVLEFromParams(args[0]);
-	} else if (type=='retrieveLocalesComplete' && args[0]=="main") {
+	if (type=='retrieveLocalesComplete' && args[0]=="main") {
 		obj.startVLE();
 	} else if (type=='retrieveLocalesComplete' && args[0]=="theme") {
 		obj.onThemeLoad();
@@ -18,44 +14,34 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.retrieveThemeLocales();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
-		obj.addGlobalTagMapConstraints();
-		obj.updateActiveTagMapConstraints();
+		//obj.addGlobalTagMapConstraints();
+		//obj.updateActiveTagMapConstraints();
 		// start the xmpp if xmpp is enabled
 		if (obj.isXMPPEnabled) {
 			obj.startXMPP();
 		}
 	} else if(type=='processLoadViewStateResponseComplete'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
+		obj.addGlobalTagMapConstraints();
+		obj.updateActiveTagMapConstraints();
 		obj.renderStartNode();
 	} else if(type=='navigationLoadingComplete'){
 		obj.renderStartNode();
 		obj.processStudentWork();
-	} else if(type=='renderNode'){
-		obj.renderNode(args[0]);		
 	} else if(type=='renderNodeComplete'){
 		if(args){
 			obj.onRenderNodeComplete(args[0]);
 		} else {
 			obj.onRenderNodeComplete(null);
 		};
+		obj.renderNavigationPanel();
+		obj.expandActivity(args[0]);
 	} else if(type=='resizeNote'){
 		obj.utils.resizePanel('notePanel', args[0]);
 	} else if(type=='onNotePanelResized'){
 		obj.utils.onNotePanelResized(args[0]);
 	} else if(type=='setStyleOnElement'){
 		obj.utils.setStyleOnElement(args[0],args[1],args[2]);
-	} else if(type=='closeDialogs'){
-		if(args){
-			obj.utils.closeDialogs(args[0]);
-		} else {
-			obj.utils.closeDialogs();
-		};
-	} else if(type=='closeDialog'){
-		obj.utils.closeDialog(args[0]);
-	} else if(type=='postAllUnsavedNodeVisits') {
-		obj.postAllUnsavedNodeVisits();
-	} else if(type=='pushStudentWork') {
-		obj.pushStudentWork(args[0]);
 	} else if(type=='getAnnotationsComplete') {
 		if(args != null && args.length != 0) {
 			if(args[0] == 'displayShowAllWork') {
@@ -72,10 +58,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='ifrmLoaded'){
 		obj.createKeystrokeManagerForFrame();
 		obj.onFrameLoaded();
-	} else if(type=='saveNote'){
-		if(obj.activeNote){
-			obj.activeNote.save();
-		}
 	} else if(type=='saveAndLockNote'){
 		
 	} else if(type=='noteHandleEditorKeyPress'){
@@ -90,30 +72,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		//get the node
 		var nodeId = args[0];
 		var node = obj.getProject().getNodeById(nodeId);
-		
-		//node.view.eventManager.fire('renderConstraints', node.id, node);
-	} else if(type=='renderConstraints'){
-		//get the node
-		var nodeId = args[0];
-		var node = obj.getProject().getNodeById(nodeId);
-		
-		//tell the node to render any constraints if applicable
-		//node.renderConstraints();
-	} else if(type=='saveAndCloseNote'){
-		//save the note
-		obj.eventManager.fire('saveNote');
-		
-		//close the note dialog
-		obj.eventManager.fire('closeDialog','notePanel');
-		// render previously visited node (so WISE will correctly save data if users interact with previous node before moving on to another step)
-		/*if(obj.state.visitedNodes && obj.state.visitedNodes.length>0){
-			var currNodeId = obj.state.visitedNodes[obj.state.visitedNodes.length-1].nodeId;
-			var prevNodeId = obj.state.visitedNodes[obj.state.visitedNodes.length-2].nodeId;
-			if(currNodeId!=prevNodeId){
-				var prevNode = obj.getProject().getPositionById(prevNodeId);
-				obj.eventManager.fire("renderNode", prevNode);
-			}
-		}*/
 		
 	} else if (type=='importWork') {
 		//get importFrom and importTo node
@@ -130,8 +88,26 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.sendChat(args[0]);
 	} else if(type=="setStepIcon") {
 		obj.setStepIcon(args[0], args[1]);
+	} else if(type=="studentWorkUpdated") {
+		obj.studentWorkUpdatedListener();
+	} else if(type=="currentNodePositionUpdated") {
+		obj.currentNodePositionUpdatedListener();
+	} else if(type=="nodeLinkClicked") {
+		obj.nodeLinkClickedListener(args[0]);
 	}
+
 };
+
+/**
+ * Renders the navigationPanel. Creates one if one does not yet exist
+ */
+View.prototype.renderNavigationPanel = function(){
+	if(!this.navigationPanel){
+		this.navigationPanel = new NavigationPanel(this);	
+	};
+	this.navigationPanel.render();
+};
+
 
 /**
  * Starts the VLE with the config object retrieved from the given url
@@ -170,6 +146,10 @@ View.prototype.startVLEFromParams = function(obj){
  * and set and that the config object contains AT LEAST a content url and content base url.
  */
 View.prototype.startVLE = function(){
+	console.log('startVLE');
+	this.model = new StudentModel();
+	this.setState(new VLE_STATE());
+	
 	/* load the project based on new config object parameters, lazy load */
 	this.loadProject(this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), true);
 	
@@ -193,15 +173,15 @@ View.prototype.displayGlobalTools = function() {
 	$('#viewFlagged').html(flaggedLink);
 	
 	// Journal is disabled for now in WISE4
-	//var journalLink = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='eventManager.fire(\"showJournal\")' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.getI18NString("journal_button_text")+"</a></li>";
+	//var journalLink = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='view.showJournal()' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.getI18NString("journal_button_text")+"</a></li>";
 	
 	// Insert navigation toggle
-	var toggleNavLink = "<a id='toggleNavLink' onclick='eventManager.fire(\"toggleNavigationVisibility\")' title='"+this.getI18NString("toggle_nav_button_title")+"'>"+this.getI18NString("toggle_nav_button_text")+"</a>";
+	var toggleNavLink = "<a id='toggleNavLink' onclick='eventManager.fire(\"navigationPanelToggleVisibilityButtonClicked\")' title='"+this.getI18NString("toggle_nav_button_title")+"'>"+this.getI18NString("toggle_nav_button_text")+"</a>";
 	$('#toggleNav').html(toggleNavLink);
 	
 	// Insert previous and next step links 
-	var prevNodeLink = "<a id='previousStepLink' onclick='eventManager.fire(\"renderPrevNode\")' title='"+this.getI18NString("previous_step_title")+"'></a>";	
-	var nextNodeLink = "<a id='nextStepLink' onclick='eventManager.fire(\"renderNextNode\")' title='"+this.getI18NString("next_step_title")+"'></a>";
+	var prevNodeLink = "<a id='previousStepLink' onclick='eventManager.fire(\"navigationPanelPrevButtonClicked\")' title='"+this.getI18NString("previous_step_title")+"'></a>";	
+	var nextNodeLink = "<a id='nextStepLink' onclick='eventManager.fire(\"navigationPanelNextButtonClicked\")' title='"+this.getI18NString("next_step_title")+"'></a>";
 	$('#stepNav').html(prevNodeLink + ' ' + nextNodeLink);
 	
 	// Insert sign out and exit to home links
@@ -210,7 +190,7 @@ View.prototype.displayGlobalTools = function() {
 	if (userType && userType == "teacher") {
 		goHomeHref = "/webapp/teacher/index.html";
 	}
-	var signOutLink = '<a id="signOutLink" title="'+this.getI18NString("signout_button_title")+'" onclick="eventManager.fire(\'logout\')">'+this.getI18NString("signout_button_text")+'</a>';
+	var signOutLink = '<a id="signOutLink" title="'+this.getI18NString("signout_button_title")+'" onclick="view.logout()">'+this.getI18NString("signout_button_text")+'</a>';
 	var exitLink = '<a id="exitLink" target="_parent" title="'+this.getI18NString("gohome_button_title")+'" onclick="window.parent.location=\'' + goHomeHref + '\'">'+this.getI18NString("gohome_button_text")+'</a>';
 	$("#signOutLinks").html(exitLink +  ' / ' + signOutLink);
 	
@@ -223,14 +203,14 @@ View.prototype.displayGlobalTools = function() {
 	var runInfo = null;
 	
 	//get the metadata if it exists
-	if (this.projectMetadata != null && this.projectMetadata.tools != null) {
-	    metadata = this.projectMetadata.tools;
+	if (this.getProjectMetadata() != null && this.getProjectMetadata().tools != null) {
+		metadata = this.getProjectMetadata().tools;
 	}
 
 	//get the run info if it exists
 	var runInfoStr = this.config.getConfigParam('runInfo');
 	if (runInfoStr != null && runInfoStr != "") {
-	    runInfo = JSON.parse(runInfoStr);
+		runInfo = JSON.parse(runInfoStr);
 	}
 	
 	//show/hide the top menu buttons
@@ -276,9 +256,9 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		// display the idea basket links if the run/project has idea basket enabled
 		// if project is using IM version > 1, set custom link text based on IM settings
 		var basketLinktext = this.getI18NString("ideas_button_text"), addIdeaLinkText = this.getI18NString("addidea_button_text");
-		if (this.projectMetadata != null && this.projectMetadata.tools != null){
-			if('ideaManagerSettings' in this.projectMetadata.tools){
-				var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		if (this.getProjectMetadata() != null && this.getProjectMetadata().tools != null){
+			if('ideaManagerSettings' in this.getProjectMetadata().tools){
+				var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 				if(imSettings.version > 1){
 					if('ideaTermPlural' in imSettings && this.utils.isNonWSString(imSettings.ideaTermPlural)){
 						basketLinktext = this.utils.capitalize(imSettings.ideaTermPlural);
@@ -305,84 +285,84 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
  * @param runInfo the runInfo object
  */
 View.prototype.showToolsBasedOnConfigs = function(metadata, runInfo) {
-    
-    var isStudentAssetUploaderEnabled = false;
-    
-    if(metadata != null) {
-	isStudentAssetUploaderEnabled = metadata.isStudentAssetUploaderEnabled;
-    }
+	
+	var isStudentAssetUploaderEnabled = false;
+	
+	if(metadata != null) {
+		isStudentAssetUploaderEnabled = metadata.isStudentAssetUploaderEnabled;
+	}
 
-    if (isStudentAssetUploaderEnabled) {
-	/*
-	 * display student assets link if run has student asset uploader enabled
-	 */
-	var studentAssetsLink="<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\",null)' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
-	$('#viewMyFiles').html(studentAssetsLink);
-	$('#viewMyFiles').show().css('display','inline');
-    } else {
-	$('#viewMyFiles').hide();
-    }
-    
-    var isXMPPEnabled = false;
-    var isChatRoomEnabled = false;
-    
-    if(metadata != null) {
-	isXMPPEnabled = metadata.isXMPPEnabled;
-	isChatRoomEnabled = metadata.isChatRoomEnabled;
-    }
-    
-    if(runInfo != null) {
-	if(typeof runInfo.isXMPPEnabled != 'undefined') {
-	    isXMPPEnabled = runInfo.isXMPPEnabled;
+	if (isStudentAssetUploaderEnabled) {
+		/*
+		 * display student assets link if run has student asset uploader enabled
+		 */
+		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\",null)' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
+		$('#viewMyFiles').html(studentAssetsLink);
+		$('#viewMyFiles').show().css('display','inline');
+	} else {
+		$('#viewMyFiles').hide();
 	}
 	
-	if(typeof runInfo.isChatRoomEnabled != 'undefined') {
-	    isChatRoomEnabled = runInfo.isChatRoomEnabled;
+	var isXMPPEnabled = false;
+	var isChatRoomEnabled = false;
+	
+	if(metadata != null) {
+		isXMPPEnabled = metadata.isXMPPEnabled;
+		isChatRoomEnabled = metadata.isChatRoomEnabled;
 	}
-    }
-    
-    if (isXMPPEnabled && isChatRoomEnabled) {
-	/*
-	 * display chatroom link if run has chatroom enabled
-	 */
-	var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
-	$('#viewChatRoom').html(displayChatRoomLink);
-	$('#viewChatRoom').show().css('display','inline');
-    } else {
-	$('#viewChatRoom').hide();
-    }
-    
-    var isIdeaManagerEnabled = false;
-    
-    if(metadata != null) {
-	isIdeaManagerEnabled = metadata.isIdeaManagerEnabled;
-    }
-    
-    if (isIdeaManagerEnabled) {
-	// display the idea basket links if the run/project has idea basket enabled
-	// if project is using IM version > 1, set custom link text based on IM settings
-	var basketLinktext = this.getI18NString("ideas_button_text"), addIdeaLinkText = this.getI18NString("addidea_button_text");
-	if (this.projectMetadata != null && this.projectMetadata.tools != null){
-	    if('ideaManagerSettings' in this.projectMetadata.tools){
-		var imSettings = this.projectMetadata.tools.ideaManagerSettings;
-		if(imSettings.version > 1){
-		    if('ideaTermPlural' in imSettings && this.utils.isNonWSString(imSettings.ideaTermPlural)){
-			basketLinktext = this.utils.capitalize(imSettings.ideaTermPlural);
-		    }
-		    if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
-			addIdeaLinkText = imSettings.addIdeaTerm;
-		    }
+	
+	if(runInfo != null) {
+		if(typeof runInfo.isXMPPEnabled != 'undefined') {
+			isXMPPEnabled = runInfo.isXMPPEnabled;			
 		}
-	    }
+		
+		if(typeof runInfo.isChatRoomEnabled != 'undefined') {
+			isChatRoomEnabled = runInfo.isChatRoomEnabled;			
+		}
 	}
-	var ideaBasketLink = "<a id='viewIdeaBasketLink' onclick='eventManager.fire(\"displayIdeaBasket\")'>"+basketLinktext+" <span id='ideaCount' class='count'>(0)</span></a>";
-	var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")'>"+addIdeaLinkText+"</a>";
-	$("#viewIdeaBasket").html(ideaBasketLink);
-	$("#addIdea").html(addIdeaLink);
-	$("#ideaBasketLinks").show().css('display','inline');
-    } else {
-	$("#ideaBasketLinks").hide();
-    }
+	
+	if (isXMPPEnabled && isChatRoomEnabled) {
+		/*
+		 * display chatroom link if run has chatroom enabled
+		 */
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		$('#viewChatRoom').html(displayChatRoomLink);
+		$('#viewChatRoom').show().css('display','inline');
+	} else {
+		$('#viewChatRoom').hide();
+	}
+	
+	var isIdeaManagerEnabled = false;
+	
+	if(metadata != null) {
+		isIdeaManagerEnabled = metadata.isIdeaManagerEnabled;
+	}
+	
+	if (isIdeaManagerEnabled) {
+		// display the idea basket links if the run/project has idea basket enabled
+		// if project is using IM version > 1, set custom link text based on IM settings
+		var basketLinktext = this.getI18NString("ideas_button_text"), addIdeaLinkText = this.getI18NString("addidea_button_text");
+		if (this.getProjectMetadata() != null && this.getProjectMetadata().tools != null){
+			if('ideaManagerSettings' in this.getProjectMetadata().tools){
+				var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
+				if(imSettings.version > 1){
+					if('ideaTermPlural' in imSettings && this.utils.isNonWSString(imSettings.ideaTermPlural)){
+						basketLinktext = this.utils.capitalize(imSettings.ideaTermPlural);
+					}
+					if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
+						addIdeaLinkText = imSettings.addIdeaTerm;
+					}
+				}
+			}
+		}
+		var ideaBasketLink = "<a id='viewIdeaBasketLink' onclick='eventManager.fire(\"displayIdeaBasket\")'>"+basketLinktext+" <span id='ideaCount' class='count'>(0)</span></a>";
+		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")'>"+addIdeaLinkText+"</a>";
+		$("#viewIdeaBasket").html(ideaBasketLink);
+		$("#addIdea").html(addIdeaLink);
+		$("#ideaBasketLinks").show().css('display','inline');
+	} else {
+		$("#ideaBasketLinks").hide();
+	}
 };
 
 /**
@@ -406,7 +386,7 @@ View.prototype.loadTheme = function(themeName){
 		var currentTheme = [themeName.toLowerCase()]; // TODO: remove toLowerCase()
 		
 		// get navMode
-		var navMode = context.projectMetadata.navMode;
+		var navMode = context.getProjectMetadata().navMode;
 		if(navMode && context.themeNavModes[themeName].indexOf(navMode)>-1) {
 			// navMode is set and is in active navModes list for specified theme, so add to currentTheme
 			currentTheme.push(navMode);
@@ -479,20 +459,11 @@ View.prototype.loadVLEState = function(){
 View.prototype.processLoadViewStateResponse = function(responseText, responseXML, view){
 	if (responseText) {
 		var viewStateObj = VLE_STATE.prototype.parseDataJSONString(responseText);
-		view.setViewState(viewStateObj);
+		view.setState(viewStateObj);
 	};
 
 	view.viewStateLoaded = true;
 	view.eventManager.fire('processLoadViewStateResponseComplete');
-};
-
-
-/**
- * Set the vle state for this vle. For use mainly in ticker.
- * @param vleState a VLE_STATE object
- */
-View.prototype.setViewState = function(viewState) {
-	this.state = viewState;
 };
 
 /**
@@ -508,7 +479,7 @@ View.prototype.onProjectLoad = function(){
 	
 	/* load the theme based on project parameters */
 	if(this.getProject()){
-		var themeName = this.projectMetadata.theme;
+		var themeName = this.getProjectMetadata().theme;
 		
 		if(themeName && this.activeThemes.indexOf(themeName)>-1){
 			// theme specified by project matches an active theme, so load specified theme
@@ -571,7 +542,7 @@ View.prototype.onThemeLoad = function(){
 		
 		/* if (TODO: check for any constraints in project) {*/
 			// we are in preview mode (and the project contains constraints)
-			var path = '/webapp/preview.html?projectId=' + this.projectMetadata.projectId;
+			var path = '/webapp/preview.html?projectId=' + this.getProjectMetadata().projectId;
 			if(this.getConfig().getConfigParam("isConstraintsDisabled")){
 				// constraints are disabled, so show enable constraints link
 				//this.notificationManager.notify('Student navigation constraints are currently disabled. To preview project with all constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
@@ -587,8 +558,8 @@ View.prototype.onThemeLoad = function(){
 	if(this.config.getConfigParam('mode') == "portalpreview") {
 		//we are previewing the project so we will create a dummy idea basket
 		var imSettings = null;
-		if(this.projectMetadata.tools && 'ideaManagerSettings' in this.projectMetadata.tools){
-			imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		if(this.getProjectMetadata().tools && 'ideaManagerSettings' in this.getProjectMetadata().tools){
+			imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 		}
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,imSettings);
 	}
@@ -612,6 +583,7 @@ View.prototype.onThemeLoad = function(){
  * AND if the navigation component is present will only render when it is also loaded.
  */
 View.prototype.renderStartNode = function(){
+	
 	/* get the mode from the config */
 	var mode = this.config.getConfigParam('mode');
 
@@ -619,12 +591,12 @@ View.prototype.renderStartNode = function(){
 	
 	/* check to see if we can render the start node based on the current state of loading */
 	if(this.canRenderStartNode(mode) && this.isAnyNavigationLoadingCompleted()){
-		var currentNodeVisit = this.state.getCurrentNodeVisit();
+		var currentNodeVisit = this.getState().getCurrentNodeVisit();
 		
 		/* If we are in run mode, and the user has previously run the project we want to get
 		 * the position of the last step they visited, otherwise, just render the first node
 		 * in the project. */
-		if(mode == 'run' && (typeof this.state != 'undefined') && currentNodeVisit){
+		if(mode == 'run' && (typeof this.getState() != 'undefined') && currentNodeVisit){
 			
 			/* check to see if the currentNodeVisit has a duplicateId - meaning that
 			 * it was last rendered by a DuplicateNode so we would want to render at
@@ -690,7 +662,7 @@ View.prototype.renderStartNode = function(){
 			this.currentPosition = startPos;
 			
 			/* render start node */
-			this.eventManager.fire('renderNode',startPos);
+			this.goToNodePosition(startPos);
 		}		
 	};
 };
@@ -733,25 +705,30 @@ View.prototype.isAnyNavigationLoadingCompleted = function(){
  * Handles cleanup of previously rendered node, specified by position argument.
  * Save nodevisit state for current position, close popups, remove highlighted steps, etc.
  */
-View.prototype.renderNodePrep = function(position){
+View.prototype.endCurrentNode = function(){
 	/* ensures that only one popup (any notes and journal) is open at any given time */
-	this.eventManager.fire('closeDialogs');
-		
-	/* retrieve previous node */
-	var prevNode = this.getProject().getNodeByPosition(position);
+	this.utils.closeDialogs();
+	
+	var currentNode = null;
+	
+	//get the current node we are on
+	var currentNodeVisit = this.getState().getCurrentNodeVisit();
+	if(currentNodeVisit != null) {
+		currentNode = this.getProject().getNodeById(currentNodeVisit.nodeId);		
+	}
 	
 	/* tell previous step (if exists) to clean up */ 
-	if(prevNode) {
+	if(currentNode) {
 		//get the node id
-		var nodeId = prevNode.id;
+		var nodeId = currentNode.id;
 		
 		//remove the bubble and remove the highlight for the step the student is now visiting
 		eventManager.fire('removeMenuBubble', [nodeId]);
 		eventManager.fire('unhighlightStepInMenu', [nodeId]);
 		
-		prevNode.onExit();  
-		if(this.state) {
-			this.state.endCurrentNodeVisit();  // set endtime, etc.	
+		currentNode.onExit();  
+		if(this.getState()) {
+			this.getState().endCurrentNodeVisit();  // set endtime, etc.	
 		}
 	};
 	
@@ -759,7 +736,7 @@ View.prototype.renderNodePrep = function(position){
 	$('#showallwork').dialog('close');
 	
 	// save all unsaved nodes
-	this.eventManager.fire('postAllUnsavedNodeVisits');
+	this.postAllUnsavedNodeVisits();
 };
 
 /**
@@ -827,71 +804,12 @@ View.prototype.onRenderNodeComplete = function(position){
  * 4. Render Node Complete.
  */
 View.prototype.renderNode = function(position){
-	//get the next node id
-	var nextNode = this.getProject().getNodeByPosition(position);
-	var nextNodeId = nextNode.id;
-	
-	//perform any tag map processing
-	var processTagMapConstraintResults = this.processTagMapConstraints(nextNodeId);
-	
-	if(processTagMapConstraintResults != null) {
-		if(processTagMapConstraintResults.canMove == false) {
-			/*
-			 * the student is not allowed to move to the next node
-			 * so we will display a message telling them so and also
-			 * prevent the next node from being rendered so that they
-			 * stay on the current node they are already on
-			 */
-			var message = processTagMapConstraintResults.message;
-			alert(message);
-			return;
-		}
-	}
-	
-	//add any tag map constraints for the next node we are about to visit
-	this.addTagMapConstraints(nextNodeId);
-	
-	//get the node
-	var node = this.getProject().getNodeByPosition(position);
-	
-	//get the previous node
-	var prevNode = this.getProject().getNodeByPosition(this.currentPosition);
-	
-	// if the previous node has exit restrictions set, return without rendering new node
-	if(prevNode != null && !prevNode.canExit()){
-		return;
-	}
-	
-	/* check to see if we can render the given position and if we should render it
-	 * fully or partly disabled. The return object will contain the status number
-	 * and any message related to the status. Status values: 0 = can visit without
-	 * restriction, 1 = can visit but step should be disabled, 2 = cannot visit. */
-	var status = this.navigationLogic.getVisitableStatus(position);
-	
-	/* if status value == 1 or 2, we need to display any messages to user, if 2 we also
-	 * need to exit here */
-	if(status.value != 0){
-		//this.notificationManager.notify(status.msg, 3);
-		
-		//display any navigation logic constraint messages in an alert
-		if(status.msg)
-		alert(status.msg);
-		
-		if(status.value==2){
-			return;
-		}
-	}
-	
-	// Prepare to move to the specified position. 
-	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.
-	this.renderNodePrep(this.currentPosition);
-	
 	this.notificationManager.notify('rendering  node, pos: ' + position,4);
 	
     var nodeToVisit = null;
     if (position == null) {
-		if (this.state.visitedNodes.length > 0) {
-			nodeToVisit = this.state.visitedNodes[this.state.visitedNodes.length - 1];
+		if (this.getState().visitedNodes.length > 0) {
+			nodeToVisit = this.getState().visitedNodes[this.getState().visitedNodes.length - 1];
 			this.currentPosition = this.getProject().getPositionById(nodeToVisit.id);
 		};
     } else {
@@ -908,7 +826,7 @@ View.prototype.renderNode = function(position){
 	var studentWork = this.getStudentWorkForNodeId(nodeToVisit.id);
 	
 	/* set this node as current node visit */
-	this.state.setCurrentNodeVisit(nodeToVisit);
+	this.getState().setCurrentNodeVisit(nodeToVisit);
 	nodeToVisit.render(null, studentWork, status.value);
 	
 	//update the active tag map constraints to see if any have been satisfied and we need to remove any
@@ -938,8 +856,8 @@ View.prototype.setProjectPostLevel = function(){
 	var project = this.getProject();
 	if(project && this.config && this.config.getConfigParam('postLevel')){
 		project.setPostLevel(this.config.getConfigParam('postLevel'));
-	} else if(project && this.projectMetadata && this.projectMetadata.postLevel){
-		project.setPostLevel(this.projectMetadata.postLevel);
+	} else if(project && this.getProjectMetadata() && this.getProjectMetadata().postLevel){
+		project.setPostLevel(this.getProjectMetadata().postLevel);
 	}
 };
 
@@ -1075,7 +993,7 @@ View.prototype.processStudentWork = function() {
 			var node = this.getProject().getNodeById(nodeId);
 			
 			//get the latest work for the node
-			var latestWork = this.state.getLatestWorkByNodeId(nodeId);
+			var latestWork = this.getState().getLatestWorkByNodeId(nodeId);
 			
 			if(latestWork != null && latestWork != "") {
 				//tell the node to process the student work
@@ -1087,11 +1005,89 @@ View.prototype.processStudentWork = function() {
 
 /**
  * Set the step icon in that navigation
- * @param nodeId the node id
- * @param stepIconPath the path to the new icon
+ * @param nodeId (optional) the node id to set the step icon for
+ * @param stepIconPath (optional) the path to the new icon
  */
 View.prototype.setStepIcon = function(nodeId, stepIconPath) {
 	this.navigationPanel.setStepIcon(nodeId, stepIconPath);
+};
+
+/**
+ * Go to the new node position if possible. The new node position may
+ * be disabled due to a constraint in which case we will not be able
+ * to go to the new node position.
+ * @param nodePosition the new node position to go to
+ */
+View.prototype.goToNodePosition = function(nodePosition) {
+	//get the next node id
+	var nextNode = this.getProject().getNodeByPosition(nodePosition);
+	var nextNodeId = nextNode.id;
+	
+	//perform any tag map processing
+	var processTagMapConstraintResults = this.processTagMapConstraints(nextNodeId);
+	
+	if(processTagMapConstraintResults != null) {
+		if(processTagMapConstraintResults.canMove == false) {
+			/*
+			 * the student is not allowed to move to the next node
+			 * so we will display a message telling them so and also
+			 * prevent the next node from being rendered so that they
+			 * stay on the current node they are already on
+			 */
+			var message = processTagMapConstraintResults.message;
+			alert(message);
+			return;
+		}
+	}
+	
+	//get the next node id
+	var nextNode = this.getProject().getNodeByPosition(nodePosition);
+	var nextNodeId = nextNode.id;
+	
+	//add any tag map constraints for the next node we are about to visit
+	this.addTagMapConstraints(nextNodeId);
+	
+	//get the node
+	var node = this.getProject().getNodeByPosition(nodePosition);
+	
+	//get the previous node
+	var prevNode = this.getProject().getNodeByPosition(this.model.getCurrentNodePosition());
+	
+	// if the previous node has exit restrictions set, return without rendering new node
+	if(prevNode != null && !prevNode.canExit()){
+		return;
+	}
+	
+	
+	// Prepare to move to the specified position. 
+	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.
+	this.endCurrentNode();
+	
+	//we are able to go to the new node position so we will set it as the current node position
+	this.setCurrentNodePosition(nodePosition);
+};
+
+/**
+ * Set the current node position into the model
+ */
+View.prototype.setCurrentNodePosition = function(nodePosition) {
+	this.model.setCurrentNodePosition(nodePosition);
+};
+
+/**
+ * Listens for the currentNodePositionUpdated event
+ */
+View.prototype.currentNodePositionUpdatedListener = function() {
+	//render the node at the current node position
+	this.renderNode(this.model.getCurrentNodePosition());
+};
+
+/**
+ * Listens for the nodeLinkClicked event
+ * @param nodePosition the node position to go to
+ */
+View.prototype.nodeLinkClickedListener = function(nodePosition) {
+	this.goToNodePosition(nodePosition)
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -38,7 +38,7 @@ View.prototype.utils.removeNodeFileFromServer = function(view, nodeId){
 	};
 
 	if(filename){
-		view.connectionManager.request('POST', 1, view.requestUrl, {forward:'filemanager', projectId:view.portalProjectId, command: 'removeFile', projectPath: this.getContentPath(view.authoringBaseUrl,view.project.getContentBase()), fileName: filename}, callback, view);
+		view.connectionManager.request('POST', 1, view.requestUrl, {forward:'filemanager', projectId:view.portalProjectId, command: 'removeFile', projectPath: this.getContentPath(view.authoringBaseUrl,view.getProject().getContentBase()), fileName: filename}, callback, view);
 	};
 };
 

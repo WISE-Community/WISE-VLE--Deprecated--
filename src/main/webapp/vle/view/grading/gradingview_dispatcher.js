@@ -18,7 +18,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='saveInappropriateFlag') {
 		obj.saveInappropriateFlag(args[0], args[1], args[2], args[3], args[4], args[5]);
 	} else if(type=='processUserAndClassInfoComplete') {
-		obj.getProjectMetaData();
+		obj.retrieveProjectMetaData();
 	} else if(type=='gradingConfigUrlReceived') {
 		obj.getGradingConfig(args[0]);
 	} else if(type=='getGradingConfigComplete') {
@@ -49,7 +49,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='getStudentNamesExport') {
 		obj.getStudentNamesExport();
 	} else if(type=='getProjectMetaDataComplete') {
-		obj.getAnnotations();
+		obj.retrieveAnnotations();
 	} else if(type=='saveMaxScore') {
 		obj.saveMaxScore(args[0], args[1]);
 	} else if(type=='showScoreSummary') {

@@ -84,7 +84,7 @@ NoteNode.prototype.onExit = function() {
  */
 NoteNode.prototype.importWork = function(importFromNode) {
 	if (this.canImportWork(importFromNode)) {
-		var studentWork = this.view.state.getLatestWorkByNodeId(importFromNode.id);
+		var studentWork = this.view.getState().getLatestWorkByNodeId(importFromNode.id);
 		if (studentWork != null) {
 			if(this.view && this.view.activeNote) {
 				this.view.activeNote.appendResponse(studentWork);

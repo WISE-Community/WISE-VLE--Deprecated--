@@ -432,7 +432,7 @@ View.prototype.cleaner.updateProjectMetaFile = function(){
 		this.view.projectMeta.lastCleaned = {timestamp:parseFloat(ts), results:results};
 
 		//if project meta file exists - update on server
-		if(this.view.projectMetadata || this.view.hasProjectMeta){//update file on server
+		if(this.view.getProjectMetadata() || this.view.hasProjectMeta){//update file on server
 			this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'updateFile', projectId:this.view.portalProjectId, fileName: this.view.utils.getProjectMetaFilename(this.view.getProject().getProjectFilename()), data: $.stringify(this.view.projectMeta)}, success, this.view, failure);
 		} else {//create file on server
 			//I don't think meta data files are used anymore, all metadata is stored in the portal database

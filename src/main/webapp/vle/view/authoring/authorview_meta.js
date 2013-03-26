@@ -16,7 +16,7 @@ View.prototype.retrieveMetaData = function(){
 		this.connectionManager.request('GET', 1, this.portalUrl, metadataRequestParams, this.projectMetaSuccess, this, this.projectMetaFailure);
 	} else {
 		//make async requests
-		this.connectionManager.request('GET', 1, this.project.getContentBase() + this.utils.getSeparator(this.project.getContentBase()) + this.utils.getProjectMetaFilename(this.project.getProjectFilename()), null, this.projectMetaSuccess, this, this.projectMetaFailure);
+		this.connectionManager.request('GET', 1, this.getProject().getContentBase() + this.utils.getSeparator(this.getProject().getContentBase()) + this.utils.getProjectMetaFilename(this.getProject().getProjectFilename()), null, this.projectMetaSuccess, this, this.projectMetaFailure);
 	}
 	
 };
@@ -92,10 +92,10 @@ View.prototype.updateProjectMetaOnServer = function(publish, silent){
 	} else {
 		//if project meta file exists - update on server
 		//NOTE: I don't think we use metadata files anymore, all metadata is stored in the portal database now
-		if(this.projectMetadata || this.hasProjectMeta){//update file on server
-			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', fileName: this.utils.getProjectMetaFilename(this.project.getProjectFilename()), data: $.stringify(this.projectMeta)}, callback, this, failed);
+		if(this.getProjectMetadata() || this.hasProjectMeta){//update file on server
+			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', fileName: this.utils.getProjectMetaFilename(this.getProject().getProjectFilename()), data: $.stringify(this.projectMeta)}, callback, this, failed);
 		} else {//create file on server
-			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'createFile', fileName: '/' + this.utils.getProjectMetaFilename(this.project.getProjectFilename()), data: $.stringify(this.projectMeta)}, callback, this, failed);
+			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'createFile', fileName: '/' + this.utils.getProjectMetaFilename(this.getProject().getProjectFilename()), data: $.stringify(this.projectMeta)}, callback, this, failed);
 		}		
 	}
 };

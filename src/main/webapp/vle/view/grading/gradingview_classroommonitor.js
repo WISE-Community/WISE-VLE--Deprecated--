@@ -4,8 +4,8 @@
 View.prototype.displayNodeVisitsInStream = function() {
 	// goes through all the students' nodevisits and displays them in the classroom monitor stream div by calling displayNodeVisitInStream
 	var allNodeVisitsArray = [];
-	for (var i=0; i < this.vleStates.length; i++) {
-		var vleState = this.vleStates[i];
+	for (var i=0; i < this.getStates().length; i++) {
+		var vleState = this.getStates()[i];
 		var vleStateWorkgroupId = vleState.workgroupId;
 		var vleStateNodeVisits = vleState.visitedNodes;
 		for (var j=0; j<vleStateNodeVisits.length; j++) {
@@ -48,8 +48,8 @@ View.prototype.displayNodeVisitInStream = function(workgroupId, nodeVisit) {
 	 */
 	var workgroupName = this.userAndClassInfo.getUserNameByUserId(workgroupId);
 	var nodeId = nodeVisit.nodeId;
-	var stepNumberAndTitle = this.project.getStepNumberAndTitle(nodeId);
-	var node = this.project.getNodeById(nodeId);
+	var stepNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	var divId = "realTimeStudentWork_" + nodeVisit.id + "_" + workgroupId;
 	
 	if (!node.hasGradingView()) {

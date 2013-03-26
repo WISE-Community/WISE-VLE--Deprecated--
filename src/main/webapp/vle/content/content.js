@@ -27,8 +27,8 @@ function createContent(url, contentBaseUrlParam){
 		 * Fires event alert if eventManager exists, alerts message otherwise
 		 */
 		var msg = function(text){
-			if(typeof eventManager != 'undefined'){
-				eventManager.fire('alert', text);
+			if(typeof notificationManager != 'undefined'){
+				notificationManager.notify(text,3);
 			} else {
 				alert(text);
 			};
@@ -82,7 +82,7 @@ function createContent(url, contentBaseUrlParam){
 				 * we received a login page as the response which means the user session has timed out
 				 * we will logout the user from the vle
 				 */
-				eventManager.fire("forceLogout");
+				view.forceLogout();
 			} else if(req.responseText || req.responseXML){
 				//xml
 				if(req.responseXML){

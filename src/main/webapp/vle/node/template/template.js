@@ -165,7 +165,7 @@ Template.prototype.save = function() {
 	 * the student work is saved to the server once they move on to the
 	 * next step.
 	 */
-	eventManager.fire('pushStudentWork', templateState);
+	this.view.pushStudentWork(this.node.id, templateState);
 
 	//push the state object into this or object's own copy of states
 	this.states.push(templateState);

@@ -237,7 +237,7 @@ MC.prototype.render = function() {
 		//check if challenge question is enabled
 		if(this.isChallengeEnabled()) {
 			//challenge question is enabled so we will create the constraint
-			this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null]);
+			this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeAdvancing', null, null);
 		}
 	}
 	
@@ -532,11 +532,6 @@ MC.prototype.checkAnswer = function() {
 		//$('#tryAgainButton').addClass('disabledLink');
 		$('#tryAgainButton').parent().addClass('ui-state-disabled');
 	} else if(this.node.getType()=='BranchNode'){
-		/* this is a branch node, we will update the constraints so that students can
-		 * navigate to the appropriate branch given their answer, we also cannot allow
-		 * students to return and change their answer, so we need to create a constraint
-		 * so that students won't be able to change anything on this step */
-		//this.node.view.eventManager.fire('addConstraint', {type:'NotVisitableXConstraint', x:{id:this.node.id, mode:'node'}, status:1, menuStatus:0, msg:'You can only answer this question once.'});
 		
 		/* remove the notvisitablex constraints for the appropriate branch based
 		 * on the student response
@@ -549,7 +544,6 @@ MC.prototype.checkAnswer = function() {
 			 * we need to remove the specified constraints for this branch */
 			if(this.content.branches[v].choiceIds.indexOf(checkedId) != -1){
 				for(var w=0;w<this.content.branches[v].constraintIds.length;w++){
-					//this.node.view.eventManager.fire('removeConstraint', this.content.branches[v].constraintIds[w]);
 				}
 			}
 		}
@@ -566,7 +560,7 @@ MC.prototype.checkAnswer = function() {
 	}
 	
 	//fire the event to push this state to the global view.states object
-	eventManager.fire('pushStudentWork', mcState);
+	this.view.pushStudentWork(this.node.id, mcState);
 	
 	//push the state object into this mc object's own copy of states
 	this.states.push(mcState);
@@ -648,15 +642,11 @@ MC.prototype.getResultMessage = function(isCorrect){
 				var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(attempt.navigateTo);
 
 				// create the link to the revisit step
-				msg += "<a style='color:blue;text-decoration:underline;font-weight:bold;cursor:pointer' onclick='eventManager.fire(\"renderNode\", \"" + position + "\")'>Step " + stepNumberAndTitle + "</a> before trying again.";
+				msg += "<a style='color:blue;text-decoration:underline;font-weight:bold;cursor:pointer' onclick='eventManager.fire(\"nodeLinkClicked\", \"" + position + "\")'>Step " + stepNumberAndTitle + "</a> before trying again.";
 
 				//create the message that will display in the alert
 				var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
 				
-				/* create the constraint to disable this step until students have gone to
-				 * the step specified by this attempt */
-				//this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:attempt.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20), msg:optsMsg});
-
 				//create the args to pass to the tag map constraint
 				var additionalFunctionArgs = {
 					mustVisitNodeId:attempt.navigateTo,
@@ -665,7 +655,7 @@ MC.prototype.getResultMessage = function(isCorrect){
 				};
 				
 				//create the constraint to make the student visit the navigateTo step
-				this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustVisitXBefore', null, additionalFunctionArgs]);
+				this.view.addActiveTagMapConstraint(this.node.id, null, 'mustVisitXBefore', null, additionalFunctionArgs);
 				
 				message = msg;
 			}

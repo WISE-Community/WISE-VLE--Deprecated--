@@ -45,9 +45,6 @@ AssessmentListNode.prototype.parseDataJSONObj = function(stateJSONObj) {
  * @param studentWork
  */
 AssessmentListNode.prototype.render = function(contentPanel,studentWork, disable){
-	// add constraints
-	//this.addConstraints();
-	
 	/* call super */
 	Node.prototype.render.call(this, contentPanel, studentWork, disable);
 };
@@ -101,7 +98,7 @@ AssessmentListNode.prototype.overridesIsCompleted = function() {
  * @return a boolean value whether the step is completed or not
  */
 AssessmentListNode.prototype.isCompleted = function() {
-	var nodeVisitsForThisNode = this.view.state.getNodeVisitsByNodeId(this.id);
+	var nodeVisitsForThisNode = this.view.getState().getNodeVisitsByNodeId(this.id);
 	if (nodeVisitsForThisNode != null) {
 		for (var i=0; i < nodeVisitsForThisNode.length; i++) {
 			var nodeVisitForThisNode = nodeVisitsForThisNode[i];
@@ -153,30 +150,6 @@ AssessmentListNode.prototype.getPrompt = function() {
 				
 	//return the prompt
 	return prompt;
-};
-
-/**
- * Adds a new constraint for this assessment list if the content specifies that
- * student must complete work before exiting to another step
- */
-AssessmentListNode.prototype.addConstraints = function() {
-	if(this.content.getContentJSON().isMustCompleteAllPartsBeforeExit){
-		/* author specified that student must complete work before going to any other step, so create a constraint */
-		//this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}});
-		//this.view.addDynamicTagMap(this.id, 'mustCompleteBeforeExit');
-	}
-};
-
-/**
- * Override of Node.processStateConstraints
- * Checks to see if the work was completed. If it was, then no constraint is needed.
- * If not, then we need to add a constraint.
- */
-AssessmentListNode.prototype.processStateConstraints = function() {
-	if(this.view.state.getLatestWorkByNodeId(this.id) == ''){
-		/* no work found */
-		//this.addConstraints();
-	}
 };
 
 /**

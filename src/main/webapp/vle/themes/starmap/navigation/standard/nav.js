@@ -57,8 +57,8 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
 	// create the opening tag for the step DOM element
 	// *REQUIRED*: the id for this element should be the stepId param
 	// *REQUIRED*: the classString param should be added to the class attribute
-	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');	
-	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('renderNode','" + position + "');\">"; 
+	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('navigationNodeClicked','" + position + "');	
+	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('navigationNodeClicked','" + position + "');\">"; 
 	
 	// create a table inside the anchor for each step
 	html += "<table>";
@@ -179,7 +179,7 @@ NavigationPanel.prototype.nodeRendered = function(node) {
  * element from your theme's 'vle_body.html' and leave this function empty.
  */
 NavigationPanel.prototype.toggleVisibility = function() {
-	eventManager.fire("renderNode", window.env.getProject().getStartNodePosition());
+	eventManager.fire("goToNodePosition", window.env.getProject().getStartNodePosition());
 	/*
 	var view = this.view;
 	
@@ -373,7 +373,7 @@ var navHelper = function(){
 		},
 		executeNode: function(sequenceIndex, stepIndex) {
 			var pos = String(sequenceIndex) + "." + String(stepIndex);
-			eventManager.fire('renderNode', pos);
+			view.goToNodePosition(pos);
 		}
 	};
 }();

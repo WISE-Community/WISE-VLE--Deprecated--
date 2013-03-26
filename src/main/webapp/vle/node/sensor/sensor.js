@@ -225,7 +225,7 @@ SENSOR.prototype.render = function() {
 		var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
 		
 		//display the message to tell the student to create a prediction in the previously associated step
-		$('#promptDiv').html("You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'renderNode\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.");
+		$('#promptDiv').html("You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.");
 		this.hideAllInputFields();
 	} else {
 		//set the prompt into the step
@@ -825,7 +825,7 @@ SENSOR.prototype.save = function() {
 		}
 		
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', this.sensorState);
+		this.view.pushStudentWork(this.node.id, this.sensorState);
 
 		//push the state object into the local copy of states
 		this.states.push(this.sensorState);		
@@ -2705,12 +2705,12 @@ SENSOR.prototype.setupAxisValues = function() {
  */
 SENSOR.prototype.getPreviousPrediction = function() {
 	if(this.node.prevWorkNodeIds.length > 0) {
-		if(this.view.state != null) {
+		if(this.view.getState() != null) {
 			
 			//make sure the previous work node is also a graph/sensor step
 			if(this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type == 'SensorNode') {
 				//get the state from the previous step that this step is linked to
-				var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
+				var predictionState = this.view.getState().getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
 				
 				/*
 				 * make sure this step doesn't already have a prediction set 
