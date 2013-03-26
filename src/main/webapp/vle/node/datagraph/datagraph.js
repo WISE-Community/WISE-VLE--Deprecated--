@@ -42,7 +42,7 @@ DATAGRAPH.prototype.render = function(){
 		this.renderGraph(true);
 	}
 	
-	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**

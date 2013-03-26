@@ -14,7 +14,6 @@ var componentloader = function(em, sl){
 	var views = {
 		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
-		//grading_min: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
@@ -37,16 +36,16 @@ var componentloader = function(em, sl){
 				themeNavModes: {}
 			},
 			events: {
-				'loadingProjectStart': [null, null], 
-				'loadingProjectComplete':[null, null],
-				'pageRenderComplete':[null,null],
-				'contentRenderComplete':[null,null], 
+				'loadingProjectStarted': [null, null], 
+				'loadingProjectCompleted':[null, null],
+				'pageRenderCompleted':[null,null],
+				'contentRenderCompleted':[null,null], 
 				'contentTimedOut':[null,null], 
 				'fatalError':[null,null],
-				'getProjectMetaDataComplete':[null,null], 
-				'getRunExtrasComplete':[null,null], 
+				'getProjectMetaDataCompleted':[null,null], 
+				'getRunExtrasCompleted':[null,null], 
 				'nullEvent':[null,null],
-				'getAnnotationsComplete':[null,null]
+				'getAnnotationsCompleted':[null,null]
 			},
 			methods: {
 				getProject:function(view){return function(){return view.getProject();};},
@@ -132,8 +131,8 @@ var componentloader = function(em, sl){
 		},
 		user: {
 			variables: {userAndClassInfo:undefined},
-			events: {'getUserAndClassInfoBegin':[null,null],
-					 'getUserAndClassInfoComplete': [null, null],
+			events: {'getUserAndClassInfoStarted':[null,null],
+					 'getUserAndClassInfoCompleted': [null, null],
 					 'processUserAndClassInfoComplete':[null,null]},
 			methods: {},
 			initialize: {}
@@ -243,8 +242,8 @@ var componentloader = function(em, sl){
 				initializeEvents:function(view) {
 					eventManager.subscribe("gradingConfigUrlReceived", view.gradingDispatcher, view);
 					eventManager.subscribe("getGradingConfigComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("loadingProjectComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("getUserAndClassInfoComplete", view.gradingDispatcher, view);
+					eventManager.subscribe("loadingProjectCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("getUserAndClassInfoCompleted", view.gradingDispatcher, view);
 					eventManager.subscribe("processUserAndClassInfoComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByStepGradingPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByTeamGradingPage", view.gradingDispatcher, view);
@@ -267,8 +266,8 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("getCustomAllStudentWorkExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getSpecialExport", view.gradingDispatcher, view);
 					eventManager.subscribe("displayExportExplanation", view.gradingDispatcher, view);
-					eventManager.subscribe("getProjectMetaDataComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("getRunExtrasComplete", view.gradingDispatcher, view);
+					eventManager.subscribe("getProjectMetaDataCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("getRunExtrasCompleted", view.gradingDispatcher, view);
 					eventManager.subscribe("saveMaxScore", view.gradingDispatcher, view);
 					eventManager.subscribe("showScoreSummary", view.gradingDispatcher, view);
 					eventManager.subscribe("filterPeriod", view.gradingDispatcher, view);
@@ -277,7 +276,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("displayStudentUploadedFiles", view.gradingDispatcher, view);
 					eventManager.subscribe("togglePrompt", view.gradingDispatcher, view);
 					eventManager.subscribe("refreshGradingScreen", view.gradingDispatcher, view);
-					eventManager.subscribe("getAnnotationsComplete", view.gradingDispatcher, view);
+					eventManager.subscribe("getAnnotationsCompleted", view.gradingDispatcher, view);
 					eventManager.subscribe("initiateGradingDisplayStart", view.gradingDispatcher, view);
 					eventManager.subscribe("projectDataReceived", view.gradingDispatcher, view);
 					eventManager.subscribe("getStudentWorkComplete", view.gradingDispatcher, view);
@@ -506,7 +505,7 @@ var componentloader = function(em, sl){
 				init:function(view){
 					view.eventManager.subscribe('openProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('projectSelected', view.authorDispatcher, view);
-					view.eventManager.subscribe('loadingProjectComplete', view.authorDispatcher, view);
+					view.eventManager.subscribe('loadingProjectCompleted', view.authorDispatcher, view);
 					view.eventManager.subscribe('hideNodes', view.authorDispatcher, view);
 					view.eventManager.subscribe('unhideNodes', view.authorDispatcher, view);
 					view.eventManager.subscribe('toggleProjectMode', view.authorDispatcher, view);
@@ -695,24 +694,16 @@ var componentloader = function(em, sl){
 				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
-				'retrieveLocalesComplete':[null,null],
-				'retrieveThemeLocalesComplete':[null,null],
-				'renderNodeComplete':[null,null],
-				'resizeNote':[null,null],
-				'onNotePanelResized':[null,null],
-				'startVLEComplete':[null,null],
-				'setStyleOnElement':[null,null],
+				'retrieveLocalesCompleted':[null,null],
+				'retrieveThemeLocalesCompleted':[null,null],
+				'renderNodeCompleted':[null,null],
+				'startVLECompleted':[null,null],
 				'ifrmLoaded':[null,null],
-				'processLoadViewStateResponseComplete':[null,null],
-				'saveAndLockNote':[null,null],
-				'noteHandleEditorKeyPress':[null,null],
-				'noteShowStarter':[null,null],
-				'saveAndCloseNote':[null,null],
-				'importWork':[null,null],
-				'loadingThemeComplete':[null,null],
+				'processLoadViewStateResponseCompleted':[null,null],
+				'noteEditorKeyPressed':[null,null],
+				'loadingThemeCompleted':[null,null],
 				'assetUploaded':[null,null],
 				'chatRoomTextEntrySubmitted':[null, null],
-				'setStepIcon':[null, null],
 				'studentWorkUpdated':[null,null],
 				'currentNodePositionUpdated':[null,null],
 				'constraintStatusUpdated':[null,null],
@@ -721,40 +712,32 @@ var componentloader = function(em, sl){
 			methods:{},
 			initialize:{
 				init:function(view){
-						view.eventManager.subscribe('retrieveLocalesComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('retrieveThemeLocalesComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('loadingProjectStart', view.vleDispatcher, view);
-						view.eventManager.subscribe('loadingProjectComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('getUserAndClassInfoBegin', view.vleDispatcher, view);
-						view.eventManager.subscribe('getUserAndClassInfoComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('processLoadViewStateResponseComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('renderNodeComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('resizeNote', view.vleDispatcher, view);
-						view.eventManager.subscribe('onNotePanelResized', view.vleDispatcher, view);
-						view.eventManager.subscribe('setStyleOnElement', view.vleDispatcher, view);
-						view.eventManager.subscribe('getAnnotationsComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('getProjectMetaDataComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('getRunExtrasComplete', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveLocalesCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveThemeLocalesCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('loadingProjectStarted', view.vleDispatcher, view);
+						view.eventManager.subscribe('loadingProjectCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('getUserAndClassInfoStarted', view.vleDispatcher, view);
+						view.eventManager.subscribe('getUserAndClassInfoCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('processLoadViewStateResponseCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('renderNodeCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('getAnnotationsCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('getProjectMetaDataCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('getRunExtrasCompleted', view.vleDispatcher, view);
 						view.eventManager.subscribe('ifrmLoaded', view.vleDispatcher, view);
-						view.eventManager.subscribe('saveAndLockNote', view.vleDispatcher, view);
-						view.eventManager.subscribe('noteHandleEditorKeyPress', view.vleDispatcher, view);
-						view.eventManager.subscribe('noteShowStarter', view.vleDispatcher, view);
-						view.eventManager.subscribe('contentRenderComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('saveAndCloseNote', view.vleDispatcher, view);
-						view.eventManager.subscribe('importWork', view.vleDispatcher, view);
-						view.eventManager.subscribe('startVLEComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('loadingThemeComplete', view.vleDispatcher, view);
+						view.eventManager.subscribe('noteEditorKeyPressed', view.vleDispatcher, view);
+						view.eventManager.subscribe('contentRenderCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('startVLECompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('loadingThemeCompleted', view.vleDispatcher, view);
 						view.eventManager.subscribe('scriptsLoaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('assetUploaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('chatRoomTextEntrySubmitted', view.vleDispatcher, view);
-						view.eventManager.subscribe('setStepIcon', view.vleDispatcher, view);
 						view.eventManager.subscribe('studentWorkUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('nodeLinkClicked', view.vleDispatcher, view);
-						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
-						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
-						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);
+						view.eventManager.initializeLoading([['loadingProjectStarted','loadingProjectCompleted','Project'],
+						                                     ['getUserAndClassInfoStarted','getUserAndClassInfoCompleted', 'Learner Data'], 
+						                                     ['getUserAndClassInfoStarted', 'renderNodeCompleted', 'Learning Environment']]);
 						
 						/* set up saving dialog for when user exits */
 						$('body').append('<div id="onUnloadSaveDiv">Saving data...</div>');
@@ -782,16 +765,16 @@ var componentloader = function(em, sl){
 			methods:{},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('loadingProjectComplete', view.audioDispatcher, view);
+					view.eventManager.subscribe('loadingProjectCompleted', view.audioDispatcher, view);
 					view.eventManager.subscribe('rewindStepAudio', view.audioDispatcher, view);
 					view.eventManager.subscribe('previousStepAudio', view.audioDispatcher, view);
 					view.eventManager.subscribe('forwardStepAudio', view.audioDispatcher, view);
 					view.eventManager.subscribe('playPauseStepAudio', view.audioDispatcher, view);
 					view.eventManager.subscribe('updateAudio', view.audioDispatcher, view);
-					view.eventManager.subscribe('renderNodeComplete', view.audioDispatcher,view);
+					view.eventManager.subscribe('renderNodeCompleted', view.audioDispatcher,view);
 					view.eventManager.subscribe('stepThruProject', view.audioDispatcher,view);
-					view.eventManager.subscribe('contentRenderComplete', view.audioDispatcher, view);
-					view.eventManager.subscribe('pageRenderComplete', view.audioDispatcher, view);
+					view.eventManager.subscribe('contentRenderCompleted', view.audioDispatcher, view);
+					view.eventManager.subscribe('pageRenderCompleted', view.audioDispatcher, view);
 					view.eventManager.subscribe('createAudioFiles', view.audioDispatcher, view);
 				}
 			}
@@ -810,14 +793,14 @@ var componentloader = function(em, sl){
 				navigationPanel:undefined
 			},
 			events:{
-				'navigationLoadingComplete':[null,null]
+				'navigationLoadingCompleted':[null,null]
 			},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('loadingProjectComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('renderNodeComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('navigationLoadingComplete', view.vleDispatcher, view);
-					view.eventManager.subscribe('processLoadViewStateResponseComplete', view.navigationDispatcher, view);
+					view.eventManager.subscribe('loadingProjectCompleted', view.navigationDispatcher, view);
+					view.eventManager.subscribe('renderNodeCompleted', view.navigationDispatcher, view);
+					view.eventManager.subscribe('navigationLoadingCompleted', view.vleDispatcher, view);
+					view.eventManager.subscribe('processLoadViewStateResponseCompleted', view.navigationDispatcher, view);
 				}
 			}
 		},
@@ -927,7 +910,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('createLink', view.linkManager.dispatcher, view);
 					view.eventManager.subscribe('linkToNodeChanged', view.linkManager.dispatcher, view);
 					view.eventManager.subscribe('removeLinkTo', view.linkManager.dispatcher, view);
-					view.eventManager.subscribe('contentRenderComplete', view.linkManager.dispatcher, view);
+					view.eventManager.subscribe('contentRenderCompleted', view.linkManager.dispatcher, view);
 					view.eventManager.subscribe('stepPromptChanged', view.promptManager.dispatcher, view);
 					view.eventManager.subscribe('stepStudentResponseBoxSizeChanged', view.studentResponseBoxSizeManager.dispatcher, view);
 					view.eventManager.subscribe('stepRichTextEditorToggleChanged', view.richTextEditorToggleManager.dispatcher, view);

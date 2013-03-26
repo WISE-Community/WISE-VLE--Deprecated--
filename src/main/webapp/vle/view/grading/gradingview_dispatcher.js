@@ -25,7 +25,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.retrieveLocales("main");		
 		obj.loadProject(args[0], args[1], args[2]);
 		obj.initializeSession();
-	} else if(type=='loadingProjectComplete') {
+	} else if(type=='loadingProjectCompleted') {
 		obj.getStudentUserInfo();
 		obj.checkAndMinify();
 	} else if(type=='getAllStudentWorkXLSExport') {
@@ -48,7 +48,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.customSelectAllStepsCheckBoxClicked();
 	} else if(type=='getStudentNamesExport') {
 		obj.getStudentNamesExport();
-	} else if(type=='getProjectMetaDataComplete') {
+	} else if(type=='getProjectMetaDataCompleted') {
 		obj.retrieveAnnotations();
 	} else if(type=='saveMaxScore') {
 		obj.saveMaxScore(args[0], args[1]);
@@ -68,7 +68,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.refreshGradingScreen();
 	} else if(type=='smartFilter') {
 		obj.smartFilter();
-	} else if(type=='getAnnotationsComplete') {
+	} else if(type=='getAnnotationsCompleted') {
 		obj.getIdeaBaskets();
 	} else if(type=='getIdeaBasketsComplete') {
 		eventManager.fire("projectDataReceived");

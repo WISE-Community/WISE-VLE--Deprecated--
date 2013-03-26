@@ -319,9 +319,9 @@ View.prototype.showAllWork = function(annotationsRetrieved, projectMetaDataRetri
  * each time but only displays Show All Work after all 3 have been fired
  * by checking the *Retrieved flags
  * 
- * getAnnotationsComplete
- * getProjectMetaDataComplete
- * getRunExtrasComplete
+ * getAnnotationsCompleted
+ * getProjectMetaDataCompleted
+ * getRunExtrasCompleted
  *
  */
 View.prototype.displayShowAllWork = function() {
@@ -478,7 +478,7 @@ View.prototype.retrieveAnnotations = function(callerId) {
 		thisView.setAnnotations(Annotations.prototype.parseDataJSONString(responseText, true, thisView));
 
 		thisView.annotationsRetrieved = true;
-		eventManager.fire('getAnnotationsComplete', callerId);
+		eventManager.fire('getAnnotationsCompleted', callerId);
 	};
 	
 	var annotationsUrlParams = {
@@ -566,7 +566,7 @@ View.prototype.getShowAllWorkData = function() {
 		 * so listeners will be notified 
 		 */
 		this.annotationsRetrieved = true;
-		eventManager.fire('getAnnotationsComplete', 'displayShowAllWork');
+		eventManager.fire('getAnnotationsCompleted', 'displayShowAllWork');
 	}
 	
 	//make sure project meta data is retrieved
@@ -579,7 +579,7 @@ View.prototype.getShowAllWorkData = function() {
 		 * so listeners will be notified 
 		 */
 		this.projectMetaDataRetrieved = true;
-		eventManager.fire('getProjectMetaDataComplete');
+		eventManager.fire('getProjectMetaDataCompleted');
 	}
 };
 

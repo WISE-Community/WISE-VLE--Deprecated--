@@ -2028,11 +2028,11 @@ View.prototype.authorWindowScrolled = function() {
 };
 
 /**
- * Fires the pageRenderComplete event whenever the preview frame is loaded.
+ * Fires the pageRenderCompleted event whenever the preview frame is loaded.
  */
 View.prototype.onPreviewFrameLoad = function(){
 	if(this.activeNode){
-		this.eventManager.fire('pageRenderComplete', this.activeNode.id);
+		this.eventManager.fire('pageRenderCompleted', this.activeNode.id);
 	}
 };
 

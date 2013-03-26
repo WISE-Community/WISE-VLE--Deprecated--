@@ -1559,7 +1559,7 @@ View.prototype.updateStepStatusIcon = function(nodeId, src, tooltip) {
  * Dispatches events that are specific to the menu.
  */
 View.prototype.navigationDispatcher = function(type,args,obj){
-	if(type=='renderNodeComplete'){
+	if(type=='renderNodeCompleted'){
 		obj.renderNavigationPanel();
 		obj.expandActivity(args[0]);
 	} else if(type=='menuCreated'){

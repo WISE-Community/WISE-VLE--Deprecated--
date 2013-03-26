@@ -7,7 +7,7 @@
 	    function loadContentAfterScriptsLoad(node){
 		    window.frames['outsideurliframe'].location = node.getUrl();
 	    	
-			node.view.eventManager.fire('contentRenderComplete', node.id, node);
+			node.view.eventManager.fire('contentRenderCompleted', node.id, node);
 	    };
 	    
 		function loadContent(node){

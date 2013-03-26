@@ -62,13 +62,13 @@ View.prototype.retrieveProjectMetaData = function() {
 			}
 	
 			thisView.projectMetaDataRetrieved = true;
-			eventManager.fire("getProjectMetaDataComplete");
+			eventManager.fire("getProjectMetaDataCompleted");
 		};
 		
 		var projectMetaDataCallbackFailure = function(text, args) {
 			var thisView = args[0];
 			thisView.projectMetaDataRetrieved = true;
-			eventManager.fire("getProjectMetaDataComplete");
+			eventManager.fire("getProjectMetaDataCompleted");
 		};
 		
 		var projectMetaDataUrlParams = {
@@ -95,13 +95,13 @@ View.prototype.getRunExtras = function() {
 		}
 
 		thisView.runExtrasRetrieved = true;
-		eventManager.fire("getRunExtrasComplete");
+		eventManager.fire("getRunExtrasCompleted");
 	};
 	
 	var runExtrasCallbackFailure = function(text, args) {
 		var thisView = args[0];
 		thisView.runExtrasRetrieved = true;
-		eventManager.fire("getRunExtrasComplete");
+		eventManager.fire("getRunExtrasCompleted");
 	};
 	
 	this.connectionManager.request('GET', 1, getRunExtrasUrl, null, runExtrasCallbackSuccess, [this], runExtrasCallbackFailure);

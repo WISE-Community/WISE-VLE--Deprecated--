@@ -451,7 +451,7 @@ View.prototype.retrieveAnnotations = function() {
 	var getAnnotationsCallback = function(text, xml, args) {
 		var thisView = args[0];
 		thisView.setAnnotations(Annotations.prototype.parseDataJSONString(text));
-		eventManager.fire("getAnnotationsComplete");
+		eventManager.fire("getAnnotationsCompleted");
 		thisView.getFlags();
 	};
 	

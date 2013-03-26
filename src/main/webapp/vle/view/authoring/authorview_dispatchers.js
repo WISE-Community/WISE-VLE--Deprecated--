@@ -9,7 +9,7 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.openProject();
 	} else if(type=='projectSelected'){
 		obj.projectOptionSelected();
-	} else if(type=='loadingProjectComplete'){
+	} else if(type=='loadingProjectCompleted'){
 		obj.onProjectLoaded();
 	} else if(type=='hideNodes'){
 		obj.utils.hideNodes();

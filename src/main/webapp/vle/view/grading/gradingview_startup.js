@@ -228,7 +228,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsU
 	//setup events
 	vle.eventManager.addEvent('getStudentUserInfoComplete');
 	vle.eventManager.addEvent('getStudentWorkComplete');
-	vle.eventManager.addEvent('getAnnotationsComplete');
+	vle.eventManager.addEvent('getAnnotationsCompleted');
 
 	/*
 	 * when we are done retrieving the student workgroup ids, we will
@@ -243,7 +243,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsU
 	 */
 	//vle.eventManager.subscribe("getStudentWorkComplete", getAnnotations);
 
-	//vle.eventManager.subscribe("getAnnotationsComplete", getFlags);
+	//vle.eventManager.subscribe("getAnnotationsCompleted", getFlags);
 }
 
 

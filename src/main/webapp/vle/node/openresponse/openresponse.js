@@ -82,7 +82,7 @@ function OPENRESPONSE(node, view) {
 	 * subscribe this open response to listen for the 'getAnnotationsComplete' event.
 	 * this is for when we need to retrieve annotations for the teacher review
 	 */
-	eventManager.subscribe('getAnnotationsComplete', this.getAnnotationsComplete, this);
+	eventManager.subscribe('getAnnotationsCompleted', this.getAnnotationsCompletedListener, this);
 };
 
 /**
@@ -1023,7 +1023,7 @@ OPENRESPONSE.prototype.displayTeacherWork = function() {
  * @param args
  * @param obj
  */
-OPENRESPONSE.prototype.getAnnotationsComplete = function(type,args,obj) {
+OPENRESPONSE.prototype.getAnnotationsCompletedListener = function(type,args,obj) {
 	if(args[0] == obj.node.id) {
 		obj.displayTeacherReview();
 	}
@@ -1166,8 +1166,8 @@ OPENRESPONSE.prototype.retrieveTeacherReview = function() {
 	if(this.view.getAnnotations() == null) {
 		/*
 		 * retrieve the annotations. this OPENRESPONSE is subscribed to listen
-		 * for getAnnotationsComplete and when that event is fired it will
-		 * call getAnnotationsComplete() which calls displayTeacherReview()
+		 * for getAnnotationsCompleted and when that event is fired it will
+		 * call getAnnotationsCompletedListener() which calls displayTeacherReview()
 		 */
 		this.view.retrieveAnnotations(this.node.id);
 	} else {
@@ -1675,7 +1675,7 @@ OPENRESPONSE.prototype.replaceSlashNWithBR = function(response) {
 OPENRESPONSE.prototype.doneRendering = function() {
 
 	//create any constraints if necessary
-	eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**
