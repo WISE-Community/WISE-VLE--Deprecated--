@@ -37,7 +37,7 @@ Mysystem2.prototype.saveTriggeredByMySystem = function(isSubmit) {
   // save back to the server. In a single node visit, this will use the same
   // node visit id each time, so it will save the (growing) stack back to the same
   // place each time. 
-  this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());
+  this.node.view.postCurrentNodeVisit(this.node.view.getState().getCurrentNodeVisit());
 };
 
 /**
@@ -121,6 +121,7 @@ Mysystem2.prototype.render = function() {
 };
 
 Mysystem2.prototype.keepStudentLogedIn = function() {
+	console.log("keep student logged in");
   // only register dom listeners once...
   if (!this.hasRegisteredDomListeners) {
     var lastRenewal = 0;
@@ -134,7 +135,7 @@ Mysystem2.prototype.keepStudentLogedIn = function() {
         if (elapsed > interval) {  // only renew at most once every interval seconds
           SC.Logger.log("renewing session (" + elapsed + "s)");
           lastSate = state;
-          eventManager.fire('renewSession');
+          this.view.sessionManager.renewSession();
           lastRenewal = now;
         }
       });

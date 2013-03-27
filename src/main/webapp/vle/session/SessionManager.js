@@ -35,7 +35,8 @@ function SessionManager(em, view) {
 	// timestamp of last successful request to renew the session.
 	this.lastSuccessfulRequest = Date.parse(new Date());  
 
-	setInterval('eventManager.fire("checkSession")', this.sessionTimeoutCheckInterval);  
+	// register loop to check session status every once in a while
+	setInterval("view.sessionManager.checkSession()", this.sessionTimeoutCheckInterval);
 };
 
 /**
@@ -43,6 +44,19 @@ function SessionManager(em, view) {
  */
 SessionManager.prototype.maintainConnection = function(){
 	this.lastSuccessfulRequest = Date.parse(new Date());
+};
+
+/**
+ * Keeps session alive
+ */
+SessionManager.prototype.renewSession = function() {
+	console.log('renewSession');
+	// make a request to renew the session
+	var renewSessionUrl = this.view.config.getConfigParam('indexUrl');
+	if (renewSessionUrl == null || renewSessionUrl == 'undefined') {
+		renewSessionUrl = "/webapp/index.html";
+	}
+	this.view.connectionManager.request('GET', 2, renewSessionUrl, {}, null, obj);
 };
 
 /**
@@ -63,7 +77,7 @@ SessionManager.prototype.checkSession = function() {
 	
 	if(this.view.gradingType != null && this.view.gradingType == "monitor") {
 		// classroom monitor should not log out indefinitely
-		eventManager.fire('renewSession');
+		this.renewSession();
 		return;
 	}
 	
@@ -82,12 +96,12 @@ SessionManager.prototype.checkSession = function() {
 			// if 75% of the timeout has been elapsed, warn them
 			var renewSessionSubmit = function(){
 				// renewSession was requested
-				eventManager.fire('renewSession');
+				this.renewSession();
 				$('#sessionMessageDiv').dialog('close');
 			};
 			var renewSessionClose = function(){
 				// renewSession was requested
-				eventManager.fire('renewSession');
+				this.renewSession();
 			};
 			$('#sessionMessageDiv').html("You have been inactive for a long time. If you do not renew your session now, you will be logged out of WISE.");
 			$('#sessionMessageDiv').dialog(

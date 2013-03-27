@@ -96,7 +96,7 @@ View.prototype.startVLEFromConfig = function(configUrl){
 	/* create config by creating content object from given url */
 	this.config = this.createConfig(createContent(configUrl));
 	
-	this.eventManager.fire('loadConfigComplete');
+	this.eventManager.fire('loadConfigCompleted');
 
 	/* retrieve i18n files, defined in view_i18n.js */
 	this.retrieveLocales("main");
@@ -115,7 +115,7 @@ View.prototype.startVLEFromParams = function(obj){
 	/* create the config obj using the content obj */
 	this.config = this.createConfig(contentObj);
 	
-	this.eventManager.fire('loadConfigComplete');
+	this.eventManager.fire('loadConfigCompleted');
 
 	/* start the vle */
 	this.startVLE();

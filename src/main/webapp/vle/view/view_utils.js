@@ -6,21 +6,9 @@
 View.prototype.utils = {};
 
 View.prototype.utilDispatcher = function(type, args, obj) {
-	if (type == 'loadConfigComplete') {
+	if (type == 'loadConfigCompleted') {
 		obj.initializeSession();
-	} else if (type == 'maintainConnection') {
-		obj.sessionManager.maintainConnection();
-	} else if (type == 'renewSession') {
-		// make a request to renew the session
-		var renewSessionUrl = obj.config.getConfigParam('indexUrl');
-		if (renewSessionUrl == null || renewSessionUrl == 'undefined') {
-			renewSessionUrl = "/webapp/index.html";
-		}
-		obj.connectionManager.request('GET', 2, renewSessionUrl, {}, null, obj);
-	} else if (type == 'checkSession') {
-		// check if session has been expired
-		obj.sessionManager.checkSession();
-	} 
+	}
 };
 
 /**

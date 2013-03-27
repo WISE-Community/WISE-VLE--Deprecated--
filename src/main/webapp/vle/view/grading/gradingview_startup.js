@@ -39,7 +39,7 @@ View.prototype.getStudentUserInfo = function() {
 		}
 	}
 
-	eventManager.fire('processUserAndClassInfoComplete');
+	eventManager.fire('processUserAndClassInfoCompleted');
 };
 
 /** 
