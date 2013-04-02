@@ -56,9 +56,6 @@ var componentloader = function(em, sl){
 				connectionManager:function(){return new ConnectionManager(eventManager);},
 				init:function(view){
 					view.eventManager.subscribe('contentTimedOut', function(type,args,obj){obj.notificationManager.notify('Retrieval of content from url ' + args[0] + ' is taking a long time! The server may be slow or is not responding. If content does not load shortly, check with an administrator.', 3);}, view);
-					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
-					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
 					
 					/* set up the notePanel dialog in the view */
 					document.body.appendChild(createElement(document, 'div', {id:'notePanel'}));
@@ -124,7 +121,7 @@ var componentloader = function(em, sl){
 		config: {
 			variables: {config:undefined},
 			events: {				
-				'loadConfigComplete':[null,null]
+				'loadConfigCompleted':[null,null]
 			},
 			methods: {},
 			initialize: {}
@@ -133,24 +130,18 @@ var componentloader = function(em, sl){
 			variables: {userAndClassInfo:undefined},
 			events: {'getUserAndClassInfoStarted':[null,null],
 					 'getUserAndClassInfoCompleted': [null, null],
-					 'processUserAndClassInfoComplete':[null,null]},
+					 'processUserAndClassInfoCompleted':[null,null]},
 			methods: {},
 			initialize: {}
 		},
 		session: {
 			variables: {},
 			events: {				
-				'maintainConnection':[null,null],
-				'renewSession':[null,null],
-				'checkSession':[null,null]
 			},
 			methods: {},
 			initialize: {
 				init:function(view){
-					view.eventManager.subscribe('loadConfigComplete', view.utilDispatcher, view);
-					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
-					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
+					view.eventManager.subscribe('loadConfigCompleted', view.utilDispatcher, view);
 				}
 			}
 		},
@@ -244,7 +235,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("getGradingConfigComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("loadingProjectCompleted", view.gradingDispatcher, view);
 					eventManager.subscribe("getUserAndClassInfoCompleted", view.gradingDispatcher, view);
-					eventManager.subscribe("processUserAndClassInfoComplete", view.gradingDispatcher, view);
+					eventManager.subscribe("processUserAndClassInfoCompleted", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByStepGradingPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByTeamGradingPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayResearcherToolsPage", view.gradingDispatcher, view);

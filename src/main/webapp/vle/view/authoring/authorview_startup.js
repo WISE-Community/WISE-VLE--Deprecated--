@@ -33,7 +33,7 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	
 	//create the config
 	this.config = this.createConfig(createContent(configUrl));
-	this.eventManager.fire('loadConfigComplete');
+	this.eventManager.fire('loadConfigCompleted');
 	
 	/* retrieve i18n files, defined in view_i18n.js */
 	this.retrieveLocales("main");
