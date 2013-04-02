@@ -917,12 +917,16 @@ public class VLEGetXLS extends VLEServlet {
 		    	headerRow.createCell(headerColumn).setCellValue("Node Id");
 		    	headerColumn++;
 		    	
+		    	//header post time column
+		    	headerRow.createCell(headerColumn).setCellValue("Post Time (Server Clock)");
+		    	headerColumn++;
+		    	
 		    	//header start time column
-		    	headerRow.createCell(headerColumn).setCellValue("Start Time");
+		    	headerRow.createCell(headerColumn).setCellValue("Start Time (Student Clock)");
 		    	headerColumn++;
 		    	
 		    	//header end time column
-		    	headerRow.createCell(headerColumn).setCellValue("End Time");
+		    	headerRow.createCell(headerColumn).setCellValue("End Time (Student Clock)");
 		    	headerColumn++;
 		    	
 		    	//header time the student spent on the step in seconds column
@@ -1135,6 +1139,10 @@ public class VLEGetXLS extends VLEServlet {
 			    	//set the node id
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(stepWork.getNode().getNodeId());
+			    	
+			    	//set the post time
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(postTime));
 			    	
 			    	//set the start time
 			    	tempColumn++;
@@ -3645,8 +3653,9 @@ public class VLEGetXLS extends VLEServlet {
 	    	headerColumnNames.add("Step Title");
 	    	headerColumnNames.add("Step Prompt");
 	    	headerColumnNames.add("Node Id");
-	    	headerColumnNames.add("Start Time");
-	    	headerColumnNames.add("End Time");
+	    	headerColumnNames.add("Post Time (Server Clock)");
+	    	headerColumnNames.add("Start Time (Student Clock)");
+	    	headerColumnNames.add("End Time (Student Clock)");
 	    	headerColumnNames.add("Time Spent (in seconds)");
 	    	headerColumnNames.add("Answer");
 	    	headerColumnNames.add("Idea Id");
@@ -3723,10 +3732,12 @@ public class VLEGetXLS extends VLEServlet {
 					    					prompt = nodeContent.getString("prompt");					    					
 					    				}
 					    			}
-					    			//get the start and end time for the student visit
+					    			
+					    			//get the start, end and post time for the student visit
 									Timestamp startTime = stepWork.getStartTime();
 									Timestamp endTime = stepWork.getEndTime();
-									
+									Timestamp postTime = stepWork.getPostTime();
+
 							    	long timeSpentOnStep = 0;
 							    	
 							    	//calculate the time the student spent on the step
@@ -3745,8 +3756,18 @@ public class VLEGetXLS extends VLEServlet {
 									ideaRow.createCell(columnCounter++).setCellValue(title);
 									ideaRow.createCell(columnCounter++).setCellValue(prompt);
 									ideaRow.createCell(columnCounter++).setCellValue(nodeId);
+									
+									//set the post time
+									if(postTime != null) {
+										ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(postTime));
+									} else {
+										ideaRow.createCell(columnCounter++).setCellValue("");
+									}
+									
+									//set the start time
 									ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(startTime));
 									
+									//set the end time
 									if(endTime != null) {
 										ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(endTime));
 									} else {
@@ -4682,9 +4703,9 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Times Copied");
 		headerFields.add("Workgroup Ids That Have Copied");
 		headerFields.add("Trash");
-		headerFields.add("Timestamp Basket Saved");
-		headerFields.add("Timestamp Idea Created");
-		headerFields.add("Timestamp Idea Last Edited");
+		headerFields.add("Timestamp Basket Saved (Server Clock)");
+		headerFields.add("Timestamp Idea Created (Student Clock)");
+		headerFields.add("Timestamp Idea Last Edited (Student Clock)");
 		headerFields.add("New");
 		headerFields.add("Copied From Public In This Revision");
 		headerFields.add("Revised");
