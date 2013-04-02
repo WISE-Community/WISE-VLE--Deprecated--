@@ -57,7 +57,7 @@ public class VLEGetXLS extends VLEServlet {
 	
 	private HashMap<Integer, String> workgroupIdToPeriodName = new HashMap<Integer, String>();
 	
-	private HashMap<Integer, String> workgroupIdToStudentLogins = new HashMap<Integer, String>();
+	private HashMap<Integer, String> workgroupIdToUserIds = new HashMap<Integer, String>();
 	
 	private HashMap<Long, JSONArray> workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 	
@@ -115,7 +115,7 @@ public class VLEGetXLS extends VLEServlet {
 		nodeIdToNodeTitles = new HashMap<String, String>();
 		nodeIdToNodeTitlesWithPosition = new HashMap<String, String>();
 		workgroupIdToPeriodName = new HashMap<Integer, String>();
-		workgroupIdToStudentLogins = new HashMap<Integer, String>();
+		workgroupIdToUserIds = new HashMap<Integer, String>();
 		workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 		periodIdToPeriodName = new HashMap<Integer, String>();
 		
@@ -421,18 +421,18 @@ public class VLEGetXLS extends VLEServlet {
 						}
 					}
 					
-					if(classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
+					if(classmate.has("userIds") && !classmate.isNull("userIds")) {
 						/*
-						 * get the student logins, this is a single string with the logins
+						 * get the student user ids, this is a single string with the user ids
 						 * separated by ':'
 						 */
-						String studentLogins = classmate.getString("studentLogins");
-						workgroupIdToStudentLogins.put(workgroupId, studentLogins);
+						String userIds = classmate.getString("userIds");
+						workgroupIdToUserIds.put(workgroupId, userIds);
 					}
 					
 					if(classmate.has("periodId") && !classmate.isNull("periodId") &&
 							classmate.has("periodName") && !classmate.isNull("periodName") &&
-							classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
+							classmate.has("userIds") && !classmate.isNull("userIds")) {
 
 						//add the workgroup id string to the List of workgroup ids
 						workgroupIds.add(workgroupId + "");
@@ -976,6 +976,7 @@ public class VLEGetXLS extends VLEServlet {
 			    	//get the start and end time
 			    	Timestamp startTime = stepWork.getStartTime();
 			    	Timestamp endTime = stepWork.getEndTime();
+			    	Timestamp postTime = stepWork.getPostTime();
 			    	
 			    	//get the node id
 			    	String nodeId = stepWork.getNode().getNodeId();
@@ -1003,8 +1004,8 @@ public class VLEGetXLS extends VLEServlet {
 					String wiseId2 = "";
 					String wiseId3 = "";
 					
-					//get the start time in milliseconds
-			    	long timestamp = startTime.getTime();
+					//get the post time in milliseconds
+			    	long timestamp = postTime.getTime();
 			    	
 			    	/*
 			    	 * get the student attendance that is relevant to the step work. we will
@@ -1022,26 +1023,26 @@ public class VLEGetXLS extends VLEServlet {
 			    		 */
 			    		
 			    		//get all the user ids for this workgroup
-			    		String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId + ""));
+			    		String userIds = workgroupIdToUserIds.get(Integer.parseInt(workgroupId + ""));
 			    		
 						//the user ids string is delimited by ':'
-						String[] studentLoginsArray = studentLogins.split(":");
+						String[] userIdsArray = userIds.split(":");
 						
 						//sort the user ids numerically and put them into a list
-						ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+						ArrayList<Long> userIdsList = sortUserIdsArray(userIdsArray);
 						
 						//loop through all the user ids in this workgroup
-						for(int z=0; z<studentLoginsList.size(); z++) {
+						for(int z=0; z<userIdsList.size(); z++) {
 							//get a user id
-							Long studentLoginId = studentLoginsList.get(z);
+							Long wiseId = userIdsList.get(z);
 							
 							//set the appropriate wise id
 							if(z == 0) {
-								wiseId1 = studentLoginId + "";
+								wiseId1 = wiseId + "";
 							} else if(z == 1) {
-								wiseId2 = studentLoginId + "";
+								wiseId2 = wiseId + "";
 							} else if(z == 2) {
-								wiseId3 = studentLoginId + "";
+								wiseId3 = wiseId + "";
 							}
 						}
 			    	} else {
@@ -3489,32 +3490,32 @@ public class VLEGetXLS extends VLEServlet {
 			//set the first column to be the workgroup id
 			workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, workgroupId);
 			
-			//get the student logins for the given workgroup id
-			String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId));
+			//get the student user ids for the given workgroup id
+			String userIds = workgroupIdToUserIds.get(Integer.parseInt(workgroupId));
 			
-			if(studentLogins != null) {
-				//we found student logins
+			if(userIds != null) {
+				//we found student user ids
 				
 				//the user ids string is delimited by ':'
-				String[] studentLoginsArray = studentLogins.split(":");
+				String[] userIdsArray = userIds.split(":");
 				
 				//sort the user ids numerically
-				ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+				ArrayList<Long> userIdsList = sortUserIdsArray(userIdsArray);
 				
 				//loop through all the user ids in this workgroup
-				for(int z=0; z<studentLoginsList.size(); z++) {
+				for(int z=0; z<userIdsList.size(); z++) {
 					//get a user id
-					Long studentLoginLong = studentLoginsList.get(z);
+					Long userIdLong = userIdsList.get(z);
 					
 					//put the user id into the cell
-					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, studentLoginLong + "");
+					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, userIdLong + "");
 				}
 				
 				/*
 				 * we will assume there will be at most 3 students in a workgroup so we need
 				 * to increment the column counter if necessary
 				 */
-				int numColumnsToAdd = 3 - studentLoginsList.size();
+				int numColumnsToAdd = 3 - userIdsList.size();
 				workgroupColumnCounter += numColumnsToAdd;
 				
 				if(periodName == null) {
@@ -3887,30 +3888,30 @@ public class VLEGetXLS extends VLEServlet {
 			String periodName = workgroupIdToPeriodName.get(Integer.parseInt(workgroupId));
 			
     		//get all the user ids for this workgroup
-    		String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId + ""));
+    		String userIds = workgroupIdToUserIds.get(Integer.parseInt(workgroupId + ""));
     		
 			//the user ids string is delimited by ':'
-			String[] studentLoginsArray = studentLogins.split(":");
+			String[] userIdsArray = userIds.split(":");
 			
 			//sort the user ids numerically and put them into a list
-			ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+			ArrayList<Long> userIdsList = sortUserIdsArray(userIdsArray);
 			
 			String wiseId1 = "";
 			String wiseId2 = "";
 			String wiseId3 = "";
 			
 			//loop through all the user ids in this workgroup
-			for(int z=0; z<studentLoginsList.size(); z++) {
+			for(int z=0; z<userIdsList.size(); z++) {
 				//get a user id
-				Long studentLoginId = studentLoginsList.get(z);
+				Long wiseId = userIdsList.get(z);
 				
 				//set the appropriate wise id
 				if(z == 0) {
-					wiseId1 = studentLoginId + "";
+					wiseId1 = wiseId + "";
 				} else if(z == 1) {
-					wiseId2 = studentLoginId + "";
+					wiseId2 = wiseId + "";
 				} else if(z == 2) {
-					wiseId3 = studentLoginId + "";
+					wiseId3 = wiseId + "";
 				}
 			}
 			
@@ -6490,23 +6491,22 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Sort the student user ids array
-	 * @param studentLoginsArray a String array containing student user ids that are
-	 * numbers
+	 * @param userIdsArray a String array containing student user ids
 	 * @return an ArrayList of Long objects sorted numerically
 	 */
-	private ArrayList<Long> sortStudentLoginsArray(String[] studentLoginsArray) {
+	private ArrayList<Long> sortUserIdsArray(String[] userIdsArray) {
 		
-		ArrayList<Long> studentLoginsList = new ArrayList<Long>();
+		ArrayList<Long> userIdsList = new ArrayList<Long>();
 		
 		//loop through all the student user ids
-		for(int x=0; x<studentLoginsArray.length; x++) {
+		for(int x=0; x<userIdsArray.length; x++) {
 			//get a student user id
-			String studentLogin = studentLoginsArray[x];
+			String userId = userIdsArray[x];
 			
 			try {
-				if(studentLogin != null && !studentLogin.equals("")) {
+				if(userId != null && !userId.equals("")) {
 					//add the long to the list
-					studentLoginsList.add(Long.parseLong(studentLogin));					
+					userIdsList.add(Long.parseLong(userId));					
 				}
 			} catch(NumberFormatException e) {
 				e.printStackTrace();
@@ -6514,9 +6514,9 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		//sort the list
-		Collections.sort(studentLoginsList);
+		Collections.sort(userIdsList);
 		
-		return studentLoginsList;
+		return userIdsList;
 	}
 	
 	/**

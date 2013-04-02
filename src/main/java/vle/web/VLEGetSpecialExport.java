@@ -50,7 +50,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 	
 	private HashMap<Integer, String> workgroupIdToPeriodName = new HashMap<Integer, String>();
 	
-	private HashMap<Integer, String> workgroupIdToStudentLogins = new HashMap<Integer, String>();
+	private HashMap<Integer, String> workgroupIdToUserIds = new HashMap<Integer, String>();
 	
 	private HashMap<Long, JSONArray> workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 	
@@ -119,7 +119,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 		nodeIdToNodeTitles = new HashMap<String, String>();
 		nodeIdToNodeTitlesWithPosition = new HashMap<String, String>();
 		workgroupIdToPeriodName = new HashMap<Integer, String>();
-		workgroupIdToStudentLogins = new HashMap<Integer, String>();
+		workgroupIdToUserIds = new HashMap<Integer, String>();
 		workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 		workgroupIdToWiseIds = new HashMap<Integer, JSONArray>();
 		
@@ -410,18 +410,18 @@ public class VLEGetSpecialExport extends VLEServlet {
 						workgroupIdToPeriodName.put(workgroupId, periodName);
 					}
 					
-					if(classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
+					if(classmate.has("userIds") && !classmate.isNull("userIds")) {
 						/*
 						 * get the student logins, this is a single string with the logins
 						 * separated by ':'
 						 */
-						String studentLogins = classmate.getString("studentLogins");
-						workgroupIdToStudentLogins.put(workgroupId, studentLogins);
+						String userIds = classmate.getString("userIds");
+						workgroupIdToUserIds.put(workgroupId, userIds);
 					}
 					
 					if(classmate.has("periodId") && !classmate.isNull("periodId") &&
 							classmate.has("periodName") && !classmate.isNull("periodName") &&
-							classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
+							classmate.has("userIds") && !classmate.isNull("userIds")) {
 
 						//add the workgroup id string to the List of workgroup ids
 						workgroupIds.add(workgroupId + "");
