@@ -696,7 +696,7 @@ View.prototype.uploadAsset = function(view){
 				//$('#assetUploaderDialog').dialog('open');
 			}
 		};
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.getProject().getContentBase())}, callback, this);
+		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'getProjectUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.getProject().getContentBase())}, callback, this);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to upload assets to.", 3);
 	}
