@@ -1,7 +1,5 @@
 
-
-
-View.prototype.saveScore = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId) {
+View.prototype.scoreUpdatedEventListener = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId) {
 	if (stepWorkId == "null") {
 		/**
 		 * If stepWorkId is null, it means that the teacher is commenting on a work that has
@@ -52,7 +50,7 @@ View.prototype.saveScore = function(nodeId, toWorkgroupId, fromWorkgroupId, runI
 	}
 };
 
-View.prototype.saveComment = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, textArea) {
+View.prototype.commentUpdatedEventListener = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, textArea) {
 	//resize the text area so that all the text is displayed without a vertical scrollbar
 	this.resizeTextArea(textArea);
 	
@@ -263,7 +261,7 @@ View.prototype.revertAnnotation = function(nodeId, toWorkgroupId, fromWorkgroupI
  * @param itemNumber the index of the item in the flaggedItemTable
  * @param stepWorkId the id of the node_visit of the work that is being flagged
  */
-View.prototype.saveInappropriateFlag = function(nodeId, toWorkgroup, fromWorkgroup, runId, itemNumber, stepWorkId) {
+View.prototype.inappropriateFlagCheckboxClickedEventListener = function(nodeId, toWorkgroup, fromWorkgroup, runId, itemNumber, stepWorkId) {
 	if (stepWorkId == "null") {
 		/**
 		 * If stepWorkId is null, it means that the teacher is commenting on a work that has
@@ -359,7 +357,7 @@ View.prototype.saveInappropriateFlag = function(nodeId, toWorkgroup, fromWorkgro
  * @param itemNumber the index of the item in the flaggedItemTable
  * @param stepWorkId the id of the node_visit of the work that is being flagged
  */
-View.prototype.saveFlag = function(nodeId, toWorkgroup, fromWorkgroup, runId, itemNumber, stepWorkId) {
+View.prototype.flagCheckboxClickedEventListener = function(nodeId, toWorkgroup, fromWorkgroup, runId, itemNumber, stepWorkId) {
 	if (stepWorkId == "null") {
 		/**
 		 * If stepWorkId is null, it means that the teacher is commenting on a work that has
@@ -451,7 +449,7 @@ View.prototype.retrieveAnnotations = function() {
 	var getAnnotationsCallback = function(text, xml, args) {
 		var thisView = args[0];
 		thisView.setAnnotations(Annotations.prototype.parseDataJSONString(text));
-		eventManager.fire("getAnnotationsCompleted");
+		eventManager.fire("retrieveAnnotationsCompleted");
 		thisView.getFlags();
 	};
 	
@@ -466,47 +464,9 @@ View.prototype.getFlags = function() {
 	var getFlagsCallback = function(text, xml, args) {
 		var thisView = args[0];
 		thisView.flags = Annotations.prototype.parseDataJSONString(text);
-		eventManager.fire("getFlagsComplete");
+		eventManager.fire("getFlagsCompleted");
 	};
 	this.connectionManager.request('GET', 1, this.getConfig().getConfigParam('getFlagsUrl'), null, getFlagsCallback, [this]);
-};
-
-/**
- * Checks if the score entered by the teacher is less than or equal to
- * the max score. If the score entered is greater, we will display an
- * error message and delete the entered score.
- * @param nodeId
- * @param toWorkgroupId
- * @param fromWorkgroupId
- * @param runId
- * @param stepWorkId
- */
-View.prototype.checkAndSaveScore = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId) {
-	//get the teacher entered score
-	//var	score = document.getElementById("annotationScoreTextArea" + toWorkgroupId).value;
-	
-	//get the max score for this step, or "" if there is no max score
-	//var maxScore = this.getMaxScoreValueByNodeId(nodeId);
-	
-	/*
-	 * check if the score is greater than the max score
-	 * I need to check if maxScore + "" != "" because if
-	 * the teacher set a maxScore of 0, 0 == "" is true
-	 * but "0" == "" is false, this is just a very minor
-	 * corner case
-	 */
-	/*
-	if((maxScore + "") != "" && score > maxScore) {
-		//the score was not valid
-		alert('Error: Score is greater than Max Score');
-		document.getElementById("annotationScoreTextArea" + toWorkgroupId).value = '';
-	} else {
-		//the score was valid so we will save it 
-		this.saveScore(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId);
-	}
-	*/
-	
-	this.saveScore(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId);
 };
 
 /**

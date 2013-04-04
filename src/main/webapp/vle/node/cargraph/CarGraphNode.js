@@ -428,7 +428,7 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 				$("#currentSliderValue").html(sliderValue);
 				if(typeof eventManager != 'undefined'){
 					// call filterstudentrows again to filter for selected periods
-					eventManager.fire('filterStudentRows');
+					eventManager.fire('filterStudentRowsRequested');
 				}
 			}
 			});

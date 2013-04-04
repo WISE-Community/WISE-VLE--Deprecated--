@@ -3,7 +3,7 @@
  * Generate the student navigation XLS. This will ask the
  * teacher to save the XLS file.
  */
-View.prototype.getAllStudentWorkXLSExport = function() {
+View.prototype.exportAllStudentWorkButtonClickedEventListener = function() {
 	this.setParamsForXLSExport();
 	document.getElementById('exportType').value = 'allStudentWork';
 	document.getElementById('getStudentXLSExport').submit();
@@ -13,7 +13,7 @@ View.prototype.getAllStudentWorkXLSExport = function() {
  * Generate the student work XLS. This will ask the
  * teacher to save the XLS file.
  */
-View.prototype.getLatestStudentWorkXLSExport = function() {
+View.prototype.exportLatestStudentWorkButtonClickedEventListener = function() {
 	this.setParamsForXLSExport();
 	document.getElementById('exportType').value = 'latestStudentWork';
 	document.getElementById('getStudentXLSExport').submit();
@@ -22,7 +22,7 @@ View.prototype.getLatestStudentWorkXLSExport = function() {
 /**
  * Request the idea basket excel export
  */
-View.prototype.getIdeaBasketsExcelExport = function() {
+View.prototype.exportIdeaBasketsButtonClickedEventListener = function() {
 	this.setParamsForXLSExport();
 	document.getElementById('exportType').value = 'ideaBaskets';
 	document.getElementById('getStudentXLSExport').submit();
@@ -31,7 +31,7 @@ View.prototype.getIdeaBasketsExcelExport = function() {
 /**
  * Request the idea basket excel export
  */
-View.prototype.getFlashExcelExport = function() {
+View.prototype.exportFlashButtonClickedEventListener = function() {
 	this.setParamsForXLSExport();
 	document.getElementById('exportType').value = 'flashStudentWork';
 	document.getElementById('getStudentXLSExport').submit();
@@ -40,7 +40,7 @@ View.prototype.getFlashExcelExport = function() {
 /**
  * Request the explanation builder work excel export
  */
-View.prototype.getExplanationBuilderWorkExcelExport = function() {
+View.prototype.exportExplanationBuilderWorkButtonClickedEventListener = function() {
 	this.setParamsForXLSExport();
 	document.getElementById('exportType').value = 'explanationBuilderWork';
 	document.getElementById('getStudentXLSExport').submit();
@@ -49,7 +49,7 @@ View.prototype.getExplanationBuilderWorkExcelExport = function() {
 /**
  * Request a custom latest student work export
  */
-View.prototype.getCustomLatestStudentWorkExport = function() {
+View.prototype.exportCustomLatestStudentWorkButtonClickedEventListener = function() {
 	this.setParamsForXLSExport();
 	$('#exportType').val('customLatestStudentWork');
 	
@@ -63,7 +63,7 @@ View.prototype.getCustomLatestStudentWorkExport = function() {
 /**
  * Request a custom all student work export
  */
-View.prototype.getCustomAllStudentWorkExport = function() {
+View.prototype.exportCustomAllStudentWorkButtonClickedEventListener = function() {
 	this.setParamsForXLSExport();
 	$('#exportType').val('customAllStudentWork');
 	
@@ -78,7 +78,7 @@ View.prototype.getCustomAllStudentWorkExport = function() {
  * Request a special export
  * @param nodeId the node id for the step we will special export
  */
-View.prototype.getSpecialExport = function(nodeId) {
+View.prototype.specialExportButtonClickedEventListener = function(nodeId) {
 	this.setParamsForSpecialExport();
 	$('#exportType').val('specialExport');
 	
