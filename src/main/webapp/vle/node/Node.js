@@ -1317,7 +1317,7 @@ Node.prototype.linkTo = function(key){
 		}
 		if(!node){
 			this.view.notificationManager.notify('Could not retrieve the step specified in the link.',3);
-		} else if(this.view.name!='vle'){
+		} else if(this.view.name != 'student'){
 			this.view.notificationManager.notify('The link works. The step ' + node.title + ' will be displayed when the project is run.',3);
 		} else {
 			this.view.renderNode(nodePosition);
