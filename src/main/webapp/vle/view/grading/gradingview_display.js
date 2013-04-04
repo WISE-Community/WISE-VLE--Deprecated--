@@ -844,7 +844,7 @@ View.prototype.createClassroomMonitorTable = function() {
 	classroomMonitorTableHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
 
 	//start the table that will contain the teams to choose
-	classroomMonitorTableHtml += "<table id='chooseTeamToGradeTable' class='wisetable tablesorter'>";
+	classroomMonitorTableHtml += "<table id='chooseTeamToGradeTable' style='display:none' class='wisetable tablesorter'>";
 	
 	//the header row
 	classroomMonitorTableHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
