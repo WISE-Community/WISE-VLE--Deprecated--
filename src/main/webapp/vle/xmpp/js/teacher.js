@@ -282,7 +282,7 @@ WISE = {
           	    };
           	    WISE.groupchat.onSelfJoin = function(pres) {
                 	//console.log('onSelfJoinedGroupChat');
-                	eventManager.fire('classroomMonitorDisplayComplete');
+                	eventManager.fire('classroomMonitorDisplayCompleted');
               	    $('#connecting').hide();
           	    };
           	    WISE.groupchat.join();       	    

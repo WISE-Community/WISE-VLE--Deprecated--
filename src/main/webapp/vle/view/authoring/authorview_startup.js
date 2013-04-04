@@ -71,7 +71,7 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	
 	if(editPremadeComments == "true") {
 		//we are only loading the authoring tool so that we can open the premade comments
-		eventManager.fire('openPremadeComments');
+		view.openPremadeComments();
 		
 		if(window.parent != null && window.parent.parent != null && window.parent.parent.closeLoadingPremadeCommentsDialog != null) {
 			//close the loading premade comments message

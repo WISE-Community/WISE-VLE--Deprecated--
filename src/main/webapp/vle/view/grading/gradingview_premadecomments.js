@@ -27,9 +27,10 @@ View.prototype.openPremadeComments = function(commentBoxId, studentWorkColumnId)
 		premadeCommentsWindow.focus();
 	}
 
-	//inject the event manager and script loader
+	//inject the event manager and script loader and the view
 	premadeCommentsWindow.eventManager = this.eventManager;
 	premadeCommentsWindow.scriptloader = this.scriptloader;
+	premadeCommentsWindow.view = this;
 	
 	//remember these values so we can access them later
 	this.premadeCommentsWindow = premadeCommentsWindow;
@@ -432,20 +433,20 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 	
 	if(signedInUserIsOwner) {
 		//create the button that the user will use to add a new premade comment
-		var premadeCommentListAddCommentButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListAddCommentButton_' + premadeCommentListId, 'class':'premadeCommentListAddCommentButton', value:'Add New Comment', onclick:'eventManager.fire("addPremadeComment", [' + premadeCommentListId + '])'});
+		var premadeCommentListAddCommentButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListAddCommentButton_' + premadeCommentListId, 'class':'premadeCommentListAddCommentButton', value:'Add New Comment', onclick:'view.addPremadeComment(' + premadeCommentListId + ')'});
 
 		//add the premade comment add comment button to the div
 		premadeCommentsListDiv.append(premadeCommentListAddCommentButton);			
 		
 		//create the button that the user will use to delete this list
-		var premadeCommentListDeleteListButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListDeleteListButton_' + premadeCommentListId, 'class':'premadeCommentListDeleteListButton', value:'Delete This List', onclick:'eventManager.fire("deletePremadeCommentList", [' + premadeCommentListId + '])'});
+		var premadeCommentListDeleteListButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListDeleteListButton_' + premadeCommentListId, 'class':'premadeCommentListDeleteListButton', value:'Delete This List', onclick:'view.deletePremadeCommentList(' + premadeCommentListId + ')'});
 
 		//add the premade comment add comment button to the div
 		premadeCommentsListDiv.append(premadeCommentListDeleteListButton);
 	}
 	
 	//create the button that will uncheck all the label checkboxes
-	var premadeCommentListUncheckCheckboxesButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, value:'Uncheck All Labels', onclick:'eventManager.fire("premadeCommentListUncheckLabels", [' + premadeCommentListId + '])', disabled:true});
+	var premadeCommentListUncheckCheckboxesButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, value:'Uncheck All Labels', onclick:'view.premadeCommentListUncheckLabels(' + premadeCommentListId + ')', disabled:true});
 
 	//add the uncheck label checkboxes button to the div
 	premadeCommentsListDiv.append(premadeCommentListUncheckCheckboxesButton);
@@ -592,11 +593,9 @@ View.prototype.selectPremadeComment = function(premadeCommentDOMId) {
  * Called when the user is satisfied with the premade comment feedback
  * and wants to insert it into the comment box back in the original
  * grading page
- * @param premadeCommentDOMId the dom id of the element that contains
- * the premade comment text
  * @return
  */
-View.prototype.submitPremadeComment = function(premadeCommentDOMId) {
+View.prototype.submitPremadeComment = function() {
 	//get the comment text the teacher has chosen to submit
 	var commentText = $('#premadeCommentsTextArea', this.premadeCommentsWindow.document).attr('value');
 	
@@ -810,7 +809,7 @@ View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, prem
 		 * this is not displayed in the authoring tool but is displayed
 		 * in the grading tool.
 		 */
-		var premadeCommentSelectButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentSelectButton_' + premadeCommentId, type:'button', value:'Select', onclick:'eventManager.fire("selectPremadeComment", ["' + premadeCommentDOMId + '"])'});
+		var premadeCommentSelectButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentSelectButton_' + premadeCommentId, type:'button', value:'Select', onclick:'view.selectPremadeComment("' + premadeCommentDOMId + '")'});
 		premadeCommentLI.appendChild(premadeCommentSelectButton);
 	}
 	
@@ -856,7 +855,7 @@ View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, prem
 		$(premadeCommentDragHandle).mouseover(function() {$(this).css('cursor', 'pointer');});
 		
 		//the delete button to delete the premade comment
-		var premadeCommentDeleteButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentDeleteButton_' + premadeCommentId, type:'button', value:'Delete', onclick:'eventManager.fire("deletePremadeComment", [' + premadeCommentId + ', ' + premadeCommentListId + '])'});
+		var premadeCommentDeleteButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentDeleteButton_' + premadeCommentId, type:'button', value:'Delete', onclick:'view.deletePremadeComment(' + premadeCommentId + ', ' + premadeCommentListId + ')'});
 		
 		//add the elements to the LI
 		premadeCommentLI.appendChild(document.createTextNode(' '));
@@ -1610,7 +1609,7 @@ View.prototype.getPremadeCommentLabelsFromList = function(premadeCommentListId) 
 /**
  * One of the label checkboxes was clicked
  */
-View.prototype.premadeCommentLabelClicked = function(premadeCommentListId) {
+View.prototype.premadeCommentLabelClickedEventListener = function(premadeCommentListId) {
 	//get all the labels that are checked
 	var labelsChecked = this.premadeCommentsGetLabelsChecked(premadeCommentListId);
 	

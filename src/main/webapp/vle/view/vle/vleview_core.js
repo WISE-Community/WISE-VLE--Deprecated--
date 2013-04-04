@@ -36,7 +36,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		};
 		obj.renderNavigationPanel();
 		obj.expandActivity(args[0]);
-	} else if(type=='getAnnotationsCompleted') {
+	} else if(type=='retrieveAnnotationsCompleted') {
 		if(args != null && args.length != 0) {
 			if(args[0] == 'displayShowAllWork') {
 				obj.displayShowAllWork();
@@ -44,10 +44,10 @@ View.prototype.vleDispatcher = function(type,args,obj){
 				obj.checkForNewTeacherAnnotations();
 			}
 		}
-	} else if(type=='getProjectMetaDataCompleted') {
+	} else if(type=='retrieveProjectMetaDataCompleted') {
 		obj.displayShowAllWork();
 		obj.setProjectPostLevel();
-	} else if(type=='getRunExtrasCompleted') {
+	} else if(type=='retrieveRunExtrasCompleted') {
 		obj.displayShowAllWork();
 	} else if(type=='ifrmLoaded'){
 		obj.createKeystrokeManagerForFrame();
@@ -224,7 +224,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
-		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='view.displayChatRoom()' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
 		$('#viewChatRoom').html(displayChatRoomLink);
 		$('#viewChatRoom').show().css('display','inline');
 	} else {
@@ -305,7 +305,7 @@ View.prototype.showToolsBasedOnConfigs = function(metadata, runInfo) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
-		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='view.displayChatRoom()' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
 		$('#viewChatRoom').html(displayChatRoomLink);
 		$('#viewChatRoom').show().css('display','inline');
 	} else {
