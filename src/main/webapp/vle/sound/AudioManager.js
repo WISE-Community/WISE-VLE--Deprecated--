@@ -305,10 +305,10 @@ AudioManager.prototype.playBackupAudio = function(sound, node) {
 AudioManager.prototype.doEnableButtons = function(doEnable) {
 	if (doEnable) {
 		notificationManager.notify("enabling buttons", 4);
-	 	document.getElementById("rewindButton").onclick = function() {view.rewindStepAudio());};
-		document.getElementById("rewindButton").ondblclick = function() {view.previousStepAudio());};
-		document.getElementById("forwardButton").onclick = function() {view.forwardStepAudio());};
-		document.getElementById("playPause").onclick = function() {view.playPauseStepAudio());};
+	 	document.getElementById("rewindButton").onclick = function() {view.rewindStepAudio();};
+		document.getElementById("rewindButton").ondblclick = function() {view.previousStepAudio();};
+		document.getElementById("forwardButton").onclick = function() {view.forwardStepAudio();};
+		document.getElementById("playPause").onclick = function() {view.playPauseStepAudio();};
 	    $('#audioControls').fadeTo(0,1 );  // full opacity.
 	} else {
 		notificationManager.notify("disabling buttons", 4);
