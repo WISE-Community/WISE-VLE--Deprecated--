@@ -73,6 +73,8 @@ View.prototype.svgdrawDispatcher = function(type,args,obj){
 		obj.SVGDrawNode.updateAutoScoringCheckWorkChances();
 	} else if(type=='svgdrawUpdateDoNotDisplayFeedbackToStudentOnLastChanceClicked') {
 		obj.SVGDrawNode.updateDoNotDisplayFeedbackToStudentOnLastChance();
+	} else if(type=='svgdrawUpdateAutoScoringSubmitConfirmationMessageChanged') {
+		obj.SVGDrawNode.updateAutoScoringSubmitConfirmationMessageChanged();
 	};
 };
 
@@ -111,7 +113,8 @@ var events = [
 	'svgdrawUpdateAutoScoringDisplayScoreToStudentClicked',
 	'svgdrawUpdateAutoScoringDisplayFeedbackToStudentClicked',
 	'svgdrawUpdateAutoScoringCheckWorkChancesChanged',
-	'svgdrawUpdateDoNotDisplayFeedbackToStudentOnLastChanceClicked'
+	'svgdrawUpdateDoNotDisplayFeedbackToStudentOnLastChanceClicked',
+	'svgdrawUpdateAutoScoringSubmitConfirmationMessageChanged'
 ];
 
 /*

@@ -445,6 +445,12 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 		checkWorkChancesInput.value = checkWorkChances;		
 	}
 	
+	//create the text for the submit confirmation message text area
+	var submitConfirmationMessageText = document.createTextNode('Submit Confirmation Message (leave this blank to use the default message. # will be replaced with the number of chances left.)');
+	
+	//create the textarea for the submit confirmation message
+	var submitConfirmationMessageTextArea = createElement(document, 'textarea', {id: 'submitConfirmationMessageTextArea', cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("svgdrawUpdateAutoScoringSubmitConfirmationMessageChanged")'});
+	
 	//add all the elements into the div
 	autoScoringFeedbackAuthoringDiv.appendChild(displayScoreToStudentCheckbox);
 	autoScoringFeedbackAuthoringDiv.appendChild(displayScoreToStudentText);
@@ -457,6 +463,9 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 	autoScoringFeedbackAuthoringDiv.appendChild(checkWorkChancesText);
 	autoScoringFeedbackAuthoringDiv.appendChild(checkWorkChancesInput);
+	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+	autoScoringFeedbackAuthoringDiv.appendChild(submitConfirmationMessageText);
+	autoScoringFeedbackAuthoringDiv.appendChild(submitConfirmationMessageTextArea);
 	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 	
 	//get the feedback array
@@ -510,6 +519,14 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 			autoScoringFeedbackAuthoringDiv.appendChild(feedbackTextArea);
 			autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 		}
+	}
+	
+	//get the submit confirmation message if it was authored before
+	var submitConfirmationMessage = this.getAutoScoringField('submitConfirmationMessage');
+
+	if(submitConfirmationMessage != null) {
+		//repopulate the submit confirmation message text area
+		$('#submitConfirmationMessageTextArea').val(submitConfirmationMessage);
 	}
 };
 
@@ -1097,6 +1114,20 @@ View.prototype.SVGDrawNode.createAutoScoringObjectIfDoesNotExist = function() {
 View.prototype.SVGDrawNode.updateContent = function(){
 	/* update content object */
 	this.view.activeContent.setContent(this.content);
+};
+
+/**
+ * Update the submit confirmation message field in the step content
+ */
+View.prototype.SVGDrawNode.updateAutoScoringSubmitConfirmationMessageChanged = function(){
+	//get the message text
+	var submitConfirmationMessage = $('#submitConfirmationMessageTextArea').val();
+	
+	//set the message text into the content
+	this.setAutoScoringField('submitConfirmationMessage', submitConfirmationMessage);
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 //used to notify scriptloader that this script has finished loading

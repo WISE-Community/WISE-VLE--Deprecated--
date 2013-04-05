@@ -640,19 +640,32 @@ SVGDRAW.prototype.autoGradeWork = function() {
 				//get the number of check work chances left
 				chancesLeft = maxCheckWorkChances - checkWorkChancesUsed;
 				
-				var message = 'You have ' + chancesLeft;
+				//get the submit confirmation message if any
+				var submitConfirmationMessage = this.content.autoScoring.submitConfirmationMessage;
 				
-				if(chancesLeft == 1) {
-					message += ' chance ';
+				if(submitConfirmationMessage != null && submitConfirmationMessage != '') {
+					//the submit confirmation message was provided so we will use it
+					
+					//replace # with the actual number of submit chances left
+					submitConfirmationMessage = submitConfirmationMessage.replace(/#/g, chancesLeft);
+					
+					//ask the student if they are sure they want to submit their work now
+					checkWork = confirm(submitConfirmationMessage);
 				} else {
-					message += ' chances ';
+					var message = 'You have ' + chancesLeft;
+					
+					if(chancesLeft == 1) {
+						message += ' chance ';
+					} else {
+						message += ' chances ';
+					}
+					
+					message += 'left to receive feedback on your answer so this should be your best work!\n\n';
+					message += 'Are you ready to receive feedback on this answer?';
+					
+					//ask the student if they are sure they want to check the work now
+					checkWork = confirm(message);
 				}
-				
-				message += 'left to receive feedback on your answer so this should be your best work!\n\n';
-				message += 'Are you ready to receive feedback on this answer?';
-				
-				//ask the student if they are sure they want to check the work now
-				checkWork = confirm(message);
 			}
 			
 			if(checkWork) {
