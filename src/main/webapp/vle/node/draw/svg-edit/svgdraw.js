@@ -738,7 +738,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 				this.saveToVLE();
 				
 				if(this.content.autoScoring.autoScoringDoNotDisplayFeedbackToStudentOnLastChance && chancesLeft == 1) {
-					alert('Good Job!\n\nYou have used up all your chances to get feedback.\n\nYou can continue to edit your drawing if you need to.');
+					alert('Good Job!\n\nYou have used up all your chances to submit.\n\nYou can continue to edit your drawing if you need to.');
 				} else {
 					//show the Feedback button at the top right of the vle next to the previous and next arrows
 					this.view.displayNodeAnnotation(this.node.id);
@@ -749,7 +749,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 			}
 		} else {
 			//the student does not have anymore check work chances
-			alert('Good Job!\n\nYou have used up all your chances to get feedback.\n\nYou can continue to edit your drawing if you need to.');
+			alert('Good Job!\n\nYou have used up all your chances to submit.\n\nYou can continue to edit your drawing if you need to.');
 		}
 	}
 };
