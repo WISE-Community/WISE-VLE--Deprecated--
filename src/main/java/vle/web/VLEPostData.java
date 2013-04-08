@@ -116,6 +116,22 @@ public class VLEPostData extends VLEServlet {
 			//obtain the node type from the json node visit
 			String nodeType = VLEDataUtils.getNodeType(nodeVisitJSON);
 			
+			//get the node states array
+			JSONArray nodeStates = VLEDataUtils.getNodeStates(nodeVisitJSON);
+			
+			//loop through all the node states
+			for(int x=0; x<nodeStates.length(); x++) {
+				//get an element in the node states array
+				Object nodeStateObject = nodeStates.get(x);
+				
+				//check that the element in the array is a JSONObject
+				if(!(nodeStateObject instanceof JSONObject)) {
+					//the element in the array is not a JSONObject so we will respond with an error
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Element in nodeStates array is not an object");
+					return;
+				}
+			}
+			
 			// check if student's posted data size is under the limit of the specific node type.
 			if (nodesWithLargeStudentWork.contains(nodeType)) {
 				if (request.getContentLength() > studentMaxWorkSizeLarge) {  // posted data must not exceed STUDENT_MAX_WORK_SIZE_LARGE

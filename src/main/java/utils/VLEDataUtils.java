@@ -132,6 +132,23 @@ public class VLEDataUtils {
     public static String getNodeStates(String nodeVisit) {
     	return VLEDataUtils.getValueInbetweenTag(nodeVisit, "<nodeStates>", "</nodeStates>");
     }
+    
+    /**
+     * Obtain the value in the nodeStates field
+     * @param nodeVisit the node visit JSONObject
+     * @return the nodeStates JSONArray or null if the field does not exist or the
+     * field is not a JSONArray
+     */
+    public static JSONArray getNodeStates(JSONObject nodeVisit) {
+    	JSONArray nodeStates = null;
+    	
+    	if(nodeVisit != null) {
+    		//try to get the nodeStates field if it exists
+    		nodeStates = nodeVisit.optJSONArray("nodeStates");
+    	}
+    	
+    	return nodeStates;
+    }
 
     /**
      * Check if this node visit is a peer review submit
@@ -145,12 +162,19 @@ public class VLEDataUtils {
     	
     	//loop through all the node states
     	for(int x=0; x<jsonArray.length(); x++) {
-    		//get a node state
-    		JSONObject nodeState = (JSONObject) jsonArray.get(x);
     		
-    		//check if it has the attribute "submitForPeerReview"
-    		if(nodeState.has("submitForPeerReview")) {
-    			return true;
+    		//get an element in the array
+    		Object jsonArrayElement = jsonArray.get(x);
+    		
+    		//make sure the element is a JSONObject
+    		if(jsonArrayElement instanceof JSONObject) {
+    			//get a node state
+        		JSONObject nodeState = (JSONObject) jsonArrayElement;
+
+        		//check if it has the attribute "submitForPeerReview"
+        		if(nodeState.has("submitForPeerReview")) {
+        			return true;
+        		}
     		}
     	}
     	
