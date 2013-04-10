@@ -1,6 +1,6 @@
-/*globals msaPreview $ console*/
+/*globals $ ZeroClipboard */
 
-msaPreview = {};
+var msaPreview = {};
 
 msaPreview.CouchDS = function(authoredDocId) {
   $.couch.urlPrefix = "/mysystem_designs";
@@ -105,7 +105,6 @@ msaPreview.CouchDS.prototype =
         element.find('.gritter-title').html('A link to this diagram is now in your clipboard.');
         var gritterId = element.closest('.gritter-item-wrapper').attr('id');
         gritterId = gritterId.replace(/gritter-item-/g,'');
-        console.log(gritterId);
 
         $.gritter.remove(gritterId, { 
           fade: true,

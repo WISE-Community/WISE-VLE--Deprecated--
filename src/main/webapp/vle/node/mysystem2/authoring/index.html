@@ -18,12 +18,12 @@
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 </head>
-<body>  
+<body>
 
   <!-- #### Display Options #### -->
   <script type="text/x-handlebars">
 
-    
+
     {{ view MSA.PromptView }}
 
     <div class="options_block">
@@ -31,26 +31,26 @@
       <h3>Links</h3>
 
       <div style="padding-left: 20px;">
-        Enable link Editing? 
+        Enable link Editing?
         {{view Ember.Checkbox checkedBinding="MSA.dataController.activity.enableLinkLabelEditing" }}
         <br/>
 
-        Enable link disription editing? 
+        Enable link disription editing?
         {{view Ember.Checkbox checkedBinding="MSA.dataController.activity.enableLinkDescriptionEditing" }}
         <br/>
-      </div> 
-    
+      </div>
+
       <h3>Nodes</h3>
       <div style="padding-left: 20px;">
         Enable label display:
         {{view Ember.Checkbox checkedBinding="MSA.dataController.activity.enableNodeLabelDisplay" }}
         <br/>
-        
+
         Enable label editing:
         {{view Ember.Checkbox checkedBinding="MSA.dataController.activity.enableNodeLabelEditing" }}
         <br/>
-      
-        Enable description Editing: 
+
+        Enable description Editing:
         {{view Ember.Checkbox checkedBinding="MSA.dataController.activity.enableNodeDescriptionEditing"}}
         <br/>
       </div>
@@ -59,16 +59,12 @@
     <!-- #### Node Types  (Modules) #### -->
     <div class="options_block">
       <h2>Node Types</h2>
-
-      <ul>
       {{#each MSA.modulesController.content}}
         {{view MSA.NodeView nodeBinding="this"}}
       {{/each}}
-      {{#view Ember.Button 
-        target="MSA.modulesController"
-        action="createItem" class="add_button"}}
+      <button {{action "createItem" target="MSA.modulesController"}}>
         Add New Node Type
-      {{/view}}
+      </button>
     </div>
 
     <!-- #### Node Sizes #### -->
@@ -77,23 +73,23 @@
         <p>
             Node width:
             {{
-              view MSA.TextField 
+              view MSA.TextField
               valueBinding = "MSA.dataController.activity.nodeWidth"
               placeholder  = "100"
               id           = "nodeWidth"
               size         = "3"
             }}
-            height: 
+            height:
             {{
-              view MSA.TextField 
+              view MSA.TextField
               valueBinding = "MSA.dataController.activity.nodeHeight"
               placeholder  = "110"
               id           = "nodeHeight"
               size         = "3"
             }}
-            Terminal radius: 
+            Terminal radius:
             {{
-              view MSA.TextField 
+              view MSA.TextField
               valueBinding = "MSA.dataController.activity.terminalRadius"
               placeholder  = "14"
               id           = "terminalRadius"
@@ -108,7 +104,7 @@
       <p>
           Background Image:
           {{
-            view MSA.TextField 
+            view MSA.TextField
             valueBinding = "MSA.dataController.activity.backgroundImage"
             placeholder  = ""
             id           = "backgroundImage"
@@ -128,85 +124,11 @@
         {{view MSA.LinkView linkBinding="this"}}
       {{/each}}
 
-      {{#view Ember.Button 
-        target="MSA.energyTypesController"
-        action="createItem" class="add_button"}}
+      <button {{action "createItem" target="MSA.energyTypesController"}}>
         Add New Energy Type
-      {{/view}}
-    </div>
+      </button>
 
-    <!-- #### Minimum Requirements #### -->
-    <div class="options_block">
-      <h2>Minimum Requirements</h2>
-      {{#if MSA.minRequirementsController.hasRequirements}}
-        <p style="padding-left: 10px;">
-          Feedback: 
-          <br/>
-          {{
-            view MSA.TextArea 
-            valueBinding = "MSA.dataController.activity.minimumRequirementsFeedback" 
-            placeholder  = "You need to work more on your diagram to get feedback!" 
-            id           = "minimumFeedback"
-          }}
-        </p>
-      {{/if}}
-      
-      {{#each MSA.minRequirementsController.content}}
-        {{view MSA.MinRequirementView ruleBinding="this"}}
-      {{/each}}
-      {{#view Ember.Button 
-        target="MSA.minRequirementsController"
-        action="createItem" class="add_button"}}
-        Add New Minimum Requirement
-      {{/view}}
     </div>
-
-    <!-- #### Feedback  #### -->
-    <div class="options_block">
-      <h2>Feedback</h2>
-      <div style="padding-left: 10px;">
-        <p>
-          Only report 
-          {{view MSA.TextField 
-            valueBinding="MSA.dataController.activity.maxFeedbackItems" 
-            placeholder="#" 
-            id="feedbackLimit" size = "1" }}
-          feedback items
-        </p>
-    
-        <p>
-          Feedback panel size:
-          width:
-          {{
-            view MSA.TextField 
-            valueBinding = "MSA.dataController.activity.feedbackPanelWidth"
-            placeholder  = "500"
-            id           = "feedbackPanelWidth"
-            size         = "3"
-          }}
-          height: 
-          {{
-            view MSA.TextField 
-            valueBinding = "MSA.dataController.activity.feedbackPanelHeight"
-            placeholder  = "250"
-            id           = "feedbackPanelHeight"
-            size         = "3"
-          }}
-        </p>
-        <p>
-          Feedback if all rules pass:
-          <br/>
-          {{ 
-            view MSA.TextArea 
-            valueBinding ="MSA.dataController.activity.correctFeedback" 
-            placeholder  = "Your diagram has no obvious problems." 
-            id           = "correctFeedback"
-          }}
-          <br/><br/>
-        </p>
-      </div>
-    </div>
-
 
     <!-- #### Max submissions  #### -->
     <div class="options_block">
@@ -215,7 +137,7 @@
         <p>
           Limit the number of student submissions to:
             {{
-              view MSA.TextField 
+              view MSA.TextField
               valueBinding = "MSA.dataController.activity.maxSubmissionClicks"
               placeholder  = "#"
               id           = "maxSubmissionClicks"
@@ -235,7 +157,48 @@
         </p>
       </div>
     </div>
-  
+
+    <!-- #### Feedback  #### -->
+    <div class="options_block">
+      <h2>Feedback</h2>
+      <div style="padding-left: 10px;">
+        <p>
+          Feedback panel size:
+          width:
+          {{
+            view MSA.TextField
+            valueBinding = "MSA.dataController.activity.feedbackPanelWidth"
+            placeholder  = "500"
+            id           = "feedbackPanelWidth"
+            size         = "3"
+          }}
+          height:
+          {{
+            view MSA.TextField
+            valueBinding = "MSA.dataController.activity.feedbackPanelHeight"
+            placeholder  = "250"
+            id           = "feedbackPanelHeight"
+            size         = "3"
+          }}
+        </p>
+        <p>
+          Feedback if all rules pass:
+          <br/>
+          {{
+            view MSA.TextArea
+            valueBinding ="MSA.dataController.activity.correctFeedback"
+            placeholder  = "Your diagram has no obvious problems."
+            id           = "correctFeedback"
+          }}
+          <br/><br/>
+        </p>
+      </div>
+      {{view MSA.FeedbackRulesView}}
+    </div>
+
+
+
+
     <!-- #### Rubric Evaluator #### -->
     {{view MSA.RubricExpressionView}}
 
@@ -246,86 +209,41 @@
       <h2>Diagram Rules</h2>
       <ol start=0>
       {{#each MSA.diagramRulesController.content}}
-        {{view MSA.RuleView ruleBinding="this"}} 
+        {{view MSA.RuleView ruleBinding="this"}}
       {{/each}}
       </ol>
-        
-      {{#view Ember.Button 
-        target="MSA.diagramRulesController"
-        action="createItem" class="add_button"}}
+      <button {{action "createItem" target="MSA.diagramRulesController"}}>
         Add New Diagram Rule
-      {{/view}}
+      </button>
     </div>
 
     <div class="options_block">
       <h2>Rubric Categories</h2>
       {{#each MSA.rubricCategoriesController.content}}
-        {{view MSA.CategoryView categoryBinding="this"}} 
+        {{view MSA.CategoryView categoryBinding="this"}}
       {{/each}}
-      {{#view Ember.Button 
-        target="MSA.rubricCategoriesController"
-        action="createItem" class="add_button"}}
+      <button {{action "createItem" target="MSA.rubricCategoriesController"}}>
         Add New Category
-      {{/view}}
+      </button>
     </div>
 
+  <!-- #### JSON DataHash #### -->
+  <div id="datahash_json_view">
+    <div class="codeblock">MSA.dataController.dataJson (removed)</div>
+  </div>
 
-
-    <!--- ##### Custom Rule Evaluator ##### -->
-    <div class="options_block">
-      Enable Custom Rule Evaluator
-      {{view Ember.Checkbox checkedBinding="MSA.dataController.activity.enableCustomRuleEvaluator"}}
-
-      {{#if MSA.dataController.activity.enableCustomRuleEvaluator}}
-        <br/>
-        Javascipt for custom rules. e.g.
-        <br/>
-        <code style="white-space:pre;">
-// sample use:
-if (Rules.extraLinks()) {
-  Rules.addSuggestion("You have some extra links!");
-}
-if (!Rules.iconsUsedOnce()) {
-  Rules.addSuggestion("You can only use each icon once.");
-}
-if (!Rules.hasTransformation()) {
-  Rules.addSuggestion("How is energy transformed?");
-}
-        </code>
-        <br/>
-        <div id="customRuleEvaluator">
-          {{
-            view MSA.TextArea 
-            valueBinding  = "MSA.dataController.activity.customRuleEvaluator"
-            wrap          = "off" 
-            rows          = "20"
-            cols          = "72" 
-          }}
-          {{#view Ember.Button target="MSA.customRuleController" action="editCustomRule"}} edit {{/view}}
-        </div>
-      {{/if}}
-    </div>
-
-
-      <!-- #### JSON DataHash #### -->
-      <div class="code">
-        <hr/>
-        <pre><code>
-          {{MSA.dataController.dataJson}}
-        </code></pre>
-      </div>
   </script>
 
-  <script type="text/x-handlebars"  data-template-name='prompt-template'>  
+  <script type="text/x-handlebars"  data-template-name='prompt-template'>
     <div class="options_block">
       <h3>Instructions:</h3>
       <div class="instructions">
-        {{view MSA.TextArea 
+        {{view MSA.TextArea
           valueBinding  = "MSA.dataController.activity.prompt"
           id            = "prompt"
-          wrap          = "off" 
+          wrap          = "off"
           rows          = "10"
-          cols          = "50" 
+          cols          = "50"
         }}
       </div>
     </div>
@@ -335,33 +253,49 @@ if (!Rules.hasTransformation()) {
   <script type="text/x-handlebars"  data-template-name='rubricExpression-template'>
     <div class="options_block">
       <h2>Rubric Evaluator</h2>
-      <div class="rubricExpression">
-        {{view MSA.TextArea 
-          valueBinding  = "MSA.dataController.activity.rubricExpression"
-          id            = "rubricExpression"
-          wrap          = "off" 
-          rows          = "20"
-          cols          = "72" 
-        }}
-      </div>
-      <div class="showScore">
-        <button {{action "showScore"}}>Score the digram</button>
-      </div>
+      <div class="rubricExpression codeblock">{{MSA.dataController.activity.rubricExpression}}</div>
+      <span class="showScore flow">
+        <button {{action "showScore" this target="view"}}>Score the digram</button>
+      </span>
+      <span class="edit flow">
+        <button {{action "edit" this target="view"}}>Edit</button>
+      </span>
     </div>
+  </script>
+
+  <!-- #### Feedback Rules Template #### -->
+  <script type="text/x-handlebars"  data-template-name='feedbackRules-template'>
+    <h3>Feedback Rules</h3>
+    <div class="feedbackRules codeblock">{{MSA.dataController.activity.feedbackRules}}</div>
+    <span class="edit flow">
+      <button {{action "edit" this target="view"}}>Edit</button>
+    </span>
   </script>
 
   <!-- #### Node Template #### -->
   <script type="text/x-handlebars"  data-template-name='node-template'>
-    {{view MSA.TextField valueBinding="name" placeholder="name"}}
-    {{view MSA.TextField valueBinding="image" placeholder="image"}}
-    <button {{action "remove" on="click" item="model"}}>remove</button>
+    <div class = "moduleItem">
+      {{view MSA.TextField size=15 valueBinding="name"  placeholder="name"}}
+      {{view MSA.TextField valueBinding="image" placeholder="image"}}
+      <div class='upDownFlipper'>
+        <button {{action "moveItemUp"   this target="MSA.modulesController"}}>⬆</button>
+        <button {{action "moveItemDown" this target="MSA.modulesController"}}>⬇</button>
+      </div>
+      <button {{action "remove" this target="view"}}>remove</button>
+    </div>
   </script>
 
   <!-- #### Link Template #### -->
   <script type="text/x-handlebars"  data-template-name='link-template'>
-    {{view MSA.TextField valueBinding="label" placeholder="label"}}
-    {{view MSA.TextField valueBinding="color" placeholder="color"}}
-    <button {{action "remove" on="click" item="model"}}>remove</button>
+    <div class = "moduleItem">
+      {{view MSA.TextField size=15 valueBinding="label" placeholder="label"}}
+      {{view MSA.TextField valueBinding="color" placeholder="color"}}
+      <div class='upDownFlipper'>
+        <button {{action "moveItemUp"   this target="MSA.energyTypesController"}}>⬆</button>
+        <button {{action "moveItemDown" this target="MSA.energyTypesController"}}>⬇</button>
+      </div>
+      <button {{action "remove" this target="view"}}>remove</button>
+    </div>
   </script>
 
   <!-- #### Category Template #### -->
@@ -372,7 +306,7 @@ if (!Rules.hasTransformation()) {
         <span class="value">
           {{view MSA.TextField valueBinding="name" placeholder="name"}}
         </span>
-        <button {{action "remove" on="click" item="model"}}>remove</button>
+        <button {{action "remove" this target="view"}}>remove</button>
       </div>
     </div>
   </script>
@@ -393,77 +327,64 @@ if (!Rules.hasTransformation()) {
             <span class="label"#>Category:</span>
             <span class="value">
               {{view Ember.Select
-                contentBinding="MSA.diagramRulesController.categories" 
+                contentBinding="MSA.diagramRulesController.categories"
                 selectionBinding="category" }}
             </span>
           </span><br/>
-          use javascript: {{view Ember.Checkbox checkedBinding="isJavascript"}}
+          use javascript rules: {{view Ember.Checkbox checkedBinding="isJavascript"}}
         </div>
       {{/if}}
-      {{#if "isJavascript"}}
-            <div class="javascript_rule">
-              {{
-                view MSA.TextArea 
-                valueBinding  = "javascriptExpression"
-                wrap          = "off" 
-                rows          = "20"
-                cols          = "72" 
-              }}
-              <button {{action "editJSRule" on="click" item="model"}}>edit</button>
-
-            </div>
+       {{#if "isJavascript"}}
+          <h3>Javascript:</h3>
+          <div class="feedbackRules codeblock">{{view.javascriptExpression}}</div>
+          <span class="edit flow">
+            <button {{action "editJSRule" target="view"}}>edit</button>
+          </span>
       {{else}}
         The diagram
-        {{view Ember.Select 
-            contentBinding="MSA.diagramRulesController.shouldOptions" 
-            selectionBinding="shouldOption"}} 
-        
+        {{view Ember.Select
+            contentBinding="MSA.diagramRulesController.shouldOptions"
+            selectionBinding="shouldOption"}}
+
         contain
-        {{view Ember.Select  
-          contentBinding="MSA.diagramRulesController.comparisons" 
+        {{view Ember.Select
+          contentBinding="MSA.diagramRulesController.comparisons"
           selectionBinding="comparison"}}
-        {{view MSA.TextField 
-          valueBinding="number" 
+        {{view MSA.TextField
+          valueBinding="number"
           placeholder="number" size="1"}}
-        {{view Ember.Select 
+        {{view Ember.Select
           contentBinding="MSA.diagramRulesController.nodeTypes"
           selectionBinding="type"
         }}
         </br>
 
-        with links: 
+        with links:
         {{view Ember.Checkbox checkedBinding="hasLink" }}
         {{#if "hasLink"}}
           <hr/>
           {{view Ember.Select
-            contentBinding="MSA.diagramRulesController.linkDirections" 
+            contentBinding="MSA.diagramRulesController.linkDirections"
             selectionBinding="linkDirection"
           }}
-          {{view Ember.Select 
-            contentBinding="MSA.diagramRulesController.nodeTypes" 
+          {{view Ember.Select
+            contentBinding="MSA.diagramRulesController.nodeTypes"
             selectionBinding="otherNodeType"
           }}
-          with energy type: 
-          {{view Ember.Select 
-            contentBinding="MSA.diagramRulesController.energyTypes" 
+          with energy type:
+          {{view Ember.Select
+            contentBinding="MSA.diagramRulesController.energyTypes"
             selectionBinding="energyType"
           }}
         {{/if}}
       {{/if}}
-      {{#if view.showSuggestion }}
-        <hr/>
-        if not then show the user: 
-        <br/>
-        {{
-          view MSA.TextArea 
-          valueBinding = "suggestion"
-        }}
-      {{/if}}
       <hr/>
-      <button {{action "remove" on="click" item="model"}}>Remove {{view.ruleType}}</button>
-      <button {{action "moveItemUp" on="click" item="model"}}>↑</button>
-      <button {{action "moveItemDown" on="click" item="model"}}>↓</button>
-      
+      <button <button {{action "remove" this target="view"}}>
+        Remove {{view.ruleType}}
+      </button>
+      <button {{action "moveItemUp" this target="view"}}>⬆</button>
+      <button {{action "moveItemDown" this target="view"}}>⬇</button>
+
     </div>
     </li>
   </script>
@@ -474,10 +395,10 @@ if (!Rules.hasTransformation()) {
 
 
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"><\/script>')</script>
-  <script src="js/libs/handlebars-1.0.0.beta.6.js"></script>
-  <script src="js/libs/ember-1.0.pre.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.9.1.min.js"><\/script>')</script>
+  <script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
+  <script src="js/libs/ember-1.0.0-rc.1.min.js"></script>
   <script src="js/sc_util.js"></script>
   <script src="js/initial_data.js"></script>
   <script src="js/app.js"></script>
@@ -485,4 +406,3 @@ if (!Rules.hasTransformation()) {
 
 </body>
 </html>
-  

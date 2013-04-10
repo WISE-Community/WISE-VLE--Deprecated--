@@ -121,7 +121,6 @@ Mysystem2.prototype.render = function() {
 };
 
 Mysystem2.prototype.keepStudentLogedIn = function() {
-	console.log("keep student logged in");
   // only register dom listeners once...
   if (!this.hasRegisteredDomListeners) {
     var lastRenewal = 0;

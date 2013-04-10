@@ -18,7 +18,7 @@ The build process uses ruby. We recommend installing the Ruby Version Manager [r
 1. checkout [This repository][] `git clone https://<username>@github.com/concord-consortium/MySystem-Wise-Integration-WIP.git`
 1. enter the directory: `cd MySystem-Wise-Integration-WIP`
 1. copy the files over: `cp -r ../mysystem_sc/vle/node/mysystem2/* .`
-1. commit your changes: `git ci -a -m "commit message here\n\n built from: 8def35b"`
+1. commit your changes: `git ci -a -m "commit message here\n\n built from: 0e76748"`
 1. optionally tag the commit: `git tag -a <tagName> -m "<more info here>"`
 1. push the changes: `git push --tags`
 
@@ -30,15 +30,15 @@ Update `wise4/mysystem2/README.md.erb` To have your changes appear here.
 Otherwise *your local changes will be overwritten*.
 
 
-## Current [MySystem][] ( [8def35b][] ) Version fronzen into [This repository][]
+## Current [MySystem][] ( [0e76748][] ) Version fronzen into [This repository][]
 
-    MySystem Git Sha :   8def35bcff544c4041b5060b74912d2df302d72c
-    Git commit time  :   Wed Jan 23 18:23:24 2013 -0500
-    Git Branch / refs:   (HEAD, origin/master, origin/HEAD, master)
-    Build Time       :   2013-01-23 18:28:29 -0500
-    SproutCore Build :   90a0439bb6846e57b4eeaa8bfefcb628db75ec64
+    MySystem Git Sha :   0e76748085fa3969b7e0a37e447291403bc162a4
+    Git commit time  :   Wed Mar 27 17:15:07 2013 -0400
+    Git Branch / refs:   (HEAD, origin/master, origin/HEAD, re_add_js_rules, master)
+    Build Time       :   2013-03-27 17:27:01 -0400
+    SproutCore Build :   59a6ebbee13a8569e5c5ec02fc315ae0fb3f4fcf
 
-[8def35b]: https://github.com/concord-consortium/mysystem_sc/commits/8def35bcff544c4041b5060b74912d2df302d72c
+[0e76748]: https://github.com/concord-consortium/mysystem_sc/commits/0e76748085fa3969b7e0a37e447291403bc162a4
 [This repository]: https://github.com/concord-consortium/MySystem-Wise-Integration-WIP
 [WISE4]: http://wise4.org
 [MySystem]: https://github.com/concord-consortium/mysystem_sc

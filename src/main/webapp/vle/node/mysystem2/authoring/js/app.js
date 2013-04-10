@@ -1,15 +1,47 @@
-/*globals MSA, SCUtil, InitialMySystemData*/
+/*globals Ember, SCUtil, InitialMySystemData*/
 
-MSA = Ember.Application.create();
+var MSA = Ember.Application.create();
+MSA.PositionControls = Ember.Mixin.create({
+  moveItemUp: function(item) {
+    var c = this.get('content');
+    var i = c.indexOf(item);
+
+    if (i > 0) {
+      var itemBefore = this.objectAt(i-1);
+      this.replaceContent(i-1, 2, [item, itemBefore]);
+    }
+  },
+
+  moveItemDown: function(item) {
+    var c = this.get('content');
+    var i = c.indexOf(item);
+
+
+    if (i < (c.length-1)) {
+      var itemAfter = this.objectAt(i+1);
+      this.replaceContent(i, 2, [itemAfter, item]);
+    }
+  }
+});
 
 MSA.setPreviewApp = function(mysystem) {
   mysystem.setAuthoringDataController(MSA.dataController);
   mysystem.reloadAuthoringData();
   mysystem.saveInitialDiagramAsSaveFunction();
-  
+
+  // set maximum update rate...
+  var maxUpdateInterval = 1000;
+  var lastUpdateTime    = 0;
+  var timeOutJob        = null;
   var _update_function = function() {
-    var data = MSA.dataController.get('data');
-    mysystem.updateRuntime(data);
+    if(timeOutJob !== null) {
+      window.clearTimeout(timeOutJob);
+    }
+    var _actualyUpdate = function() {
+      var data = MSA.dataController.get('data');
+      mysystem.updateRuntime(data);
+    };
+    timeOutJob = window.setTimeout(_actualyUpdate,maxUpdateInterval);
   };
 
   MSA.dataController.addObserver('data', MSA.dataController, _update_function);
@@ -25,19 +57,20 @@ MSA.setupParentIFrame = function(dataHash, updateObject, mysystem) {
   // migration from old content format
   if (!dataHash.diagram_rules) {
     dataHash.diagram_rules = [];
-  } 
+  }
   if (!dataHash.rubric_categories) {
     dataHash.rubric_categories = [];
   }
   if (!dataHash.rubricExpression) {
-    dataHash.rubricExpression = "true;";
+    dataHash.rubricExpression = "score(1);";
+  }
+  if (!dataHash.feedbackRules) {
+    dataHash.feedbackRules = "none_f(allIconsUsed(), 'you must use every icon in your diagram.');";
   }
   if (typeof dataHash.correctFeedback === "undefined" || dataHash.correctFeedback === null){
     dataHash.correctFeedback = "";
   }
-  if (typeof dataHash.minimumRequirementsFeedback === "undefined" || dataHash.minimumRequirementsFeedback === null){
-    dataHash.minimumRequirementsFeedback = "";
-  }
+
   if (typeof dataHash.enableNodeLabelDisplay === "undefined" || dataHash.enableNodeLabelDisplay === null){
     dataHash.enableNodeLabelDisplay = true;
   }
@@ -59,9 +92,7 @@ MSA.setupParentIFrame = function(dataHash, updateObject, mysystem) {
   if (typeof dataHash.customRuleEvaluator === "undefined" || dataHash.customRuleEvaluator === null){
     dataHash.customRuleEvaluator = "";
   }
-  if (!dataHash.minimum_requirements) {
-    dataHash.minimum_requirements = [];
-  }
+
   if (typeof dataHash.maxSubmissionClicks === "undefined" || dataHash.maxSubmissionClicks === null){
     dataHash.maxSubmissionClicks = 0;
   }
@@ -106,7 +137,6 @@ MSA.ActivityModel = SCUtil.ModelObject.extend({
   prompt: SCUtil.dataHashProperty,
   correctFeedback: SCUtil.dataHashProperty,
   maxFeedbackItems: SCUtil.dataHashProperty,
-  minimumRequirementsFeedback: SCUtil.dataHashProperty,
   enableNodeLabelDisplay: SCUtil.dataHashProperty,
   enableNodeLabelEditing: SCUtil.dataHashProperty,
   enableNodeDescriptionEditing: SCUtil.dataHashProperty,
@@ -124,6 +154,7 @@ MSA.ActivityModel = SCUtil.ModelObject.extend({
   backgroundImage: SCUtil.dataHashProperty,
   backgroundImageScaling: SCUtil.dataHashProperty,
   rubricExpression: SCUtil.dataHashProperty,
+  feedbackRules: SCUtil.dataHashProperty,
   initialDiagramJson: SCUtil.dataHashProperty
 });
 
@@ -145,8 +176,8 @@ MSA.EnergyType = SCUtil.ModelObject.extend( SCUtil.UUIDModel, {
   color: SCUtil.dataHashProperty
 });
 
-// it would be useful to support polymorphic 
-// so there are different types of rule 
+// it would be useful to support polymorphic
+// so there are different types of rule
 MSA.DiagramRule = SCUtil.ModelObject.extend({
   suggestion: SCUtil.dataHashProperty,
   name: SCUtil.dataHashProperty,
@@ -173,15 +204,6 @@ MSA.DiagramRule = SCUtil.ModelObject.extend({
   }.property('not'),
   toggleHasLink: function(){
     this.set('hasLink', !this.get('hasLink'));
-  },
-  editorWindow: null,
-  helpDiv: '#ruleHelp',
-  editJSRule: function() {
-    var self = this;
-    var myCallback = function(newValue) {
-      self.set('javascriptExpression',newValue);
-    }.bind(self);
-    MSA.editorController.editCustomRule(this,this.get('javascriptExpression'),myCallback);
   }
 });
 
@@ -189,36 +211,10 @@ MSA.RubricCategory = SCUtil.ModelObject.extend({
   name: SCUtil.dataHashProperty
 });
 
-MSA.RubricCategoriesController = SCUtil.ModelArray.extend({
+MSA.RubricCategoriesController = SCUtil.ModelArray.extend(MSA.PositionControls, {
   modelType: MSA.RubricCategory,
   scoreFunction: null,
 
-  moveItemUp: function(button) {
-    var c = this.get('content');
-    var item = button.get('item');
-    var i = c.indexOf(item.get('dataHash'));
-
-    if (i > 0) {
-      this.contentWillChange();
-      var itemBefore = this.objectAt(i-1);
-      this.replaceContent(i-1, 2, [item, itemBefore]);
-      this.contentDidChange();
-    }
-  },
-
-  moveItemDown: function(button) {
-    var c = this.get('content');
-    var item = button.get('item');
-    var i = c.indexOf(item.get('dataHash'));
-
-    if (i < (c.length-1)) {
-      this.contentWillChange();
-      var itemAfter = this.objectAt(i+1);
-      this.replaceContent(i, 2, [itemAfter, item]);
-      this.contentDidChange();
-    }
-  },
-  
   showScore: function() {
     var scoreFunction = this.get('scoreFunction');
     if (scoreFunction) {
@@ -227,7 +223,7 @@ MSA.RubricCategoriesController = SCUtil.ModelArray.extend({
   }
 });
 
-MSA.RulesController = SCUtil.ModelArray.extend({
+MSA.RulesController = SCUtil.ModelArray.extend(MSA.PositionControls, {
   modelType: MSA.DiagramRule,
 
   nodesBinding: 'MSA.modulesController.content',
@@ -250,56 +246,29 @@ MSA.RulesController = SCUtil.ModelArray.extend({
 
   linkDirections: ['-->', '<--', '---'],
 
-  moveItemUp: function(item) {
-    var c = this.get('content');
-    var i = c.indexOf(item);
-
-    if (i > 0) {
-      var itemBefore = this.objectAt(i-1);
-      this.replaceContent(i-1, 2, [item, itemBefore]);
-    }
-  },
-
-  moveItemDown: function(item) {
-    var c = this.get('content');
-    var i = c.indexOf(item);
-
-
-    if (i < (c.length-1)) {
-      var itemAfter = this.objectAt(i+1);
-      this.replaceContent(i, 2, [itemAfter, item]);
-    }
-  }
 });
 
 MSA.rubricCategoriesController = MSA.RubricCategoriesController.create({});
 
 
-MSA.modulesController = SCUtil.ModelArray.create({
+MSA.ModuleController  = SCUtil.ModelArray.extend(MSA.PositionControls, {
   modelType: MSA.Module
 });
 
-MSA.energyTypesController = SCUtil.ModelArray.create({
+MSA.modulesController = MSA.ModuleController.create();
+
+MSA.EnergyTypesController = SCUtil.ModelArray.extend(MSA.PositionControls, {
   modelType: MSA.EnergyType
 });
-
+MSA.energyTypesController = MSA.EnergyTypesController.create();
 
 MSA.diagramRulesController = MSA.RulesController.create({});
 
 
-
-MSA.minRequirementsController = MSA.RulesController.create({
-  updateHasRequirements: function() {
-    this.set('hasRequirements', (this.get('content.length') > 0));
-  }.observes('content.length'),
-  hasRequirements: false
-});
-
-MSA.dataController = Ember.Object.create({
+MSA.DataController = Ember.Object.extend({
 
   modulesBinding: 'MSA.modulesController.content',
   energyTypesBinding: 'MSA.energyTypesController.content',
-  minRequirementsBinding: 'MSA.minRequirementsController.content',
   diagramRulesBinding: 'MSA.diagramRulesController.content',
   rubricCategoriesBinding: 'MSA.rubricCategoriesController.content',
 
@@ -309,11 +278,10 @@ MSA.dataController = Ember.Object.create({
       "energy_types"                 : [],
       "diagram_rules"                : [],
       "rubric_categories"            : [],
-      "rubricExpression"             : "true;",
+      "rubricExpression"             : "score(1);",
+      "feedbackRules"                : "none_f(allIconsUsed(), 'you must use every icon in your diagram.');",
       "correctFeedback"              : "Your diagram has no obvious problems.",
-      "minimum_requirements"         : [],
       "maxFeedbackItems"             : 0,
-      "minimumRequirementsFeedback"  : "You need to work more on your diagram to get feedback!",
       "enableNodeLabelDisplay"       : true,
       "enableNodeLabelEditing"       : false,
       "enableNodeDescriptionEditing" : false,
@@ -355,26 +323,25 @@ MSA.dataController = Ember.Object.create({
   data: function() {
     var activity = this.get('activity');
     var data;
-    if(Ember.none(activity)) {
+    if(Ember.isNone(activity)) {
       data = this.get('defaultDataHash');
     }
     else {
       data = activity.get('dataHash');
     }
 
-    data.modules              = this.get('modules').mapProperty('dataHash');       
-    data.energy_types         = this.get('energyTypes').mapProperty('dataHash');   
-    data.minimum_requirements = this.get('minRequirements').mapProperty('dataHash');
-    data.diagram_rules        = this.get('diagramRules').mapProperty('dataHash');  
+    data.modules              = this.get('modules').mapProperty('dataHash');
+    data.energy_types         = this.get('energyTypes').mapProperty('dataHash');
+    data.diagram_rules        = this.get('diagramRules').mapProperty('dataHash');
     data.rubric_categories    = this.get('rubricCategories').mapProperty('dataHash');
+    data.type = "mysystem2";
     this.updateParentHash(data);
     return data;
   }.property( 'activity.rev',
     'energyTypes.@each.rev',
-    'modules.@each.rev', 
-    'minRequirements.@each.rev',
+    'modules.@each.rev',
     'diagramRules.@each.rev',
-    'rubricCategories.@each.rev', 
+    'rubricCategories.@each.rev',
     'initialDiagramJson.rev'
   ).cacheable(),
 
@@ -397,12 +364,11 @@ MSA.dataController = Ember.Object.create({
         rule.isJavascript = false;
       }
     });
-    
+
     MSA.modulesController.contentFromHashArray(data.modules);
     MSA.energyTypesController.contentFromHashArray(data.energy_types);
     MSA.diagramRulesController.contentFromHashArray(data.diagram_rules);
     MSA.rubricCategoriesController.contentFromHashArray(data.rubric_categories);
-    MSA.minRequirementsController.contentFromHashArray(data.minimum_requirements);
 
     var activity = MSA.ActivityModel.create();
     var item;
@@ -412,6 +378,7 @@ MSA.dataController = Ember.Object.create({
     this.set('activity',activity);
   }
 });
+MSA.dataController = MSA.DataController.create({});
 
 MSA.NodeTypesView = Ember.CollectionView.extend({
   tagName: 'ul',
@@ -427,12 +394,30 @@ MSA.TextArea = Ember.TextArea.extend({
   wrap: "off"
 });
 
-// add size attribute to text field
-MSA.TextField = Ember.TextField.extend({
-  attributeBindings: ['type', 'value', 'size'],
+// add size, no live_update
+MSA.TextField = Ember.View.extend({
+  classNames: ['ember-text-field'],
+  tagName: "input",
+  attributeBindings: ['type', 'value', 'size', 'placeholder'],
   type: "text",
-  size: null
+  value: "",
+  size: null,
+
+  // unlike Ember.TextSupport, we dont trigger
+  // on key-up, paste, copy, &etc. Why?
+  // because updated 20 or so lists of nodes (in the rules)
+  // was causing CPU spin.
+  init: function() {
+    this._super();
+    this.on("focusOut", this, this._elementValueDidChange);
+    this.on("change", this, this._elementValueDidChange);
+  },
+
+  _elementValueDidChange: function() {
+    Ember.set(this, 'value', this.$().val());
+  }
 });
+
 
 MSA.editorController = Ember.Object.create({
   owner: null,
@@ -440,7 +425,7 @@ MSA.editorController = Ember.Object.create({
   value: '',
   callback: function() {},
 
-  
+
   editCustomRule: function(owner,value,callback) {
     this.registerWindowCallbacks();
     this.save();// save the previous data back to whomever.
@@ -449,24 +434,21 @@ MSA.editorController = Ember.Object.create({
     this.set('callback',callback);
 
     var editorWindow = this.get('editorWindow');
-    var features  = "menubar=false,location=false,titlebar=false,toolbar=false,resizable=yes,scrollbars=yes,status=false,width=750,height=650"; 
+    var features  = "menubar=false,location=false,titlebar=false,toolbar=false,resizable=yes,scrollbars=yes,status=false,width=750,height=650";
 
     // reuse existing window:
     if (editorWindow) {
-      editorWindow.postMessage(value,"*");
+      editorWindow.postMessage(JSON.stringify(value),"*");
       editorWindow.focus();
-      editorWindow.setHelp(owner.helpDiv);
     }
 
     // or create a new one:
     else {
-      editorWindow = window.open("ace.html", 'editorwindow', features);
+      editorWindow = window.open("codemirror.html", 'editorwindow', features);
       this.set('editorWindow', editorWindow);
-      editorWindow.srcText = value;
-      editorWindow.helpSelector = owner.helpDiv;
       editorWindow.originParent = window;
     }
-    
+
   },
 
   registerWindowCallbacks: function() {
@@ -474,14 +456,22 @@ MSA.editorController = Ember.Object.create({
       return;
     }
     var self = this;
+
     var updateMessage = function(event) {
       var message = JSON.parse(event.data);
+      var value = self.get('value');
       if (message.javascript) {
-        self.set('value',message.javascript);
+        value.code = message.javascript;
+        self.set('value', value);
         self.save();
       }
       if (message.windowClosed) {
         self.set('editorWindow',null);
+      }
+      if (message.ready) {
+        self.set('editorWindow', event.source);
+        event.source.postMessage(JSON.stringify(self.get('value')), "*");
+        event.source.focus();
       }
     }.bind(self);
     window.addEventListener("message", updateMessage, false);
@@ -492,7 +482,7 @@ MSA.editorController = Ember.Object.create({
     var value = this.get('value');
     var callback = this.get("callback");
     if (callback) {
-      callback(value);
+      callback(value.code);
     }
     else {
       console.log("false callback defined");
@@ -507,7 +497,9 @@ MSA.promptController = Ember.Object.create({
 MSA.customRuleController = Ember.Object.create({
   helpDiv: '#evalHelp',
   editCustomRule: function() {
-    var value = MSA.dataController.activity.get('customRuleEvaluator');
+    var code = MSA.dataController.activity.get('customRuleEvaluator');
+    var mode  = 'curomRule';
+    var value = {'code': code, 'mode': mode};
     var callback = function(value) {
       MSA.dataController.activity.set('customRuleEvaluator',value);
     }.bind(this);
@@ -515,10 +507,46 @@ MSA.customRuleController = Ember.Object.create({
   }
 });
 
+MSA.rubricController = Ember.Object.create({
+  helpDiv: '#evalHelp',
+  editRubric: function() {
+    var code  = MSA.dataController.activity.get('rubricExpression');
+    var mode  = 'rubric';
+    var value = {'code': code, 'mode': mode};
+    var callback = function(value) {
+      MSA.dataController.activity.set('rubricExpression',value);
+    }.bind(this);
+    MSA.editorController.editCustomRule(this,value,callback);
+  }
+});
+
+MSA.feedbackRulesController = Ember.Object.create({
+  helpDiv: '#evalHelp',
+  editFeedback: function() {
+    var code = MSA.dataController.activity.get('feedbackRules');
+    var mode = "feedback";
+    var value = {'code': code, 'mode': mode};
+    var callback = function(value) {
+      MSA.dataController.activity.set('feedbackRules',value);
+    }.bind(this);
+    MSA.editorController.editCustomRule(this,value,callback);
+  }
+});
+
+
 MSA.NodeView = Ember.View.extend({
   templateName: 'node-template',
   remove: function() {
     MSA.modulesController.removeObject(this.get('node'));
+    return true;
+  },
+  moveItemUp: function() {
+    MSA.modulesController.moveItemUp(this.get('node'));
+    return true;
+  },
+  moveItemDown: function() {
+    MSA.modulesController.moveItemDown(this.get('node'));
+    return true;
   }
 });
 
@@ -526,6 +554,7 @@ MSA.LinkView = Ember.View.extend({
   templateName: 'link-template',
   remove: function() {
     MSA.energyTypesController.removeObject(this.get('link'));
+    return true;
   }
 });
 
@@ -533,30 +562,39 @@ MSA.CategoryView = Ember.View.extend({
   templateName: 'category-template',
   remove: function() {
     MSA.rubricCategoriesController.removeObject(this.get('category'));
+    return true;
   }
 });
 
 MSA.RuleView = Ember.View.extend({
   templateName: 'rule-template',
   showName: true,
-  showSuggestion: true,
   ruleType: "Diagram Rule",
+  javascriptExpressionBinding: "rule.javascriptExpression",
+
   remove: function() {
     MSA.diagramRulesController.removeObject(this.get('rule'));
   },
   moveItemUp: function() {
-   MSA.diagramRulesController.moveItemUp(this.get('rule')); 
+   MSA.diagramRulesController.moveItemUp(this.get('rule'));
   },
   moveItemDown: function() {
-   MSA.diagramRulesController.moveItemDown(this.get('rule')); 
+   MSA.diagramRulesController.moveItemDown(this.get('rule'));
   },
   toggleHasLink: function() {
     var rule   = this.get('rule');
     rule.toggleHasLink();
   },
+  editorWindow: null,
   editJSRule: function() {
-    var rule   = this.get('rule');
-    rule.editJSRule();
+    var self = this;
+    var code = this.get('javascriptExpression');
+    var mode = 'JSRule';
+    var value = {'code': code, 'mode': mode};
+    var myCallback = function(newValue) {
+      self.set('javascriptExpression',newValue);
+    }.bind(this);
+    MSA.editorController.editCustomRule(this, value, myCallback);
   }
 });
 
@@ -564,6 +602,16 @@ MSA.RubricExpressionView = Ember.View.extend({
   templateName: 'rubricExpression-template',
   showScore: function() {
     MSA.rubricCategoriesController.showScore();
+  },
+  edit: function() {
+    MSA.rubricController.editRubric();
+  }
+});
+
+MSA.FeedbackRulesView = Ember.View.extend({
+  templateName: 'feedbackRules-template',
+  edit: function() {
+    MSA.feedbackRulesController.editFeedback();
   }
 });
 
@@ -572,22 +620,4 @@ MSA.PromptView = Ember.View.extend({
   isVisibleBinding: 'MSA.promptController.showPrompt'
 });
 
-MSA.MinRequirementView = Ember.View.extend({
-  templateName: 'rule-template',
-  showName: false,
-  showSuggestion: false,
-  ruleType: "Requirement",
-  remove: function() {
-    MSA.minRequirementsController.removeObject(this.get('rule'));
-  },
-  moveItemUp: function() {
-   MSA.minRequirementsController.moveItemUp(this.get('rule')); 
-  },
-  moveItemDown: function() {
-   MSA.minRequirementsController.moveItemDown(this.get('rule')); 
-  },
-  toggleHasLink: function() {
-    var rule   = this.get('rule');
-    rule.toggleHasLink();
-  }
-});
+
