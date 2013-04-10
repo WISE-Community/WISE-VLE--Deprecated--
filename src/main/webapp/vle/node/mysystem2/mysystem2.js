@@ -127,14 +127,14 @@ Mysystem2.prototype.keepStudentLogedIn = function() {
     var interval    = 30; // seconds
       if (typeof eventManager != 'undefined') {
       // watch for changes to the student data and renew the session whenever it changes
-      $('#my_system_state').bind("DOMSubtreeModified", function() {
+      $('#my_system_state').bind("DOMSubtreeModified", {thisView:this.view}, function(event) {
         var now = new Date().getTime();
         var state = $('#my_system_state').text();
         var elapsed = (now - lastRenewal) / 1000;
         if (elapsed > interval) {  // only renew at most once every interval seconds
           SC.Logger.log("renewing session (" + elapsed + "s)");
           lastSate = state;
-          this.view.sessionManager.renewSession();
+          event.data.thisView.sessionManager.renewSession();
           lastRenewal = now;
         }
       });
