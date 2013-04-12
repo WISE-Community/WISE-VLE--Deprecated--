@@ -34,8 +34,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		} else {
 			obj.renderNodeCompletedListener(null);
 		};
-		obj.renderNavigationPanel();
-		obj.expandActivity(args[0]);
 	} else if(type=='retrieveAnnotationsCompleted') {
 		if(args != null && args.length != 0) {
 			if(args[0] == 'displayShowAllWork') {

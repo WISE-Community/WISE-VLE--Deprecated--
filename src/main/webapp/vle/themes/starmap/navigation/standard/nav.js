@@ -293,8 +293,6 @@ NavigationPanel.prototype.resizeMenu = function() {
 	$('#navigation').css({'position':'absolute', 'top':top, 'left':0, 'right':0, 'bottom':0});
 };
 
-
-
 /**
  * The navMode dispatcher catches events specific to this project
  * navigation mode and delegates them to the appropriate functions for
@@ -303,7 +301,9 @@ NavigationPanel.prototype.resizeMenu = function() {
  * REQUIRED
  */
 View.prototype.navModeDispatcher = function(type,args,obj){
-	if(type=='navigationMenuCreated'){ // REQUIRED (DO NOT EDIT)
+	if(type=='renderNodeCompleted') {
+		obj.renderNavigationPanel();
+	} else if(type=='navigationMenuCreated'){ // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.menuCreated();
 	} else if(type=='navNodeRendered'){ // REQUIRED  (DO NOT EDIT)
 		if(obj.navigationPanel){
@@ -323,6 +323,7 @@ View.prototype.navModeDispatcher = function(type,args,obj){
  * REQUIRED
  */
 var events = [
+    'renderNodeCompleted',
 	'toggleNavigationVisibility', // REQUIRED (DO NOT EDIT)
 	'navigationMenuCreated', // REQUIRED (DO NOT EDIT)
 	'navNodeRendered', // REQUIRED (DO NOT EDIT)

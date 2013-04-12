@@ -211,11 +211,11 @@ MustCompleteXBeforeConstraint.prototype.constrainNavigation = function() {
 				var nodeId = nodeIds[x];
 				
 				//disable the step
-				this.view.navigationPanel.disableStepOrActivity(nodeId);
+				this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(nodeId);
 			}
 		} else {
 			//node is a step
-			this.view.navigationPanel.disableStepOrActivity(this.nodeId);			
+			this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(this.nodeId);			
 		}
 	}
 };
