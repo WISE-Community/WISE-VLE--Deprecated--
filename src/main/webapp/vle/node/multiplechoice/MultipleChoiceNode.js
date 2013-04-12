@@ -288,7 +288,7 @@ MultipleChoiceNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdT
 	var workgroupIdsInClass = this.view.userAndClassInfo.getWorkgroupIdsInClass();
 	var mcChoices = [];
 	var mcChoiceColors = [];  // display color for each choice.
-	var node = this.view.project.getNodeById(nodeId);
+	var node = this.view.getProject().getNodeById(nodeId);
 	var mcContent = node.content.getContentJSON();
 	/* add each choice object from the content to the choices array */
 	for(var a=0;a<mcContent.assessmentItem.interaction.choices.length;a++){
