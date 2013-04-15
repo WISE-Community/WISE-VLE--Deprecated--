@@ -221,7 +221,7 @@ SensorNode.prototype.overridesIsCompleted = function() {
  */
 SensorNode.prototype.isCompleted = function(sensorState) {
 	if (typeof this.tagMaps == "undefined") return true;
-	if (typeof sensorState === "undefined") sensorState = this.view.state.getLatestWorkByNodeId(this.id);
+	if (typeof sensorState === "undefined") sensorState = this.view.getState().getLatestWorkByNodeId(this.id);
 	// cycle through tag maps, if I get a custom tag map check student work to complete
 	var isCompleted = true;
 	for (var i = 0; i < this.tagMaps.length; i++){
