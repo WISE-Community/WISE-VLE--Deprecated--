@@ -804,9 +804,21 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 
 				// now find the feedback that the student should see
 				var scoringRules = cRaterJSON.cRaterScoringRules;
+				
+				//get the score the student received
+				var score = cRaterAnnotationJSON.score;
+				
+				var cRaterItemType = null;
+				
+				if(cRaterAnnotationJSON.studentResponse != null) {
+					var studentResponse = cRaterAnnotationJSON.studentResponse;
+					
+					//get the crater item type e.g. 'CRATER' or 'HENRY'
+					cRaterItemType = studentResponse.cRaterItemType;
+				}
 
 				//get the feedback for the given concepts the student satisfied
-				var feedbackTextObject = vle.getFeedbackFromScoringRules(scoringRules, concepts);
+				var feedbackTextObject = vle.getCRaterFeedback(scoringRules, concepts, score, cRaterItemType);
 
 				//get the feedback text and feedback id
 				var feedbackText = feedbackTextObject.feedbackText;

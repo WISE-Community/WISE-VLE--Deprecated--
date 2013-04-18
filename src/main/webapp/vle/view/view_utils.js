@@ -1093,9 +1093,11 @@ View.prototype.satisfiesCRaterRule = function(studentConcepts, ruleConcepts, num
  * Get the feedback for the given concepts
  * @param scoringRules an array of scoring rules
  * @param concepts a string containing the concepts
+ * @param score the score
+ * @param cRaterItemType the crater item type e.g. 'CRATER' or 'HENRY'
  * @returns the feedback
  */
-View.prototype.getFeedbackFromScoringRules = function(scoringRules, concepts) {
+View.prototype.getCRaterFeedback = function(scoringRules, concepts, score, cRaterItemType) {
 	var feedbackSoFar = "No Feedback";
 	var maxScoreSoFar = 0;
 	
@@ -1105,24 +1107,34 @@ View.prototype.getFeedbackFromScoringRules = function(scoringRules, concepts) {
 			//get a scoring rule
 			var scoringRule = scoringRules[i];
 			
-			if (this.satisfiesCRaterRulePerfectly(concepts, scoringRule.concepts)) {
-				//the concepts perfectly match this scoring rule
+			if(cRaterItemType == null || cRaterItemType == 'CRATER') {
+				if (this.satisfiesCRaterRulePerfectly(concepts, scoringRule.concepts)) {
+					//the concepts perfectly match this scoring rule
+					
+					//if this scoring rule has more than one feedback, choose one randomly
+					feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
+					
+					//no longer need to check other rules if we have a pefect match
+					break;
+				} else if (scoringRule.score > maxScoreSoFar && this.satisfiesCRaterRule(concepts, scoringRule.concepts, parseInt(scoringRule.numMatches))) {
+					/*
+					 * the concepts match this scoring rule but we still need to
+					 * look at the other scoring rules to make sure there aren't
+					 * any better matches that will give the student a better score
+					 */
+					
+					//if this scoring rule has more than one feedback, choose one randomly
+					feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
+					maxScoreSoFar = scoringRule.score;
+				}
+			} else if(cRaterItemType == 'HENRY') {
+				//get the score for this scoring rule
+				var scoringRuleScore = scoringRule.score;
 				
-				//if this scoring rule has more than one feedback, choose one randomly
-				feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
-				
-				//no longer need to check other rules if we have a pefect match
-				break;
-			} else if (scoringRule.score > maxScoreSoFar && this.satisfiesCRaterRule(concepts, scoringRule.concepts, parseInt(scoringRule.numMatches))) {
-				/*
-				 * the concepts match this scoring rule but we still need to
-				 * look at the other scoring rules to make sure there aren't
-				 * any better matches that will give the student a better score
-				 */
-				
-				//if this scoring rule has more than one feedback, choose one randomly
-				feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
-				maxScoreSoFar = scoringRule.score;
+				if(score == scoringRuleScore) {
+					//if this scoring rule has more than one feedback, choose one randomly
+					feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
+				}
 			}
 		}
 	}
