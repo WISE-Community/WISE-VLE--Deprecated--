@@ -50,13 +50,12 @@ SessionManager.prototype.maintainConnection = function(){
  * Keeps session alive
  */
 SessionManager.prototype.renewSession = function() {
-	console.log('renewSession');
 	// make a request to renew the session
 	var renewSessionUrl = this.view.config.getConfigParam('indexUrl');
 	if (renewSessionUrl == null || renewSessionUrl == 'undefined') {
 		renewSessionUrl = "/webapp/index.html";
 	}
-	this.view.connectionManager.request('GET', 2, renewSessionUrl, {}, null, obj);
+	this.view.connectionManager.request('GET', 2, renewSessionUrl, {}, null, this.view);
 };
 
 /**
@@ -96,12 +95,12 @@ SessionManager.prototype.checkSession = function() {
 			// if 75% of the timeout has been elapsed, warn them
 			var renewSessionSubmit = function(){
 				// renewSession was requested
-				this.renewSession();
+				view.sessionManager.renewSession();
 				$('#sessionMessageDiv').dialog('close');
 			};
 			var renewSessionClose = function(){
 				// renewSession was requested
-				this.renewSession();
+				view.sessionManager.renewSession();
 			};
 			$('#sessionMessageDiv').html("You have been inactive for a long time. If you do not renew your session now, you will be logged out of WISE.");
 			$('#sessionMessageDiv').dialog(
