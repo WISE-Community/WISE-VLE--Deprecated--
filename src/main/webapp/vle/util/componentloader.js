@@ -815,6 +815,7 @@ var componentloader = function(em, sl){
 				'stepStarterSentenceAuthoringOptionChanged':[null, null],
 				'stepStarterSentenceAuthoringSentenceChanged':[null, null],
 				'cRaterVerify':[null, null],
+				'cRaterItemTypeChanged':[null,null],
 				'cRaterItemIdChanged':[null, null],
 				'cRaterFeedbackChanged':[null, null],
 				'cRaterDisplayScoreToStudentChanged':[null, null],
@@ -841,6 +842,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('stepStarterSentenceAuthoringSentenceChanged', view.starterSentenceAuthoringManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterVerify', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterItemIdChanged', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterItemTypeChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterFeedbackChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayScoreToStudentChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayFeedbackToStudentChanged', view.cRaterManager.dispatcher, view);

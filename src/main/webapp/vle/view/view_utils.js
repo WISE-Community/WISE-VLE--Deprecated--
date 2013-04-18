@@ -771,14 +771,16 @@ View.prototype.escapeIdForJquery = function(id) {
 /**
  * Make a CRater verify request for the given item id
  * @param itemId the item id to verify
+ * @param cRaterItemType the type of CRater {CRATER,HENRY} to verify
  */
-View.prototype.makeCRaterVerifyRequest = function(itemId) {
+View.prototype.makeCRaterVerifyRequest = function(itemId,cRaterItemType) {
 	//get the url to our servlet that will make the request to the CRater server for us
 	var cRaterRequestUrl = this.config.getConfigParam('cRaterRequestUrl');
 	
 	var requestArgs = {
 		cRaterRequestType:'verify',
-		itemId:itemId
+		itemId:itemId,
+		cRaterItemType:cRaterItemType
 	};
 	
 	var responseText = this.connectionManager.request('GET', 1, cRaterRequestUrl, requestArgs, this.makeCRaterVerifyRequestCallback, {vle:this}, this.makeCRaterVerifyRequestCallbackFail, true);

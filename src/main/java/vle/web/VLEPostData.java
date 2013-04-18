@@ -218,6 +218,7 @@ public class VLEPostData extends VLEServlet {
 				//get the first cRaterItemId if it exists in the POSTed NodeState
 				// also check if isSubmit is true
 				String cRaterItemId = null;
+				String cRaterItemType = "CRATER";
 				boolean isCRaterSubmit = false;
 				try {
 					if (nodeVisitJSON != null) {
@@ -231,6 +232,9 @@ public class VLEPostData extends VLEServlet {
 									if (nodeStateObj.has("isCRaterSubmit")) {
 										isCRaterSubmit = nodeStateObj.getBoolean("isCRaterSubmit");
 									}
+									if(nodeStateObj.has("cRaterItemType")) {
+										cRaterItemType = nodeStateObj.getString("cRaterItemType");
+									}																	
 								}
 							}
 						}
@@ -249,11 +253,12 @@ public class VLEPostData extends VLEServlet {
 					CRaterRequest cRaterRequestForLastNodeState = CRaterRequest.getByStepWorkIdNodeStateId(stepWork, lastNodeStateTimestamp);
 					if (cRaterRequestForLastNodeState == null) {
 						jsonResponse.put("cRaterItemId", cRaterItemId);
+						jsonResponse.put("cRaterItemType", cRaterItemType);
 						jsonResponse.put("isCRaterSubmit", isCRaterSubmit);
 						// also save a CRaterRequest in db for tracking if isCRaterSubmit is true
 						if (isCRaterSubmit) {
 							try {
-								CRaterRequest cRR = new CRaterRequest(cRaterItemId, stepWork, new Long(lastNodeStateTimestamp), runIdLong);
+								CRaterRequest cRR = new CRaterRequest(cRaterItemId, cRaterItemType, stepWork, new Long(lastNodeStateTimestamp), runIdLong);
 								cRR.saveOrUpdate();
 							} catch (Exception cre) {
 								// do nothing if there was an error, let continue

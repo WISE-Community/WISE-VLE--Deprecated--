@@ -1047,6 +1047,15 @@ View.prototype.cRaterItemIdChanged = function(){
 };
 
 /**
+ * The author changed the CRater type
+ */
+View.prototype.cRaterItemTypeChangedListener = function(cRaterItemType){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].cRaterItemTypeChangedListener){
+		this[this.resolveType(this.activeNode.type)].cRaterItemTypeChangedListener(cRaterItemType);
+	}
+};
+
+/**
  * Updates the CRater feedback
  */
 View.prototype.updateCRaterFeedback = function(args){

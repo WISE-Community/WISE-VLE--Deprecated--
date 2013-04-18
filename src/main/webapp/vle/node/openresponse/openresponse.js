@@ -179,6 +179,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				}
 				
 				orState.cRaterItemId = this.content.cRater.cRaterItemId;
+				orState.cRaterItemType = this.content.cRater.cRaterItemType;
 				
 				if (checkAnswer || !(this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
 					/*
