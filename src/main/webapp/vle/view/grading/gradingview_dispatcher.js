@@ -18,20 +18,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='loadingProjectCompleted') {
 		obj.getStudentUserInfo();
 		obj.checkAndMinify();
-	} else if(type=='exportAllStudentWorkButtonClicked') {
-		obj.exportAllStudentWorkButtonClickedEventListener();
-	} else if(type=='exportLatestStudentWorkButtonClicked') {
-		obj.exportLatestStudentWorkButtonClickedEventListener();
-	} else if(type=='exportIdeaBasketsButtonClicked') {
-		obj.exportIdeaBasketsButtonClickedEventListener();
-	} else if(type=='exportFlashButtonClicked') {
-		obj.exportFlashButtonClickedEventListener();
-	} else if(type=='exportExplanationBuilderWorkButtonClicked') {
-		obj.exportExplanationBuilderWorkButtonClickedEventListener();
-	} else if(type=='exportCustomLatestStudentWorkButtonClicked') {
-		obj.exportCustomLatestStudentWorkButtonClickedEventListener();
-	} else if(type=='exportCustomAllStudentWorkButtonClicked') {
-		obj.exportCustomAllStudentWorkButtonClickedEventListener();
+	} else if(type=='exportButtonClicked') {
+		obj.exportButtonClickedEventListener(args[0], args[1]);
 	} else if(type=='customActivityCheckBoxClicked') {
 		obj.customActivityCheckBoxClicked(args[0]);
 	} else if(type=='customSelectAllStepsCheckBoxClicked') {

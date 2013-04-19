@@ -174,13 +174,6 @@ var componentloader = function(em, sl){
 					 'commentUpdated':[null, null],
 					 'flagCheckboxClicked':[null, null],
 					 'inappropriateFlagCheckboxClicked':[null, null],
-					 'exportAllStudentWorkButtonClicked':[null, null],
-					 'exportLatestStudentWorkButtonClicked':[null, null],
-					 'exportIdeaBasketsButtonClicked':[null, null],
-					 'exportFlashButtonClicked':[null, null],
-					 'exportExplanationBuilderWorkButtonClicked':[null, null],
-					 'exportCustomLatestStudentWorkButtonClicked':[null, null],
-					 'exportCustomAllStudentWorkButtonClicked':[null, null],
 					 'specialExportButtonClicked':[null, null],
 					 'exportExplanationButtonClicked':[null, null],
 					 'maxScoreChanged':[null, null],
@@ -202,7 +195,8 @@ var componentloader = function(em, sl){
 					 'premadeCommentWindowLoaded':[null, null],
 					 'premadeCommentLabelClicked':[null, null],
 					 'retrieveIdeaBasketsCompleted':[null, null],
-					 'groupClicked':[null, null]},
+					 'groupClicked':[null, null],
+					 'exportButtonClicked':[null, null]},
    		    methods:{
 			  onWindowUnload:function(view){return function(){view.onWindowUnload();};}
 		    },					 
@@ -219,13 +213,6 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("commentUpdated", view.gradingDispatcher, view);
 					eventManager.subscribe("flagCheckboxClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("inappropriateFlagCheckboxClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("exportAllStudentWorkButtonClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("exportLatestStudentWorkButtonClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("exportIdeaBasketsButtonClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("exportFlashButtonClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("exportExplanationBuilderWorkButtonClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("exportCustomLatestStudentWorkButtonClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("exportCustomAllStudentWorkButtonClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("specialExportButtonClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("exportExplanationButtonClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("retrieveProjectMetaDataCompleted", view.gradingDispatcher, view);
@@ -250,6 +237,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("realTimeMonitorSelectWorkgroupIdDropDownClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("realTimeMonitorSelectStepDropDownClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("realTimeMonitorShareWithClassClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("exportButtonClicked", view.gradingDispatcher, view);
 					eventManager.initializeLoading([['gradingConfigUrlReceived','projectDataReceived','Project Data'], 
 					                                ['initiateGradingDisplayStarted','retrieveStudentWorkCompleted','Student Data'],
 					                                ['initiateClassroomMonitorDisplayStarted','classroomMonitorDisplayCompleted','Classroom Monitor']], false);

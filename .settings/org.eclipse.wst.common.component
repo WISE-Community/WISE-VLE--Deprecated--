@@ -111,5 +111,8 @@
     <dependent-module archiveName="commons-lang-2.6.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/var/M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar">
       <dependency-type>uses</dependency-type>
     </dependent-module>
+    <dependent-module archiveName="opencsv-2.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/var/M2_REPO/net/sf/opencsv/opencsv/2.3/opencsv-2.3.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
   </wb-module>
 </project-modules>

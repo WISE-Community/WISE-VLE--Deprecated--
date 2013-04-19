@@ -230,14 +230,52 @@ View.prototype.displayResearcherToolsPage = function() {
 		}
 	}
 	
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('exportLatestStudentWorkButtonClicked')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['latestStudentWork'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('exportAllStudentWorkButtonClicked')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['allStudentWork'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('exportIdeaBasketsButtonClicked')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['ideaBaskets'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('exportExplanationBuilderWorkButtonClicked')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['explanationBuilder'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"view.displayCustomExportPage()\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['custom'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_special_export")+"' onClick=\"view.displaySpecialExportPage()\"></input></td><td>"+this.getI18NString("grading_button_special_export_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['special'])\"></input></td></tr>";
-	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"view.getStudentNamesExport()\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['studentNames'])\"></input></td></tr>";
-	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='Export Flash' onClick=\"eventManager.fire('exportFlashButtonClicked')\"></input></td><td>N/A <input class='blueButton' type='button' value='N/A' onClick=\"\"></input></td></tr>";
+	//create row for export latest student work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_latest_student_work")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['latestStudentWork', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['latestStudentWork', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['latestStudentWork'])\"></input></td>"
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export all student work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_all_student_work")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['allStudentWork', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['allStudentWork', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['allStudentWork'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export idea baskets
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_idea_baskets")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['ideaBaskets', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['ideaBaskets', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['ideaBaskets'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export explanation builder work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_explanation_builder_work")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['explanationBuilderWork', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['explanationBuilderWork', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['explanationBuilder'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export custom work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_custom_work")+"</td>";
+	getResearcherToolsHtml += "<td colspan='2'><input class='blueButton' type='button' value='Choose Steps' onClick=\"view.displayCustomExportPage()\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['custom'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for special export
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_special_export")+"</td>";
+	getResearcherToolsHtml += "<td colspan='2'><input class='blueButton' type='button' value='Choose Step' onClick=\"view.displaySpecialExportPage()\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['special'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
 	getResearcherToolsHtml += "</table>";
 	getResearcherToolsHtml += "</div></div>";	
 	
@@ -361,8 +399,15 @@ View.prototype.displayCustomExportPage = function() {
 	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
 	
 	//the buttons to generate the excel export
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom Latest Student Work"+"' onClick=\"eventManager.fire('exportCustomLatestStudentWorkButtonClicked')\"></input>";
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom All Student Work"+"' onClick=\"eventManager.fire('exportCustomAllStudentWorkButtonClicked')\"></input>";
+	
+	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom Latest Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'csv'])\"></input>";
+	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom All Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'csv'])\"></input>";
 	customExportPageHtml += "<br>";
 	
 	//the checkbox to select all or unselect all
@@ -379,13 +424,19 @@ View.prototype.displayCustomExportPage = function() {
 	customExportPageHtml += "</table>";
 
 	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom Latest Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'csv'])\"></input>";
+	
+	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom All Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'csv'])\"></input>";
+
+	customExportPageHtml += "<br>";
 	
 	//the button to go back to the previous page
 	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
-	
-	//the buttons to generate the excel export
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom Latest Student Work"+"' onClick=\"eventManager.fire('exportCustomLatestStudentWorkButtonClicked')\"></input>";
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom All Student Work"+"' onClick=\"eventManager.fire('exportCustomAllStudentWorkButtonClicked')\"></input>";
 	
 	customExportPageHtml += "</div>";
 	

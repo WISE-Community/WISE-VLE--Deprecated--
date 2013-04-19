@@ -1,75 +1,22 @@
 
-/**
- * Generate the student navigation XLS. This will ask the
- * teacher to save the XLS file.
- */
-View.prototype.exportAllStudentWorkButtonClickedEventListener = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'allStudentWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
 
 /**
- * Generate the student work XLS. This will ask the
- * teacher to save the XLS file.
+ * 
  */
-View.prototype.exportLatestStudentWorkButtonClickedEventListener = function() {
+View.prototype.exportButtonClickedEventListener = function(exportType, fileType) {
 	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'latestStudentWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request the idea basket excel export
- */
-View.prototype.exportIdeaBasketsButtonClickedEventListener = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'ideaBaskets';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request the idea basket excel export
- */
-View.prototype.exportFlashButtonClickedEventListener = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'flashStudentWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request the explanation builder work excel export
- */
-View.prototype.exportExplanationBuilderWorkButtonClickedEventListener = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'explanationBuilderWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request a custom latest student work export
- */
-View.prototype.exportCustomLatestStudentWorkButtonClickedEventListener = function() {
-	this.setParamsForXLSExport();
-	$('#exportType').val('customLatestStudentWork');
+	$('#exportType').val(exportType);
+	$('#fileType').val(fileType);
 	
-	//get all the node ids that were chosen for the custom export
-	var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
-	$('#customStepsArray').val(customStepsArrayJSONString);
-	
-	$('#getStudentXLSExport').submit();
-};
-
-/**
- * Request a custom all student work export
- */
-View.prototype.exportCustomAllStudentWorkButtonClickedEventListener = function() {
-	this.setParamsForXLSExport();
-	$('#exportType').val('customAllStudentWork');
-	
-	//get all the node ids that were chosen for the custom export
-	var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
-	$('#customStepsArray').val(customStepsArrayJSONString);
+	if(exportType == 'customLatestStudentWork') {
+		//get all the node ids that were chosen for the custom export
+		var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
+		$('#customStepsArray').val(customStepsArrayJSONString);
+	} else if(exportType == 'customAllStudentWork') {
+		//get all the node ids that were chosen for the custom export
+		var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
+		$('#customStepsArray').val(customStepsArrayJSONString);
+	}
 	
 	$('#getStudentXLSExport').submit();
 };
