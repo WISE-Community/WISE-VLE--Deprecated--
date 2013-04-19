@@ -2829,15 +2829,6 @@ public class VLEGetXLS extends VLEServlet {
 			String stepWorkResponse = getStepWorkResponse(stepWork);
 			
 			if(stepWorkResponse != null) {
-				//check if the response has more characters than the max allowable 
-				if(stepWorkResponse.length() > 32767) {
-					//response has more characters than the max allowable so we will truncate it
-					stepWorkResponse = stepWorkResponse.substring(0, 32767);
-					
-					//increment the counter to keep track of how many oversized responses we have
-					oversizedResponses++;
-				}
-				
 				//set the response into the cell and increment the counter
 				columnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, columnCounter, stepWorkResponse);
 				
@@ -6866,24 +6857,33 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		try {
+			if(rowVector != null) {
+				rowVector.add(value);
+			}
+			
 			if(row != null) {
 				//try to convert the value to a number and then set the value into the cell
 				row.createCell(columnCounter).setCellValue(Long.parseLong(value));				
 			}
-			
-			if(rowVector != null) {
-				rowVector.add(value);
-			}
 		} catch(NumberFormatException e) {
 			e.printStackTrace();
+			
+			if(rowVector != null) {
+				rowVector.add(value);				
+			}
+			
+			//check if the value has more characters than the max allowable for an excel cell
+			if(value.length() > 32767) {
+				//response has more characters than the max allowable so we will truncate it
+				value = value.substring(0, 32767);
+				
+				//increment the counter to keep track of how many oversized responses we have
+				oversizedResponses++;
+			}
 			
 			if(row != null) {
 				//set the string value into the cell
 				row.createCell(columnCounter).setCellValue(value);				
-			}
-			
-			if(rowVector != null) {
-				rowVector.add(value);				
 			}
 		}
 		
@@ -6908,15 +6908,24 @@ public class VLEGetXLS extends VLEServlet {
 			value = "";
 		}
 		
+		if(rowVector != null) {
+			rowVector.add(value);			
+		}
+		
+		//check if the value has more characters than the max allowable for an excel cell
+		if(value.length() > 32767) {
+			//response has more characters than the max allowable so we will truncate it
+			value = value.substring(0, 32767);
+			
+			//increment the counter to keep track of how many oversized responses we have
+			oversizedResponses++;
+		}
+		
 		if(row != null) {
 			//set the value into the cell
 			row.createCell(columnCounter).setCellValue(value);			
 		}
 
-		if(rowVector != null) {
-			rowVector.add(value);			
-		}
-		
 		//increment the column counter
 		columnCounter++;
 		
