@@ -89,7 +89,9 @@ with the following items:
 2. "name" - A text identifier for the navigation mode; will be displayed when selecting the
 	navigation mode in project authoring and/or run settings (String)
 3. "description" - A short text description of the theme's major features (String)
-4. "screenshot" - Preview screenshot of theme (File path relative to this navigation mode's root folder)
+4. "screenshot" - Preview screenshot of theme (File path relative to theme root)
+5. "css" - Extra CSS files required by the navigation mode (Array of file paths relative to theme root)
+6. "js" - Extra Javascript files required by the navigation mode (Array of file paths relative to theme root)
 
 *Every WISE VLE theme MUST include at least 1 (one) navigation mode.*
 
