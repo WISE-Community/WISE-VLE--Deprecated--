@@ -236,7 +236,6 @@ body#w4_vle {
 #vle_body {
 	margin:0 auto;
 	min-width:940px;
-	min-height:528px;
 	text-align:left;
 	overflow:hidden;
 	
@@ -422,7 +421,12 @@ body#w4_vle {
 	width: 210px;
 }
 
-#vle_body #navigation {
+#vle_body #navigation, #vle_body #stepContent {
+	bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 #vle_body #vleSidebar .panelHeader {

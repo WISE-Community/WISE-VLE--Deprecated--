@@ -1,0 +1,427 @@
+/* Navigation menu specific css and theme customization */
+
+#vle_body #toggleNavLink.menu {
+	padding-left:28px;
+	background:transparent url('images/menu.png') no-repeat left center;
+}
+
+#vle_body #my_menu {
+	height:100%;
+	width:100%;
+	position:relative;
+}
+
+/* Styles for navigation menu elements */
+
+/*.sequence {
+	
+}
+
+.sequence a {
+	display:block;
+	padding: 0.25em 0.5em;
+}
+
+.sequenceTitle {
+	
+}
+
+.sequenceTitle a {
+	color: #FFFFFF;
+    font-weight: bold;
+    padding: 0.5em;
+    margin-right:.5em;
+}
+
+.sequence.inactive .sequenceTitle a {
+	padding-right:14px;
+	background:transparent url('images/plus.png') no-repeat right center;
+}
+
+.sequence.active .sequenceTitle a {
+	padding-right:14px;
+	background:transparent url('images/minus.png') no-repeat right center;
+}
+
+a.step, a.glue, a.sequenceTitle {
+	display: block;
+}
+
+.step {
+	
+}
+
+a {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	
+}
+
+.step a {
+	background-color:#F4F2EF;
+    color: #563C17;
+}
+
+.step a:hover {
+	text-decoration: none;
+    color:#000;
+    background-color:#EBE7E2;
+}
+
+.step {
+	border-bottom: 1px solid #EAE8E5;
+}
+
+.step table {
+	width:100%;
+}
+
+.step table td img {
+	vertical-align:top;
+}
+
+.step table td.stepIcon {
+	width:18px;
+}
+
+.step table td.statusIcon {
+	text-align: right;
+    width: 18px;
+}
+
+a.glue {
+	
+}
+
+.sequence {
+	margin: 0 0 0.5em;
+    padding: 0;
+	background-color: #9D8B71;
+}
+
+.sequence:last-child {
+	margin-bottom:0;
+}
+
+.sequence.nested {
+	border-left: .25em solid #745A34;
+    margin-bottom: 0;
+}
+
+.sequence.nested.inactive .sequenceTitle a {
+	background:transparent url('images/plus.png') no-repeat right center;
+}
+
+.sequence.nested.active .sequenceTitle a {
+	background:transparent url('images/minus.png') no-repeat right center;
+}
+
+.sequence.nested.hide {
+	display:none;
+}
+
+.sequence.nested.show {
+	
+}
+
+.step.inactive {
+	
+}
+
+.step.active {
+	
+}
+
+.step.constraintDisable a, .step.constraintDisable a:hover {
+	background-color: #BBBBBB;
+    color: #777777;
+}
+
+.step.menuStepHighlight a {
+	background-color:#E2E896;
+}
+
+.step.constraintHidden {
+	display:none;
+}*/
+
+.currentNode a {
+	/*background-color: #FFFFFF !important;
+    border-color: #F47F6E;
+    border-style: solid;
+    border-width: 0 0 0 0.5em;
+    color: #000 !important;
+    padding:.25em .5em .25em 0;*/
+}
+
+/* Starmap */
+
+#toggleView {
+	position:absolute;
+	top:10;
+	left:10;
+}
+
+div#map {
+	position:absolute;
+	top:10px;
+	bottom:10px;
+	left:10px;
+	right:10px;
+}
+
+#my_menu {
+	background: #302d55; /* Old browsers */
+	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMzAyZDU1IiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzEzMTcyMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+	background: -moz-linear-gradient(-45deg,  #302d55 0%, #131720 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#302d55), color-stop(100%,#131720)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(-45deg,  #302d55 0%,#131720 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(-45deg,  #302d55 0%,#131720 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(-45deg,  #302d55 0%,#131720 100%); /* IE10+ */
+	background: linear-gradient(135deg,  #302d55 0%,#131720 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#302d55', endColorstr='#131720',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+}
+
+#my_menu > canvas {
+	position:absolute;
+	top:0;
+	left:0;
+}
+
+canvas#canvas {
+	background-color:rgba(255,255,255,.1);
+}
+
+svg#chart {
+	position:absolute;
+}
+
+.item circle, .item image, .seq, .link, .hull {
+	-webkit-transition: all .25s ease;
+    -moz-transition: all .25s ease;
+    -o-transition: all .25s ease;
+    transition: all .25s ease;
+}
+
+.node {
+	opacity:0;
+	display:none;
+}
+
+.node.active {
+	cursor:pointer;
+	opacity:1;
+	display:block;
+}
+
+.node circle {
+	fill: #2e297c;
+	fill-opacity: .7;
+	stroke: #fff;
+	stroke-opacity:.5;
+	stroke-width:1.5;
+}
+
+.node.inactive circle.main {
+	fill:#aaa;
+	/*stroke:#777;*/
+	opacity:.2; 
+}
+
+.node circle.detail {
+	fill: #222;
+	fill-opacity: 1;
+	stroke: #000;
+	stroke-opacity:1;
+	stroke-width:1;
+	opacity:0;
+}
+
+.node.active circle.detail {
+	opacity:1;
+}
+
+.node image {
+	opacity:0;
+}
+
+.node.active image {
+	opacity: 1;
+}
+
+.node circle.main.mouseover {
+	stroke-width:2;
+	stroke-opacity:.75;
+	fill-opacity:.75;
+}
+
+.node.active.current circle.main {
+	stroke-opacity:1;
+	stroke-width:1.5;
+	fill-opacity:1;
+}
+
+.node text {
+	opacity:0;
+	font-size: 5px;
+	font-family: Arial;
+	fill: #cdfaeb;
+	font-weight:normal;
+}
+
+.node.active text {
+	opacity:1;
+}
+
+/*.node.active:hover text {
+	opacity:0;
+}*/
+
+.node.current text {
+	opacity:1;
+}
+
+.info {
+	display:none;
+}
+
+.info body {
+	padding:.5em;
+	border:1px solid #444;
+	background-color:#fff;
+}
+
+.info p, .info div {
+	font-size:4px;
+}
+
+.seq {
+	cursor:pointer;
+}
+
+.seq text {
+	opacity:1;
+	font-size:1.25em;
+	font-weight:bold;
+}
+
+.seq text {
+	fill:#444;
+	stroke:none;
+	stroke-width:0;
+}
+
+/*.seq text.outline {
+	stroke: #ffc000;
+	fill:none;
+	stroke-width:2;
+}*/
+
+.seq.active {
+	display:none;
+}
+
+.seq.active text {
+	display:none;
+}
+
+.seq.inactive {
+	display:none;
+}
+
+.seq.inactive text {
+	display:none;
+}
+
+path.link {
+    stroke: #8a85d1;
+    opacity:0;
+    display:none;
+    stroke-width:1.5;
+}
+
+path.link.seq {
+	opacity:.6;
+	display:block;
+}
+
+path.link.seq.active, path.link.seq.inactive {
+	opacity:0;
+	display:none;
+}
+
+path.link.path.active {
+	opacity:.6;
+	display:block;
+}
+
+path.link.path.inactive {
+	/*opacity:.1;*/
+}
+
+path.hull {
+	fill:#fff;
+	stroke:#fff;
+	opacity:0;
+	display:none;
+}
+
+path.hull.active {
+    opacity: .1;
+    display:block;
+}
+
+path.hull.inactive {
+	/*stroke:#000;
+	fill:#000;
+	opacity:.3;*/
+	opacity:0;
+}
+
+path.target {
+	cursor:pointer;
+	fill:#fff;
+	stroke:#fff;
+	opacity:0;
+	-webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease;
+    transition: all .5s ease;
+    display:block;
+}
+
+path.target:hover {
+	opacity:.2;
+}
+
+path.target.active {
+	display:none;
+}
+
+#activityControls {
+	position:absolute;
+	right:50px;
+	bottom:50px;
+}
+
+#activityControls #currentAct {
+	color:#fff;
+	font-weight:bold;
+	font-size:1.5em;
+	margin:0 2em;
+}
+
+#reset {
+	position:absolute;
+	left:50px;
+	bottom:50px;
+}
+
+#toggleView {
+	position:absolute;
+	left:50px;
+	top:50px;
+}

@@ -1,0 +1,134 @@
+/* powerTip Plugin 
+* Custom Starmap style
+*/
+#powerTipStarmap {
+	cursor: default;
+	background-color: #111622;
+	background-color: rgba(0, 0, 0, 0.75);
+	/*border-radius: 6px;*/
+	color: #fff;
+	display: none;
+	padding: 10px;
+	position: absolute;
+	white-space: nowrap;
+	z-index: 2147483647;
+	font-size:.8em;
+	font-weight:300;
+	color:#c1b8f7;
+	font-family:Helvetica, sans-serif;
+	width:250px;
+	border:2px solid #c1b8f7;
+	border:2px solid rgba(193,184,247,.6);
+}
+#powerTipStarmap:before {
+	content: "";
+	position: absolute;
+}
+#powerTipStarmap.n:before, #powerTipStarmap.s:before {
+	border-right: 5px solid transparent;
+	border-left: 5px solid transparent;
+	left: 50%;
+	margin-left: -5px;
+}
+#powerTipStarmap.e:before, #powerTipStarmap.w:before {
+	border-bottom: 5px solid transparent;
+	border-top: 5px solid transparent;
+	margin-top: -5px;
+	top: 50%;
+}
+#powerTipStarmap.n:before {
+	border-top: 10px solid #c1b8f7;
+	border-top: 10px solid rgba(193,184,247,.6);
+	bottom: -10px;
+}
+#powerTipStarmap.e:before {
+	border-right: 10px solid #c1b8f7;
+	border-right: 10px solid rgba(193,184,247,.6);
+	left: -10px;
+}
+#powerTipStarmap.s:before {
+	border-bottom: 10px solid #c1b8f7;
+	border-bottom: 10px solid rgba(193,184,247,.6);
+	top: -10px;
+}
+#powerTipStarmap.w:before {
+	border-left: 10px solid #c1b8f7;
+	border-left: 10px solid rgba(193,184,247,.6);
+	right: -10px;
+}
+#powerTipStarmap.ne:before, #powerTipStarmap.se:before {
+	border-right: 10px solid transparent;
+	border-left: 0;
+	left: 10px;
+}
+#powerTipStarmap.nw:before, #powerTipStarmap.sw:before {
+	border-left: 10px solid transparent;
+	border-right: 0;
+	right: 10px;
+}
+#powerTipStarmap.ne:before, #powerTipStarmap.nw:before {
+	border-top: 10px solid #c1b8f7;
+	border-top: 10px solid rgba(193,184,247,.6);
+	bottom: -10px;
+}
+#powerTipStarmap.se:before, #powerTipStarmap.sw:before {
+	border-bottom: 10px solid #c1b8f7;
+	border-bottom: 10px solid rgba(193,184,247,.6);
+	top: -10px;
+}
+#powerTipStarmap.nw-alt:before, #powerTipStarmap.ne-alt:before,
+#powerTipStarmap.sw-alt:before, #powerTipStarmap.se-alt:before {
+	border-top: 10px solid #c1b8f7;
+	border-top: 10px solid rgba(193,184,247,.6);
+	bottom: -10px;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	left: 10px;
+}
+#powerTipStarmap.ne-alt:before {
+	left: auto;
+	right: 10px;
+}
+#powerTipStarmap.sw-alt:before, #powerTipStarmap.se-alt:before {
+	border-top: none;
+	border-bottom: 10px solid #c1b8f7;
+	border-bottom: 10px solid rgba(193,184,247,.6);
+	bottom: auto;
+	top: -10px;
+}
+#powerTipStarmap.se-alt:before {
+	left: auto;
+	right: 10px;
+}
+
+#powerTipStarmap h5 {
+	margin:-14px -14px .5em;
+	padding:.25em;
+	font-weight:normal;
+	font-size:1.1em;
+	color:yellow;
+	font-family:Helvetica, sans-serif;
+	font-weight:300;
+	background-color:#191e27;
+	border:3px solid #c1b8f7;
+}
+
+#powerTipStarmap h5 span.pos {
+	color:#cdfaeb;
+	margin-right:.5em;
+	font-size:1em;
+}
+
+#powerTipStarmap .content p {
+	background-color:#1f2c42;
+	margin:.5em 0;
+	padding:.5em;
+}
+
+#powerTipStarmap .content p:last-child {
+	margin-bottom:0;
+}
+
+#powerTipStarmap .actions {
+	text-align:center;
+}
