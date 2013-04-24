@@ -1,10 +1,10 @@
 
 View.prototype.loadUserAndClassInfo = function(userAndClassInfoContentObject) {
-	this.eventManager.fire('getUserAndClassInfoBegin');
+	this.eventManager.fire('getUserAndClassInfoStarted');
 	this.userAndClassInfo = this.parseUserAndClassInfo(userAndClassInfoContentObject);
 	
 	this.userAndClassInfoLoaded = true;
-	this.eventManager.fire('getUserAndClassInfoComplete');
+	this.eventManager.fire('getUserAndClassInfoCompleted');
 };
 
 View.prototype.getUserAndClassInfo = function() {

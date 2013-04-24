@@ -2,7 +2,8 @@ View.prototype.getGradingConfig = function(gradingConfigUrl) {
 	this.model = new GradingModel();
 	var gradingConfigContent = createContent(gradingConfigUrl);
 	this.config = this.createConfig(gradingConfigContent);
-	eventManager.fire('getGradingConfigComplete', [this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), false]);
+
+	eventManager.fire('getGradingConfigCompleted');
 	
 	/* set the servlet request urls - assumes that the grading tool is always run in portal mode */
 	var loc = window.location.toString();
@@ -39,7 +40,7 @@ View.prototype.getStudentUserInfo = function() {
 		}
 	}
 
-	eventManager.fire('processUserAndClassInfoComplete');
+	eventManager.fire('processUserAndClassInfoCompleted');
 };
 
 /** 
@@ -226,24 +227,24 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsU
 	getStudentUserInfo();
 
 	//setup events
-	vle.eventManager.addEvent('getStudentUserInfoComplete');
-	vle.eventManager.addEvent('getStudentWorkComplete');
-	vle.eventManager.addEvent('getAnnotationsComplete');
+	vle.eventManager.addEvent('getStudentUserInfoCompleted');
+	vle.eventManager.addEvent('retrieveStudentWorkCompleted');
+	vle.eventManager.addEvent('retrieveAnnotationsCompleted');
 
 	/*
 	 * when we are done retrieving the student workgroup ids, we will
 	 * retrieve the work from all the students
 	 */
-	//vle.eventManager.subscribe("getStudentUserInfoComplete", getStudentWork);
-	vle.eventManager.subscribe("getStudentUserInfoComplete", initiateDisplaySteps);
+	//vle.eventManager.subscribe("getStudentUserInfoCompleted", getStudentWork);
+	vle.eventManager.subscribe("getStudentUserInfoCompleted", initiateDisplaySteps);
 
 	/*
 	 * when we are done retrieving the student work, we will retrieve
 	 * the annotations
 	 */
-	//vle.eventManager.subscribe("getStudentWorkComplete", getAnnotations);
+	//vle.eventManager.subscribe("retrieveStudentWorkCompleted", getAnnotations);
 
-	//vle.eventManager.subscribe("getAnnotationsComplete", getFlags);
+	//vle.eventManager.subscribe("retrieveAnnotationsCompleted", getFlags);
 }
 
 

@@ -18,13 +18,17 @@
 			"id" : "classic",
 			"name" : "Inquiry Map (Left)",
 			"description" : "The classic WISE navigation menu (left sidebar)",
-			"screenshot" : "images/screenshot-classic.png"
+			"screenshot" : "navigation/classic/images/screenshot-classic.png",
+			"css": [],
+			"js": []
 		},
 		{
 			"id" : "classic_right",
 			"name" : "Inquiry Map (Right)",
 			"description" : "The classic WISE navigation menu (right sidebar)",
-			"screenshot" : "images/screenshot-classic-right.png"
+			"screenshot" : "navigation/class_right/images/screenshot-classic-right.png",
+			"css": [],
+			"js": []
 		}
 	]
 }

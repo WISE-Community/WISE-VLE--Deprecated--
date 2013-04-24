@@ -21,7 +21,7 @@ View.prototype.linkManager.dispatcher = function(type,args,obj){
 		obj.linkManager.linkToNodeChanged(obj, args[0]);
 	} else if(type=='removeLinkTo'){
 		obj.linkManager.removeLinkTo(obj, args[0]);
-	} else if(type=='contentRenderComplete'){
+	} else if(type=='contentRenderCompleted'){
 		if(obj.updatePromptAfterPreview){
 			obj.updatePromptAfterPreview = false;
 			obj.updatePrompt();

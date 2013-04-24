@@ -122,7 +122,7 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 		});
 	}
 
-	this.node.view.eventManager.fire('contentRenderComplete', this.node.getNodeId(), this.node);
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.getNodeId(), this.node);
 };
 
 /**
@@ -239,7 +239,7 @@ BRAINSTORM.prototype.brainfullLoaded = function(frameDoc) {
 		});
 	} 
 
-	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**

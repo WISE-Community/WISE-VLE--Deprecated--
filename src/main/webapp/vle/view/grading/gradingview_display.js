@@ -21,32 +21,9 @@ View.prototype.showColumns = function() {
 
 
 /**
- * Callback for the onlyShowFilteredItems check box
+ * Callback for the hidePersonalInfo check box
  */
-View.prototype.onlyShowFilteredItemsOnClick = function() {
-	/*
-	 * check if the "onlyShowFilteredItemsCheckBox" exists, it will for 
-	 * gradebystep but won't for gradebyteam
-	 */
-	if(document.getElementById("onlyShowFilteredItemsCheckBox") != null) {
-		// check if the checkbox is checked
-		var isChecked = document.getElementById("onlyShowFilteredItemsCheckBox").checked;
-		if (isChecked) {
-			// only show filtered items
-			$('#studentWorkTable').filter('[isFlagged=false]').css('display','none');
-			this.gradingShowFlagged = true;
-		} else {
-			// show all items
-			$('#studentWorkTable tr').css('display','');
-			this.gradingShowFlagged = false;
-		}
-	}
-};
-
-/**
- * Callback for the onlyShowFilteredItems check box
- */
-View.prototype.onlyShowWorkOnClick = function() {
+View.prototype.hidePersonalInfoOptionClickedEventListener = function() {
 	var onlyShowWorkCheckBox = document.getElementById("onlyShowWorkCheckBox");
 	
 	if(onlyShowWorkCheckBox) {
@@ -117,16 +94,16 @@ View.prototype.initiateGradingDisplay = function() {
 	
 	if(this.gradingType == "step") {
 		this.displayGradeByStepSelectPage();	
-		eventManager.fire("initiateGradingDisplayStart");
+		eventManager.fire("initiateGradingDisplayStarted");
 	} else if(this.gradingType == "team") {
 		this.displayGradeByTeamSelectPage();
-		eventManager.fire("initiateGradingDisplayStart");
+		eventManager.fire("initiateGradingDisplayStarted");
 	} else if(this.gradingType == "monitor") {
 		this.checkXMPPEnabled();
 		
 		if(this.isXMPPEnabled) {
 			this.displayClassroomMonitorPage();
-			eventManager.fire("initiateClassroomMonitorDisplayStart");			
+			eventManager.fire("initiateClassroomMonitorDisplayStarted");			
 		}
 	} else if(this.gradingType == "export") {
 		this.displayResearcherToolsPage();
@@ -195,7 +172,6 @@ View.prototype.getPSTTime = function() {
  * Displays the excel export buttons
  */
 View.prototype.displayResearcherToolsPage = function() {
-	
 	/*
 	 * make the excel export buttons. this is where we make the export button,
 	 * the explanation button, and the short description of the export.
@@ -254,14 +230,52 @@ View.prototype.displayResearcherToolsPage = function() {
 		}
 	}
 	
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['latestStudentWork'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['allStudentWork'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['ideaBaskets'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['explanationBuilder'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_special_export")+"' onClick=\"eventManager.fire('displaySpecialExportPage')\"></input></td><td>"+this.getI18NString("grading_button_special_export_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['special'])\"></input></td></tr>";
-	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
-	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='Export Flash' onClick=\"eventManager.fire('getFlashExcelExport')\"></input></td><td>N/A <input class='blueButton' type='button' value='N/A' onClick=\"\"></input></td></tr>";
+	//create row for export latest student work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_latest_student_work")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['latestStudentWork', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['latestStudentWork', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['latestStudentWork'])\"></input></td>"
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export all student work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_all_student_work")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['allStudentWork', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['allStudentWork', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['allStudentWork'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export idea baskets
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_idea_baskets")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['ideaBaskets', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['ideaBaskets', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['ideaBaskets'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export explanation builder work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_explanation_builder_work")+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['explanationBuilderWork', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['explanationBuilderWork', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['explanationBuilder'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for export custom work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_export_custom_work")+"</td>";
+	getResearcherToolsHtml += "<td colspan='2'><input class='blueButton' type='button' value='Choose Steps' onClick=\"view.displayCustomExportPage()\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['custom'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
+	//create row for special export
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+this.getI18NString("grading_button_special_export")+"</td>";
+	getResearcherToolsHtml += "<td colspan='2'><input class='blueButton' type='button' value='Choose Step' onClick=\"view.displaySpecialExportPage()\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['special'])\"></input></td>";
+	getResearcherToolsHtml += "</tr>";
+	
 	getResearcherToolsHtml += "</table>";
 	getResearcherToolsHtml += "</div></div>";	
 	
@@ -271,7 +285,7 @@ View.prototype.displayResearcherToolsPage = function() {
 	this.fixGradingDisplayHeight();
 	
 	//fire this event to remove the loading screen
-	eventManager.fire("getStudentWorkComplete");
+	eventManager.fire("retrieveStudentWorkCompleted");
 };
 
 /**
@@ -279,12 +293,12 @@ View.prototype.displayResearcherToolsPage = function() {
  * a specific export type
  * @param exportType the type of the export
  */
-View.prototype.displayExportExplanation = function(exportType) {
+View.prototype.exportExplanationButtonClickedEventListener = function(exportType) {
 	
 	var exportExplanationPageHtml = "<div class='gradingContent'>";
 	
 	//the button to go back to the previous page
-	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
 	
 	if(exportType == 'latestStudentWork') {
 		//show the explanation for the latest student work export
@@ -357,7 +371,7 @@ View.prototype.displayExportExplanation = function(exportType) {
 	exportExplanationPageHtml += "<br>";
 	
 	//the button to go back to the previous page
-	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
 	
 	exportExplanationPageHtml += "</div>";
 	
@@ -382,11 +396,18 @@ View.prototype.displayCustomExportPage = function() {
 	customExportPageHtml += "<h3>Custom Export Page</h3>";
 	
 	//the button to go back to the previous page
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
 	
 	//the buttons to generate the excel export
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom Latest Student Work"+"' onClick=\"eventManager.fire('getCustomLatestStudentWorkExport')\"></input>";
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom All Student Work"+"' onClick=\"eventManager.fire('getCustomAllStudentWorkExport')\"></input>";
+	
+	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom Latest Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'csv'])\"></input>";
+	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom All Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'csv'])\"></input>";
 	customExportPageHtml += "<br>";
 	
 	//the checkbox to select all or unselect all
@@ -403,13 +424,19 @@ View.prototype.displayCustomExportPage = function() {
 	customExportPageHtml += "</table>";
 
 	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom Latest Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customLatestStudentWork', 'csv'])\"></input>";
+	
+	customExportPageHtml += "<br>";
+	customExportPageHtml += "Export Custom All Student Work ";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"XLS"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'xls'])\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"CSV"+"' onClick=\"eventManager.fire('exportButtonClicked', ['customAllStudentWork', 'csv'])\"></input>";
+
+	customExportPageHtml += "<br>";
 	
 	//the button to go back to the previous page
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
-	
-	//the buttons to generate the excel export
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom Latest Student Work"+"' onClick=\"eventManager.fire('getCustomLatestStudentWorkExport')\"></input>";
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom All Student Work"+"' onClick=\"eventManager.fire('getCustomAllStudentWorkExport')\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
 	
 	customExportPageHtml += "</div>";
 	
@@ -468,7 +495,6 @@ View.prototype.displayCustomExportPageHelper = function(node) {
  * Display the page for the teacher to choose which step in the project they want to special export
  */
 View.prototype.displaySpecialExportPage = function() {
-	
 	/*
 	 * wrap everything in a div with the class 'gradingContent' so 
 	 * a scroll bar will be created for it
@@ -478,7 +504,7 @@ View.prototype.displaySpecialExportPage = function() {
 	customExportPageHtml += "<h3>Special Export Page</h3>";
 	
 	//the button to go back to the previous page
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
 	
 	//the buttons to generate the excel export
 	customExportPageHtml += "<br>";
@@ -496,7 +522,7 @@ View.prototype.displaySpecialExportPage = function() {
 	customExportPageHtml += "<br>";
 	
 	//the button to go back to the previous page
-	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"view.displayResearcherToolsPage()\"></input>";
 
 	customExportPageHtml += "</div>";
 	
@@ -526,7 +552,7 @@ View.prototype.displaySpecialExportPageHelper = function(node) {
 		
 		if(node.canSpecialExport()) {
 			//this step type can be special exported so we will display a button
-			displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><input id='stepButton_" + nodeId + "' type='button' value='" + position + " " + node.getTitle() + " (" + node.type + ")' style='margin-left:20px' onClick=\"eventManager.fire('getSpecialExport', '" + nodeId + "')\"/></td></tr>";			
+			displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><input id='stepButton_" + nodeId + "' type='button' value='" + position + " " + node.getTitle() + " (" + node.type + ")' style='margin-left:20px' onClick=\"eventManager.fire('specialExportButtonClicked', '" + nodeId + "')\"/></td></tr>";			
 		} else {
 			//this step can't be special exported so we will just display the step name as text
 			displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><p style='display:inline;margin-left:20px'>" + position + " " + node.getTitle() + " (" + node.type + ")</p></td></tr>";
@@ -614,8 +640,8 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	} else if (this.gradingType == "team"){
 		teamClass = 'checked';
 	}
-	gradingHeaderHtml += "<a class='gradingButton " + stepClass + "' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\">"+this.getI18NString("grading_button_grade_by_step")+"</a>";
-	gradingHeaderHtml += "<a class='gradingButton " + teamClass + "' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\">"+this.getI18NString("grading_button_grade_by_team")+"</a>";
+	gradingHeaderHtml += "<a class='gradingButton " + stepClass + "' onClick=\"eventManager.fire('gradeByStepViewSelected')\">"+this.getI18NString("grading_button_grade_by_step")+"</a>";
+	gradingHeaderHtml += "<a class='gradingButton " + teamClass + "' onClick=\"eventManager.fire('gradeByTeamViewSelected')\">"+this.getI18NString("grading_button_grade_by_team")+"</a>";
 
 	//display whether we are showing all revisions or only latest work
 	if(this.getRevisions) {
@@ -629,8 +655,8 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	
 	/*getGradingHeaderTableHtml += "<table id='gradingHeaderTable' class='gradingHeaderTable' name='gradingHeaderTable'>";
 	getGradingHeaderTableHtml += "<tr class='runButtons'><td colspan='2'>";
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_grade_by_step")+"' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_grade_by_team")+"' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\"></input>";*/
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_grade_by_step")+"' onClick=\"eventManager.fire('gradeByStepViewSelected')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_grade_by_team")+"' onClick=\"eventManager.fire('gradeByTeamViewSelected')\"></input>";*/
 	
 	gradingHeaderHtml += "<div style='float:right;'>";
 	var runInfoStr = this.config.getConfigParam('runInfo');
@@ -638,15 +664,15 @@ View.prototype.getGradingHeaderTableHtml = function() {
 		var runInfo = JSON.parse(runInfoStr);
 		if (runInfo.isStudentAssetUploaderEnabled != null &&
 				runInfo.isStudentAssetUploaderEnabled) {
-			gradingHeaderHtml += "<a onClick=\"eventManager.fire('displayStudentUploadedFiles')\">"+this.getI18NString("grading_button_view_student_uploaded_files")+"</a>";
-			//getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_view_student_uploaded_files")+"' onClick=\"eventManager.fire('displayStudentUploadedFiles')\"></input>";
+			gradingHeaderHtml += "<a onClick=\"eventManager.fire('displayStudentUploadedFilesSelected')\">"+this.getI18NString("grading_button_view_student_uploaded_files")+"</a>";
+			//getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_view_student_uploaded_files")+"' onClick=\"eventManager.fire('displayStudentUploadedFilesSelected')\"></input>";
 		}
 	}
 	
-	gradingHeaderHtml += "<a onClick=\"eventManager.fire('refreshGradingScreen')\">"+this.getI18NString('grading_button_check_for_new_student_work')+"</a>";
+	gradingHeaderHtml += "<a onClick=\"eventManager.fire('checkForNewWorkButtonClicked')\">"+this.getI18NString('grading_button_check_for_new_student_work')+"</a>";
 	gradingHeaderHtml += "<a class='saveButton' onClick=\"notificationManager.notify('Changes have been successfully saved.')\">"+this.getI18NString("grading_button_save_changes")+"</a>";
 	gradingHeaderHtml += "</div></div>";
-	/*getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_check_for_new_student_work")+"' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
+	/*getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_check_for_new_student_work")+"' onClick=\"eventManager.fire('checkForNewWorkButtonClicked')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input>";
 	getGradingHeaderTableHtml += "</td></tr></table>";*/
 
@@ -689,7 +715,7 @@ View.prototype.displayClassroomMonitorPage = function() {
     classroomMonitorTr += "<div id='realTimeMonitorStudentWorkDiv'>";
     classroomMonitorTr += "<select id='realTimeMonitorSelectStepDropDown'></select>";
     classroomMonitorTr += "<select id='realTimeMonitorSelectWorkgroupIdDropDown'></select>";
-    classroomMonitorTr += "<div><input type='button' id='maximizeRightTdButton' value='Enlarge/Shrink' onclick='eventManager.fire(\"maximizeRightTdButtonClicked\")'></input></div>";
+    classroomMonitorTr += "<div><input type='button' id='maximizeRightTdButton' value='Enlarge/Shrink' onclick='view.maximizeRightTd()'></input></div>";
     classroomMonitorTr += "<input type='button' id='shareRealTimeMonitorGraphWithClass' value='Share' onclick='eventManager.fire(\"realTimeMonitorShareWithClassClicked\",[\"DomElementId\",\"realTimeMonitorStepSummaryDiv\"])'></input>";
     classroomMonitorTr += '<div id="realTimeMonitorStepSummaryDiv"></div>';
     
@@ -724,7 +750,7 @@ View.prototype.displayClassroomMonitorPage = function() {
     this.applyTableSorterToClassroomMonitorTable();
     
     this.startXMPP();
-	eventManager.fire("classroomMonitorDisplayComplete");
+	eventManager.fire("classroomMonitorDisplayCompleted");
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
@@ -733,7 +759,7 @@ View.prototype.displayClassroomMonitorPage = function() {
 /**
  * Make the right td in the real time monitor fill up the whole dialog
  */
-View.prototype.maximizeRightTdButtonClicked = function() {
+View.prototype.maximizeRightTd = function() {
 	$('#classroomMonitorLeftTd').toggle();
 	
 	if (!$('#classroomMonitorLeftTd').is(":visible")) {
@@ -869,7 +895,7 @@ View.prototype.createClassroomMonitorTable = function() {
 	classroomMonitorTableHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
 
 	//start the table that will contain the teams to choose
-	classroomMonitorTableHtml += "<table id='chooseTeamToGradeTable' class='wisetable tablesorter'>";
+	classroomMonitorTableHtml += "<table id='chooseTeamToGradeTable' style='display:none' class='wisetable tablesorter'>";
 	
 	//the header row
 	classroomMonitorTableHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
@@ -911,14 +937,12 @@ View.prototype.createClassroomMonitorTable = function() {
 		var studentTRClass = "showScoreRow classroomMonitorStudentWorkRow studentWorkRow period" + periodName;
 		
 		//add the html row for this workgroup
-		classroomMonitorTableHtml += "<tr id='classroomMonitorWorkgroupRow_"+workgroupId+"' class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">";
+		classroomMonitorTableHtml += "<tr id='classroomMonitorWorkgroupRow_"+workgroupId+"' class='" + studentTRClass + "' onClick=\"view.displayGradeByTeamGradingPage('" + workgroupId + "')\">";
 		classroomMonitorTableHtml += "<td class='showScorePeriodColumn'>" + periodName + "</td>";
 		classroomMonitorTableHtml += "<td class='showScoreWorkgroupIdColumn'>" + userNames + "</td>";
 		classroomMonitorTableHtml += "<td id='teamCurrentStep_" + workgroupId + "'>N/A</td>";
 		classroomMonitorTableHtml += "<td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'>0%</td>";
 		classroomMonitorTableHtml += "<td id='teamStatus_" + workgroupId + "'></td></tr>";
-		
-		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
 	
 	classroomMonitorTableHtml += "</tbody>";
@@ -928,7 +952,7 @@ View.prototype.createClassroomMonitorTable = function() {
 	classroomMonitorTableHtml += "<div id='teamStatusDialog'></div>";
 	
 	
-	classroomMonitorTableHtml += "<button id='displayChatRoomButton' onclick='eventManager.fire(\"displayChatRoom\")'>Display Chat Room</button>";
+	classroomMonitorTableHtml += "<button id='displayChatRoomButton' onclick='view.displayChatRoom()'>Display Chat Room</button>";
 	classroomMonitorTableHtml += '<div id="chatRoomDiv"><div id="chatRoomTextDisplay" style="height:85%;overflow:auto"></div><textarea id="chatRoomTextEntry" style="width:95%;height:40px"></textarea></div>';
 
 	classroomMonitorTableHtml += "<button id='displayStudentWorkButton' onclick='eventManager.fire(\"displayStudentWork\")'>Display Student Work</button>";
@@ -1091,9 +1115,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		}
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td id='gradeByTeamStudentTeamTd_" + workgroupId + "' class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a>" + groupAssignmentsHtml + "</td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
-		
-		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"view.displayGradeByTeamGradingPage('" + workgroupId + "')\"><td class='showScorePeriodColumn'>" + periodName + "</td><td id='gradeByTeamStudentTeamTd_" + workgroupId + "' class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a>" + groupAssignmentsHtml + "</td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 	}
 	
 	displayGradeByTeamSelectPageHtml += "</tbody></table></div>";
@@ -1173,6 +1195,7 @@ View.prototype.displayStudentUploadedFiles = function() {
  * step from all students in the run.
  */
 View.prototype.displayGradeByStepSelectPage = function() {
+	
 	// set gradingType to "step"
 	this.gradingType = "step";
 	
@@ -1339,10 +1362,10 @@ View.prototype.getGradeByStepSelectPageLinkedHtmlForNode = function(node, positi
 	var maxScorePermission = this.isWriteAllowed();
 	
 	//the regular link to grade by step, this will show revisions for all steps except MySystemNode and SVGDrawNode
-	var nodeLink = "<a onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\"])'>Step " + position + ":&nbsp;&nbsp;" + node.getTitle() + "&nbsp;&nbsp;&nbsp;<span class='nodeTypeClass'>(" + type + ")</span></a>";
+	var nodeLink = "<a onClick='view.displayGradeByStepGradingPage(\"" + position + "\", \"" + node.id + "\")'>Step " + position + ":&nbsp;&nbsp;" + node.getTitle() + "&nbsp;&nbsp;&nbsp;<span class='nodeTypeClass'>(" + type + ")</span></a>";
 	
 	//this is a node that students perform work for so we will display a link
-	return "<tr><td class='chooseStepToGradeStepTd col1'>" + nodeLink + "</td><td class='chooseStepToGradeMaxScoreTd col2 statistic'><input id='maxScore_" + node.id + "' type='text' value='" + maxScore + "' onblur='eventManager.fire(\"saveMaxScore\", [" + this.getConfig().getConfigParam('runId') + ", \"" + node.id + "\"])'" + maxScorePermission + "/></td>" + statisticsForNode + "</tr>";
+	return "<tr><td class='chooseStepToGradeStepTd col1'>" + nodeLink + "</td><td class='chooseStepToGradeMaxScoreTd col2 statistic'><input id='maxScore_" + node.id + "' type='text' value='" + maxScore + "' onblur='eventManager.fire(\"maxScoreChanged\", [" + this.getConfig().getConfigParam('runId') + ", \"" + node.id + "\"])'" + maxScorePermission + "/></td>" + statisticsForNode + "</tr>";
 };
 
 /**
@@ -1581,7 +1604,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	//show the button to go to the previous step in the project
 	var previousButtonEvent, previousButtonClass = '';
 	if(previousAndNextNodeIds.previousNodeId) {
-		previousButtonEvent = "eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + previousAndNextNodeIds.previousNodePosition + "\", \"" + previousAndNextNodeIds.previousNodeId + "\"])";
+		previousButtonEvent = "view.displayGradeByStepGradingPage(\"" + previousAndNextNodeIds.previousNodePosition + "\", \"" + previousAndNextNodeIds.previousNodeId + "\")";
 	} else {
 		//if there is no previous step (because this is the first step), disable button
 		previousButtonEvent = "return false;";
@@ -1592,13 +1615,13 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	gradeByStepGradingPageHtml += "<a class='selectStep previousButtonClass' onClick='" + previousButtonEvent + "'>"+this.getI18NString("grading_previous_step")+"</a>";
 	
 	//show the button to go back to select another step
-	//gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByStepSelectPage\")'>"+this.getI18NString("grading_change_step")+"</a></td>";
-	gradeByStepGradingPageHtml += "<a class='selectStep' onClick='eventManager.fire(\"displayGradeByStepSelectPage\")'>"+this.getI18NString("grading_change_step")+"</a>";
+	//gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"gradeByStepViewSelected\")'>"+this.getI18NString("grading_change_step")+"</a></td>";
+	gradeByStepGradingPageHtml += "<a class='selectStep' onClick='eventManager.fire(\"gradeByStepViewSelected\")'>"+this.getI18NString("grading_change_step")+"</a>";
 	
 	//show the button to go to the next step in the project
 	var nextButtonEvent, nextButtonClass = '';
 	if(previousAndNextNodeIds.nextNodeId) {
-		nextButtonEvent = "eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + previousAndNextNodeIds.nextNodePosition + "\", \"" + previousAndNextNodeIds.nextNodeId + "\"])";
+		nextButtonEvent = "view.displayGradeByStepGradingPage(\"" + previousAndNextNodeIds.nextNodePosition + "\", \"" + previousAndNextNodeIds.nextNodeId + "\")";
 	} else {
 		//if there is no next step (because this is the last step), disable button
 		nextButtonEvent = "return false;";
@@ -1620,7 +1643,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//check box to hide personal info
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"eventManager.fire('onlyShowWorkOnClick')\" " + hidePersonalInfoChecked + "/>"+
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"eventManager.fire('hidePersonalInfoOptionClicked')\" " + hidePersonalInfoChecked + "/>"+
 		"<p>"+this.getI18NString("grading_hide_personal_info")+"</p>";
 	
 	//check if show flagged items check box was previously checked
@@ -1636,11 +1659,11 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//check box to filter only flagged items
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + showFlaggedChecked + "/>"+
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + showFlaggedChecked + "/>"+
 		"<p>"+this.getI18NString("grading_show_flagged_items_only")+"</p>";
 
 	//check box to filter only items that passed the smartfilter
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowSmartFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + showSmartFilteredChecked + "/>"+
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowSmartFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + showSmartFilteredChecked + "/>"+
 		"<p id='onlyShowSmartFilteredItemsText'>"+this.getI18NString("grading_show_smart_filtered_items_only")+"</p>";
 
 	//check if enlarge student work check box was previously checked
@@ -1650,7 +1673,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//check box for enlarging the student work text
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='enlargeStudentWorkTextCheckBox' value='show filtered items' onClick=\"eventManager.fire('enlargeStudentWorkText')\" " + enlargeStudentWorkTextChecked + "/>"
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='enlargeStudentWorkTextCheckBox' value='show filtered items' onClick=\"eventManager.fire('enlargeStudentWorkTextOptionClicked')\" " + enlargeStudentWorkTextChecked + "/>"
 		+"<p>"+this.getI18NString("grading_enlarge_student_work_text")+"</p>";
 	
 	//check if only show new student work check box was previously checked
@@ -1660,7 +1683,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//check box for only showing new student work
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowNewStudentWorkCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + onlyShowNewStudentWorkChecked + "/>"
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowNewStudentWorkCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + onlyShowNewStudentWorkChecked + "/>"
 		+"<p>"+this.getI18NString("grading_only_show_new_student_work")+"</p>";
 	
 	//check if show revisions check box was previously checked
@@ -1671,7 +1694,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	
 	if(this.getRevisions) {
 		//check box for showing all revisions
-		gradeByStepGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/>"+
+		gradeByStepGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + showRevisionsChecked + "/>"+
 			"<p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
 	
@@ -1707,14 +1730,14 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	gradeByStepGradingPageHtml += "Sort By: ";
 	
 	//create the sort by username radio button
-	gradeByStepGradingPageHtml += "<input type='radio' id='sortByUsernameRadioButton' name='gradeByStepSortBy' value='username' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByUsernameChecked + "/><p style='display:inline'>Username</p>";
+	gradeByStepGradingPageHtml += "<input type='radio' id='sortByUsernameRadioButton' name='gradeByStepSortBy' value='username' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + sortByUsernameChecked + "/><p style='display:inline'>Username</p>";
 	
 	//create the sort by teacher graded score radio button
-	gradeByStepGradingPageHtml += "<input type='radio' id='sortByTeacherScoreRadioButton' name='gradeByStepSortBy' value='teacherScore' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByTeacherGradedScoreChecked + "/><p style='display:inline'>Teacher Score</p>";
+	gradeByStepGradingPageHtml += "<input type='radio' id='sortByTeacherScoreRadioButton' name='gradeByStepSortBy' value='teacherScore' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + sortByTeacherGradedScoreChecked + "/><p style='display:inline'>Teacher Score</p>";
 	
 	if(node.hasAutoGradedFields()) {
 		//create the sort by auto graded score radio button
-		gradeByStepGradingPageHtml += "<input type='radio' id='sortByAutoScoreRadioButton' name='gradeByStepSortBy' value='autoScore' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByAutoGradedScoreChecked + "/><p style='display:inline'>Auto Score</p>";
+		gradeByStepGradingPageHtml += "<input type='radio' id='sortByAutoScoreRadioButton' name='gradeByStepSortBy' value='autoScore' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + sortByAutoGradedScoreChecked + "/><p style='display:inline'>Auto Score</p>";
 	}
 	
 	gradeByStepGradingPageHtml += "</div></div></div>"
@@ -1725,7 +1748,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 
 	//show the button that toggles the question for the step
 	gradeByStepGradingPageHtml += "<div class='questionContentContainer'><div class='questionContentHeader'><b>"+this.getI18NString("grading_question")+":</b>"+
-		"<a onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_question")+"</a>";
+		"<a onClick=\"view.togglePrompt('questionContentText_" + nodeId + "')\">"+this.getI18NString("grading_hide_show_question")+"</a>";
 	
 	gradeByStepGradingPageHtml += "</div>";
 	
@@ -1862,7 +1885,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var toggleRevisionsLink = "";
 		if(nodeVisitRevisions.length > 1) {
 			//there is more than one revision so we will display a link that will display the other revisions
-			toggleRevisionsLink = "<a onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+(nodeVisitRevisions.length-1)+ " " + this.getI18NString("grading_hide_show_revisions")+"</a>";
+			toggleRevisionsLink = "<a onClick=\"view.toggleGradingDisplayRevisions('" + workgroupId + "', '" + nodeId + "')\">"+(nodeVisitRevisions.length-1)+ " " + this.getI18NString("grading_hide_show_revisions")+"</a>";
 		} else if(nodeVisitRevisions.length == 1) {
 			if(this.getRevisions) {
 				//we retrieved all revisions so that means there are no other revisions
@@ -1877,7 +1900,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		}
 		
 		//display the student workgroup id
-		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>";
+		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"view.displayGradeByTeamGradingPage('" + workgroupId + "')\">" + userNamesHtml + "</a></div>";
 		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("workgroupId")+": " + workgroupId + "</div>";
 		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("period")+" " + periodName + "</div>";
 		gradeByStepGradingPageHtml += "<div>" + toggleRevisionsLink + "</div>";
@@ -2777,7 +2800,7 @@ View.prototype.getPeerOrTeacherReviewData = function(studentWork, node, workgrou
 						var workerUserNames = this.getUserNamesByWorkgroupId(workerWorkgroupId, 1);
 						
 						//create a link with the names of the classmates that will open to the gradebyteam page
-						otherStudentNames = "<a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workerWorkgroupId + "'])\">" + workerUserNames + "</a>";						
+						otherStudentNames = "<a onClick=\"view.displayGradeByTeamGradingPage('" + workerWorkgroupId + "')\">" + workerUserNames + "</a>";						
 					}
 				}
 				
@@ -2840,7 +2863,7 @@ View.prototype.getPeerOrTeacherReviewData = function(studentWork, node, workgrou
 								var workerUserNames = this.getUserNamesByWorkgroupId(reviewerWorkgroupId, 1);
 								
 								//create a link with the names of the classmates that will open to the gradebyteam page
-								otherStudentNames = "<a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + reviewerWorkgroupId + "'])\">" + workerUserNames + "</a>";						
+								otherStudentNames = "<a onClick=\"view.displayGradeByTeamGradingPage('" + reviewerWorkgroupId + "')\">" + workerUserNames + "</a>";						
 							}
 						}
 						
@@ -2970,7 +2993,7 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	scoringAndCommentingTdHtml += "<table class='teacherAnnotationTable'>";
 	
 	//display the score box
-	scoringAndCommentingTdHtml += "<tr><td>"+this.getI18NString("score")+": <input type='text' id='annotationScoreTextArea_" + workgroupId + "_" + nodeId + "' value='" + annotationScoreValue + "' onblur=\"eventManager.fire('saveScore', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"'])\" " + isGradingDisabled + "/> / " + maxScore + "</td></tr>";
+	scoringAndCommentingTdHtml += "<tr><td>"+this.getI18NString("score")+": <input type='text' id='annotationScoreTextArea_" + workgroupId + "_" + nodeId + "' value='" + annotationScoreValue + "' onblur=\"eventManager.fire('scoreUpdated', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"'])\" " + isGradingDisabled + "/> / " + maxScore + "</td></tr>";
 	
 	//used to score the auto graded score so we can place it in the studentWorkRowOrderObject
 	var autoGradedScore = null;
@@ -3030,11 +3053,11 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	
 	if(isGradingDisabled != "disabled") {
 		//if grading is enabled, display the link to open the premade comments
-		openPremadeCommentsLink = "<a onclick='eventManager.fire(\"openPremadeComments\", [\"annotationCommentTextArea_" + workgroupId + "_" + nodeId + "\", \"studentWorkColumn_" + stepWorkId + "\"])'>"+this.getI18NString("grading_open_premade_comments")+"</a>";
+		openPremadeCommentsLink = "<a onclick='view.openPremadeComments(\"annotationCommentTextArea_" + workgroupId + "_" + nodeId + "\", \"studentWorkColumn_" + stepWorkId + "\")'>"+this.getI18NString("grading_open_premade_comments")+"</a>";
 	}
 	
 	//display the comment box
-	scoringAndCommentingTdHtml += "<tr><td>"+this.getI18NString("comment")+": " + openPremadeCommentsLink + "<br><textarea wrap='soft' cols='" + textAreaCols + "' rows='" + commentTextAreaRows + "' id='annotationCommentTextArea_" + workgroupId + "_" + nodeId + "' onblur=\"eventManager.fire('saveComment', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"', this])\"" + isGradingDisabled + ">" + annotationCommentValue + "</textarea></td></tr>";
+	scoringAndCommentingTdHtml += "<tr><td>"+this.getI18NString("comment")+": " + openPremadeCommentsLink + "<br><textarea wrap='soft' cols='" + textAreaCols + "' rows='" + commentTextAreaRows + "' id='annotationCommentTextArea_" + workgroupId + "_" + nodeId + "' onblur=\"eventManager.fire('commentUpdated', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"', this])\"" + isGradingDisabled + ">" + annotationCommentValue + "</textarea></td></tr>";
 	
 	//display the last annotation post time
 	scoringAndCommentingTdHtml += "<tr><td><p id='lastAnnotationPostTime_" + workgroupId + "_" + nodeId + "' class='lastAnnotationPostTime'>" + lastAnnotationMessage + "</p></td></tr>";
@@ -3160,7 +3183,7 @@ View.prototype.getToolsTdHtml = function(workgroupId, nodeId, teacherId, runId, 
 	var node = this.getProject().getNodeById(nodeId);
 	var tdHtml = "<td class='" + flaggingTdClass + "'>"+
 	    "<div></div>"+
-	    "<div class='gradeColumn flagColumn'><input type='checkbox' value='Flag' name='flagButton" + workgroupId + "' id='flagButton_" + stepWorkId + "' onClick='eventManager.fire(\"saveFlag\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + isGradingDisabled + " " + flagChecked + ">"+this.getI18NString("flag")+"</div>";
+	    "<div class='gradeColumn flagColumn'><input type='checkbox' value='Flag' name='flagButton" + workgroupId + "' id='flagButton_" + stepWorkId + "' onClick='eventManager.fire(\"flagCheckboxClicked\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + isGradingDisabled + " " + flagChecked + ">"+this.getI18NString("flag")+"</div>";
 	
 	if (node.type == "BrainstormNode") {
 		//get the inappropriate flag value for the stepwork
@@ -3179,7 +3202,7 @@ View.prototype.getToolsTdHtml = function(workgroupId, nodeId, teacherId, runId, 
 		}
 
 		// add 'flag as inappropriate' checkbox, and have it enabled for all revisions.
-	    tdHtml += "<div class='gradeColumn flagColumn'><input type='checkbox' value='Inappropriate Flag' name='inappropriateFlagButton" + workgroupId + "' id='inappropriateFlagButton_" + stepWorkId + "' onClick='eventManager.fire(\"saveInappropriateFlag\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + flagChecked + ">"+this.getI18NString("flag_as_inappropriate")+"</div>";
+	    tdHtml += "<div class='gradeColumn flagColumn'><input type='checkbox' value='Inappropriate Flag' name='inappropriateFlagButton" + workgroupId + "' id='inappropriateFlagButton_" + stepWorkId + "' onClick='eventManager.fire(\"inappropriateFlagCheckboxClicked\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + flagChecked + ">"+this.getI18NString("flag_as_inappropriate")+"</div>";
 	}
 	tdHtml += "</td>";
 	return tdHtml;
@@ -3224,10 +3247,10 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	//show the step title and prompt
 	//gradeByTeamGradingPageHtml += "<table class='objectToGradeHeaderTable'><tr><td class='objectToGradeTd'>" + userNames + "</td>";
 
-	gradeByTeamGradingPageHtml += "<a class='selectStep' onClick='eventManager.fire(\"displayGradeByTeamSelectPage\")'>"+this.getI18NString("grading_change_team")+"</a>";
+	gradeByTeamGradingPageHtml += "<a class='selectStep' onClick='eventManager.fire(\"gradeByTeamViewSelected\")'>"+this.getI18NString("grading_change_team")+"</a>";
 	
 	//show the button to go back to select another workgroup
-	//gradeByTeamGradingPageHtml += "<td class='button'><a id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByTeamSelectPage\")'>"+this.getI18NString("grading_change_team")+"</a></td></tr></table>";
+	//gradeByTeamGradingPageHtml += "<td class='button'><a id='selectAnotherStep' onClick='eventManager.fire(\"gradeByTeamViewSelected\")'>"+this.getI18NString("grading_change_team")+"</a></td></tr></table>";
 	
 	gradeByTeamGradingPageHtml += "</div>";
 	
@@ -3243,7 +3266,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	
 	if (this.getRevisions) {
 		//check box for showing all revisions
-		gradeByTeamGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
+		gradeByTeamGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
 	
 	//get the automatically assigned groups in this project, if any
@@ -3283,7 +3306,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		gradeByTeamGradingPageHtml += "<div id='manualGroups_" + workgroupId + "'>";
 		
 		//display the manually assigned groups
-		gradeByTeamGradingPageHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")' style='margin:0'>edit</a>): " + groupsString;
+		gradeByTeamGradingPageHtml += "Manual Groups (<a onclick='view.editGroups(" + workgroupId + ")' style='margin:0'>edit</a>): " + groupsString;
 		
 		gradeByTeamGradingPageHtml += "</div>";
 	}
@@ -3427,7 +3450,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 			if(nodeVisitRevisions.length > 1) {
 				//there is more than one revision so we will display a link that will display the other revisions
-				toggleRevisionsLink = "  <a onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+(nodeVisitRevisions.length-1)+" "+this.getI18NString("grading_hide_show_revisions")+"</a>";
+				toggleRevisionsLink = "  <a onClick=\"view.toggleGradingDisplayRevisions('" + workgroupId + "', '" + nodeId + "')\">"+(nodeVisitRevisions.length-1)+" "+this.getI18NString("grading_hide_show_revisions")+"</a>";
 			} else if(nodeVisitRevisions.length == 1) {
 				//there is only one revisions
 				
@@ -3448,8 +3471,8 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			displayGradeByTeamGradingPageHtml += "<thead class='gradeTeamTableHeader'><tr><td>"+this.getI18NString("student_work")+"</td>"+
 				"<td>"+this.getI18NString("teacher_comment_and_score")+"</td>"+
 				"<td>"+this.getI18NString("tools")+"</td></tr></thead>";
-			displayGradeByTeamGradingPageHtml += "<tr><td class='chooseStepToGradeStepTd'><a onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + nodeId + "\"])'>" + position + " " + node.getTitle() + "</a>&nbsp;&nbsp;<span class='byTeamStepType'>(" + node.type + ")</span></td>";
-			displayGradeByTeamGradingPageHtml += "<td class='chooseStepToGradeStepTd2 colspan='2'><a onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_question")+"</a>" + toggleRevisionsLink + "</td>";
+			displayGradeByTeamGradingPageHtml += "<tr><td class='chooseStepToGradeStepTd'><a onClick='view.displayGradeByStepGradingPage(\"" + position + "\", \"" + nodeId + "\")'>" + position + " " + node.getTitle() + "</a>&nbsp;&nbsp;<span class='byTeamStepType'>(" + node.type + ")</span></td>";
+			displayGradeByTeamGradingPageHtml += "<td class='chooseStepToGradeStepTd2 colspan='2'><a onClick=\"view.togglePrompt('questionContentText_" + nodeId + "')\">"+this.getI18NString("grading_hide_show_question")+"</a>" + toggleRevisionsLink + "</td>";
 			displayGradeByTeamGradingPageHtml += "</tr>";
 
 			//get the prompt/question for the step
@@ -3740,8 +3763,8 @@ View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 	}
 	
 	//create a radio button to display all periods
-	//periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='all' onClick=\"eventManager.fire('filterStudentRows')\" " + allPeriodsChecked + "> "+this.getI18NString("grading_grade_by_step_all_periods")+"</div>";
-	periodRadioButtonTableHtml += "<span style='margin-right:.5em';>View:</span><a id='all' class='periodChoice " + allPeriodsChecked + "' onClick=\"eventManager.fire('setSelectedPeriod',this)\">"+this.getI18NString("grading_grade_by_step_all_periods")+"</a>";
+	//periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='all' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + allPeriodsChecked + "> "+this.getI18NString("grading_grade_by_step_all_periods")+"</div>";
+	periodRadioButtonTableHtml += "<span style='margin-right:.5em';>View:</span><a id='all' class='periodChoice " + allPeriodsChecked + "' onClick=\"view.setSelectedPeriod(this)\">"+this.getI18NString("grading_grade_by_step_all_periods")+"</a>";
 	
 	//loop through the periods
 	for(var p=0; p<periods.length; p++) {
@@ -3756,8 +3779,8 @@ View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 		}
 		
 		//create a radio button for each period
-		//periodRadioButtonTableHtml += "<div class='periodRadioChoice' ><input type='radio' name='choosePeriod' value='period" + periods[p] + "' onClick=\"eventManager.fire('filterStudentRows')\" " + periodChecked + "> Period " + periods[p] + "</div>";
-		periodRadioButtonTableHtml += "<a id='period" + periods[p] + "' class='periodChoice " + periodChecked + "' onClick=\"eventManager.fire('setSelectedPeriod',this)\">Period " + periods[p] + "</a>";
+		//periodRadioButtonTableHtml += "<div class='periodRadioChoice' ><input type='radio' name='choosePeriod' value='period" + periods[p] + "' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + periodChecked + "> Period " + periods[p] + "</div>";
+		periodRadioButtonTableHtml += "<a id='period" + periods[p] + "' class='periodChoice " + periodChecked + "' onClick=\"view.setSelectedPeriod(this)\">Period " + periods[p] + "</a>";
 	}
 
 	periodRadioButtonTableHtml += "</div>";
@@ -3810,7 +3833,7 @@ View.prototype.togglePrompt = function(elementId) {
  * Retrieve the annotations, student data, and flags again and reload
  * the page the teacher was previously on.
  */
-View.prototype.refreshGradingScreen = function() {
+View.prototype.checkForNewWorkButtonClickedEventListener = function() {
 	//remember the grading page the teacher is currently on
 	this.reloadGradingDisplay = this.currentGradingDisplay;
 	
@@ -3829,7 +3852,7 @@ View.prototype.refreshGradingScreen = function() {
  * This is called after the refresh has completed retrieval of
  * annotations, student work, and flags. This function just
  * reloads the page the teacher was last on. This function
- * actually gets called every time "getStudentWorkComplete"
+ * actually gets called every time "retrieveStudentWorkCompleted"
  * is fired but only actually does something if it was
  * triggered by the refresh button being clicked.
  * @return
@@ -4348,7 +4371,7 @@ View.prototype.filterStudentRows = function() {
 	 * if we are on the grade by step select page because it will hide the statistics
 	 */
 	if(this.gradingHidePersonalInfo && this.currentGradingDisplay != 'displayGradeByStepSelectPage') {
-		this.onlyShowWorkOnClick();
+		this.hidePersonalInfoOptionClickedEventListener();
 	}
 	
 	//apply the enlarge student work text if necessary
@@ -4962,7 +4985,7 @@ View.prototype.editGroups = function(workgroupId) {
 /**
  * The teacher has clicked one of the group checkboxes in the edit groups popup
  */
-View.prototype.groupClicked = function(workgroupId) {
+View.prototype.groupClickedEventListener = function(workgroupId) {
 	var groups = [];
 	
 	//get all the group checkboxes that are checked
@@ -5034,7 +5057,7 @@ View.prototype.groupClicked = function(workgroupId) {
 	}
 	
 	//update the grading UI with the new groups
-	$('#manualGroups_' + workgroupId).html("Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")' style='margin:0'>edit</a>):" + spacing + groupsString);
+	$('#manualGroups_' + workgroupId).html("Manual Groups (<a onclick='view.editGroups(" + workgroupId + ")' style='margin:0'>edit</a>):" + spacing + groupsString);
 };
 
 /**
@@ -5245,7 +5268,7 @@ View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId) {
 		
 		if(gradingType == 'step') {
 			//display the groups this workgroup is in
-			groupAssignmentsHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>edit</a>):<br>" + groupsString;
+			groupAssignmentsHtml += "Manual Groups (<a onclick='view.editGroups(" + workgroupId + ")'>edit</a>):<br>" + groupsString;
 		} else if(gradingType == 'team') {
 			//display the groups this workgroup is in
 			groupAssignmentsHtml += "Manual Groups: " + groupsString;

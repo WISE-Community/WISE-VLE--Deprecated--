@@ -190,7 +190,7 @@ View.prototype.retrieveLocales = function(componentName,localePath) {
 			this.retrieveLocale(locale,componentName,localePath);
 		}
 	}		
-	eventManager.fire('retrieveLocalesComplete', componentName);
+	eventManager.fire('retrieveLocalesCompleted', componentName);
 };
 
 /**

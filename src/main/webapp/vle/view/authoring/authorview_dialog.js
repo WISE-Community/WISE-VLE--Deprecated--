@@ -563,10 +563,11 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 			if($('#imSettings').validate().form()){
 				view.projectMeta.tools.ideaManagerSettings = {};
 				view.projectMeta.tools.ideaManagerSettings.version = imVersion;
-				view.projectMeta.tools.isPublicIdeaManagerEnabled = $('#enablePublicIdeaManager').prop('checked');
 				view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
 				view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
 				view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
+				view.projectMeta.tools.ideaManagerSettings.privateBasketTerm = $('#imPrivateBasketTerm').val();
+				view.projectMeta.tools.ideaManagerSettings.publicBasketTerm = $('#imPublicBasketTerm').val();
 				view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
 				view.projectMeta.tools.ideaManagerSettings.addIdeaTerm = $('#imAddIdeaTerm').val();
 				view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];
@@ -585,7 +586,7 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 					var options = [];
 					if(type=='icon'){
 						$('input.option',$('#options_' + id)).each(function(){
-							if($(this).prop('checked')==true){
+							if($(this).is(':checked')){
 								options.push($(this).val());
 							}
 						});
@@ -600,51 +601,8 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 					attribute.options = options;
 					view.projectMeta.tools.ideaManagerSettings.ideaAttributes.push(attribute);
 				});
-				
-				if($('#imSettings').validate().form()){
-					view.projectMeta.tools.ideaManagerSettings = {};
-					view.projectMeta.tools.ideaManagerSettings.version = imVersion;
-					view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
-					view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.privateBasketTerm = $('#imPrivateBasketTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.publicBasketTerm = $('#imPublicBasketTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.addIdeaTerm = $('#imAddIdeaTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];
-					// loop through each of the active attributes and add to metadata
-					$('#ideaManagerSettings .attribute.active').each(function(){
-						var attribute = {};
-						var id = $(this).attr('id').replace('attribute_','');
-						var type = $(this).attr('type');
-						attribute.type = type;
-						attribute.id = id;
-						attribute.name = $('#fieldName_' + id).val();
-						attribute.isRequired = $('#required_' + id).is(':checked');
-						if($('#custom_' + id).length > 0){
-							attribute.allowCustom = $('#custom_' + id).is(':checked');
-						}
-						var options = [];
-						if(type=='icon'){
-							$('input.option',$('#options_' + id)).each(function(){
-								if($(this).is(':checked')){
-									options.push($(this).val());
-								}
-							});
-						} else {
-							$('input.option',$('#options_' + id)).each(function(){
-								var val = $(this).val();
-								if(view.utils.isNonWSString(val)){
-									options.push(val);
-								}
-							});
-						}
-						attribute.options = options;
-						view.projectMeta.tools.ideaManagerSettings.ideaAttributes.push(attribute);
-					});
-					view.updateProjectMetaOnServer(true);
-					$('#editProjectMetadataDialog').dialog('close');
-				}
+				view.updateProjectMetaOnServer(true);
+				$('#editIMSettingsDialog').dialog('close');
 			}
 		} else {
 			view.projectMeta.tools.isIdeaManagerEnabled = imEnabled;

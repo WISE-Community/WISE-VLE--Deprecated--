@@ -14,7 +14,6 @@ var componentloader = function(em, sl){
 	var views = {
 		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
-		//grading_min: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
@@ -37,16 +36,16 @@ var componentloader = function(em, sl){
 				themeNavModes: {}
 			},
 			events: {
-				'loadingProjectStart': [null, null], 
-				'loadingProjectComplete':[null, null],
-				'pageRenderComplete':[null,null],
-				'contentRenderComplete':[null,null], 
+				'loadingProjectStarted': [null, null], 
+				'loadingProjectCompleted':[null, null],
+				'pageRenderCompleted':[null,null],
+				'contentRenderCompleted':[null,null], 
 				'contentTimedOut':[null,null], 
 				'fatalError':[null,null],
-				'getProjectMetaDataComplete':[null,null], 
-				'getRunExtrasComplete':[null,null], 
+				'retrieveProjectMetaDataCompleted':[null,null], 
+				'retrieveRunExtrasCompleted':[null,null], 
 				'nullEvent':[null,null],
-				'getAnnotationsComplete':[null,null]
+				'retrieveAnnotationsCompleted':[null,null]
 			},
 			methods: {
 				getProject:function(view){return function(){return view.getProject();};},
@@ -57,9 +56,6 @@ var componentloader = function(em, sl){
 				connectionManager:function(){return new ConnectionManager(eventManager);},
 				init:function(view){
 					view.eventManager.subscribe('contentTimedOut', function(type,args,obj){obj.notificationManager.notify('Retrieval of content from url ' + args[0] + ' is taking a long time! The server may be slow or is not responding. If content does not load shortly, check with an administrator.', 3);}, view);
-					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
-					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
 					
 					/* set up the notePanel dialog in the view */
 					document.body.appendChild(createElement(document, 'div', {id:'notePanel'}));
@@ -125,33 +121,27 @@ var componentloader = function(em, sl){
 		config: {
 			variables: {config:undefined},
 			events: {				
-				'loadConfigComplete':[null,null]
+				'loadConfigCompleted':[null,null]
 			},
 			methods: {},
 			initialize: {}
 		},
 		user: {
 			variables: {userAndClassInfo:undefined},
-			events: {'getUserAndClassInfoBegin':[null,null],
-					 'getUserAndClassInfoComplete': [null, null],
-					 'processUserAndClassInfoComplete':[null,null]},
+			events: {'getUserAndClassInfoStarted':[null,null],
+					 'getUserAndClassInfoCompleted': [null, null],
+					 'processUserAndClassInfoCompleted':[null,null]},
 			methods: {},
 			initialize: {}
 		},
 		session: {
 			variables: {},
 			events: {				
-				'maintainConnection':[null,null],
-				'renewSession':[null,null],
-				'checkSession':[null,null]
 			},
 			methods: {},
 			initialize: {
 				init:function(view){
-					view.eventManager.subscribe('loadConfigComplete', view.utilDispatcher, view);
-					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
-					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
-					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
+					view.eventManager.subscribe('loadConfigCompleted', view.utilDispatcher, view);
 				}
 			}
 		},
@@ -175,140 +165,82 @@ var componentloader = function(em, sl){
 						runId:undefined
 						},
 			events: {'gradingConfigUrlReceived': [null, null],
-					 'getGradingConfigComplete': [null, null],
-					 'getStudentWorkComplete':[null, null],
-					 'getFlagsComplete':[null, null],
-					 'displayGradeByStepGradingPage':[null, null],
-					 'displayGradeByTeamGradingPage':[null, null],
-					 'displayResearcherToolsPage':[null, null],
-					 'displayCustomExportPage':[null, null],
-					 'displaySpecialExportPage':[null, null],
+					 'getGradingConfigCompleted': [null, null],
+					 'retrieveStudentWorkCompleted':[null, null],
+					 'getFlagsCompleted':[null, null],
 					 'customActivityCheckBoxClicked':[null, null],
 					 'customSelectAllStepsCheckBoxClicked':[null, null],
-					 'getStudentNamesExport':[null, null],
-					 'saveScore':[null, null],
-					 'saveComment':[null, null],
-					 'saveFlag':[null, null],
-					 'saveInappropriateFlag':[null, null],
-					 'getAllStudentWorkXLSExport':[null, null],
-					 'getLatestStudentWorkXLSExport':[null, null],
-					 'getIdeaBasketsExcelExport':[null, null],
-					 'getFlashExcelExport':[null, null],
-					 'getExplanationBuilderWorkExcelExport':[null, null],
-					 'getCustomLatestStudentWorkExport':[null, null],
-					 'getCustomAllStudentWorkExport':[null, null],
-					 'getSpecialExport':[null, null],
-					 'displayExportExplanation':[null, null],
-					 'saveMaxScore':[null, null],
-					 'showScoreSummary':[null, null],
-					 'filterPeriod':[null, null],
-					 'displayGradeByStepSelectPage':[null, null],
-					 'displayGradeByTeamSelectPage':[null, null],
-					 'displayStudentUploadedFiles':[null, null],
-					 'togglePrompt':[null, null],
-					 'refreshGradingScreen':[null, null],
-					 'initiateGradingDisplayStart':[null, null],					 
+					 'scoreUpdated':[null, null],
+					 'commentUpdated':[null, null],
+					 'flagCheckboxClicked':[null, null],
+					 'inappropriateFlagCheckboxClicked':[null, null],
+					 'specialExportButtonClicked':[null, null],
+					 'exportExplanationButtonClicked':[null, null],
+					 'maxScoreChanged':[null, null],
+					 'gradeByStepViewSelected':[null, null],
+					 'gradeByTeamViewSelected':[null, null],
+					 'displayStudentUploadedFilesSelected':[null, null],
+					 'checkForNewWorkButtonClicked':[null, null],
+					 'initiateGradingDisplayStarted':[null, null],					 
 					 'projectDataReceived':[null,null],
-					 'initiateClassroomMonitorDisplayStart':[null,null],					 
-					 'classroomMonitorDisplayComplete':[null,null],
-					 'displayChatRoom':[null,null],
+					 'initiateClassroomMonitorDisplayStarted':[null,null],					 
+					 'classroomMonitorDisplayCompleted':[null,null],
 					 'chatRoomTextEntrySubmitted':[null,null],
 					 'realTimeMonitorSelectWorkgroupIdDropDownClicked':[null,null],
 					 'realTimeMonitorSelectStepDropDownClicked':[null,null],
 					 'realTimeMonitorShareWithClassClicked':[null,null],
-					 'toggleGradingDisplayRevisions':[null, null],
-					 'toggleAllGradingDisplayRevisions':[null, null],
-					 'onlyShowFilteredItemsOnClick':[null, null],
-					 'onlyShowWorkOnClick':[null, null],
-					 'filterStudentRows':[null, null],
-					 'enlargeStudentWorkText':[null, null],
-					 'openPremadeComments':[null, null],
-					 'selectPremadeComment':[null, null],
-					 'submitPremadeComment':[null, null],
+					 'hidePersonalInfoOptionClicked':[null, null],
+					 'filterStudentRowsRequested':[null, null],
+					 'enlargeStudentWorkTextOptionClicked':[null, null],
 					 'premadeCommentWindowLoaded':[null, null],
-					 'addPremadeComment':[null, null],
-					 'deletePremadeComment':[null, null],
-					 'deletePremadeCommentList':[null, null],
 					 'premadeCommentLabelClicked':[null, null],
-					 'premadeCommentListUncheckLabels':[null, null],
-					 'getIdeaBasketsComplete':[null, null],
-					 'setSelectedPeriod':[null, null],
-					 'editGroups':[null, null],
+					 'retrieveIdeaBasketsCompleted':[null, null],
 					 'groupClicked':[null, null],
-					 'maximizeRightTdButtonClicked':[null, null]},
+					 'exportButtonClicked':[null, null]},
    		    methods:{
 			  onWindowUnload:function(view){return function(){view.onWindowUnload();};}
 		    },					 
 			initialize: {
 				initializeEvents:function(view) {
 					eventManager.subscribe("gradingConfigUrlReceived", view.gradingDispatcher, view);
-					eventManager.subscribe("getGradingConfigComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("loadingProjectComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("getUserAndClassInfoComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("processUserAndClassInfoComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("displayGradeByStepGradingPage", view.gradingDispatcher, view);
-					eventManager.subscribe("displayGradeByTeamGradingPage", view.gradingDispatcher, view);
-					eventManager.subscribe("displayResearcherToolsPage", view.gradingDispatcher, view);
-					eventManager.subscribe("displayCustomExportPage", view.gradingDispatcher, view);
-					eventManager.subscribe("displaySpecialExportPage", view.gradingDispatcher, view);
+					eventManager.subscribe("getGradingConfigCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("loadingProjectCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("getUserAndClassInfoCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("processUserAndClassInfoCompleted", view.gradingDispatcher, view);
 					eventManager.subscribe("customActivityCheckBoxClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("customSelectAllStepsCheckBoxClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("getStudentNamesExport", view.gradingDispatcher, view);
-					eventManager.subscribe("saveScore", view.gradingDispatcher, view);
-					eventManager.subscribe("saveComment", view.gradingDispatcher, view);
-					eventManager.subscribe("saveFlag", view.gradingDispatcher, view);
-					eventManager.subscribe("saveInappropriateFlag", view.gradingDispatcher, view);
-					eventManager.subscribe("getAllStudentWorkXLSExport", view.gradingDispatcher, view);
-					eventManager.subscribe("getLatestStudentWorkXLSExport", view.gradingDispatcher, view);
-					eventManager.subscribe("getIdeaBasketsExcelExport", view.gradingDispatcher, view);
-					eventManager.subscribe("getFlashExcelExport", view.gradingDispatcher, view);
-					eventManager.subscribe("getExplanationBuilderWorkExcelExport", view.gradingDispatcher, view);
-					eventManager.subscribe("getCustomLatestStudentWorkExport", view.gradingDispatcher, view);
-					eventManager.subscribe("getCustomAllStudentWorkExport", view.gradingDispatcher, view);
-					eventManager.subscribe("getSpecialExport", view.gradingDispatcher, view);
-					eventManager.subscribe("displayExportExplanation", view.gradingDispatcher, view);
-					eventManager.subscribe("getProjectMetaDataComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("getRunExtrasComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("saveMaxScore", view.gradingDispatcher, view);
-					eventManager.subscribe("showScoreSummary", view.gradingDispatcher, view);
-					eventManager.subscribe("filterPeriod", view.gradingDispatcher, view);
-					eventManager.subscribe("displayGradeByStepSelectPage", view.gradingDispatcher, view);
-					eventManager.subscribe("displayGradeByTeamSelectPage", view.gradingDispatcher, view);
-					eventManager.subscribe("displayStudentUploadedFiles", view.gradingDispatcher, view);
-					eventManager.subscribe("togglePrompt", view.gradingDispatcher, view);
-					eventManager.subscribe("refreshGradingScreen", view.gradingDispatcher, view);
-					eventManager.subscribe("getAnnotationsComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("initiateGradingDisplayStart", view.gradingDispatcher, view);
+					eventManager.subscribe("scoreUpdated", view.gradingDispatcher, view);
+					eventManager.subscribe("commentUpdated", view.gradingDispatcher, view);
+					eventManager.subscribe("flagCheckboxClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("inappropriateFlagCheckboxClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("specialExportButtonClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("exportExplanationButtonClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("retrieveProjectMetaDataCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("retrieveRunExtrasCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("maxScoreChanged", view.gradingDispatcher, view);
+					eventManager.subscribe("gradeByStepViewSelected", view.gradingDispatcher, view);
+					eventManager.subscribe("gradeByTeamViewSelected", view.gradingDispatcher, view);
+					eventManager.subscribe("displayStudentUploadedFilesSelected", view.gradingDispatcher, view);
+					eventManager.subscribe("checkForNewWorkButtonClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("retrieveAnnotationsCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("initiateGradingDisplayStarted", view.gradingDispatcher, view);
 					eventManager.subscribe("projectDataReceived", view.gradingDispatcher, view);
-					eventManager.subscribe("getStudentWorkComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("toggleGradingDisplayRevisions", view.gradingDispatcher, view);
-					eventManager.subscribe("toggleAllGradingDisplayRevisions", view.gradingDispatcher, view);
-					eventManager.subscribe("onlyShowFilteredItemsOnClick", view.gradingDispatcher, view);
-					eventManager.subscribe("onlyShowWorkOnClick", view.gradingDispatcher, view);
-					eventManager.subscribe("filterStudentRows", view.gradingDispatcher, view);
-					eventManager.subscribe("enlargeStudentWorkText", view.gradingDispatcher, view);
-					eventManager.subscribe("openPremadeComments", view.gradingDispatcher, view);
-					eventManager.subscribe("selectPremadeComment", view.gradingDispatcher, view);
-					eventManager.subscribe("submitPremadeComment", view.gradingDispatcher, view);
+					eventManager.subscribe("retrieveStudentWorkCompleted", view.gradingDispatcher, view);
+					eventManager.subscribe("hidePersonalInfoOptionClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("filterStudentRowsRequested", view.gradingDispatcher, view);
+					eventManager.subscribe("enlargeStudentWorkTextOptionClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("premadeCommentWindowLoaded", view.gradingDispatcher, view);
-					eventManager.subscribe("addPremadeComment", view.gradingDispatcher, view);
-					eventManager.subscribe("deletePremadeComment", view.gradingDispatcher, view);
-					eventManager.subscribe("deletePremadeCommentList", view.gradingDispatcher, view);
 					eventManager.subscribe("premadeCommentLabelClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("premadeCommentListUncheckLabels", view.gradingDispatcher, view);
-					eventManager.subscribe("getIdeaBasketsComplete", view.gradingDispatcher, view);
-					eventManager.subscribe("setSelectedPeriod", view.gradingDispatcher, view);
-					eventManager.subscribe("editGroups", view.gradingDispatcher, view);
+					eventManager.subscribe("retrieveIdeaBasketsCompleted", view.gradingDispatcher, view);
 					eventManager.subscribe("groupClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("displayChatRoom", view.gradingDispatcher, view);
 					eventManager.subscribe("chatRoomTextEntrySubmitted", view.gradingDispatcher, view);
 					eventManager.subscribe("realTimeMonitorSelectWorkgroupIdDropDownClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("realTimeMonitorSelectStepDropDownClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("realTimeMonitorShareWithClassClicked", view.gradingDispatcher, view);
-					eventManager.subscribe("maximizeRightTdButtonClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("exportButtonClicked", view.gradingDispatcher, view);
 					eventManager.initializeLoading([['gradingConfigUrlReceived','projectDataReceived','Project Data'], 
-					                                ['initiateGradingDisplayStart','getStudentWorkComplete','Student Data'],
-					                                ['initiateClassroomMonitorDisplayStart','classroomMonitorDisplayComplete','Classroom Monitor']], false);
+					                                ['initiateGradingDisplayStarted','retrieveStudentWorkCompleted','Student Data'],
+					                                ['initiateClassroomMonitorDisplayStarted','classroomMonitorDisplayCompleted','Classroom Monitor']], false);
 				}
 			}
 		},
@@ -420,8 +352,7 @@ var componentloader = function(em, sl){
 				'useSelected':[null,null], 
 				'disengageSelectMode':[null,null],
 				'processChoice':[null,null], 
-				'editProjectFile':[null,null], 
-				'updateAudio':[null,null], 
+				'editProjectFile':[null,null],
 				'editProjectMetadata':[null,null],
 				'editIMSettings':[null,null],
 				'saveStep':[null,null], 
@@ -499,13 +430,8 @@ var componentloader = function(em, sl){
 				'removeTagMap':[null,null],
 				'openProjectInImportView':[null,null],
 				'importSelectedItems':[null,null],
-				'openPremadeComments':[null,null],
 				'premadeCommentWindowLoaded':[null, null],
-				'addPremadeComment':[null, null],
-				'deletePremadeComment':[null, null],
-				'deletePremadeCommentList':[null, null],
 				'premadeCommentLabelClicked':[null, null],
-				'premadeCommentListUncheckLabels':[null, null],
 				'gotoDashboard':[null, null]
 			},
 			methods: {
@@ -520,7 +446,7 @@ var componentloader = function(em, sl){
 				init:function(view){
 					view.eventManager.subscribe('openProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('projectSelected', view.authorDispatcher, view);
-					view.eventManager.subscribe('loadingProjectComplete', view.authorDispatcher, view);
+					view.eventManager.subscribe('loadingProjectCompleted', view.authorDispatcher, view);
 					view.eventManager.subscribe('hideNodes', view.authorDispatcher, view);
 					view.eventManager.subscribe('unhideNodes', view.authorDispatcher, view);
 					view.eventManager.subscribe('toggleProjectMode', view.authorDispatcher, view);
@@ -548,7 +474,6 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('submitUpload', view.authorDispatcher, view);
 					view.eventManager.subscribe('exportProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('editProjectFile', view.authorDispatcher, view);
-					view.eventManager.subscribe('updateAudio', view.authorDispatcher, view);
 					view.eventManager.subscribe('previewProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('startPreview', view.authorDispatcher, view);
 					view.eventManager.subscribe('portalMode', view.authorDispatcher, view);
@@ -656,13 +581,8 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('removeTagMap', view.authorDispatcher, view);
 					view.eventManager.subscribe('openProjectInImportView', view.authorDispatcher, view);
 					view.eventManager.subscribe('importSelectedItems', view.authorDispatcher, view);
-					view.eventManager.subscribe('openPremadeComments', view.authoringToolPremadeCommentsDispatcher, view);
 					view.eventManager.subscribe("premadeCommentWindowLoaded", view.authoringToolPremadeCommentsDispatcher, view);
-					view.eventManager.subscribe("addPremadeComment", view.authoringToolPremadeCommentsDispatcher, view);
-					view.eventManager.subscribe("deletePremadeComment", view.authoringToolPremadeCommentsDispatcher, view);
-					view.eventManager.subscribe("deletePremadeCommentList", view.authoringToolPremadeCommentsDispatcher, view);
 					view.eventManager.subscribe("premadeCommentLabelClicked", view.authoringToolPremadeCommentsDispatcher, view);
-					view.eventManager.subscribe("premadeCommentListUncheckLabels", view.authoringToolPremadeCommentsDispatcher, view);
 					view.eventManager.subscribe("gotoDashboard", view.authorDispatcher, view);
 					
 					if (window.parent && window.parent.portalAuthorUrl) {
@@ -714,24 +634,16 @@ var componentloader = function(em, sl){
 				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
-				'retrieveLocalesComplete':[null,null],
-				'retrieveThemeLocalesComplete':[null,null],
-				'renderNodeComplete':[null,null],
-				'resizeNote':[null,null],
-				'onNotePanelResized':[null,null],
-				'startVLEComplete':[null,null],
-				'setStyleOnElement':[null,null],
+				'retrieveLocalesCompleted':[null,null],
+				'retrieveThemeLocalesCompleted':[null,null],
+				'renderNodeCompleted':[null,null],
+				'startVLECompleted':[null,null],
 				'ifrmLoaded':[null,null],
-				'processLoadViewStateResponseComplete':[null,null],
-				'saveAndLockNote':[null,null],
-				'noteHandleEditorKeyPress':[null,null],
-				'noteShowStarter':[null,null],
-				'saveAndCloseNote':[null,null],
-				'importWork':[null,null],
-				'loadingThemeComplete':[null,null],
+				'processLoadViewStateResponseCompleted':[null,null],
+				'noteEditorKeyPressed':[null,null],
+				'loadingThemeCompleted':[null,null],
 				'assetUploaded':[null,null],
 				'chatRoomTextEntrySubmitted':[null, null],
-				'setStepIcon':[null, null],
 				'studentWorkUpdated':[null,null],
 				'currentNodePositionUpdated':[null,null],
 				'constraintStatusUpdated':[null,null],
@@ -740,40 +652,32 @@ var componentloader = function(em, sl){
 			methods:{},
 			initialize:{
 				init:function(view){
-						view.eventManager.subscribe('retrieveLocalesComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('retrieveThemeLocalesComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('loadingProjectStart', view.vleDispatcher, view);
-						view.eventManager.subscribe('loadingProjectComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('getUserAndClassInfoBegin', view.vleDispatcher, view);
-						view.eventManager.subscribe('getUserAndClassInfoComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('processLoadViewStateResponseComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('renderNodeComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('resizeNote', view.vleDispatcher, view);
-						view.eventManager.subscribe('onNotePanelResized', view.vleDispatcher, view);
-						view.eventManager.subscribe('setStyleOnElement', view.vleDispatcher, view);
-						view.eventManager.subscribe('getAnnotationsComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('getProjectMetaDataComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('getRunExtrasComplete', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveLocalesCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveThemeLocalesCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('loadingProjectStarted', view.vleDispatcher, view);
+						view.eventManager.subscribe('loadingProjectCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('getUserAndClassInfoStarted', view.vleDispatcher, view);
+						view.eventManager.subscribe('getUserAndClassInfoCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('processLoadViewStateResponseCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('renderNodeCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveAnnotationsCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveProjectMetaDataCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveRunExtrasCompleted', view.vleDispatcher, view);
 						view.eventManager.subscribe('ifrmLoaded', view.vleDispatcher, view);
-						view.eventManager.subscribe('saveAndLockNote', view.vleDispatcher, view);
-						view.eventManager.subscribe('noteHandleEditorKeyPress', view.vleDispatcher, view);
-						view.eventManager.subscribe('noteShowStarter', view.vleDispatcher, view);
-						view.eventManager.subscribe('contentRenderComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('saveAndCloseNote', view.vleDispatcher, view);
-						view.eventManager.subscribe('importWork', view.vleDispatcher, view);
-						view.eventManager.subscribe('startVLEComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('loadingThemeComplete', view.vleDispatcher, view);
+						view.eventManager.subscribe('noteEditorKeyPressed', view.vleDispatcher, view);
+						view.eventManager.subscribe('contentRenderCompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('startVLECompleted', view.vleDispatcher, view);
+						view.eventManager.subscribe('loadingThemeCompleted', view.vleDispatcher, view);
 						view.eventManager.subscribe('scriptsLoaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('assetUploaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('chatRoomTextEntrySubmitted', view.vleDispatcher, view);
-						view.eventManager.subscribe('setStepIcon', view.vleDispatcher, view);
 						view.eventManager.subscribe('studentWorkUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('nodeLinkClicked', view.vleDispatcher, view);
-						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
-						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
-						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);
+						view.eventManager.initializeLoading([['loadingProjectStarted','loadingProjectCompleted','Project'],
+						                                     ['getUserAndClassInfoStarted','getUserAndClassInfoCompleted', 'Learner Data'], 
+						                                     ['getUserAndClassInfoStarted', 'renderNodeCompleted', 'Learning Environment']]);
 						
 						/* set up saving dialog for when user exits */
 						$('body').append('<div id="onUnloadSaveDiv">Saving data...</div>');
@@ -795,23 +699,15 @@ var componentloader = function(em, sl){
 		},
 		audio:{
 			variables:{audioManager:undefined,updateAudioOnRender:false,audioReady:[],audioLocation:"audio",nodeAudioMap:{}},
-			events:{'rewindStepAudio':[null,null], 'previousStepAudio':[null,null], 'forwardStepAudio':[null,null], 'playPauseStepAudio':[null,null],
-				'updateAudio':[null,null],'stepThruProject':[null,null], 'createAudioFiles':[null,null]
+			events:{
 			},
 			methods:{},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('loadingProjectComplete', view.audioDispatcher, view);
-					view.eventManager.subscribe('rewindStepAudio', view.audioDispatcher, view);
-					view.eventManager.subscribe('previousStepAudio', view.audioDispatcher, view);
-					view.eventManager.subscribe('forwardStepAudio', view.audioDispatcher, view);
-					view.eventManager.subscribe('playPauseStepAudio', view.audioDispatcher, view);
-					view.eventManager.subscribe('updateAudio', view.audioDispatcher, view);
-					view.eventManager.subscribe('renderNodeComplete', view.audioDispatcher,view);
-					view.eventManager.subscribe('stepThruProject', view.audioDispatcher,view);
-					view.eventManager.subscribe('contentRenderComplete', view.audioDispatcher, view);
-					view.eventManager.subscribe('pageRenderComplete', view.audioDispatcher, view);
-					view.eventManager.subscribe('createAudioFiles', view.audioDispatcher, view);
+					view.eventManager.subscribe('loadingProjectCompleted', view.audioDispatcher, view);
+					view.eventManager.subscribe('renderNodeCompleted', view.audioDispatcher,view);
+					view.eventManager.subscribe('contentRenderCompleted', view.audioDispatcher, view);
+					view.eventManager.subscribe('pageRenderCompleted', view.audioDispatcher, view);
 				}
 			}
 		},
@@ -829,14 +725,14 @@ var componentloader = function(em, sl){
 				navigationPanel:undefined
 			},
 			events:{
-				'navigationLoadingComplete':[null,null]
+				'navigationLoadingCompleted':[null,null]
 			},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('loadingProjectComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('renderNodeComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('navigationLoadingComplete', view.vleDispatcher, view);
-					view.eventManager.subscribe('processLoadViewStateResponseComplete', view.navigationDispatcher, view);
+					view.eventManager.subscribe('loadingProjectCompleted', view.navigationDispatcher, view);
+					view.eventManager.subscribe('renderNodeCompleted', view.navigationDispatcher, view);
+					view.eventManager.subscribe('navigationLoadingCompleted', view.vleDispatcher, view);
+					view.eventManager.subscribe('processLoadViewStateResponseCompleted', view.navigationDispatcher, view);
 				}
 			}
 		},
@@ -870,7 +766,6 @@ var componentloader = function(em, sl){
 					'displayAddAnIdeaDialog':[null,null],
 					'displayIdeaBasket':[null,null],
 					'viewStudentAssets':[null,null],
-					'displayChatRoom':[null,null],
 					'studentAssetSubmitUpload':[null,null],
 					'addIdeaToBasket':[null,null],
 					'moveIdeaToTrash':[null,null],
@@ -895,7 +790,6 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('displayIdeaBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('addIdeaToBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('viewStudentAssets', view.dropDownMenuDispatcher, view);
-					view.eventManager.subscribe('displayChatRoom', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('studentAssetSubmitUpload', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaToTrash', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaOutOfTrash', view.dropDownMenuDispatcher, view);
@@ -928,6 +822,7 @@ var componentloader = function(em, sl){
 				'stepStarterSentenceAuthoringOptionChanged':[null, null],
 				'stepStarterSentenceAuthoringSentenceChanged':[null, null],
 				'cRaterVerify':[null, null],
+				'cRaterItemTypeChanged':[null,null],
 				'cRaterItemIdChanged':[null, null],
 				'cRaterFeedbackChanged':[null, null],
 				'cRaterDisplayScoreToStudentChanged':[null, null],
@@ -946,7 +841,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('createLink', view.linkManager.dispatcher, view);
 					view.eventManager.subscribe('linkToNodeChanged', view.linkManager.dispatcher, view);
 					view.eventManager.subscribe('removeLinkTo', view.linkManager.dispatcher, view);
-					view.eventManager.subscribe('contentRenderComplete', view.linkManager.dispatcher, view);
+					view.eventManager.subscribe('contentRenderCompleted', view.linkManager.dispatcher, view);
 					view.eventManager.subscribe('stepPromptChanged', view.promptManager.dispatcher, view);
 					view.eventManager.subscribe('stepStudentResponseBoxSizeChanged', view.studentResponseBoxSizeManager.dispatcher, view);
 					view.eventManager.subscribe('stepRichTextEditorToggleChanged', view.richTextEditorToggleManager.dispatcher, view);
@@ -954,6 +849,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('stepStarterSentenceAuthoringSentenceChanged', view.starterSentenceAuthoringManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterVerify', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterItemIdChanged', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterItemTypeChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterFeedbackChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayScoreToStudentChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayFeedbackToStudentChanged', view.cRaterManager.dispatcher, view);

@@ -70,7 +70,7 @@ FILLIN.prototype.render = function(textInteractionEntryIndex) {
 	var interactiveDiv = document.getElementById('interactiveDiv');
 	interactiveDiv.innerHTML=this.generateInteractiveDivHtml(textInteractionEntryIndex);
 	
-	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**

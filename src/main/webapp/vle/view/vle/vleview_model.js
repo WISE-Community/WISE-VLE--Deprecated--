@@ -83,10 +83,25 @@ StudentModel.prototype.pushStudentWorkToLatestNodeVisit = function(nodeId, nodeS
 		var nodeVisitNodeId = nodeVisit.nodeId;
 		
 		if(nodeId == nodeVisitNodeId) {
-			nodeVisit.nodeStates.push(nodeState);
-			eventManager.fire('studentWorkUpdated');
+			if(nodeState != null) {
+				//check that the nodeState is an object
+				if(typeof nodeState == 'object') {
+					//the nodeState is an object
+					nodeVisit.nodeStates.push(nodeState);
+					eventManager.fire('studentWorkUpdated');
+				} else {
+					//the nodeState is not an object so we will not save the nodeState
+					if(notificationManager != null) {
+						//display the error message that we failed to save the student work
+						notificationManager.notify("Error: Failed to save student work, student work is not an object", 3);						
+					}
+				}
+			}
 		} else {
-			//display some error message
+			//node state node id does not match the node visit node id
+			if(notificationManager != null) {
+				notificationManager.notify("Error: Failed to save student work, student work node id does not match node visit node id", 3);				
+			}
 		}
 	}
 };

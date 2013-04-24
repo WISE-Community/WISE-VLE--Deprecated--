@@ -439,7 +439,7 @@ ASSESSMENTLIST.prototype.render = function() {
 		this.setSaveUnavailable();
 	}
 	
-	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 ASSESSMENTLIST.prototype.submit = function() {
@@ -920,7 +920,7 @@ ASSESSMENTLIST.prototype.showDefaultValues = function() {
  */
 ASSESSMENTLIST.prototype.doneRendering = function() {
 	//create any constraints if necessary
-	eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**

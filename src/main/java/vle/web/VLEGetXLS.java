@@ -2,6 +2,7 @@ package vle.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import vle.domain.node.Node;
 import vle.domain.peerreview.PeerReviewWork;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * Handles student work export in XLS format
@@ -57,7 +59,7 @@ public class VLEGetXLS extends VLEServlet {
 	
 	private HashMap<Integer, String> workgroupIdToPeriodName = new HashMap<Integer, String>();
 	
-	private HashMap<Integer, String> workgroupIdToStudentLogins = new HashMap<Integer, String>();
+	private HashMap<Integer, String> workgroupIdToUserIds = new HashMap<Integer, String>();
 	
 	private HashMap<Long, JSONArray> workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 	
@@ -101,6 +103,12 @@ public class VLEGetXLS extends VLEServlet {
 	//used to keep track of the number of oversized (larger than 32767 char) responses
 	private long oversizedResponses = 0;
 	
+	//the file type to generate e.g. "xls" or "csv"
+	private String fileType = null;
+	
+	//the writer to generate the csv file
+	private CSVWriter csvWriter = null;
+	
 	/**
 	 * Clear the instance variables because only one instance of a servlet
 	 * is ever created
@@ -115,7 +123,7 @@ public class VLEGetXLS extends VLEServlet {
 		nodeIdToNodeTitles = new HashMap<String, String>();
 		nodeIdToNodeTitlesWithPosition = new HashMap<String, String>();
 		workgroupIdToPeriodName = new HashMap<Integer, String>();
-		workgroupIdToStudentLogins = new HashMap<Integer, String>();
+		workgroupIdToUserIds = new HashMap<Integer, String>();
 		workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 		periodIdToPeriodName = new HashMap<Integer, String>();
 		
@@ -155,12 +163,20 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//holds the number of oversized responses
 		oversizedResponses = 0;
+
+		//holds the file type e.g. "xls" or "csv"
+		fileType = null;
+		
+		//clear the object that writes csv
+		csvWriter = null;
 	}
 	
 	/**
 	 * Compare two different millisecond times
+	 * 
 	 * @param time1 the earlier time (smaller)
 	 * @param time2 the later time (larger)
+	 * 
 	 * @return the difference between the times in seconds
 	 */
 	private long getDifferenceInSeconds(long time1, long time2) {
@@ -170,6 +186,7 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Display the difference between the current time and the
 	 * start time
+	 * 
 	 * @param label the label to display with the time difference
 	 */
 	@SuppressWarnings("unused")
@@ -278,6 +295,9 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//the export type "latestStudentWork" or "allStudentWork"
 		exportType = request.getParameter("exportType");
+		
+		//get the file type "xls" or "csv"
+		fileType = request.getParameter("fileType");
 		
 		JSONArray customStepsArray = new JSONArray();
 		
@@ -421,18 +441,18 @@ public class VLEGetXLS extends VLEServlet {
 						}
 					}
 					
-					if(classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
+					if(classmate.has("userIds") && !classmate.isNull("userIds")) {
 						/*
-						 * get the student logins, this is a single string with the logins
+						 * get the student user ids, this is a single string with the user ids
 						 * separated by ':'
 						 */
-						String studentLogins = classmate.getString("studentLogins");
-						workgroupIdToStudentLogins.put(workgroupId, studentLogins);
+						String userIds = classmate.getString("userIds");
+						workgroupIdToUserIds.put(workgroupId, userIds);
 					}
 					
 					if(classmate.has("periodId") && !classmate.isNull("periodId") &&
 							classmate.has("periodName") && !classmate.isNull("periodName") &&
-							classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
+							classmate.has("userIds") && !classmate.isNull("userIds")) {
 
 						//add the workgroup id string to the List of workgroup ids
 						workgroupIds.add(workgroupId + "");
@@ -445,62 +465,67 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//the variable that will hold the excel document object
 		Workbook wb = null;
-		
-		if(exportType == null) {
+				
+		if(isFileTypeXLS(fileType)) {
+			//we are going to return an xls file
+			response.setContentType("application/vnd.ms-excel");
+		} else if(isFileTypeCSV(fileType)) {
+			//we are going to return a csv file
+			response.setContentType("text/csv");
 			
-		} else if(exportType.equals("latestStudentWork")) {
-			wb = getLatestStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, nodeIdList, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
-		} else if(exportType.equals("allStudentWork")) {
-			wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
-		} else if(exportType.equals("ideaBaskets")) {
-			wb = getIdeaBasketsExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
-		} else if(exportType.equals("explanationBuilderWork")) {
-			wb = getExplanationBuilderWorkExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
-		} else if(exportType.equals("customLatestStudentWork")) {
-			wb = getLatestStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, nodeIdList, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
-		} else if(exportType.equals("customAllStudentWork")) {
-			wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
-		} else if(exportType.equals("flashStudentWork")) {
-			wb = getFlashWorkExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, workgroupIds);
+			//get the writer for the response
+			PrintWriter writer = response.getWriter();
+			
+			//create the csvWriter which we will write to as we create the csv file
+			csvWriter = new CSVWriter(writer);
+		} else {
+			//error
 		}
 		
-		/*
-		 * set the content type to an excel xls so the user is prompted to save
-		 * the file as an excel xls
-		 */
-	    response.setContentType("application/vnd.ms-excel");
-	    
+		//generate the export
 	    if(exportType == null) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + ".xls\"");
+	    	//error
 	    } else if(exportType.equals("latestStudentWork")) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-latest-student-work.xls\"");
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-latest-student-work." + fileType + "\"");
+	    	wb = getLatestStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, nodeIdList, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 	    } else if(exportType.equals("allStudentWork")) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-all-student-work.xls\"");
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-all-student-work." + fileType + "\"");
+	    	wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 	    } else if(exportType.equals("ideaBaskets")) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-idea-baskets.xls\"");
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-idea-baskets." + fileType + "\"");
+	    	wb = getIdeaBasketsExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 	    } else if(exportType.equals("explanationBuilderWork")) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-explanation-builder-work.xls\"");
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-explanation-builder-work." + fileType + "\"");
+	    	wb = getExplanationBuilderWorkExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 	    } else if(exportType.equals("customLatestStudentWork")) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-latest-student-work.xls\"");
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-latest-student-work." + fileType + "\"");
+	    	wb = getLatestStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, nodeIdList, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 	    } else if(exportType.equals("customAllStudentWork")) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-all-student-work.xls\"");
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-all-student-work." + fileType + "\"");
+	    	wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 	    } else if(exportType.equals("flashStudentWork")) {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-flash-student-work.xls\"");
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-flash-student-work." + fileType + "\"");
+	    	wb = getFlashWorkExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, workgroupIds);
 	    } else {
-	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + ".xls\"");	
+	    	//error
 	    }
-		
-		//get the response output stream
-		ServletOutputStream outputStream = response.getOutputStream();
-		
-		if(wb != null) {
-			//write the excel xls to the output stream
-			wb.write(outputStream);
-		}
-		
-		if(oversizedResponses > 0) {
+
+	    if(isFileTypeXLS(fileType)) {
+	    	//we need to write the xls file to the response
+	    	
+		    //get the response output stream
+		    ServletOutputStream outputStream = response.getOutputStream();
+
+		    if(wb != null) {
+				//write the excel xls to the output stream
+				wb.write(outputStream);
+			}	    	
+	    }
+	    
+	    if(oversizedResponses > 0) {
 			System.out.println("Oversized Responses: " + oversizedResponses);
 		}
+	    
 		clearVariables();
 	}
 
@@ -531,8 +556,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Retrieves the JSONObject for a sequence with the given sequenceId
+	 * 
 	 * @param sequences a JSONArray of sequence JSONObjects
 	 * @param sequenceId the identifier of the sequence we want
+	 * 
 	 * @return the sequence JSONObject or null if we did not find it
 	 */
 	private JSONObject getProjectSequence(JSONArray sequences, String sequenceId) {
@@ -639,7 +666,9 @@ public class VLEGetXLS extends VLEServlet {
 	 * Create a map of node id to node titles by looping through the array
 	 * of nodes in the project file and creating an entry in the map
 	 * for each node
+	 * 
 	 * @param project the project JSON object
+	 * 
 	 * @return a map of node id to node titles
 	 */
 	private void makeNodeIdToNodeTitleAndNodeMap(JSONObject project) {
@@ -678,7 +707,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Obtain the node type for the step work
+	 * 
 	 * @param stepWork a StepWork object
+	 * 
 	 * @return the node type for the StepWork without the "Node"
 	 * part of the string
 	 * e.g. if a step work is for an "OpenResponseNode" the value
@@ -708,7 +739,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the node type from the StepWork data JSON string
+	 * 
 	 * @param stepWorkJSONString the step work data JSON string
+	 * 
 	 * @return the node type for the StepWork without the "Node"
 	 * part of the string
 	 * e.g. if a step work is for an "OpenResponseNode" the value
@@ -734,7 +767,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the node type from the JSON Object
+	 * 
 	 * @param stepWorkJSONObject the step work data JSON object
+	 * 
 	 * @return the node type for the StepWork without the "Node"
 	 * part of the string
 	 * e.g. if a step work is for an "OpenResponseNode" the value
@@ -760,8 +795,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the step works only for a specific node id
+	 * 
 	 * @param stepWorks a list of StepWork objects
 	 * @param nodeId the node id we want student work for
+	 * 
 	 * @return a list of StepWork objects that are filtered
 	 * for a node id
 	 */
@@ -799,10 +836,18 @@ public class VLEGetXLS extends VLEServlet {
 	 * Each sheet represents one student's work. The rows in each
 	 * sheet are sequential so the earliest navigation data is at
 	 * the top and the latest navigation data is at the bottom
+	 * 
 	 * @param nodeIdToNodeTitlesMap a HashMap that contains nodeId to
 	 * nodeTitle mappings
-	 * @param workgroupIdsArray a String array containing workgroupIds
-	 * @return an excel workbook that contains the student navigation
+	 * @param workgroupIds a vector of workgroup ids
+	 * @param runId the run id
+	 * @param nodeIdToNode a mapping of node id to node object
+	 * @param nodeIdToNodeContent a mapping of node id to node content
+	 * @param workgroupIdToPeriodId a mapping of workgroup id to period id
+	 * @param teacherWorkgroupIds a list of teacher workgroup ids
+	 * 
+	 * @return an excel workbook that contains the student navigation if we
+	 * are generating an xls file
 	 */
 	private XSSFWorkbook getAllStudentWorkXLSExport(
 			HashMap<String, String> nodeIdToNodeTitlesMap,
@@ -813,7 +858,12 @@ public class VLEGetXLS extends VLEServlet {
 			HashMap<Integer, Integer> workgroupIdToPeriodId,
 			List<String> teacherWorkgroupIds) {
 
-		XSSFWorkbook wb = new XSSFWorkbook();
+		XSSFWorkbook wb = null;
+		
+		if(isFileTypeXLS(fileType)) {
+			//we are generating an xls file so we will create the workbook
+			wb = new XSSFWorkbook();
+		}
 		
 		List<Node> customNodes = null;
 		
@@ -821,7 +871,7 @@ public class VLEGetXLS extends VLEServlet {
 			//the teacher has provided a list of custom steps to export
 			
 			//get all the Node objects for the custom steps
-			customNodes = Node.getByNodeIdsAndRunId(customSteps, runId);			
+			customNodes = Node.getByNodeIdsAndRunId(customSteps, runId);
 		}
 		
 		//loop through all the workgroup ids
@@ -850,7 +900,12 @@ public class VLEGetXLS extends VLEServlet {
 				}
 				
 				//create a sheet in the excel for this workgroup id
-				XSSFSheet userIdSheet = wb.createSheet(userId);
+				XSSFSheet userIdSheet = null;
+				
+				if(wb != null) {
+					//create the sheet since we are generating an xls file
+					userIdSheet = wb.createSheet(userId);
+				}
 				
 				int rowCounter = 0;
 				
@@ -858,104 +913,102 @@ public class VLEGetXLS extends VLEServlet {
 				 * create the row that will display the user data headers such as workgroup id,
 				 * student login, teacher login, period name, etc.
 				 */
-				Row userDataHeaderRow = userIdSheet.createRow(rowCounter++);
-				createUserDataHeaderRow(userDataHeaderRow, true, true);
+				Row userDataHeaderRow = createRow(userIdSheet, rowCounter++);
+				Vector<String> userDataHeaderRowVector = createRowVector();
+				createUserDataHeaderRow(userDataHeaderRow, userDataHeaderRowVector, true, true);
+				
+				//write the csv row if we are generating a csv file
+				writeCSV(userDataHeaderRowVector);
 				
 				/*
 				 * create the row that will display the user data such as the actual values
 				 * for workgroup id, student login, teacher login, period name, etc.
 				 */
-				Row userDataRow = userIdSheet.createRow(rowCounter++);
-				createUserDataRow(userDataRow, userId, true, true, null);
+				Row userDataRow = createRow(userIdSheet, rowCounter++);
+				Vector<String> userDataRowVector = createRowVector();
+				createUserDataRow(userDataRow, userDataRowVector, userId, true, true, null);
+				
+				//write the csv row if we are generating a csv file
+				writeCSV(userDataRowVector);
 				
 				//create a blank row for spacing
 				rowCounter++;
+				Vector<String> emptyVector = createRowVector();
+				writeCSV(emptyVector);
 				
 				//counter for the header column cells
 				int headerColumn = 0;
 				
 				//create the first row which will contain the headers
-		    	Row headerRow = userIdSheet.createRow(rowCounter++);
+				Row headerRow = createRow(userIdSheet, rowCounter++);
+		    	Vector<String> headerRowVector = createRowVector();
 		    	
 		    	//the header column to just keep track of each row (which represents a step visit)
-		    	headerRow.createCell(headerColumn).setCellValue("#");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "#");
 		    	
 		    	//the header column for the workgroup id
-		    	headerRow.createCell(headerColumn).setCellValue("Workgroup Id");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Workgroup Id");
 		    	
 		    	//the header column for the first logged in student
-		    	headerRow.createCell(headerColumn).setCellValue("WISE Id 1");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "WISE Id 1");
 		    	
 		    	//the header column for the second logged in student
-		    	headerRow.createCell(headerColumn).setCellValue("WISE Id 2");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "WISE Id 2");
 		    	
 		    	//the header column for the third logged in student
-		    	headerRow.createCell(headerColumn).setCellValue("WISE Id 3");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "WISE Id 3");
 		    	
 		    	//the header column for the step work id
-		    	headerRow.createCell(headerColumn).setCellValue("Step Work Id");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Step Work Id");
 
 		    	//header step title column which already includes numbering
-		    	headerRow.createCell(headerColumn).setCellValue("Step Title");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Step Title");
 		    	
 		    	//header step type column
-		    	headerRow.createCell(headerColumn).setCellValue("Step Type");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Step Type");
 		    	
 		    	//header step prompt column
-		    	headerRow.createCell(headerColumn).setCellValue("Step Prompt");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Step Prompt");
 		    	
 		    	//header node id column
-		    	headerRow.createCell(headerColumn).setCellValue("Node Id");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Node Id");
+		    	
+		    	//header post time column
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Post Time (Server Clock)");
 		    	
 		    	//header start time column
-		    	headerRow.createCell(headerColumn).setCellValue("Start Time");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Start Time (Student Clock)");
 		    	
 		    	//header end time column
-		    	headerRow.createCell(headerColumn).setCellValue("End Time");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "End Time (Student Clock)");
 		    	
 		    	//header time the student spent on the step in seconds column
-		    	headerRow.createCell(headerColumn).setCellValue("Time Spent (Seconds)");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Time Spent (Seconds)");
 		    	
 		    	//header time the student spent on the step in seconds column
-		    	headerRow.createCell(headerColumn).setCellValue("Teacher Score Timestamp");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Teacher Score Timestamp");
 		    	
 		    	//header time the student spent on the step in seconds column
-		    	headerRow.createCell(headerColumn).setCellValue("Teacher Score");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Teacher Score");
 		    	
 		    	//header time the student spent on the step in seconds column
-		    	headerRow.createCell(headerColumn).setCellValue("Teacher Comment Timestamp");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Teacher Comment Timestamp");
 		    	
 		    	//header time the student spent on the step in seconds column
-		    	headerRow.createCell(headerColumn).setCellValue("Teacher Comment");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Teacher Comment");
 		    	
 		    	//header classmate id for review type steps
-		    	headerRow.createCell(headerColumn).setCellValue("Classmate Id");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Classmate Id");
 		    	
 		    	//header receiving text for review type steps
-		    	headerRow.createCell(headerColumn).setCellValue("Receiving Text");
-		    	headerColumn++;
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Receiving Text");
 		    	
 		    	//header student work column
-		    	headerRow.createCell(headerColumn).setCellValue("Student Work");
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, "Student Work");
 
+		    	//write the csv row if we are generating a csv file
+		    	writeCSV(headerRowVector);
+		    	
 				//get all the work for a workgroup id
 				List<StepWork> stepWorksForWorkgroupId = StepWork.getByUserInfo(userInfo);
 				
@@ -976,6 +1029,7 @@ public class VLEGetXLS extends VLEServlet {
 			    	//get the start and end time
 			    	Timestamp startTime = stepWork.getStartTime();
 			    	Timestamp endTime = stepWork.getEndTime();
+			    	Timestamp postTime = stepWork.getPostTime();
 			    	
 			    	//get the node id
 			    	String nodeId = stepWork.getNode().getNodeId();
@@ -994,17 +1048,18 @@ public class VLEGetXLS extends VLEServlet {
 			    	int tempColumn = 0;
 			    	
 			    	//create a new row for this step work
-			    	Row tempRow = userIdSheet.createRow(rowCounter++);
+			    	Row tempRow = createRow(userIdSheet, rowCounter++);
+			    	Vector<String> tempRowVector = createRowVector();
 			    	
 			    	//set the step work/visit number
-			    	tempRow.createCell(tempColumn).setCellValue(y + 1);
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, y + 1);
 			    	
 			    	String wiseId1 = "";
 					String wiseId2 = "";
 					String wiseId3 = "";
 					
-					//get the start time in milliseconds
-			    	long timestamp = startTime.getTime();
+					//get the post time in milliseconds
+			    	long timestamp = postTime.getTime();
 			    	
 			    	/*
 			    	 * get the student attendance that is relevant to the step work. we will
@@ -1022,26 +1077,26 @@ public class VLEGetXLS extends VLEServlet {
 			    		 */
 			    		
 			    		//get all the user ids for this workgroup
-			    		String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId + ""));
+			    		String userIds = workgroupIdToUserIds.get(Integer.parseInt(workgroupId + ""));
 			    		
 						//the user ids string is delimited by ':'
-						String[] studentLoginsArray = studentLogins.split(":");
+						String[] userIdsArray = userIds.split(":");
 						
 						//sort the user ids numerically and put them into a list
-						ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+						ArrayList<Long> userIdsList = sortUserIdsArray(userIdsArray);
 						
 						//loop through all the user ids in this workgroup
-						for(int z=0; z<studentLoginsList.size(); z++) {
+						for(int z=0; z<userIdsList.size(); z++) {
 							//get a user id
-							Long studentLoginId = studentLoginsList.get(z);
+							Long wiseId = userIdsList.get(z);
 							
 							//set the appropriate wise id
 							if(z == 0) {
-								wiseId1 = studentLoginId + "";
+								wiseId1 = wiseId + "";
 							} else if(z == 1) {
-								wiseId2 = studentLoginId + "";
+								wiseId2 = wiseId + "";
 							} else if(z == 2) {
-								wiseId3 = studentLoginId + "";
+								wiseId3 = wiseId + "";
 							}
 						}
 			    	} else {
@@ -1100,47 +1155,38 @@ public class VLEGetXLS extends VLEServlet {
 			    	}
 			    	
 			    	//set the workgroup id
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(workgroupId);
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, workgroupId);
 			    	
 					//set the wise id 1
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(wiseId1);
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, wiseId1);
 			    	
 			    	//set the wise id 2
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(wiseId2);
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, wiseId2);
 			    	
 			    	//set the wise id 3
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(wiseId3);
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, wiseId3);
 			    	
 			    	//set the step work id
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(stepWorkId);
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, stepWorkId);
 			    	
 			    	//set the title
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(nodeIdToNodeTitlesMap.get(nodeId));
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, nodeIdToNodeTitlesMap.get(nodeId));
 			    	
 			    	//set the node type
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(getNodeTypeFromStepWork(stepWork));
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, getNodeTypeFromStepWork(stepWork));
 			    	
 			    	//set the prompt
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(getPromptFromNodeContent(nodeContent));
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, getPromptFromNodeContent(nodeContent));
 			    	
 			    	//set the node id
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(stepWork.getNode().getNodeId());
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, stepWork.getNode().getNodeId());
+			    	
+			    	//set the post time
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, timestampToFormattedString(postTime));
 			    	
 			    	//set the start time
-			    	tempColumn++;
-			    	tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(startTime));
+			    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, timestampToFormattedString(startTime));
 
-			    	tempColumn++;
-			    	
 			    	/*
 			    	 * check if the end time is null which may occur if the student is
 			    	 * currently working on that step, or if there was some kind of
@@ -1148,10 +1194,10 @@ public class VLEGetXLS extends VLEServlet {
 			    	 */
 			    	if(endTime != null) {
 			    		//set the end time
-			    		tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(endTime));	
+			    		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, timestampToFormattedString(endTime));
 			    	} else {
 			    		//there was no end time so we will leave it blank
-			    		tempRow.createCell(tempColumn).setCellValue("");
+			    		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, "");
 			    	}
 			    	
 			    	long timeSpentOnStep = 0;
@@ -1168,26 +1214,22 @@ public class VLEGetXLS extends VLEServlet {
 			    		timeSpentOnStep = (stepWork.getEndTime().getTime() - stepWork.getStartTime().getTime()) / 1000;	
 			    	}
 			    	
-			    	tempColumn++;
-			    	
 			    	//set the time spent on the step
 			    	if(timeSpentOnStep == -1) {
-			    		tempRow.createCell(tempColumn).setCellValue("N/A");
+			    		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, "N/A");
 			    	} else {
-			    		tempRow.createCell(tempColumn).setCellValue(timeSpentOnStep);	
+			    		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, timeSpentOnStep);
 			    	}
-			    	
-			    	tempColumn++;
 			    	
 			    	//create a list to add the StepWork to
 			    	List<StepWork> stepWorkList = new ArrayList<StepWork>();
 			    	stepWorkList.add(stepWork);
 			    	
 			    	//set the latest annotation score and timestamp
-			    	tempColumn = setLatestAnnotationScoreAndTimestamp(stepWorkList, tempRow, tempColumn);
+			    	tempColumn = setLatestAnnotationScoreAndTimestamp(stepWorkList, tempRow, tempRowVector, tempColumn);
 			    	
 			    	//set the latest annotation comment and timestamp
-			    	tempColumn = setLatestAnnotationCommentAndTimestamp(stepWorkList, tempRow, tempColumn);
+			    	tempColumn = setLatestAnnotationCommentAndTimestamp(stepWorkList, tempRow, tempRowVector, tempColumn);
 			    	
 					int periodId = workgroupIdToPeriodId.get(Integer.parseInt(userId));
 					
@@ -1195,10 +1237,13 @@ public class VLEGetXLS extends VLEServlet {
 					 * set the review cells, if the current step does not utilize any review
 					 * functionality, it will simply fill the cells with "N/A"
 					 */
-			    	tempColumn = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, tempRow, tempColumn, "allStudentWork");
+			    	tempColumn = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, tempRow, tempRowVector, tempColumn, "allStudentWork");
 			    	
 			    	//set the work into the cells
-			    	tempColumn = setStepWorkResponse(tempRow, tempColumn, stepWork, nodeId);
+			    	tempColumn = setStepWorkResponse(tempRow, tempRowVector, tempColumn, stepWork, nodeId);
+			    	
+			    	//write the csv row if we are generating a csv file
+			    	writeCSV(tempRowVector);
 			    }
 		    	
 		    	/*
@@ -1222,11 +1267,18 @@ public class VLEGetXLS extends VLEServlet {
 		    				stepWorkHeader += " (if applicable)";
 		    			}
 		    			
-		    			//set the value in the cell "Student Work Part #"
-		    			headerRow.createCell(headerColumn).setCellValue(stepWorkHeader);
-		    			headerColumn++;
+		    			/*
+		    			 * set the value in the cell "Student Work Part #". this will
+		    			 * not show up in the csv export since we have already written
+		    			 * the header column vector to the csv above
+		    			 */
+		    			headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, stepWorkHeader);
 		    		}
 		    	}
+		    	
+				//create an empty row for the csv
+				Vector<String> emptyVector2 = createRowVector();
+				writeCSV(emptyVector2);
 			}
 		}
 
@@ -1239,11 +1291,16 @@ public class VLEGetXLS extends VLEServlet {
 	 * The top row contains the node titles and the left column
 	 * contains the workgroup ids. Each x, y cell contains the latest
 	 * student work for that node, workgroup.
-	 * @param nodeIdToNodeTitlesMap a HashMap that contains nodeId to
-	 * nodeTitle mappings
-	 * @param workgroupIdsArray a String array containing workgroupIds
+	 * 
+	 * @param nodeIdToNodeTitlesMap a mapping of node id to node titles
+	 * @param workgroupIds a vector of workgroup ids
 	 * @param nodeIdList a list of ordered node ids
 	 * @param runId the id of the run
+	 * @param nodeIdToNode a mapping of node id to node object
+	 * @param nodeIdToNodeContent a mapping of node id to node content
+	 * @param workgroupIdToPeriodId a mapping of workgroup id to period id
+	 * @param teacherWorkgroupIds a list of teacher workgroup ids
+	 * 
 	 * @return an excel workbook that contains student work data
 	 */
 	private XSSFWorkbook getLatestStudentWorkXLSExport(HashMap<String, String> nodeIdToNodeTitlesMap,
@@ -1254,13 +1311,19 @@ public class VLEGetXLS extends VLEServlet {
 			HashMap<String, JSONObject> nodeIdToNodeContent,
 			HashMap<Integer, Integer> workgroupIdToPeriodId,
 			List<String> teacherWorkgroupIds) {
-		//create the excel workbook
-		XSSFWorkbook wb = new XSSFWorkbook();
-		
-		//create the sheet that will contain all the data
-		@SuppressWarnings("unused")
-		XSSFSheet mainSheet = wb.createSheet("Latest Work For All Students");
 
+		XSSFWorkbook wb = null;
+		
+		if(isFileTypeXLS(fileType)) {
+			//create the excel workbook
+			wb = new XSSFWorkbook();
+			
+			//create the sheet that will contain all the data
+			XSSFSheet mainSheet = wb.createSheet("Latest Work For All Students");
+		} else if(isFileTypeCSV(fileType)) {
+			wb = null;
+		}
+		
 		/*
 		 * set the header rows in the sheet
 		 * Step Title
@@ -1279,14 +1342,15 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Set all the student data, each row represents one workgroup
-	 * @param workbook
-	 * @param nodeIdToNodeTitlesMap
-	 * @param workgroupIdsArray
-	 * @param nodeIdList
-	 * @param runId
-	 * @param nodeIdToNodeContent
-	 * @param workgroupIdToPeriodId
-	 * @param teacherWorkgroupIds
+	 * 
+	 * @param workbook the excel workbook
+	 * @param nodeIdToNodeTitlesMap a mapping of node id to node titles
+	 * @param workgroupIds a vector of workgroup ids 
+	 * @param nodeIdList a list of node ids
+	 * @param runId the run id
+	 * @param nodeIdToNodeContent a mapping of node id to node content
+	 * @param workgroupIdToPeriodId a mapping of workgroup id to period id
+	 * @param teacherWorkgroupIds a list of teacher workgroup ids
 	 */
 	private void setGetLatestStudentWorkStudentRows(XSSFWorkbook workbook,
 			HashMap<String, String> nodeIdToNodeTitlesMap,
@@ -1298,15 +1362,24 @@ public class VLEGetXLS extends VLEServlet {
 			HashMap<Integer, Integer> workgroupIdToPeriodId,
 			List<String> teacherWorkgroupIds) {
 		
-		XSSFSheet mainSheet = workbook.getSheetAt(0);
+		XSSFSheet mainSheet = null;
+		int rowCounter = 0;
 		
-		//get the next empty row
-		int rowCounter = mainSheet.getLastRowNum() + 1;
+		if(workbook != null) {
+			//workbook is not null which means we are generating an xls file
+			
+			//get the sheet
+			mainSheet = workbook.getSheetAt(0);
+			
+			//get the next empty row
+			rowCounter = mainSheet.getLastRowNum() + 1;
+		}
 
 		//loop through the workgroup ids
 		for(int x=0; x<workgroupIds.size(); x++) {
 			//create a row for this workgroup
-			Row rowForWorkgroupId = mainSheet.createRow(x + rowCounter);
+			Row rowForWorkgroupId = createRow(mainSheet, x + rowCounter);
+			Vector<String> rowForWorkgroupIdVector = createRowVector();
 			
 			int workgroupColumnCounter = 0;
 			
@@ -1319,13 +1392,14 @@ public class VLEGetXLS extends VLEServlet {
 			 * create the row that will display the user data such as the actual values
 			 * for workgroup id, student login, teacher login, period name, etc.
 			 */
-			workgroupColumnCounter = createUserDataRow(rowForWorkgroupId, userId, true, false, null);
+			workgroupColumnCounter = createUserDataRow(rowForWorkgroupId, rowForWorkgroupIdVector, userId, true, false, null);
 			
 			/*
 			 * increment the column counter to create an empty column under the header column
 			 * that contains Step Title, Step Type, Step Prompt, Node Id, Step Extra
 			 */
 			workgroupColumnCounter++;
+			addEmptyElementsToVector(rowForWorkgroupIdVector, 1);
 			
 			//get the UserInfo object for the workgroup id
 			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(userId));
@@ -1351,7 +1425,7 @@ public class VLEGetXLS extends VLEServlet {
 				 * or nothing at all depending on whether we are getting "latestStudentWork"
 				 * or "allStudentWork"
 				 */
-				workgroupColumnCounter = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, rowForWorkgroupId, workgroupColumnCounter, "latestStudentWork");
+				workgroupColumnCounter = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, "latestStudentWork");
 
 				//get all the step works for this node id
 				List<StepWork> stepWorksForNodeId = getStepWorksForNodeId(stepWorksForWorkgroupId, nodeId);
@@ -1360,35 +1434,40 @@ public class VLEGetXLS extends VLEServlet {
 				StepWork latestStepWorkWithResponse = getLatestStepWorkWithResponse(stepWorksForNodeId);
 				
 				//set the step work data into the row in the given column
-				workgroupColumnCounter = setStepWorkResponse(rowForWorkgroupId, workgroupColumnCounter, latestStepWorkWithResponse, nodeId);
+				workgroupColumnCounter = setStepWorkResponse(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, latestStepWorkWithResponse, nodeId);
 
 				//check if this step utilizes CRater scoring
 				if(isCRaterType(nodeContent)) {
 					//set the latest CRater score and timestamp
-					workgroupColumnCounter = setLatestCRaterScoreAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, workgroupColumnCounter);
+					workgroupColumnCounter = setLatestCRaterScoreAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter);
 				}
 				
 				//set the latest annotation score and timestamp from any of the teachers
-				workgroupColumnCounter = setLatestAnnotationScoreAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, workgroupColumnCounter);
+				workgroupColumnCounter = setLatestAnnotationScoreAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter);
 				
 				//set the latest annotation comment and timestamp from any of the teachers
-				workgroupColumnCounter = setLatestAnnotationCommentAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, workgroupColumnCounter);
+				workgroupColumnCounter = setLatestAnnotationCommentAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter);
 			}
+			
+			//write the csv row if we are generating a csv file
+			writeCSV(rowForWorkgroupIdVector);
 		}
 	}
 	
 	/**
-	 * Set the extra cells for the review step 
-	 * @param teacherWorkgroupIds
-	 * @param stepWorksForWorkgroupId
-	 * @param runId
-	 * @param periodId
-	 * @param userInfo
-	 * @param nodeContent
-	 * @param rowForWorkgroupId
-	 * @param reviewType
-	 * @param workgroupColumnCounter
-	 * @param exportType
+	 * Set the extra cells for the review step
+	 * 
+	 * @param teacherWorkgroupIds a list of teacher workgroup ids
+	 * @param stepWorksForWorkgroupId a list of stepwork objects for a workgroup
+	 * @param runId the run id
+	 * @param periodId the period id
+	 * @param userInfo the userinfo object
+	 * @param nodeContent the node content
+	 * @param rowForWorkgroupId the excel row
+	 * @param rowForWorkgroupIdVector the csv row
+	 * @param workgroupColumnCounter the counter for the column
+	 * @param exportType the export type "allStudentWork" or "latestStudentWork"
+	 * 
 	 * @return the updated column position
 	 */
 	private int setGetLatestStudentWorkReviewCells(List<String> teacherWorkgroupIds, 
@@ -1398,6 +1477,7 @@ public class VLEGetXLS extends VLEServlet {
 			JSONObject nodeJSONObject,
 			JSONObject nodeContent, 
 			Row rowForWorkgroupId,
+			Vector<String> rowForWorkgroupIdVector,
 			int workgroupColumnCounter,
 			String exportType) {
 		
@@ -1453,19 +1533,19 @@ public class VLEGetXLS extends VLEServlet {
 						
 						if(workgroupIdReviewed == -2) {
 							//the student received the canned response
-							rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue("Canned Response");
+							workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, "Canned Response");
 							
 							//get the work that the student read
 							String authoredWork = nodeContent.getString("authoredWork");
 							
 							//set the canned work
-							rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(authoredWork);
+							workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, authoredWork);
 						} else {
 							//set the workgroup id of their classmate
-							rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(workgroupIdReviewed);
+							workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, workgroupIdReviewed);
 							
 							//set the work from their classmate
-							rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(reviewedWork);
+							workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, reviewedWork);
 						}
 						
 						addedReviewColumns = true;
@@ -1480,10 +1560,10 @@ public class VLEGetXLS extends VLEServlet {
 					String authoredWork = nodeContent.getString("authoredWork");
 					
 					//set the workgroup id of their classmate
-					rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue("Teacher Response");
+					workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, "Teacher Response");
 					
 					//set the work from their classmate
-					rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(authoredWork);
+					workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, authoredWork);
 					
 					addedReviewColumns = true;
 				}
@@ -1495,6 +1575,7 @@ public class VLEGetXLS extends VLEServlet {
 			if(!addedReviewColumns) {
 				//the columns need to be incremented even if there was no data
 				workgroupColumnCounter += 2;
+				addEmptyElementsToVector(rowForWorkgroupIdVector, 2);
 			}
 		} else if(reviewType.equals("revise")) {
 			/*
@@ -1529,10 +1610,10 @@ public class VLEGetXLS extends VLEServlet {
 								String annotationValue = annotationDataJSONObject.getString("value");
 								
 								//set the workgroup id of their classmate
-								rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(reviewerWorkgroupId);
+								workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, reviewerWorkgroupId);
 								
 								//set the annotation from their classmate
-								rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(annotationValue);
+								workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, annotationValue);
 								
 								addedReviewColumns = true;
 							} else {
@@ -1541,10 +1622,10 @@ public class VLEGetXLS extends VLEServlet {
 									String authoredReview = nodeContent.getString("authoredReview");
 									
 									//set the workgroup id of their classmate
-									rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue("Canned Response");
+									workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, "Canned Response");
 									
 									//set the review the student received
-									rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(authoredReview);
+									workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, authoredReview);
 									
 									addedReviewColumns = true;
 								}
@@ -1592,10 +1673,10 @@ public class VLEGetXLS extends VLEServlet {
 						JSONObject annotationJSONObject = new JSONObject(annotationData);
 						
 						//set the workgroup id of their teacher
-						rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue("Teacher Response");
+						workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, "Teacher Response");
 						
 						//set the annotation from their teacher
-						rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(annotationJSONObject.getString("value"));
+						workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, annotationJSONObject.getString("value"));
 						
 						addedReviewColumns = true;
 					}
@@ -1608,16 +1689,18 @@ public class VLEGetXLS extends VLEServlet {
 			if(!addedReviewColumns) {
 				//the columns need to be incremented even if there was no data
 				workgroupColumnCounter += 2;
+				addEmptyElementsToVector(rowForWorkgroupIdVector, 2);
 			}
 		} else {
+			//this work is not peer reviewed or teacher reviewed
 			
 			if(exportType.equals("allStudentWork")) {
 				/*
 				 * if this is for the all student work excel export, we will always need
 				 * to fill the review cells
 				 */
-				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue("N/A");
-				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue("N/A");
+				workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, "N/A");
+				workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, "N/A");
 				addedReviewColumns = true;	
 			} else if(exportType.equals("latestStudentWork")) {
 				/*
@@ -1637,6 +1720,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * Step Prompt
 	 * Node Id
 	 * Step Extra
+	 * 
 	 * @param workbook the excel work book
 	 * @param nodeIdList a list of nodeIds in the order they appear in the project
 	 * @param nodeIdToNodeTitlesMap a map of node id to node titles
@@ -1647,50 +1731,82 @@ public class VLEGetXLS extends VLEServlet {
 			List<String> nodeIdList, 
 			HashMap<String, String> nodeIdToNodeTitlesMap,
 			HashMap<String, JSONObject> nodeIdToNodeContent) {
-		XSSFSheet mainSheet = workbook.getSheetAt(0);
+		XSSFSheet mainSheet = null;
+		
+		if(workbook != null) {
+			//the workbook is not null which means we are generating an xls file
+			mainSheet = workbook.getSheetAt(0);
+		}
 		
 		int rowCounter = 0;
 		
 		//create the row that will display the metadata column headers
-		Row metaDataHeaderRow = mainSheet.createRow(rowCounter++);
-		createUserDataHeaderRow(metaDataHeaderRow, false, true);
+		Row metaDataHeaderRow = createRow(mainSheet, rowCounter++);
+		Vector<String> metaDataHeaderRowVector = createRowVector();
+		createUserDataHeaderRow(metaDataHeaderRow, metaDataHeaderRowVector, false, true);
+		
+		//write the csv row if we are generating a csv file
+		writeCSV(metaDataHeaderRowVector);
 		
 		//create the row that will display the metadata column values
-		Row metaDataRow = mainSheet.createRow(rowCounter++);
-		createUserDataRow(metaDataRow, "", false, true, null);
+		Row metaDataRow = createRow(mainSheet, rowCounter++);
+		Vector<String> metaDataRowVector = createRowVector();
+		createUserDataRow(metaDataRow, metaDataRowVector, "", false, true, null);
+		
+		//write the csv row if we are generating a csv file
+		writeCSV(metaDataRowVector);
 		
 		//create a blank row
 		rowCounter++;
+		Vector<String> emptyVector = createRowVector();
+		writeCSV(emptyVector);
+		
+		//create the step title row
+		Row stepTitleRow = createRow(mainSheet, rowCounter++);
+		Vector<String> stepTitleRowVector = createRowVector();
+		
+		//create the step type row
+		Row stepTypeRow = createRow(mainSheet, rowCounter++);
+		Vector<String> stepTypeRowVector = createRowVector();
+		
+		//create the step prompt row
+		Row stepPromptRow = createRow(mainSheet, rowCounter++);
+		Vector<String> stepPromptRowVector = createRowVector();
+		
+		//create the node id row
+		Row nodeIdRow = createRow(mainSheet, rowCounter++);
+		Vector<String> nodeIdRowVector = createRowVector();
+
+		//create the step type row
+		Row stepExtraRow = createRow(mainSheet, rowCounter++);
+		Vector<String> stepExtraRowVector = createRowVector();
+
+		//create 5 empty columns in each of the rows because the first 5 columns are for the user data columns
+		for(int x=0; x<5; x++) {
+			setCellValue(stepTitleRow, stepTitleRowVector, x, "");
+			setCellValue(stepTypeRow, stepTypeRowVector, x, "");
+			setCellValue(stepPromptRow, stepPromptRowVector, x, "");
+			setCellValue(nodeIdRow, nodeIdRowVector, x, "");
+			setCellValue(stepExtraRow, stepExtraRowVector, x, "");
+		}
 		
 		//start on column 5 because the first 5 columns are for the user data columns
 		int columnCounter = 5;
 		
-		//create the step title row
-		Row stepTitleRow = mainSheet.createRow(rowCounter++);
-		stepTitleRow.createCell(columnCounter).setCellValue("Step Title");
-		
-		//create the step type row
-		Row stepTypeRow = mainSheet.createRow(rowCounter++);
-		stepTypeRow.createCell(columnCounter).setCellValue("Step Type");
-		
-		//create the step prompt row
-		Row stepPromptRow = mainSheet.createRow(rowCounter++);
-		stepPromptRow.createCell(columnCounter).setCellValue("Step Prompt");
-		
-		//create the node id row
-		Row nodeIdRow = mainSheet.createRow(rowCounter++);
-		nodeIdRow.createCell(columnCounter).setCellValue("Node Id");
-
-		//create the step type row
-		Row stepExtraRow = mainSheet.createRow(rowCounter++);
-		stepExtraRow.createCell(columnCounter).setCellValue("Step Extra");
+		//set the cells that describe each of the rows
+		setCellValue(stepTitleRow, stepTitleRowVector, columnCounter, "Step Title");
+		setCellValue(stepTypeRow, stepTypeRowVector, columnCounter, "Step Type");
+		setCellValue(stepPromptRow, stepPromptRowVector, columnCounter, "Step Prompt");
+		setCellValue(nodeIdRow, nodeIdRowVector, columnCounter, "Node Id");
+		setCellValue(stepExtraRow, stepExtraRowVector, columnCounter, "Step Extra");
 		
 		/*
 		 * create and populate the row that contains the user data headers such as
 		 * WorkgroupId, Student Login 1, Student Login 2, etc.
 		 */
-		Row userDataHeaderRow = mainSheet.createRow(rowCounter++);
-		createUserDataHeaderRow(userDataHeaderRow, true, false);
+		Row userDataHeaderRow = createRow(mainSheet, rowCounter++);
+		Vector<String> userDataHeaderRowVector = createRowVector();
+		createUserDataHeaderRow(userDataHeaderRow, userDataHeaderRowVector, true, false);
 		
 		/*
 		 * increment the column counter so the student work begins on the next column
@@ -1710,22 +1826,38 @@ public class VLEGetXLS extends VLEServlet {
 			//set the header columns for getLatestWork
 			columnCounter = setGetLatestStudentWorkHeaderColumn(
 					stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+					stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 					columnCounter, workbook, nodeIdToNodeTitlesMap, nodeIdToNodeContent, nodeId);
 		}
+		
+		//write all of the rows to the csv if we are generating a csv file
+		writeCSV(stepTitleRowVector);
+		writeCSV(stepTypeRowVector);
+		writeCSV(stepPromptRowVector);
+		writeCSV(nodeIdRowVector);
+		writeCSV(stepExtraRowVector);
+		writeCSV(userDataHeaderRowVector);
 	}
 	
 	/**
 	 * Get the header columns for getLatestStudentWork
-	 * @param stepTitleRow
-	 * @param stepTypeRow
-	 * @param stepPromptRow
-	 * @param nodeIdRow
-	 * @param stepExtraRow
-	 * @param columnCounter
-	 * @param workbook
-	 * @param nodeIdToNodeTitlesMap
-	 * @param nodeIdToNodeContent
-	 * @param nodeId
+	 * 
+	 * @param stepTitleRow the step title excel row
+	 * @param stepTypeRow the step type excel row
+	 * @param stepPromptRow the step prompt excel row
+	 * @param nodeIdRow the node id excel row
+	 * @param stepExtraRow the step extra excel row
+	 * @param stepTitleRowVector the step title csv row
+	 * @param stepTypeRowVector the step type csv row
+	 * @param stepPromptRowVector the step prompt csv row
+	 * @param nodeIdRowVector the node id csv row
+	 * @param stepExtraRowVector the step extra csv row
+	 * @param columnCounter the column counter
+	 * @param workbook the excel workbook
+	 * @param nodeIdToNodeTitlesMap the mapping of node id to node title
+	 * @param nodeIdToNodeContent the mapping of node id to node content
+	 * @param nodeId the node id
+	 * 
 	 * @return the updated column position
 	 */
 	private int setGetLatestStudentWorkHeaderColumn(
@@ -1734,6 +1866,11 @@ public class VLEGetXLS extends VLEServlet {
 			Row stepPromptRow,
 			Row nodeIdRow,
 			Row stepExtraRow,
+			Vector<String> stepTitleRowVector,
+			Vector<String> stepTypeRowVector,
+			Vector<String> stepPromptRowVector,
+			Vector<String> nodeIdRowVector,
+			Vector<String> stepExtraRowVector,
 			int columnCounter,
 			XSSFWorkbook workbook, 
 			HashMap<String, String> nodeIdToNodeTitlesMap, 
@@ -1753,21 +1890,25 @@ public class VLEGetXLS extends VLEServlet {
 			//the column is for a review type so we may need to allocate multiple columns
 			columnCounter = setGetLatestStudentWorkReviewHeaderCells(
 					stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+					stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 					columnCounter, nodeId, nodeTitle, nodeJSONObject, nodeContent);
 		} else if(isAssessmentListType(nodeContent)) {
 			//the step is AssessmentList so we may need to allocate multiple columns 
 			columnCounter = setGetLatestStudentWorkAssessmentListHeaderCells(
 					stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+					stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 					columnCounter, nodeId, nodeTitle, nodeContent);
 		} else if(isCRaterType(nodeContent)) {
 			//the step is uses CRater grading
 			columnCounter = setGetLatestStudentWorkCRaterHeaderCells(
 					stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+					stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 					columnCounter, nodeId, nodeTitle, nodeContent);
 		} else {
 			//the column is for all other step types
 			columnCounter = setGetLatestStudentWorkRegularHeaderCells(
 					stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+					stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 					columnCounter, nodeId, nodeTitle, nodeContent);
 		}
 		
@@ -1790,7 +1931,8 @@ public class VLEGetXLS extends VLEServlet {
 		//set the step extra cell
 		columnCounter = setGetLatestStepWorkHeaderCells(
 				columnCounter, 
-				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow,
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		stepExtra = "teacher score";
@@ -1799,6 +1941,7 @@ public class VLEGetXLS extends VLEServlet {
 		columnCounter = setGetLatestStepWorkHeaderCells(
 				columnCounter, 
 				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		stepExtra = "teacher comment timestamp";
@@ -1807,6 +1950,7 @@ public class VLEGetXLS extends VLEServlet {
 		columnCounter = setGetLatestStepWorkHeaderCells(
 				columnCounter, 
 				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		//set the step extra so the researcher knows this column is for the teacher comment
@@ -1816,6 +1960,7 @@ public class VLEGetXLS extends VLEServlet {
 		columnCounter = setGetLatestStepWorkHeaderCells(
 				columnCounter, 
 				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		
@@ -1824,7 +1969,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the review type from the content
+	 * 
 	 * @param nodeJSONObject
+	 * 
 	 * @return the review type "start", "annotate", or "revise"
 	 */
 	private String getReviewType(JSONObject nodeJSONObject) {
@@ -1848,7 +1995,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Check if the node is an AssessmentList
+	 * 
 	 * @param nodeContent
+	 * 
 	 * @return whether the node is an assessment list type
 	 */
 	private boolean isAssessmentListType(JSONObject nodeContent) {
@@ -1874,7 +2023,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Check if the node is a review type
+	 * 
 	 * @param nodeJSONObject
+	 * 
 	 * @return whether the node is a review type
 	 */
 	private boolean isReviewType(JSONObject nodeJSONObject) {
@@ -1889,7 +2040,9 @@ public class VLEGetXLS extends VLEServlet {
 
 	/**
 	 * Check if the node is a peer review
+	 * 
 	 * @param nodeJSONObject
+	 * 
 	 * @return whether the node is a peer review
 	 */
 	@SuppressWarnings("unused")
@@ -1905,7 +2058,9 @@ public class VLEGetXLS extends VLEServlet {
 
 	/**
 	 * Check if the node is a teacher review
+	 * 
 	 * @param nodeJSONObject
+	 * 
 	 * @return whether the node is a teacher review
 	 */
 	@SuppressWarnings("unused")
@@ -1921,7 +2076,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Check if the review type is "annotate"
+	 * 
 	 * @param nodeJSONObject
+	 * 
 	 * @return whether the node is an annotate review type
 	 */
 	private boolean isAnnotateReviewType(JSONObject nodeJSONObject) {
@@ -1936,7 +2093,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Check if the review type is "revise"
+	 * 
 	 * @param nodeJSONObject
+	 * 
 	 * @return whether the node is a revise review type
 	 */
 	private boolean isReviseReviewType(JSONObject nodeJSONObject) {
@@ -1951,7 +2110,9 @@ public class VLEGetXLS extends VLEServlet {
 
 	/**
 	 * Check if the node is "annotate" or "revise" type
+	 * 
 	 * @param nodeJSONObject
+	 * 
 	 * @return whether the node is an annotate or revise review type
 	 */
 	private boolean isAnnotateOrReviseReviewType(JSONObject nodeJSONObject) {
@@ -1981,7 +2142,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Check if the node utilizes CRater
+	 * 
 	 * @param nodeJSONObject the step content
+	 * 
 	 * @return whether the step uses CRater
 	 */
 	private boolean isCRaterType(JSONObject nodeJSONObject) {
@@ -2015,15 +2178,22 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Set the header cells for getLatestStudentWork for a review type node
 	 * which may require multiple columns
-	 * @param stepTitleRow
-	 * @param stepTypeRow
-	 * @param stepPromptRow
-	 * @param nodeIdRow
-	 * @param stepExtraRow
-	 * @param columnCounter
-	 * @param nodeId
-	 * @param nodeTitle
-	 * @param nodeContent
+	 * 
+	 * @param stepTitleRow the step title excel row
+	 * @param stepTypeRow the step type excel row
+	 * @param stepPromptRow the step prompt excel row
+	 * @param nodeIdRow the node id excel row
+	 * @param stepExtraRow the step extra excel row
+	 * @param stepTitleRowVector the step title csv row
+	 * @param stepTypeRowVector the step type csv row
+	 * @param stepPromptRowVector the step prompt csv row
+	 * @param nodeIdRowVector the node id csv row
+	 * @param stepExtraRowVector the step extra csv row
+	 * @param columnCounter the column counter
+	 * @param nodeId the node id
+	 * @param nodeTitle the node title
+	 * @param nodeContent the node content
+	 * 
 	 * @return the updated column position
 	 */
 	private int setGetLatestStudentWorkReviewHeaderCells(
@@ -2032,6 +2202,11 @@ public class VLEGetXLS extends VLEServlet {
 			Row stepPromptRow,
 			Row nodeIdRow,
 			Row stepExtraRow,
+			Vector<String> stepTitleRowVector,
+			Vector<String> stepTypeRowVector,
+			Vector<String> stepPromptRowVector,
+			Vector<String> nodeIdRowVector,
+			Vector<String> stepExtraRowVector,
 			int columnCounter, 
 			String nodeId,
 			String nodeTitle,
@@ -2095,7 +2270,10 @@ public class VLEGetXLS extends VLEServlet {
 						 * this is an assessment list step so we need to create a column for each assessment part.
 						 * this function sets the cells so we don't have to
 						 */
-						columnCounter = setGetLatestStudentWorkAssessmentListHeaderCells(stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, columnCounter, nodeId, nodeTitle, nodeContent);
+						columnCounter = setGetLatestStudentWorkAssessmentListHeaderCells(
+								stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+								stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
+								columnCounter, nodeId, nodeTitle, nodeContent);
 						
 						//make sure we don't create the cells again below
 						setCells = false;
@@ -2114,6 +2292,7 @@ public class VLEGetXLS extends VLEServlet {
 				//set the cells
 				columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
 						stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+						stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 						nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 			}
 		}
@@ -2124,15 +2303,22 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Set the header cells for getLatestStudentWork for an assessment list type node
 	 * which may require multiple columns
-	 * @param stepTitleRow
-	 * @param stepTypeRow
-	 * @param stepPromptRow
-	 * @param nodeIdRow
-	 * @param stepExtraRow
-	 * @param columnCounter
-	 * @param nodeId
-	 * @param nodeTitle
-	 * @param nodeContent
+	 * 
+	 * @param stepTitleRow the step title excel row
+	 * @param stepTypeRow the step type excel row
+	 * @param stepPromptRow the step prompt excel row
+	 * @param nodeIdRow the node id excel row
+	 * @param stepExtraRow the step extra excel row
+	 * @param stepTitleRowVector the step title csv row
+	 * @param stepTypeRowVector the step type csv row
+	 * @param stepPromptRowVector the step prompt csv row
+	 * @param nodeIdRowVector the node id csv row
+	 * @param stepExtraRowVector the step extra csv row
+	 * @param columnCounter the column counter
+	 * @param nodeId the node id
+	 * @param nodeTitle the node title
+	 * @param nodeContent the node content
+	 * 
 	 * @return the updated column position
 	 */
 	private int setGetLatestStudentWorkAssessmentListHeaderCells(
@@ -2141,6 +2327,11 @@ public class VLEGetXLS extends VLEServlet {
 			Row stepPromptRow,
 			Row nodeIdRow,
 			Row stepExtraRow,
+			Vector<String> stepTitleRowVector,
+			Vector<String> stepTypeRowVector,
+			Vector<String> stepPromptRowVector,
+			Vector<String> nodeIdRowVector,
+			Vector<String> stepExtraRowVector,
 			int columnCounter, 
 			String nodeId,
 			String nodeTitle, 
@@ -2184,6 +2375,7 @@ public class VLEGetXLS extends VLEServlet {
 					//set the header cells for the column
 					columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
 							stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+							stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 							nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 				}
 			} catch (JSONException e) {
@@ -2205,6 +2397,7 @@ public class VLEGetXLS extends VLEServlet {
 					//set the header cells for the column
 					columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
 							stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+							stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 							nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 				}
 			} catch (JSONException e) {
@@ -2218,15 +2411,22 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Set the header cells for a regular node that only requires one column
-	 * @param stepTitleRow
-	 * @param stepTypeRow
-	 * @param stepPromptRow
-	 * @param nodeIdRow
-	 * @param stepExtraRow
-	 * @param columnCounter
-	 * @param nodeId
-	 * @param nodeTitle
-	 * @param nodeContent
+	 * 
+	 * @param stepTitleRow the step title excel row
+	 * @param stepTypeRow the step type excel row 
+	 * @param stepPromptRow the step prompt excel row
+	 * @param nodeIdRow the node id excel row
+	 * @param stepExtraRow the step extra excel row
+	 * @param stepTitleRowVector the step title csv row
+	 * @param stepTypeRowVector the step type csv row
+	 * @param stepPromptRowVector the step prompt csv row
+	 * @param nodeIdRowVector the node id csv row
+	 * @param stepExtraRowVector the step extra csv row
+	 * @param columnCounter the column counter
+	 * @param nodeId the node id
+	 * @param nodeTitle the node title
+	 * @param nodeContent the node content
+	 * 
 	 * @return the updated column position
 	 */
 	private int setGetLatestStudentWorkCRaterHeaderCells(
@@ -2235,6 +2435,11 @@ public class VLEGetXLS extends VLEServlet {
 			Row stepPromptRow,
 			Row nodeIdRow,
 			Row stepExtraRow,
+			Vector<String> stepTitleRowVector,
+			Vector<String> stepTypeRowVector,
+			Vector<String> stepPromptRowVector,
+			Vector<String> nodeIdRowVector,
+			Vector<String> stepExtraRowVector,
 			int columnCounter, 
 			String nodeId,
 			String nodeTitle, 
@@ -2258,6 +2463,7 @@ public class VLEGetXLS extends VLEServlet {
 		//set the header cells
 		columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
 				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		stepExtra = "CRater score timestamp";
@@ -2265,6 +2471,7 @@ public class VLEGetXLS extends VLEServlet {
 		//set the crater header cells for the CRater score timestamp column
 		columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
 				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		stepExtra = "CRater score";
@@ -2272,6 +2479,7 @@ public class VLEGetXLS extends VLEServlet {
 		//set the crater header cells for the CRater score column
 		columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
 				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		return columnCounter;
@@ -2279,15 +2487,22 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Set the header cells for a regular node that only requires one column
-	 * @param stepTitleRow
-	 * @param stepTypeRow
-	 * @param stepPromptRow
-	 * @param nodeIdRow
-	 * @param stepExtraRow
-	 * @param columnCounter
-	 * @param nodeId
-	 * @param nodeTitle
-	 * @param nodeContent
+	 * 
+	 * @param stepTitleRow the step title excel row
+	 * @param stepTypeRow the step type excel row
+	 * @param stepPromptRow the step prompt excel row
+	 * @param nodeIdRow the node id excel row
+	 * @param stepExtraRow the step extra excel row
+	 * @param stepTitleRowVector the step title csv row
+	 * @param stepTypeRowVector the step type csv row
+	 * @param stepPromptRowVector the step prompt csv row
+	 * @param nodeIdRowVector the node id csv row
+	 * @param stepExtraRowVector the step extra csv row
+	 * @param columnCounter the column counter
+	 * @param nodeId the node id
+	 * @param nodeTitle the node title
+	 * @param nodeContent the node content
+	 * 
 	 * @return the updated column position
 	 */
 	private int setGetLatestStudentWorkRegularHeaderCells(
@@ -2296,6 +2511,11 @@ public class VLEGetXLS extends VLEServlet {
 			Row stepPromptRow,
 			Row nodeIdRow,
 			Row stepExtraRow,
+			Vector<String> stepTitleRowVector,
+			Vector<String> stepTypeRowVector,
+			Vector<String> stepPromptRowVector,
+			Vector<String> nodeIdRowVector,
+			Vector<String> stepExtraRowVector,
 			int columnCounter, 
 			String nodeId,
 			String nodeTitle, 
@@ -2319,6 +2539,7 @@ public class VLEGetXLS extends VLEServlet {
 		//set the header cells
 		columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
 				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				stepTitleRowVector, stepTypeRowVector, stepPromptRowVector, nodeIdRowVector, stepExtraRowVector,
 				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		return columnCounter;
@@ -2326,17 +2547,24 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Set the header values for a single header column
-	 * @param columnCounter
-	 * @param stepTitleRow
-	 * @param stepTypeRow
-	 * @param stepPromptRow
-	 * @param nodeIdRow
-	 * @param stepExtraRow
-	 * @param stepTitle
-	 * @param stepType
-	 * @param stepPrompt
-	 * @param nodeId
-	 * @param stepExtra
+	 * 
+	 * @param columnCounter the column counter
+	 * @param stepTitleRow the step title excel row
+	 * @param stepTypeRow the step type excel row
+	 * @param stepPromptRow the step prompt excel row
+	 * @param nodeIdRow the node id excel row
+	 * @param stepExtraRow the step extra excel row
+	 * @param stepTitleRowVector the step title csv row
+	 * @param stepTypeRowVector the step type csv row
+	 * @param stepPromptRowVector the step prompt csv row
+	 * @param nodeIdRowVector the node id csv row
+	 * @param stepExtraRowVector the step extra csv row
+	 * @param stepTitle the step title
+	 * @param stepType the step type
+	 * @param stepPrompt the step prompt
+	 * @param nodeId the node id
+	 * @param stepExtra the step extra
+	 * 
 	 * @return the updated column position
 	 */
 	private int setGetLatestStepWorkHeaderCells(
@@ -2346,26 +2574,23 @@ public class VLEGetXLS extends VLEServlet {
 			Row stepPromptRow,
 			Row nodeIdRow,
 			Row stepExtraRow,
+			Vector<String> stepTitleRowVector,
+			Vector<String> stepTypeRowVector,
+			Vector<String> stepPromptRowVector,
+			Vector<String> nodeIdRowVector,
+			Vector<String> stepExtraRowVector,
 			String stepTitle,
 			String stepType,
 			String stepPrompt,
 			String nodeId,
 			String stepExtra) {
 		
-		//set the step title
-		stepTitleRow.createCell(columnCounter).setCellValue(stepTitle);
-		
-		//set the step type
-		stepTypeRow.createCell(columnCounter).setCellValue(stepType);
-		
-		//set the step prompt
-		stepPromptRow.createCell(columnCounter).setCellValue(stepPrompt);
-		
-		//set the node id
-		nodeIdRow.createCell(columnCounter).setCellValue(nodeId);
-		
-		//set the step extra
-		stepExtraRow.createCell(columnCounter).setCellValue(stepExtra);
+		//set the cells for this column
+		setCellValue(stepTitleRow, stepTitleRowVector, columnCounter, stepTitle);
+		setCellValue(stepTypeRow, stepTypeRowVector, columnCounter, stepType);
+		setCellValue(stepPromptRow, stepPromptRowVector, columnCounter, stepPrompt);
+		setCellValue(nodeIdRow, nodeIdRowVector, columnCounter, nodeId);
+		setCellValue(stepExtraRow, stepExtraRowVector, columnCounter, stepExtra);
 		
 		//increment the column counter
 		return columnCounter + 1;
@@ -2373,7 +2598,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the latest StepWork that has a non-empty response
+	 * 
 	 * @param stepWorks a list of StepWork objects
+	 * 
 	 * @return a String containing the latest response
 	 */
 	private StepWork getLatestStepWorkWithResponse(List<StepWork> stepWorks) {
@@ -2406,7 +2633,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the latest step work that has a non-empty response and return that response
+	 * 
 	 * @param stepWorks a list of StepWork objects
+	 * 
 	 * @return a String containing the latest response
 	 */
 	@SuppressWarnings("unused")
@@ -2422,7 +2651,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the prompt from the node content
+	 * 
 	 * @param nodeContent the node content JSON
+	 * 
 	 * @return a string containing the prompt for the node, if nodeContent
 	 * is null, we will just return ""
 	 */
@@ -2480,9 +2711,10 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param columnCounter
 	 * @param stepWorksForNodeId
 	 * @param nodeId the id of the node
+	 * 
 	 * @return the updated column position
 	 */
-	private int setStepWorkResponse(Row rowForWorkgroupId, int columnCounter, StepWork stepWork, String nodeId) {
+	private int setStepWorkResponse(Row rowForWorkgroupId, Vector<String> rowForWorkgroupIdVector, int columnCounter, StepWork stepWork, String nodeId) {
 		//obtain the number of answer fields for this step
 		int numberOfAnswerFields = getNumberOfAnswerFields(nodeId);
 		
@@ -2494,6 +2726,7 @@ public class VLEGetXLS extends VLEServlet {
 			
 			//increment the column counter
 			columnCounter += numberOfAnswerFields;
+			addEmptyElementsToVector(rowForWorkgroupIdVector, numberOfAnswerFields);
 		} else if(stepTypeContainsMultipleAnswerFields(stepWork)) {
 			//the step type contains multiple answer fields
 			
@@ -2546,10 +2779,11 @@ public class VLEGetXLS extends VLEServlet {
 									String responseText = responseObject.getString("text");
 									
 									//set the response text into the cell and increment the counter
-									rowForWorkgroupId.createCell(columnCounter).setCellValue(responseText);
+									columnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, columnCounter, responseText);
+								} else {
+									columnCounter++;
+									addEmptyElementsToVector(rowForWorkgroupIdVector, 1);
 								}
-								
-								columnCounter++;
 							}
 							
 							if(isLockAfterSubmit) {
@@ -2557,9 +2791,7 @@ public class VLEGetXLS extends VLEServlet {
 								boolean isSubmit = lastState.getBoolean("isSubmit");
 								
 								//set whether the student work was a submit
-								rowForWorkgroupId.createCell(columnCounter).setCellValue(isSubmit);
-								
-								columnCounter++;
+								columnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, columnCounter, Boolean.toString(isSubmit));
 							}
 							
 							//set the max number of step work parts if necessary
@@ -2576,6 +2808,7 @@ public class VLEGetXLS extends VLEServlet {
 					
 					//increment the column counter
 					columnCounter += numberOfAnswerFields;
+					addEmptyElementsToVector(rowForWorkgroupIdVector, numberOfAnswerFields);
 					
 					if(isLockAfterSubmit) {
 						/*
@@ -2583,6 +2816,7 @@ public class VLEGetXLS extends VLEServlet {
 						 * the column for "Is Submit"
 						 */
 						columnCounter++;
+						addEmptyElementsToVector(rowForWorkgroupIdVector, 1);
 					}
 				}
 			} catch (JSONException e) {
@@ -2595,21 +2829,13 @@ public class VLEGetXLS extends VLEServlet {
 			String stepWorkResponse = getStepWorkResponse(stepWork);
 			
 			if(stepWorkResponse != null) {
-				//check if the response has more characters than the max allowable 
-				if(stepWorkResponse.length() > 32767) {
-					//response has more characters than the max allowable so we will truncate it
-					stepWorkResponse = stepWorkResponse.substring(0, 32767);
-					
-					//increment the counter to keep track of how many oversized responses we have
-					oversizedResponses++;
-				}
-				
 				//set the response into the cell and increment the counter
-				rowForWorkgroupId.createCell(columnCounter++).setCellValue(stepWorkResponse);
+				columnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, columnCounter, stepWorkResponse);
 				
 			} else {
 				//there was no work so we will leave the cell blank and increment the counter
 				columnCounter++;
+				addEmptyElementsToVector(rowForWorkgroupIdVector, 1);
 			}
 		}
 		
@@ -2621,7 +2847,9 @@ public class VLEGetXLS extends VLEServlet {
 	 * Determines whether the step type contains multiple answer fields
 	 * e.g.
 	 * AssessmentListNode
+	 * 
 	 * @param stepWork the step work to check
+	 * 
 	 * @return whether the step type contains multiple answer fields
 	 */
 	private boolean stepTypeContainsMultipleAnswerFields(StepWork stepWork) {
@@ -2672,7 +2900,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the number of answer fields for the given step/node
+	 * 
 	 * @param nodeId the id of the node
+	 * 
 	 * @return the number of answer fields for the given step/node
 	 */
 	private int getNumberOfAnswerFields(String nodeId) {
@@ -2722,7 +2952,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Obtains the student work/response for the StepWork
+	 * 
 	 * @param stepWork a StepWork object
+	 * 
 	 * @return a String containing the student work/response
 	 * note: HtmlNodes will return "N/A"
 	 */
@@ -3126,12 +3358,14 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Parse the excel export string template and insert the appropriate
 	 * data from the student work into it
+	 * 
 	 * @param excelExportStringTemplate the template for how the text should
 	 * be displayed in the cell
 	 * e.g.
 	 * "Top Score: {response.topScore}, Phase 1 Score: {response.phases[0].score}"
 	 * @param nodeState the node state
 	 * @param stepWorkId the step work id
+	 * 
 	 * @return a string containing the student work that will be displayed
 	 * in the cell
 	 * e.g.
@@ -3184,6 +3418,7 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the student data for the given field path
+	 * 
 	 * @param fieldPath
 	 * here are some examples
 	 * {response}
@@ -3191,6 +3426,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * {response.phases[0].score}
 	 * @param nodeState the student work
 	 * @param stepWorkId the step work id
+	 * 
 	 * @return the value of the given field from the student work
 	 */
 	private String getNodeStateField(String fieldPath, JSONObject nodeState, Long stepWorkId) {
@@ -3210,6 +3446,7 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the student data for the given field path
+	 * 
 	 * @param fieldPath
 	 * here are some examples
 	 * response
@@ -3217,6 +3454,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * response.phases[0].score
 	 * @param nodeState the student work
 	 * @param stepWorkId the step work id
+	 * 
 	 * @return the value of the given field from the student work
 	 */
 	private String getFieldValue(String fieldPath, JSONObject nodeState, Long stepWorkId) {
@@ -3434,34 +3672,36 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Create the row that contains the user data headers, we will assume there
 	 * will be at most 3 students in a single workgroup
+	 * 
 	 * @param userDataHeaderRow the excel Row object to populate
+	 * @param userDataHeaderRowVector the csv row to populate
 	 * @param includeUserDataCells whether to output the user data cells such
 	 * as workgroup id, wise id 1, wise id 2, wise id 3, class period
 	 * @param includeMetaDataCells whether to output the metadata cells such
 	 * as teacher login, project id, project name, etc.
 	 */
-	private int createUserDataHeaderRow(Row userDataHeaderRow, boolean includeUserDataCells, boolean includeMetaDataCells) {
+	private int createUserDataHeaderRow(Row userDataHeaderRow, Vector<String> userDataHeaderRowVector, boolean includeUserDataCells, boolean includeMetaDataCells) {
 		int userDataHeaderRowColumnCounter = 0;
 
 		if(includeUserDataCells) {
 			//output the user data header cells
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Workgroup Id");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 1");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 2");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 3");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Class Period");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Workgroup Id");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Wise Id 1");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Wise Id 2");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Wise Id 3");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Class Period");
 		}
 		
 		if(includeMetaDataCells) {
 			//output the meta data header cells
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Teacher Login");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Project Id");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Parent Project Id");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Project Name");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Run Id");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Run Name");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Start Date");
-			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("End Date");			
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Teacher Login");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Project Id");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Parent Project Id");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Project Name");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Run Id");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Run Name");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "Start Date");
+			userDataHeaderRowColumnCounter = setCellValue(userDataHeaderRow, userDataHeaderRowVector, userDataHeaderRowColumnCounter, "End Date");
 		}
 		
 		return userDataHeaderRowColumnCounter;
@@ -3471,7 +3711,9 @@ public class VLEGetXLS extends VLEServlet {
 	 * Create the row that contains the user data such as the student
 	 * logins, teacher login, period name, etc.
 	 * we will assume there will be at most 3 students in a single workgroup
+	 * 
 	 * @param userDataRow the excel Row object to populate
+	 * @param userDataRowVector the csv row to populate
 	 * @param workgroupId the workgroupId to obtain user data for
 	 * @param includeUserDataCells whether to output the user data cells such
 	 * as workgroup id, wise id 1, wise id 2, wise id 3, class period
@@ -3479,7 +3721,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * as teacher login, project id, project name, etc.
 	 * @param periodName (optional) the period name
 	 */
-	private int createUserDataRow(Row userDataRow, String workgroupId, boolean includeUserDataCells, boolean includeMetaDataCells, String periodName) {
+	private int createUserDataRow(Row userDataRow, Vector<String> userDataRowVector, String workgroupId, boolean includeUserDataCells, boolean includeMetaDataCells, String periodName) {
 		//the column counter
 		int workgroupColumnCounter = 0;
 		
@@ -3487,35 +3729,36 @@ public class VLEGetXLS extends VLEServlet {
 			//output the user data cells
 			
 			//set the first column to be the workgroup id
-			workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, workgroupId);
+			workgroupColumnCounter = setCellValueConvertStringToLong(userDataRow, userDataRowVector, workgroupColumnCounter, workgroupId);
 			
-			//get the student logins for the given workgroup id
-			String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId));
+			//get the student user ids for the given workgroup id
+			String userIds = workgroupIdToUserIds.get(Integer.parseInt(workgroupId));
 			
-			if(studentLogins != null) {
-				//we found student logins
+			if(userIds != null) {
+				//we found student user ids
 				
 				//the user ids string is delimited by ':'
-				String[] studentLoginsArray = studentLogins.split(":");
+				String[] userIdsArray = userIds.split(":");
 				
 				//sort the user ids numerically
-				ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+				ArrayList<Long> userIdsList = sortUserIdsArray(userIdsArray);
 				
 				//loop through all the user ids in this workgroup
-				for(int z=0; z<studentLoginsList.size(); z++) {
+				for(int z=0; z<userIdsList.size(); z++) {
 					//get a user id
-					Long studentLoginLong = studentLoginsList.get(z);
+					Long userIdLong = userIdsList.get(z);
 					
 					//put the user id into the cell
-					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, studentLoginLong + "");
+					workgroupColumnCounter = setCellValue(userDataRow, userDataRowVector, workgroupColumnCounter, userIdLong);
 				}
 				
 				/*
 				 * we will assume there will be at most 3 students in a workgroup so we need
 				 * to increment the column counter if necessary
 				 */
-				int numColumnsToAdd = 3 - studentLoginsList.size();
+				int numColumnsToAdd = 3 - userIdsList.size();
 				workgroupColumnCounter += numColumnsToAdd;
+				addEmptyElementsToVector(userDataRowVector, numColumnsToAdd);
 				
 				if(periodName == null) {
 					//get the period name such as 1, 2, 3, 4, etc.
@@ -3524,10 +3767,11 @@ public class VLEGetXLS extends VLEServlet {
 				
 				if(periodName != null) {
 					//populate the cell with the period name
-					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, periodName);					
+					workgroupColumnCounter = setCellValueConvertStringToLong(userDataRow, userDataRowVector, workgroupColumnCounter, periodName);
 				} else {
 					//the period name is null so we will just increment the counter
 					workgroupColumnCounter++;
+					addEmptyElementsToVector(userDataRowVector, 1);
 				}
 			} else {
 				if(periodName != null) {
@@ -3538,7 +3782,8 @@ public class VLEGetXLS extends VLEServlet {
 					 * in the public idea basket row excel export.
 					 */
 					workgroupColumnCounter += 3;
-					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, periodName);				
+					addEmptyElementsToVector(userDataRowVector, 3);
+					workgroupColumnCounter = setCellValueConvertStringToLong(userDataRow, userDataRowVector, workgroupColumnCounter, periodName);
 				} else {
 					/*
 					 * we did not find any student logins so we will just increment the column
@@ -3546,10 +3791,11 @@ public class VLEGetXLS extends VLEServlet {
 					 * for the period
 					 */
 					workgroupColumnCounter += 4;
+					addEmptyElementsToVector(userDataRowVector, 4);
 				}
 			}
 		}
-		
+
 		if(includeMetaDataCells) {
 			//output the meta data cells
 			
@@ -3562,20 +3808,20 @@ public class VLEGetXLS extends VLEServlet {
 			}
 			
 			//populate the cell with the teacher login
-			userDataRow.createCell(workgroupColumnCounter++).setCellValue(teacherLogin);
+			workgroupColumnCounter = setCellValue(userDataRow, userDataRowVector, workgroupColumnCounter, teacherLogin);
 			
 			//set the run and project attributes
-			workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, projectId);
-			workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, parentProjectId);
-			userDataRow.createCell(workgroupColumnCounter++).setCellValue(projectName);
-			workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, runId);
-			userDataRow.createCell(workgroupColumnCounter++).setCellValue(runName);
+			workgroupColumnCounter = setCellValueConvertStringToLong(userDataRow, userDataRowVector, workgroupColumnCounter, projectId);
+			workgroupColumnCounter = setCellValueConvertStringToLong(userDataRow, userDataRowVector, workgroupColumnCounter, parentProjectId);
+			workgroupColumnCounter = setCellValue(userDataRow, userDataRowVector, workgroupColumnCounter, projectName);
+			workgroupColumnCounter = setCellValueConvertStringToLong(userDataRow, userDataRowVector, workgroupColumnCounter, runId);
+			workgroupColumnCounter = setCellValue(userDataRow, userDataRowVector, workgroupColumnCounter, runName);
 			
 			//populate the cell with the date the run was created
-			userDataRow.createCell(workgroupColumnCounter++).setCellValue(startTime);
+			workgroupColumnCounter = setCellValue(userDataRow, userDataRowVector, workgroupColumnCounter, startTime);
 			
 			//populate the cell with the date the run was archived
-			userDataRow.createCell(workgroupColumnCounter++).setCellValue(endTime);			
+			workgroupColumnCounter = setCellValue(userDataRow, userDataRowVector, workgroupColumnCounter, endTime);
 		}
 		
 		return workgroupColumnCounter;
@@ -3585,14 +3831,16 @@ public class VLEGetXLS extends VLEServlet {
 	 * Get the explanation builder work excel export. We will generate a row 
 	 * for each idea used in an explanation builder step. The order of
 	 * the explanation builder steps will be chronological from oldest to newest.
-	 * @param nodeIdToNodeTitlesMap
-	 * @param workgroupIds
-	 * @param runId
-	 * @param nodeIdToNode
-	 * @param nodeIdToNodeContent
-	 * @param workgroupIdToPeriodId
-	 * @param teacherWorkgroupIds
-	 * @return
+	 * 
+	 * @param nodeIdToNodeTitlesMap a mapping of node id to node title
+	 * @param workgroupIds a vector of workgroup ids
+	 * @param runId the run id
+	 * @param nodeIdToNode a mapping of node id to node
+	 * @param nodeIdToNodeContent a mapping of node id to node content
+	 * @param workgroupIdToPeriodId a mapping of workgroup id to period id
+	 * @param teacherWorkgroupIds a list of teacher workgroup ids
+	 * 
+	 * @return the excel workbook if we are generating an xls file
 	 */
 	private XSSFWorkbook getExplanationBuilderWorkExcelExport(HashMap<String, String> nodeIdToNodeTitlesMap,
 			Vector<String> workgroupIds, 
@@ -3603,7 +3851,12 @@ public class VLEGetXLS extends VLEServlet {
 			List<String> teacherWorkgroupIds) {
 		
 		//the excel workbook
-		XSSFWorkbook wb = new XSSFWorkbook();
+		XSSFWorkbook wb = null;
+		
+		if(isFileTypeXLS(fileType)) {
+			//we are generating an xls file so we will create the workbook
+			wb = new XSSFWorkbook();
+		}
 		
 		//loop through all the workgroups
 		for(int x=0; x<workgroupIds.size(); x++) {
@@ -3611,7 +3864,11 @@ public class VLEGetXLS extends VLEServlet {
 			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(workgroupId));
 
 			//create a sheet for the workgroup
-			XSSFSheet userIdSheet = wb.createSheet(workgroupId);
+			XSSFSheet userIdSheet = null;
+			
+			if(wb != null) {
+				userIdSheet = wb.createSheet(workgroupId);
+			}
 			
 			int rowCounter = 0;
 			
@@ -3619,24 +3876,35 @@ public class VLEGetXLS extends VLEServlet {
 			 * create the row that will display the user data headers such as workgroup id,
 			 * student login, teacher login, period name, etc.
 			 */
-			Row userDataHeaderRow = userIdSheet.createRow(rowCounter++);
-			createUserDataHeaderRow(userDataHeaderRow, true, true);
+			Row userDataHeaderRow = createRow(userIdSheet, rowCounter++);
+			Vector<String> userDataHeaderRowVector = createRowVector();
+			createUserDataHeaderRow(userDataHeaderRow, userDataHeaderRowVector, true, true);
+			
+			//write the csv row if we are generating a csv file
+			writeCSV(userDataHeaderRowVector);
 			
 			/*
 			 * create the row that will display the user data such as the actual values
 			 * for workgroup id, student login, teacher login, period name, etc.
 			 */
-			Row userDataRow = userIdSheet.createRow(rowCounter++);
-			createUserDataRow(userDataRow, workgroupId, true, true, null);
+			Row userDataRow = createRow(userIdSheet, rowCounter++);
+			Vector<String> userDataRowVector = createRowVector();
+			createUserDataRow(userDataRow, userDataRowVector, workgroupId, true, true, null);
+			
+			//write the csv row if we are generating a csv file
+			writeCSV(userDataRowVector);
 			
 			//create a blank row for spacing
 			rowCounter++;
+			Vector<String> emptyVector = createRowVector();
+			writeCSV(emptyVector);
 			
 			//counter for the header column cells
 			int headerColumn = 0;
 			
 			//create the first row which will contain the headers
-	    	Row headerRow = userIdSheet.createRow(rowCounter++);
+			Row headerRow = createRow(userIdSheet, rowCounter++);
+	    	Vector<String> headerRowVector = createRowVector();
 	    	
 	    	//vector that contains all the header column names
 	    	Vector<String> headerColumnNames = new Vector<String>();
@@ -3644,8 +3912,9 @@ public class VLEGetXLS extends VLEServlet {
 	    	headerColumnNames.add("Step Title");
 	    	headerColumnNames.add("Step Prompt");
 	    	headerColumnNames.add("Node Id");
-	    	headerColumnNames.add("Start Time");
-	    	headerColumnNames.add("End Time");
+	    	headerColumnNames.add("Post Time (Server Clock)");
+	    	headerColumnNames.add("Start Time (Student Clock)");
+	    	headerColumnNames.add("End Time (Student Clock)");
 	    	headerColumnNames.add("Time Spent (in seconds)");
 	    	headerColumnNames.add("Answer");
 	    	headerColumnNames.add("Idea Id");
@@ -3656,9 +3925,11 @@ public class VLEGetXLS extends VLEServlet {
 	    	
 	    	//add all the header column names to the row
 	    	for(int y=0; y<headerColumnNames.size(); y++) {
-		    	headerRow.createCell(headerColumn).setCellValue(headerColumnNames.get(y));
-		    	headerColumn++;	    		
+		    	headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, headerColumnNames.get(y));
 	    	}
+	    	
+	    	//write the csv row if we are generating a csv file
+	    	writeCSV(headerRowVector);
 	    	
 	    	//get all the work from the workgroup
 	    	List<StepWork> stepWorks = StepWork.getByUserInfo(userInfo);
@@ -3701,7 +3972,8 @@ public class VLEGetXLS extends VLEServlet {
 									JSONObject explanationIdea = explanationIdeas.getJSONObject(i);
 									
 									//create a row for this idea
-					    			Row ideaRow = userIdSheet.createRow(rowCounter++);
+									Row ideaRow = createRow(userIdSheet, rowCounter++);
+					    			Vector<String> ideaRowVector = createRowVector();
 					    			
 					    			int columnCounter = 0;
 					    			
@@ -3722,10 +3994,12 @@ public class VLEGetXLS extends VLEServlet {
 					    					prompt = nodeContent.getString("prompt");					    					
 					    				}
 					    			}
-					    			//get the start and end time for the student visit
+					    			
+					    			//get the start, end and post time for the student visit
 									Timestamp startTime = stepWork.getStartTime();
 									Timestamp endTime = stepWork.getEndTime();
-									
+									Timestamp postTime = stepWork.getPostTime();
+
 							    	long timeSpentOnStep = 0;
 							    	
 							    	//calculate the time the student spent on the step
@@ -3740,31 +4014,44 @@ public class VLEGetXLS extends VLEServlet {
 							    		timeSpentOnStep = (endTime.getTime() - startTime.getTime()) / 1000;	
 							    	}
 							    	
-									ideaRow.createCell(columnCounter++).setCellValue(stepWorkId);
-									ideaRow.createCell(columnCounter++).setCellValue(title);
-									ideaRow.createCell(columnCounter++).setCellValue(prompt);
-									ideaRow.createCell(columnCounter++).setCellValue(nodeId);
-									ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(startTime));
+									columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, stepWorkId);
+									columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, title);
+									columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, prompt);
+									columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, nodeId);
 									
-									if(endTime != null) {
-										ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(endTime));
+									//set the post time
+									if(postTime != null) {
+										columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, timestampToFormattedString(postTime));
 									} else {
-										ideaRow.createCell(columnCounter++).setCellValue("");						
+										columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, "");
+									}
+									
+									//set the start time
+									columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, timestampToFormattedString(startTime));
+									
+									//set the end time
+									if(endTime != null) {
+										columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, timestampToFormattedString(endTime));
+									} else {
+										columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, "");
 									}
 									
 									//set the time spent on the step
 							    	if(timeSpentOnStep == -1) {
-							    		ideaRow.createCell(columnCounter++).setCellValue("N/A");
+							    		columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, "N/A");
 							    	} else {
-							    		ideaRow.createCell(columnCounter++).setCellValue(timeSpentOnStep);	
+							    		columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, timeSpentOnStep);
 							    	}
 							    	
-							    	ideaRow.createCell(columnCounter++).setCellValue(answer);
-							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getLong("id"));
-							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getString("lastAcceptedText"));
-							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getLong("xpos"));
-							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getLong("ypos"));
-							    	ideaRow.createCell(columnCounter++).setCellValue(getColorNameFromRBGString(explanationIdea.getString("color")));
+							    	columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, answer);
+							    	columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, explanationIdea.getLong("id"));
+							    	columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, explanationIdea.getString("lastAcceptedText"));
+							    	columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, explanationIdea.getLong("xpos"));
+							    	columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, explanationIdea.getLong("ypos"));
+							    	columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, getColorNameFromRBGString(explanationIdea.getString("color")));
+							    	
+							    	//write the csv row if we are generating a csv file
+							    	writeCSV(ideaRowVector);
 								}
 							}
 						}
@@ -3773,6 +4060,10 @@ public class VLEGetXLS extends VLEServlet {
 					}
 	    		}
 	    	}
+	    	
+	    	//create a blank row for spacing
+			Vector<String> emptyVector2 = createRowVector();
+			writeCSV(emptyVector2);
 		}
 		
 		return wb;
@@ -3782,14 +4073,16 @@ public class VLEGetXLS extends VLEServlet {
 	 * Get the flash work excel export. We will generate a row 
 	 * for each item used in a flash step. The order of
 	 * the flash steps will be chronological from oldest to newest.
-	 * @param nodeIdToNodeTitlesMap
-	 * @param workgroupIds
-	 * @param runId
-	 * @param nodeIdToNode
-	 * @param nodeIdToNodeContent
-	 * @param workgroupIdToPeriodId
-	 * @param teacherWorkgroupIds
-	 * @return
+	 * 
+	 * @param nodeIdToNodeTitlesMap a mapping of node id to node titles
+	 * @param workgroupIds a vector of workgroup ids
+	 * @param runId the run id
+	 * @param nodeIdToNode a mapping of node id to node
+	 * @param nodeIdToNodeContent a mapping of node id to node content
+	 * @param workgroupIdToPeriodId a mapping of workgroup id to period id
+	 * @param teacherWorkgroupIds a list of teacher workgroup ids
+	 * 
+	 * @return an excel workbook if we are generating an xls file
 	 */
 	private XSSFWorkbook getFlashWorkExcelExport(HashMap<String, String> nodeIdToNodeTitlesMap,
 			Vector<String> workgroupIds, 
@@ -3800,7 +4093,12 @@ public class VLEGetXLS extends VLEServlet {
 			List<String> teacherWorkgroupIds) {
 		
 		//the excel workbook
-		XSSFWorkbook wb = new XSSFWorkbook();
+		XSSFWorkbook wb = null;
+		
+		if(isFileTypeXLS(fileType)) {
+			//we are generating an xls file so we will create the workbook
+			wb = new XSSFWorkbook();
+		}
 		
 		//whether to also export all the other student work
 		boolean exportAllWork = true;
@@ -3809,7 +4107,11 @@ public class VLEGetXLS extends VLEServlet {
 		int rowCounter = 0;
 		
 		//we will export everything onto one sheet
-		XSSFSheet allWorkgroupsSheet = wb.createSheet("All Workgroups");
+		XSSFSheet allWorkgroupsSheet = null;
+		
+		if(wb != null) {
+			allWorkgroupsSheet = wb.createSheet("All Workgroups");
+		}
 
 		String teacherLogin = "";
 		
@@ -3824,7 +4126,7 @@ public class VLEGetXLS extends VLEServlet {
 		int headerColumn = 0;
 		
 		//create the first row which will contain the headers
-		Row headerRow = allWorkgroupsSheet.createRow(rowCounter++);
+		Row headerRow = createRow(allWorkgroupsSheet, rowCounter++);
     	
     	//vector that contains all the header column names
     	Vector<String> headerColumnNames = new Vector<String>();
@@ -3887,30 +4189,30 @@ public class VLEGetXLS extends VLEServlet {
 			String periodName = workgroupIdToPeriodName.get(Integer.parseInt(workgroupId));
 			
     		//get all the user ids for this workgroup
-    		String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId + ""));
+    		String userIds = workgroupIdToUserIds.get(Integer.parseInt(workgroupId + ""));
     		
 			//the user ids string is delimited by ':'
-			String[] studentLoginsArray = studentLogins.split(":");
+			String[] userIdsArray = userIds.split(":");
 			
 			//sort the user ids numerically and put them into a list
-			ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+			ArrayList<Long> userIdsList = sortUserIdsArray(userIdsArray);
 			
 			String wiseId1 = "";
 			String wiseId2 = "";
 			String wiseId3 = "";
 			
 			//loop through all the user ids in this workgroup
-			for(int z=0; z<studentLoginsList.size(); z++) {
+			for(int z=0; z<userIdsList.size(); z++) {
 				//get a user id
-				Long studentLoginId = studentLoginsList.get(z);
+				Long wiseId = userIdsList.get(z);
 				
 				//set the appropriate wise id
 				if(z == 0) {
-					wiseId1 = studentLoginId + "";
+					wiseId1 = wiseId + "";
 				} else if(z == 1) {
-					wiseId2 = studentLoginId + "";
+					wiseId2 = wiseId + "";
 				} else if(z == 2) {
-					wiseId3 = studentLoginId + "";
+					wiseId3 = wiseId + "";
 				}
 			}
 			
@@ -3989,7 +4291,8 @@ public class VLEGetXLS extends VLEServlet {
 										long handleBarY = itemLabel.getLong("handleBarY");
 										
 										//create a row for this idea
-						    			Row itemRow = allWorkgroupsSheet.createRow(rowCounter++);
+										Row itemRow = createRow(allWorkgroupsSheet, rowCounter++);
+						    			Vector<String> itemRowVector = createRowVector();
 						    			
 						    			int columnCounter = 0;
 						    			
@@ -4025,54 +4328,54 @@ public class VLEGetXLS extends VLEServlet {
 								    	}
 								    	
 								    	//set the workgroup values into the row
-								    	columnCounter = setCellValue(itemRow, columnCounter, workgroupId);
-								    	columnCounter = setCellValue(itemRow, columnCounter, wiseId1);
-								    	columnCounter = setCellValue(itemRow, columnCounter, wiseId2);
-								    	columnCounter = setCellValue(itemRow, columnCounter, wiseId3);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, workgroupId);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, wiseId1);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, wiseId2);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, wiseId3);
 								    	
 								    	//set the project run values into the row
-								    	itemRow.createCell(columnCounter++).setCellValue(teacherLogin);
-								    	columnCounter = setCellValue(itemRow, columnCounter, projectId);
-								    	columnCounter = setCellValue(itemRow, columnCounter, parentProjectId);
-								    	itemRow.createCell(columnCounter++).setCellValue(projectName);
-								    	columnCounter = setCellValue(itemRow, columnCounter, runId);
-								    	itemRow.createCell(columnCounter++).setCellValue(runName);
-								    	itemRow.createCell(columnCounter++).setCellValue(startTime);
-								    	itemRow.createCell(columnCounter++).setCellValue(endTime);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, teacherLogin);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, projectId);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, parentProjectId);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, projectName);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, runId);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, runName);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, startTime);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, endTime);
 								    	
 								    	//set the step values into the row
-								    	columnCounter = setCellValue(itemRow, columnCounter, periodName);
-										itemRow.createCell(columnCounter++).setCellValue(stepWorkId);
-										itemRow.createCell(columnCounter++).setCellValue(title);
-										itemRow.createCell(columnCounter++).setCellValue(stepType);
-										itemRow.createCell(columnCounter++).setCellValue(prompt);
-										itemRow.createCell(columnCounter++).setCellValue(nodeId);
-										itemRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitStartTime));
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, periodName);
+										columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, stepWorkId);
+										columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, title);
+										columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, stepType);
+										columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, prompt);
+										columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, nodeId);
+										columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, timestampToFormattedString(visitStartTime));
 										
 										//set the visit end time
 										if(visitEndTime != null) {
-											itemRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitEndTime));
+											columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, timestampToFormattedString(visitEndTime));
 										} else {
-											itemRow.createCell(columnCounter++).setCellValue("");						
+											columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, "");
 										}
 										
 										//set the time spent on the step
 								    	if(timeSpentOnStep == -1) {
-								    		itemRow.createCell(columnCounter++).setCellValue("N/A");
+								    		columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, "N/A");
 								    	} else {
-								    		itemRow.createCell(columnCounter++).setCellValue(timeSpentOnStep);	
+								    		columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, timeSpentOnStep);
 								    	}
 								    	
 								    	//set the student work values into the row
-								    	itemRow.createCell(columnCounter++).setCellValue(revisionNumber);
-								    	itemRow.createCell(columnCounter++).setCellValue(i + 1);
-								    	itemRow.createCell(columnCounter++).setCellValue(customGrading);
-								    	itemRow.createCell(columnCounter++).setCellValue(labelText);
-								    	itemRow.createCell(columnCounter++).setCellValue(xPos);
-								    	itemRow.createCell(columnCounter++).setCellValue(yPos);
-								    	itemRow.createCell(columnCounter++).setCellValue(isDeleted);
-								    	itemRow.createCell(columnCounter++).setCellValue(handleBarX);
-								    	itemRow.createCell(columnCounter++).setCellValue(handleBarY);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, revisionNumber);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, i + 1);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, customGrading);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, labelText);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, xPos);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, yPos);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, Boolean.toString(isDeleted));
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, handleBarX);
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, handleBarY);
 								    	
 								    	boolean isItemNew = isItemNew(itemLabel, i, previousResponse);
 								    	boolean isItemLabelTextRevised = isItemLabelTextRevised(itemLabel, i, previousResponse);
@@ -4081,11 +4384,14 @@ public class VLEGetXLS extends VLEServlet {
 								    	boolean isItemDeletedTrueToFalse = isItemDeletedTrueToFalse(itemLabel, i, previousResponse);
 								    	
 								    	//set the values that specify whether the student data has changed
-								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemNew));
-								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemLabelTextRevised));
-								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemRepositioned));
-								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemDeletedFalseToTrue));
-								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemDeletedTrueToFalse));
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, getIntFromBoolean(isItemNew));
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, getIntFromBoolean(isItemLabelTextRevised));
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, getIntFromBoolean(isItemRepositioned));
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, getIntFromBoolean(isItemDeletedFalseToTrue));
+								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, getIntFromBoolean(isItemDeletedTrueToFalse));
+								    	
+								    	//write the csv row if we are generating a csv file
+								    	writeCSV(itemRowVector);
 									}
 									
 									if(dataArray.length() > 0) {
@@ -4132,7 +4438,8 @@ public class VLEGetXLS extends VLEServlet {
 		    			}
 		    			
 						//create a row for this idea
-		    			Row workRow = allWorkgroupsSheet.createRow(rowCounter++);
+		    			Row workRow = createRow(allWorkgroupsSheet, rowCounter++);
+		    			Vector<String> workRowVector = createRowVector();
 		    			
 		    			int columnCounter = 0;
 		    			
@@ -4165,50 +4472,53 @@ public class VLEGetXLS extends VLEServlet {
 				    	}
 		    			
 				    	//set the workgroup values into the row
-		    			columnCounter = setCellValue(workRow, columnCounter, workgroupId);
-				    	columnCounter = setCellValue(workRow, columnCounter, wiseId1);
-				    	columnCounter = setCellValue(workRow, columnCounter, wiseId2);
-				    	columnCounter = setCellValue(workRow, columnCounter, wiseId3);
+		    			columnCounter = setCellValueConvertStringToLong(workRow, workRowVector, columnCounter, workgroupId);
+				    	columnCounter = setCellValueConvertStringToLong(workRow, workRowVector, columnCounter, wiseId1);
+				    	columnCounter = setCellValueConvertStringToLong(workRow, workRowVector, columnCounter, wiseId2);
+				    	columnCounter = setCellValueConvertStringToLong(workRow, workRowVector, columnCounter, wiseId3);
 				    	
 				    	//set the run values into the row
-				    	workRow.createCell(columnCounter++).setCellValue(teacherLogin);
-				    	columnCounter = setCellValue(workRow, columnCounter, projectId);
-				    	columnCounter = setCellValue(workRow, columnCounter, parentProjectId);
-				    	workRow.createCell(columnCounter++).setCellValue(projectName);
-				    	columnCounter = setCellValue(workRow, columnCounter, runId);
-				    	workRow.createCell(columnCounter++).setCellValue(runName);
-				    	workRow.createCell(columnCounter++).setCellValue(startTime);
-				    	workRow.createCell(columnCounter++).setCellValue(endTime);
+				    	columnCounter = setCellValue(workRow, workRowVector, columnCounter, teacherLogin);
+				    	columnCounter = setCellValueConvertStringToLong(workRow, workRowVector, columnCounter, projectId);
+				    	columnCounter = setCellValueConvertStringToLong(workRow, workRowVector, columnCounter, parentProjectId);
+				    	columnCounter = setCellValue(workRow, workRowVector, columnCounter, projectName);
+				    	columnCounter = setCellValueConvertStringToLong(workRow, workRowVector, columnCounter, runId);
+				    	columnCounter = setCellValue(workRow, workRowVector, columnCounter, runName);
+				    	columnCounter = setCellValue(workRow, workRowVector, columnCounter, startTime);
+				    	columnCounter = setCellValue(workRow, workRowVector, columnCounter, endTime);
 				    	
 				    	//set the step values into the row
-				    	columnCounter = setCellValue(workRow, columnCounter, periodName);
-						workRow.createCell(columnCounter++).setCellValue(stepWorkId);
-						workRow.createCell(columnCounter++).setCellValue(title);
-						workRow.createCell(columnCounter++).setCellValue(stepType);
-						workRow.createCell(columnCounter++).setCellValue(prompt);
-						workRow.createCell(columnCounter++).setCellValue(nodeId);
-						workRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitStartTime));
+				    	columnCounter = setCellValue(workRow, workRowVector, columnCounter, periodName);
+						columnCounter = setCellValue(workRow, workRowVector, columnCounter, stepWorkId);
+						columnCounter = setCellValue(workRow, workRowVector, columnCounter, title);
+						columnCounter = setCellValue(workRow, workRowVector, columnCounter, stepType);
+						columnCounter = setCellValue(workRow, workRowVector, columnCounter, prompt);
+						columnCounter = setCellValue(workRow, workRowVector, columnCounter, nodeId);
+						columnCounter = setCellValue(workRow, workRowVector, columnCounter, timestampToFormattedString(visitStartTime));
 						
 						//set the visit end time
 						if(visitEndTime != null) {
-							workRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitEndTime));
+							columnCounter = setCellValue(workRow, workRowVector, columnCounter, timestampToFormattedString(visitEndTime));
 						} else {
-							workRow.createCell(columnCounter++).setCellValue("");						
+							columnCounter = setCellValue(workRow, workRowVector, columnCounter, "");
 						}
 						
 						//set the time spent on the step
 				    	if(timeSpentOnStep == -1) {
-				    		workRow.createCell(columnCounter++).setCellValue("N/A");
+				    		columnCounter = setCellValue(workRow, workRowVector, columnCounter, "N/A");
 				    	} else {
-				    		workRow.createCell(columnCounter++).setCellValue(timeSpentOnStep);	
+				    		columnCounter = setCellValue(workRow, workRowVector, columnCounter, timeSpentOnStep);
 				    	}
 				    	
 				    	columnCounter++;
 				    	columnCounter++;
+				    	addEmptyElementsToVector(workRowVector, 2);
 				    	
 				    	//set the student work into the row
-				    	workRow.createCell(columnCounter++).setCellValue(stepWorkResponse);
+				    	columnCounter = setCellValue(workRow, workRowVector, columnCounter, stepWorkResponse);
 				    	
+				    	//write the csv row if we are generating a csv file
+				    	writeCSV(workRowVector);
 		    		}
 		    		
 		    		//add the visit start time to our vector so we can check for duplicate entries
@@ -4222,9 +4532,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the item is new
+	 * 
 	 * @param itemLabel the item label object
 	 * @param itemIndex the item index
 	 * @param previousResponse the previous student work
+	 * 
 	 * @return whether the item is new
 	 */
 	private boolean isItemNew(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
@@ -4261,9 +4573,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the item label text was revised
+	 * 
 	 * @param itemLabel the item label object
 	 * @param itemIndex the item index
 	 * @param previousResponse the previous student work
+	 * 
 	 * @return whether the item was revised
 	 */
 	private boolean isItemLabelTextRevised(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
@@ -4302,9 +4616,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the item was repositioned on the canvas
+	 * 
 	 * @param itemLabel the item label object
 	 * @param itemIndex the item index
 	 * @param previousResponse the previous student work
+	 * 
 	 * @return whether the item was repositioned on the canvas
 	 */
 	private boolean isItemRepositioned(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
@@ -4345,9 +4661,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the item isDeleted field has changed from false to true
+	 * 
 	 * @param itemLabel the item label object
 	 * @param itemIndex the item index
 	 * @param previousResponse the previous student work
+	 * 
 	 * @return whether the item was set from deleted false to true
 	 */
 	private boolean isItemDeletedFalseToTrue(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
@@ -4404,9 +4722,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the item isDeleted field has changed from true to false
+	 * 
 	 * @param itemLabel the item label object
 	 * @param itemIndex the item index
 	 * @param previousResponse the previous student work
+	 * 
 	 * @return whether the item was set from deleted true to false
 	 */
 	private boolean isItemDeletedTrueToFalse(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
@@ -4445,7 +4765,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the color name given the rgb string
+	 * 
 	 * @param rbgString e.g. "rgb(38, 84, 207)"
+	 * 
 	 * @return a string with the color name
 	 */
 	private String getColorNameFromRBGString(String rbgString) {
@@ -4472,7 +4794,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the idea basket version
+	 * 
 	 * @param projectMetaData the project meta data 
+	 * 
 	 * @return the version number of the idea basket. the version
 	 * will be 1 if the project is using the original version of
 	 * the idea basket that contains static sources and icons.
@@ -4516,14 +4840,16 @@ public class VLEGetXLS extends VLEServlet {
 	 * Each sheet represents one student's work. The rows in each
 	 * sheet are sequential so the earliest navigation data is at
 	 * the top and the latest navigation data is at the bottom
+	 * 
 	 * @param nodeIdToNodeTitlesMap a HashMap that contains nodeId to
 	 * nodeTitle mappings
-	 * @param workgroupIds a String array containing workgroupIds
-	 * @param runId
-	 * @param nodeIdToNode
-	 * @param nodeIdToNodeContent
-	 * @param workgroupIdToPeriodId
-	 * @param teacherWorkgroupIds
+	 * @param workgroupIds a vector of workgroup ids
+	 * @param runId the run id
+	 * @param nodeIdToNode a mapping of node id to node
+	 * @param nodeIdToNodeContent a mapping of node id to node content
+	 * @param workgroupIdToPeriodId a mapping of workgroup id to period id
+	 * @param teacherWorkgroupIds a list of teacher workgroup ids
+	 * 
 	 * @return an excel workbook that contains the student navigation
 	 */
 	private XSSFWorkbook getIdeaBasketsExcelExport(
@@ -4616,10 +4942,16 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		//the excel workbook
-		XSSFWorkbook wb = new XSSFWorkbook();
+		XSSFWorkbook wb = null;
+		XSSFSheet mainSheet = null;
 		
-		//this export will only contain one sheet
-		XSSFSheet mainSheet = wb.createSheet();
+		if(isFileTypeXLS(fileType)) {
+			//we are generating an xls file so we will create the workbook
+			wb = new XSSFWorkbook();
+			
+			//this export will only contain one sheet
+			mainSheet = wb.createSheet();
+		}
 		
 		int rowCounter = 0;
 		int columnCounter = 0;
@@ -4681,9 +5013,9 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Times Copied");
 		headerFields.add("Workgroup Ids That Have Copied");
 		headerFields.add("Trash");
-		headerFields.add("Timestamp Basket Saved");
-		headerFields.add("Timestamp Idea Created");
-		headerFields.add("Timestamp Idea Last Edited");
+		headerFields.add("Timestamp Basket Saved (Server Clock)");
+		headerFields.add("Timestamp Idea Created (Student Clock)");
+		headerFields.add("Timestamp Idea Last Edited (Student Clock)");
 		headerFields.add("New");
 		headerFields.add("Copied From Public In This Revision");
 		headerFields.add("Revised");
@@ -4697,25 +5029,39 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Uncopied In This Revision");
 
 		//output the meta data header cells
-		Row metaDataHeaderRow = mainSheet.createRow(rowCounter++);
-		createUserDataHeaderRow(metaDataHeaderRow, false, true);
+		Row metaDataHeaderRow = createRow(mainSheet, rowCounter++);
+		Vector<String> metaDataHeaderRowVector = createRowVector();
+		createUserDataHeaderRow(metaDataHeaderRow, metaDataHeaderRowVector, false, true);
+		
+		//write the csv row if we are generating a csv file
+		writeCSV(metaDataHeaderRowVector);
 		
 		//output the meta data cells
-		Row metaDataRow = mainSheet.createRow(rowCounter++);
-		createUserDataRow(metaDataRow, "", false, true, null);
+		Row metaDataRow = createRow(mainSheet, rowCounter++);
+		Vector<String> metaDataRowVector = createRowVector();
+		createUserDataRow(metaDataRow, metaDataRowVector, "", false, true, null);
+		
+		//write the csv row if we are generating a csv file
+		writeCSV(metaDataRowVector);
 		
 		//create a blank row
 		rowCounter++;
+		Vector<String> emptyVector = createRowVector();
+		writeCSV(emptyVector);
 		
 		//output the user header rows such as workgroup id, wise id 1, etc.
-		Row headerRow = mainSheet.createRow(rowCounter++);
-		columnCounter = createUserDataHeaderRow(headerRow, true, false);
+		Row headerRow = createRow(mainSheet, rowCounter++);
+		Vector<String> headerRowVector = createRowVector();
+		columnCounter = createUserDataHeaderRow(headerRow, headerRowVector, true, false);
 
 		//loop through all the header fields to add them to the excel
 		for(int x=0; x<headerFields.size(); x++) {
 	    	//the header column to just keep track of each row (which represents a step visit)
-	    	headerRow.createCell(columnCounter++).setCellValue(headerFields.get(x));
+	    	columnCounter = setCellValue(headerRow, headerRowVector, columnCounter, headerFields.get(x));
 		}
+		
+		//write the csv row if we are generating a csv file
+		writeCSV(headerRowVector);
 		
 		/*
 		 * get all the idea basket revisions for this run. all the revisions
@@ -4821,6 +5167,7 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Create the row for an idea basket
+	 * 
 	 * @param mainSheet the excel sheet
 	 * @param dateTimeInstance the object used to pretty print dates
 	 * @param nodeIdToNodeTitlesMap contains mappings between node id and node titles
@@ -4834,6 +5181,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param idea the idea we are displaying on this row
 	 * @param previousIdeaBasketJSON the contents of the previous revision of the basket
 	 * used for comparison purposes
+	 * 
 	 * @return the row counter
 	 */
 	private int createIdeaBasketRow(XSSFSheet mainSheet, DateFormat dateTimeInstance, HashMap<String, String> nodeIdToNodeTitlesMap, 
@@ -4854,7 +5202,8 @@ public class VLEGetXLS extends VLEServlet {
 				}
 				
 				//create a new row
-				Row ideaBasketRow = mainSheet.createRow(rowCounter++);
+				Row ideaBasketRow = createRow(mainSheet, rowCounter++);
+				Vector<String> ideaBasketRowVector = createRowVector();
 				
 				String periodName = null;
 				Long periodId = ideaBasket.getPeriodId();
@@ -4865,80 +5214,85 @@ public class VLEGetXLS extends VLEServlet {
 				}
 				
 				//WorkgrupId, Wise Id 1, Wise Id 2, Wise Id 3, Class Period
-				columnCounter = createUserDataRow(ideaBasketRow, workgroupId + "", true, false, periodName);
+				columnCounter = createUserDataRow(ideaBasketRow, ideaBasketRowVector, workgroupId + "", true, false, periodName);
 				
 				//Is Public
 				Boolean isPublic = ideaBasket.isPublic();
 				if(isPublic == null) {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(false));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(false));
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isPublic));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(isPublic));
 				}
 				
 				//Basket Revision
-				ideaBasketRow.createCell(columnCounter++).setCellValue(basketRevision);
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, basketRevision);
 				
 				//Action
 				String action = ideaBasket.getAction();
 				if(action == null) {
 					columnCounter++;
+					addEmptyElementsToVector(ideaBasketRowVector, 1);
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(action);
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, action);
 				}
 
 				//Action Performer
 				Long actionPerformer = ideaBasket.getActionPerformer();
 				if(actionPerformer == null) {
 					columnCounter++;
+					addEmptyElementsToVector(ideaBasketRowVector, 1);
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(actionPerformer);					
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, actionPerformer);
 				}
 
 				//Changed Idea Id
 				Long changedIdeaId = ideaBasket.getIdeaId();
 				if(changedIdeaId == null) {
 					columnCounter++;
+					addEmptyElementsToVector(ideaBasketRowVector, 1);
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(changedIdeaId);					
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, changedIdeaId);
 				}
 
 				//Changed Idea Workgroup Id
 				Long changedIdeaWorkgroupId = ideaBasket.getIdeaWorkgroupId();
 				if(changedIdeaWorkgroupId == null) {
 					columnCounter++;
+					addEmptyElementsToVector(ideaBasketRowVector, 1);
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(changedIdeaWorkgroupId);					
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, changedIdeaWorkgroupId);
 				}
 				
 				//Idea Id
 				if(ideaId == null) {
 					columnCounter++;
+					addEmptyElementsToVector(ideaBasketRowVector, 1);
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(ideaId);					
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, ideaId);
 				}
 				
 				//Idea Workgroup Id
 				if(ideaWorkgroupId == null) {
 					columnCounter++;
+					addEmptyElementsToVector(ideaBasketRowVector, 1);
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(ideaWorkgroupId);					
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, ideaWorkgroupId);
 				}
 				
 				//Idea Text
-				ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("text"));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, idea.getString("text"));
 
-				
 				if(ideaBasketVersion == 1) {
 					//this run uses the first version of the idea basket which always has flag, tags, and source
 					
 					//Flag
-					ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("flag"));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, idea.getString("flag"));
 					
 					//Tags
-					ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("tags"));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, idea.getString("tags"));
 					
 					//Source
-					ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("source"));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, idea.getString("source"));
 				} else {
 					//this run uses the newer version of the idea basket which can have variable and authorable fields
 					
@@ -4958,39 +5312,39 @@ public class VLEGetXLS extends VLEServlet {
 						String value = getAttributeValueByAttributeId(idea, attributeId);
 						
 						//set the value into the cell
-						ideaBasketRow.createCell(columnCounter++).setCellValue(value);
+						columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, value);
 					}
 				}
 				
 				//Node Type
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getNodeTypeFromIdea(idea, nodeIdToNodeContent));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getNodeTypeFromIdea(idea, nodeIdToNodeContent));
 				
 				//Node Id Created On
-				ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeId"));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, idea.getString("nodeId"));
 				
 				//Node Name Created On
-				ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeName"));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, idea.getString("nodeName"));
 				
 				//Steps Used In Count
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedInCount(idea));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getStepsUsedInCount(idea));
 				
 				//Steps Used In
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedIn(idea, nodeIdToNodeTitlesMap));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getStepsUsedIn(idea, nodeIdToNodeTitlesMap));
 				
 				//Was Copied From Public
 				if(idea.has("wasCopiedFromPublic")) {
 					boolean wasCopiedFromPublic = idea.getBoolean("wasCopiedFromPublic");
-					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(wasCopiedFromPublic));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(wasCopiedFromPublic));
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(false));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(false));
 				}
 				
 				//Is Published To Public
 				if(idea.has("isPublishedToPublic")) {
 					boolean isPublishedToPublic = idea.getBoolean("isPublishedToPublic");
-					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isPublishedToPublic));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(isPublishedToPublic));
 				} else {
-					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(false));
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(false));
 				}
 				
 				if(idea.has("workgroupIdsThatHaveCopied")) {
@@ -4998,7 +5352,7 @@ public class VLEGetXLS extends VLEServlet {
 					
 					//Times Copied
 					int timesCopied = workgroupIdsThatHaveCopied.length();
-					ideaBasketRow.createCell(columnCounter++).setCellValue(timesCopied);
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, timesCopied);
 					
 					//Workgroup Ids That Have Copied
 					StringBuffer workgroupIdsThatHaveCopiedStringBuffer = new StringBuffer();
@@ -5017,43 +5371,44 @@ public class VLEGetXLS extends VLEServlet {
 					}
 					
 					//set the workgroup ids that have copied as a comma separated string
-					ideaBasketRow.createCell(columnCounter++).setCellValue(workgroupIdsThatHaveCopiedStringBuffer.toString());
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, workgroupIdsThatHaveCopiedStringBuffer.toString());
 				} else {
 					//this idea does not have workgroup ids that have copied
 					
 					//set the times copied value to 0
-					ideaBasketRow.createCell(columnCounter++).setCellValue(0);
+					columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, 0);
 					
 					//increment the counter to skip over the Workgroup Ids That Have Copied column
 					columnCounter++;
+					addEmptyElementsToVector(ideaBasketRowVector, 1);
 				}
 				
 				//Trash
 				boolean ideaInTrash = isIdeaInTrash(ideaBasketJSON, idea);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaInTrash));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(ideaInTrash));
 				
 				//Timestamp Basket Saved
 				Timestamp postTime = ideaBasket.getPostTime();
 				long time = postTime.getTime();
 				Date dateBasketSaved = new Date(time);
 				String timestampBasketSaved = dateTimeInstance.format(dateBasketSaved);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(timestampBasketSaved);
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, timestampBasketSaved);
 				
 				//Timestamp Idea Created
 				long timeCreated = idea.getLong("timeCreated");
 				Date dateCreated = new Date(timeCreated);
 				String timestampIdeaCreated = dateTimeInstance.format(dateCreated);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaCreated);
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, timestampIdeaCreated);
 				
 				//Timestamp Idea Last Edited
 				long timeLastEdited = idea.getLong("timeLastEdited");
 				Date dateLastEdited = new Date(timeLastEdited);
 				String timestampIdeaLastEdited = dateTimeInstance.format(dateLastEdited);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaLastEdited);
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, timestampIdeaLastEdited);
 				
 				//New
 				boolean ideaNew = isIdeaNew(idea, previousIdeaBasketJSON);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaNew));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(ideaNew));
 				
 				//Copied From Public In This Revision
 				boolean isCopiedFromPublicInThisRevision = false;
@@ -5064,35 +5419,36 @@ public class VLEGetXLS extends VLEServlet {
 				if(isPublic == null || isPublic == false) {
 					isCopiedFromPublicInThisRevision = isCopiedFromPublicInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON); 
 				}
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isCopiedFromPublicInThisRevision));
+
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(isCopiedFromPublicInThisRevision));
 				
 				//Revised
 				boolean ideaRevised = isIdeaRevised(idea, previousIdeaBasketJSON, ideaBasketVersion, ideaAttributeIds);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRevised));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(ideaRevised));
 				
 				//Repositioned
 				boolean ideaPositionChanged = isIdeaPositionChanged(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaPositionChanged));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(ideaPositionChanged));
 				
 				//Steps Used In Changed
 				boolean stepsUsedInChanged = isStepsUsedInChanged(idea, previousIdeaBasketJSON, nodeIdToNodeTitlesMap);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(stepsUsedInChanged));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(stepsUsedInChanged));
 				
 				//Deleted In This Revision
 				boolean ideaDeletedInThisRevision = isIdeaDeletedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaDeletedInThisRevision));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(ideaDeletedInThisRevision));
 				
 				//Restored In This Revision
 				boolean ideaRestoredInThisRevision = isIdeaRestoredInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRestoredInThisRevision));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(ideaRestoredInThisRevision));
 				
 				//Made Public
 				boolean isIdeaMadePublic = isIdeaMadePublic(idea, ideaBasketJSON, previousIdeaBasketJSON);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isIdeaMadePublic));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(isIdeaMadePublic));
 				
 				//Made Private
 				boolean isIdeaMadePrivate = isIdeaMadePrivate(idea, ideaBasketJSON, previousIdeaBasketJSON);
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isIdeaMadePrivate));
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(isIdeaMadePrivate));
 				
 				//Copied In This Revision
 				boolean isCopiedInThisRevision = false;
@@ -5107,7 +5463,8 @@ public class VLEGetXLS extends VLEServlet {
 				} else {
 					isCopiedInThisRevision = isCopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
 				}
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isCopiedInThisRevision));
+
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(isCopiedInThisRevision));
 				
 				//Uncopied In This Revision
 				boolean isUncopiedInThisRevision = false;
@@ -5122,7 +5479,11 @@ public class VLEGetXLS extends VLEServlet {
 				} else {
 					isUncopiedInThisRevision = isUncopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
 				}
-				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isUncopiedInThisRevision));
+
+				columnCounter = setCellValue(ideaBasketRow, ideaBasketRowVector, columnCounter, getIntFromBoolean(isUncopiedInThisRevision));
+				
+				//write the csv row if we are generating a csv file
+				writeCSV(ideaBasketRowVector);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -5133,8 +5494,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the attribute from the idea given the attribute id
+	 * 
 	 * @param idea the student idea
 	 * @param attributeId the attribute id
+	 * 
 	 * @return the value of the attribute that the student entered
 	 */
 	private String getAttributeValueByAttributeId(JSONObject idea, String attributeId) {
@@ -5179,9 +5542,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the idea from a basket revision by idea id
+	 * 
 	 * @param ideaBasketJSON the basket revision
 	 * @param ideaId the id of the idea we want
 	 * @param workgroupId the id of the workgroup that owns the idea
+	 * 
 	 * @return the idea in JSONObject form
 	 */
 	private JSONObject getIdeaById(JSONObject ideaBasketJSON, Integer ideaId, Integer workgroupId) {
@@ -5237,7 +5602,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the number of ideas in this basket revision
+	 * 
 	 * @param ideaBasketJSON the basket revision
+	 * 
 	 * @return the number of ideas in the basket revision
 	 */
 	private int getNumberOfIdeas(JSONObject ideaBasketJSON) {
@@ -5267,8 +5634,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if an idea is in the trash
+	 * 
 	 * @param ideaBasketJSON the basket revision
 	 * @param ideaId the id of the idea
+	 * 
 	 * @return whether the idea is in the trash or not
 	 */
 	private boolean isIdeaInTrash(JSONObject ideaBasketJSON, JSONObject idea) {
@@ -5337,9 +5706,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the idea is new and added in the current revision
+	 * 
 	 * @param idea the idea
 	 * @param previousIdeaBasket the previous basket revision
-	 * @return
+	 * 
+	 * @return whether the idea is new
 	 */
 	private boolean isIdeaNew(JSONObject idea, JSONObject previousIdeaBasket) {
 		boolean ideaNew = false;
@@ -5378,8 +5749,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the idea was revised
+	 * 
 	 * @param idea the idea
 	 * @param previousIdeaBasket the previous basket revision
+	 * 
 	 * @return whether the ideas was revised or not
 	 */
 	private boolean isIdeaRevised(JSONObject idea, JSONObject previousIdeaBasket, int ideaBasketVersion, JSONArray ideaAttributeIds) {
@@ -5486,9 +5859,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine whether the position of an idea has changed
+	 * 
 	 * @param ideaId the id of the idea
 	 * @param currentIdeaBasket the current basket revision
 	 * @param previousIdeaBasket the previous basket revision
+	 * 
 	 * @return whether the position of the idea has changed
 	 */
 	private boolean isIdeaPositionChanged(int ideaId, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5552,9 +5927,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine whether the idea was put into the trash in this revision
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current basket revision
 	 * @param previousIdeaBasket the previous basket revision
+	 * 
 	 * @return whether the idea was put into the trash in this revision
 	 */
 	private boolean isIdeaDeletedInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5576,9 +5953,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine whether the idea was taken out of the trash in this revision
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current basket revision
 	 * @param previousIdeaBasket the previous basket revision
+	 * 
 	 * @return whether the idea was taken out of the trash in this revision
 	 */
 	private boolean isIdeaRestoredInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5600,9 +5979,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the idea was made public in this basket revision
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current idea basket
 	 * @param previousIdeaBasket the previous idea basket revision
+	 * 
 	 * @return whether the idea was made public in this basket revision
 	 */
 	private boolean isIdeaMadePublic(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5663,9 +6044,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the idea was made private in this basket revision
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current idea basket
 	 * @param previousIdeaBasket the previous idea basket revision
+	 * 
 	 * @return whether the idea was made private in this basket revision
 	 */
 	private boolean isIdeaMadePrivate(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5730,9 +6113,11 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Determine if the idea was was copied from the public basket
 	 * in this basket revision
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current idea basket
 	 * @param previousIdeaBasket the previous idea basket revision
+	 * 
 	 * @return whether the idea was copied from the public basket in this basket revision
 	 */
 	private boolean isCopiedFromPublicInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5798,9 +6183,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the idea was copied by someone in this basket revision
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current idea basket
 	 * @param previousIdeaBasket the previous idea basket revision
+	 * 
 	 * @return whether the idea was copied by someone in this basket revision
 	 */
 	private boolean isCopiedInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5877,9 +6264,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine if the idea was uncopied by someone in this basket revision
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current idea basket
 	 * @param previousIdeaBasket the previous idea basket revision
+	 * 
 	 * @return whether the idea was uncopied by someone in this basket revision
 	 */
 	private boolean isUncopiedInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
@@ -5927,8 +6316,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the position in the ideas array
+	 * 
 	 * @param ideaId the id of the idea
 	 * @param ideaBasket the basket revision
+	 * 
 	 * @return the position of the idea in the ideas array, first position is 1,
 	 * if the idea is not found it will return -1
 	 */
@@ -5938,8 +6329,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the position in the deleted array
+	 * 
 	 * @param ideaId the id of the idea
 	 * @param ideaBasket the basket revision
+	 * 
 	 * @return the position of the idea in the deleted array, first position is 1,
 	 * if the idea is not found it will return -1
 	 */
@@ -5949,9 +6342,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the position in the given array
+	 * 
 	 * @param ideaId the id of the idea
 	 * @param ideaBasket the basket revision
 	 * @param arrayName the name of the array to look in ("ideas" or "deleted")
+	 * 
 	 * @return the position of the idea in the given array, first position is 1,
 	 * if the idea is not found it will return -1
 	 */
@@ -5988,8 +6383,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the steps that this idea is used in
+	 * 
 	 * @param idea the idea
 	 * @param nodeIdToNodeTitlesMap a map of nodeId to nodeTitle
+	 * 
 	 * @return a String containing the steps that the idea is used in
 	 * e.g.
 	 * node_1.ht:Introduction,node_3.or:Explain your ideas
@@ -6027,7 +6424,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the number of steps the idea is used in
+	 * 
 	 * @param idea the idea JSONObject
+	 * 
 	 * @return a count of the number of steps this idea is used in
 	 */
 	private int getStepsUsedInCount(JSONObject idea) {
@@ -6049,9 +6448,11 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine whether the steps used in changed
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param previousIdeaBasket the previous basket revision
 	 * @param nodeIdToNodeTitlesMap the map of node id to node title
+	 * 
 	 * @return whether the steps used in changed for the idea
 	 */
 	private boolean isStepsUsedInChanged(JSONObject idea, JSONObject previousIdeaBasket, HashMap<String, String> nodeIdToNodeTitlesMap) {
@@ -6095,7 +6496,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Convert a boolean into an int value
+	 * 
 	 * @param boolValue true of false
+	 * 
 	 * @return 0 or 1
 	 */
 	private int getIntFromBoolean(boolean boolValue) {
@@ -6110,8 +6513,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the node type of the step that the idea was created on
+	 * 
 	 * @param idea the idea JSONObject
 	 * @param nodeIdToNodeContent map of node id to node content
+	 * 
 	 * @return the node type the idea was created on
 	 */
 	private String getNodeTypeFromIdea(JSONObject idea, HashMap<String, JSONObject> nodeIdToNodeContent) {
@@ -6134,8 +6539,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the latest annotation score value
+	 * 
 	 * @param stepWorksForNodeId the StepWork objects to look at annotations for
 	 * @param teacherWorkgroupIds the teacher workgroup ids we want an annotation from
+	 * 
 	 * @return the latest annotation score object associated with any of the StepWork
 	 * objects in the list and has a fromWorkgroup from any of the workgroup ids in the
 	 * teacherWorkgroupIds list
@@ -6164,8 +6571,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the latest annotation comment value
+	 * 
 	 * @param stepWorksForNodeId the StepWork objects to look at annotations for
 	 * @param teacherWorkgroupIds the teacher workgroup ids we want an annotation from
+	 * 
 	 * @return the latest annotation comment object associated with any of the StepWork
 	 * objects in the list and has a fromWorkgroup from any of the workgroup ids in the
 	 * teacherWorkgroupIds list
@@ -6194,13 +6603,15 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the latest CRater score and timestamp and set it into the row
+	 * 
 	 * @param stepWorksForNodeId the StepWork objects we want to look at
 	 * for the associated annotation
 	 * @param rowForWorkgroupId the row
 	 * @param workgroupColumnCounter the column index
+	 * 
 	 * @return the updated column counter pointing to the next empty column
 	 */
-	private int setLatestCRaterScoreAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, int workgroupColumnCounter) {
+	private int setLatestCRaterScoreAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, Vector<String> rowForWorkgroupIdVector, int workgroupColumnCounter) {
 		/*
 		 * get the latest annotation associated with any of the StepWork objects
 		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
@@ -6247,10 +6658,10 @@ public class VLEGetXLS extends VLEServlet {
 					String timestampAnnotationPostTime = timestampToFormattedString(postTime);
 					
 					//set the timestamp
-					rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
+					workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, timestampAnnotationPostTime);
 					
 					//set the score
-					workgroupColumnCounter = setCellValue(rowForWorkgroupId, workgroupColumnCounter, score + "");
+					workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, score);
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -6258,6 +6669,7 @@ public class VLEGetXLS extends VLEServlet {
 		} else {
 			//there is no annotation so we will just increment the column counter
 			workgroupColumnCounter += 2;
+			addEmptyElementsToVector(rowForWorkgroupIdVector, 2);
 		}
 		
 		return workgroupColumnCounter;
@@ -6265,13 +6677,15 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the latest annotation score and timestamp and set it into the row
+	 * 
 	 * @param stepWorksForNodeId the StepWork objects we want to look at
 	 * for the associated annotation
 	 * @param rowForWorkgroupId the row
 	 * @param workgroupColumnCounter the column index
+	 * 
 	 * @return the updated column counter pointing to the next empty column
 	 */
-	private int setLatestAnnotationScoreAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, int workgroupColumnCounter) {
+	private int setLatestAnnotationScoreAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, Vector<String> rowForWorkgroupIdVector, int workgroupColumnCounter) {
 		/*
 		 * get the latest annotation associated with any of the StepWork objects
 		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
@@ -6294,16 +6708,17 @@ public class VLEGetXLS extends VLEServlet {
 				String timestampAnnotationPostTime = timestampToFormattedString(postTime);
 				
 				//set the timestamp
-				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
+				workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, timestampAnnotationPostTime);
 				
 				//set the score
-				workgroupColumnCounter = setCellValue(rowForWorkgroupId, workgroupColumnCounter, score);
+				workgroupColumnCounter = setCellValueConvertStringToLong(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, score);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		} else {
 			//there is no annotation so we will just increment the column counter
 			workgroupColumnCounter += 2;
+			addEmptyElementsToVector(rowForWorkgroupIdVector, 2);
 		}
 		
 		return workgroupColumnCounter;
@@ -6311,13 +6726,15 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the latest annotation comment and timestamp and set it into the row
+	 * 
 	 * @param stepWorksForNodeId the StepWork objects we want to look at
 	 * for the associated annotation
 	 * @param rowForWorkgroupId the row
 	 * @param workgroupColumnCounter the column index
+	 * 
 	 * @return the updated column counter pointing to the next empty column
 	 */
-	private int setLatestAnnotationCommentAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, int workgroupColumnCounter) {
+	private int setLatestAnnotationCommentAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, Vector<String> rowForWorkgroupIdVector, int workgroupColumnCounter) {
 		/*
 		 * get the latest annotation associated with any of the StepWork objects
 		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
@@ -6340,43 +6757,81 @@ public class VLEGetXLS extends VLEServlet {
 				String timestampAnnotationPostTime = timestampToFormattedString(postTime);
 				
 				//set the timestamp
-				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
+				workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, timestampAnnotationPostTime);
 				
 				//set the comment
-				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(comment);
+				workgroupColumnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, workgroupColumnCounter, comment);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		} else {
 			//there is no annotation so we will just increment the column counter
 			workgroupColumnCounter += 2;
+			addEmptyElementsToVector(rowForWorkgroupIdVector, 2);
 		}
 		
 		return workgroupColumnCounter;
 	}
 	
 	/**
-	 * Set the value in the row at the given column. if the string can be
-	 * converted to a number we will do so. this makes a difference in the
-	 * excel because strings are left aligned and numbers are right aligned.
-	 * @param row the row
+	 * Set the integer value into the cell
+	 * 
+	 * @param row the excel row
+	 * @param rowVector the vector that holds the string for the csv output
 	 * @param columnCounter the column index
 	 * @param value the value to set in the cell
-	 * @return the next empty column
+	 * 
+	 * @return the new column index for the next empty cell
 	 */
-	private int setCellValue(Row row, int columnCounter, String value) {
-		if(value != null && !value.equals("")) {
+	private int setCellValue(Row row, Vector<String> rowVector, int columnCounter, Integer value) {
+		int returnValue;
+		
+		if(value == null) {
+			if(rowVector != null) {
+				//set an empty string into the vector
+				rowVector.add("");				
+			}
+			
+			//increment the column counter
+			returnValue = columnCounter++;
+		} else {
 			try {
-				//try to conver the value to a number and then set the value into the cell
-				row.createCell(columnCounter).setCellValue(Long.parseLong(value));
-			} catch(NumberFormatException e) {
-				e.printStackTrace();
-				//set the string value into the cell
-				row.createCell(columnCounter).setCellValue(value);
+				//try to convert the value to a long
+				returnValue = setCellValue(row, rowVector, columnCounter, new Long(value));	
+			} catch (NumberFormatException e) {
+				//we were unable to convert the value to a long so we will use the string value
+				returnValue = setCellValue(row, rowVector, columnCounter, value + "");
+			}
+		}
+		
+		return returnValue;
+	}
+	
+	/**
+	 * Set the long value into the cell
+	 * 
+	 * @param row the excel row
+	 * @param rowVector the vector that holds the string for the csv output
+	 * @param columnCounter the column index
+	 * @param value the value to set in the cell
+	 * 
+	 * @return the new column index for the next empty cell
+	 */
+	private int setCellValue(Row row, Vector<String> rowVector, int columnCounter, Long value) {
+		if(value == null) {
+			if(rowVector != null) {
+				//set an empty string into the vector
+				rowVector.add("");				
 			}
 		} else {
-			//set the value into the cell
-			row.createCell(columnCounter).setCellValue(value);				
+			if(row != null) {
+				//set the value into the cell
+				row.createCell(columnCounter).setCellValue(value);
+			}
+			
+			if(rowVector != null) {
+				rowVector.add(value + "");				
+			}
 		}
 		
 		//increment the column counter
@@ -6386,8 +6841,102 @@ public class VLEGetXLS extends VLEServlet {
 	}
 	
 	/**
+	 * Set the value in the row at the given column. if the string can be
+	 * converted to a number we will do so. this makes a difference in the
+	 * excel because strings are left aligned and numbers are right aligned.
+	 * 
+	 * @param row the row
+	 * @param columnCounter the column index
+	 * @param value the value to set in the cell
+	 * 
+	 * @return the next empty column
+	 */
+	private int setCellValueConvertStringToLong(Row row, Vector<String> rowVector, int columnCounter, String value) {
+		if(value == null) {
+			value = "";
+		}
+		
+		try {
+			if(rowVector != null) {
+				rowVector.add(value);
+			}
+			
+			if(row != null) {
+				//try to convert the value to a number and then set the value into the cell
+				row.createCell(columnCounter).setCellValue(Long.parseLong(value));				
+			}
+		} catch(NumberFormatException e) {
+			e.printStackTrace();
+			
+			if(rowVector != null) {
+				rowVector.add(value);				
+			}
+			
+			//check if the value has more characters than the max allowable for an excel cell
+			if(value.length() > 32767) {
+				//response has more characters than the max allowable so we will truncate it
+				value = value.substring(0, 32767);
+				
+				//increment the counter to keep track of how many oversized responses we have
+				oversizedResponses++;
+			}
+			
+			if(row != null) {
+				//set the string value into the cell
+				row.createCell(columnCounter).setCellValue(value);				
+			}
+		}
+		
+		//increment the column counter
+		columnCounter++;
+		
+		return columnCounter;
+	}
+	
+	/**
+	 * Set the value in the row at the given column.
+	 * 
+	 * @param row the row
+	 * @param columnCounter the column index
+	 * @param value the value to set in the cell
+	 * 
+	 * @return the next empty column
+	 */
+	private int setCellValue(Row row, Vector<String> rowVector, int columnCounter, String value) {
+		if(value == null) {
+			//value is null so we will just use empty string
+			value = "";
+		}
+		
+		if(rowVector != null) {
+			rowVector.add(value);			
+		}
+		
+		//check if the value has more characters than the max allowable for an excel cell
+		if(value.length() > 32767) {
+			//response has more characters than the max allowable so we will truncate it
+			value = value.substring(0, 32767);
+			
+			//increment the counter to keep track of how many oversized responses we have
+			oversizedResponses++;
+		}
+		
+		if(row != null) {
+			//set the value into the cell
+			row.createCell(columnCounter).setCellValue(value);			
+		}
+
+		//increment the column counter
+		columnCounter++;
+		
+		return columnCounter;
+	}
+	
+	/**
 	 * Get the timestamp as a string
+	 * 
 	 * @param timestamp the timestamp object
+	 * 
 	 * @return the timstamp as a string
 	 * e.g.
 	 * Mar 9, 2011 8:50:47 PM
@@ -6410,6 +6959,7 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Parse the student attendance data and put it into the workgroupIdToStudentAttendance HashMap
+	 * 
 	 * @param studentAttendanceArray a JSONArray containing all the student attendance rows
 	 */
 	private void parseStudentAttendance(JSONArray studentAttendanceArray) {
@@ -6442,8 +6992,10 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Get the first student attendence object before the given timestamp for a given workgroup id.
 	 * We basically want the student attendance at the time of the given timestamp.
+	 * 
 	 * @param workgroupId the id of the workgroup we are looking for
 	 * @param timestamp the time we want the student attendence to be before
+	 * 
 	 * @return the student attendance JSONObject
 	 */
 	private JSONObject getStudentAttendanceForWorkgroupIdTimestamp(long workgroupId, long timestamp) {
@@ -6490,23 +7042,24 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Sort the student user ids array
-	 * @param studentLoginsArray a String array containing student user ids that are
-	 * numbers
+	 * 
+	 * @param userIdsArray a String array containing student user ids
+	 * 
 	 * @return an ArrayList of Long objects sorted numerically
 	 */
-	private ArrayList<Long> sortStudentLoginsArray(String[] studentLoginsArray) {
+	private ArrayList<Long> sortUserIdsArray(String[] userIdsArray) {
 		
-		ArrayList<Long> studentLoginsList = new ArrayList<Long>();
+		ArrayList<Long> userIdsList = new ArrayList<Long>();
 		
 		//loop through all the student user ids
-		for(int x=0; x<studentLoginsArray.length; x++) {
+		for(int x=0; x<userIdsArray.length; x++) {
 			//get a student user id
-			String studentLogin = studentLoginsArray[x];
+			String userId = userIdsArray[x];
 			
 			try {
-				if(studentLogin != null && !studentLogin.equals("")) {
+				if(userId != null && !userId.equals("")) {
 					//add the long to the list
-					studentLoginsList.add(Long.parseLong(studentLogin));					
+					userIdsList.add(Long.parseLong(userId));					
 				}
 			} catch(NumberFormatException e) {
 				e.printStackTrace();
@@ -6514,15 +7067,16 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		//sort the list
-		Collections.sort(studentLoginsList);
+		Collections.sort(userIdsList);
 		
-		return studentLoginsList;
+		return userIdsList;
 	}
 	
 	/**
 	 * Auto sizes the columns specified so that the text in those columns
 	 * are completely shown and do not need to be resized to be able to
 	 * be read. This will only auto size the first n number of columns.
+	 * 
 	 * @param sheet the sheet to auto size columns in
 	 * @param numColumns the number of columns to auto size
 	 */
@@ -6543,8 +7097,10 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Get the CRater annotation score for the given step work id if the score exists
+	 * 
 	 * @param stepWorkId the step work id
 	 * @param nodeState the node state
+	 * 
 	 * @return the CRater score or -1 if there is no CRater score
 	 */
 	private long getCRaterScoreByStepWorkIdAndNodeState(Long stepWorkId, JSONObject nodeState) {
@@ -6642,5 +7198,107 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return score;
+	}
+	
+	/**
+	 * Write the csv row to the csvWriter
+	 * 
+	 * @param vectorRow the csv row to write
+	 */
+	private void writeCSV(Vector<String> vectorRow) {
+		if(vectorRow != null) {
+			//create a String array
+			String[] stringArrayRow = new String[vectorRow.size()];
+			
+			//insert the elements in the vector into the String array
+		    vectorRow.toArray(stringArrayRow);
+		    
+		    if(csvWriter != null) {
+		    	//write the String array to the csvWriter
+		    	csvWriter.writeNext(stringArrayRow);
+		    }
+		}
+	}
+	
+	/**
+	 * Add an empty cell into the vector
+	 * 
+	 * @param vector the vector to add to
+	 * @param count the number of empty cells to add
+	 */
+	private void addEmptyElementsToVector(Vector<String> vector, int count) {
+		if(vector != null) {
+			for(int x=0; x<count; x++) {
+				vector.add("");
+			}			
+		}
+	}
+	
+	/**
+	 * Create the row in the sheet
+	 * 
+	 * @param sheet the sheet to create the row in
+	 * @param rowCounter the row index
+	 * 
+	 * @return the new row or null if the sheet does not exist
+	 */
+	private Row createRow(XSSFSheet sheet, int rowCounter) {
+		Row newRow = null;
+		
+		if(sheet != null) {
+			newRow = sheet.createRow(rowCounter);
+		}
+		
+		return newRow;
+	}
+	
+	/**
+	 * Create a Vector if we are creating a csv file
+	 * 
+	 * @return an empty Vector if we are generating a csv file. we will return 
+	 * null if we are not generating a csv file.
+	 */
+	private Vector<String> createRowVector() {
+		Vector<String> rowVector = null;
+		
+		if(isFileTypeCSV(fileType)) {
+			rowVector = new Vector<String>();
+		}
+		
+		return rowVector;
+	}
+	
+	/**
+	 * Whether we are creating an xls file
+	 * 
+	 * @param fileType a file extension
+	 * 
+	 * @return whether we are creating an xls file
+	 */
+	private boolean isFileTypeXLS(String fileType) {
+		boolean result = false;
+		
+		if(fileType != null && fileType.equals("xls")) {
+			result = true;
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Whether we are creating a csv file
+	 * 
+	 * @param fileType a file extension
+	 * 
+	 * @return whether we are creating a csv file
+	 */
+	private boolean isFileTypeCSV(String fileType) {
+		boolean result = false;
+		
+		if(fileType != null && fileType.equals("csv")) {
+			result = true;
+		}
+		
+		return result;
 	}
 }

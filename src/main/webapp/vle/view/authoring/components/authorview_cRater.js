@@ -8,6 +8,8 @@ View.prototype.cRaterManager.dispatcher = function(type, args, obj) {
 		obj.updateCRater();
 	} else if(type=='cRaterItemIdChanged') {
 		obj.cRaterItemIdChanged();
+	} else if(type=='cRaterItemTypeChanged') {
+		obj.cRaterItemTypeChangedListener(args[0]);
 	} else if(type=='cRaterFeedbackChanged') {
 		obj.updateCRaterFeedback(args);
 	} else if(type=='cRaterDisplayScoreToStudentChanged') {

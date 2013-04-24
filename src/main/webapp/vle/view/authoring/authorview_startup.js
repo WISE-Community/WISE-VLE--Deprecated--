@@ -37,7 +37,7 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	
 	//create the config
 	this.config = this.createConfig(createContent(configUrl));
-	this.eventManager.fire('loadConfigComplete');
+	this.eventManager.fire('loadConfigCompleted');
 	
 	/* retrieve i18n files, defined in view_i18n.js */
 	this.retrieveLocales("main");
@@ -87,7 +87,7 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	
 	if(editPremadeComments == "true") {
 		//we are only loading the authoring tool so that we can open the premade comments
-		eventManager.fire('openPremadeComments');
+		view.openPremadeComments();
 		
 		if(window.parent != null && window.parent.parent != null && window.parent.parent.closeLoadingPremadeCommentsDialog != null) {
 			//close the loading premade comments message

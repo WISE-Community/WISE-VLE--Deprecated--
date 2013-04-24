@@ -102,7 +102,6 @@ public class VLEAnnotationController extends HttpServlet {
 		String annotationType = request.getParameter("annotationType");
 		String nodeStateIdStr = request.getParameter("nodeStateId");
 		
-		String cRaterVerificationUrl = (String) request.getAttribute("cRaterVerificationUrl");
 		String cRaterScoringUrl = (String) request.getAttribute("cRaterScoringUrl");
 		String cRaterClientId = (String) request.getAttribute("cRaterClientId");
 		

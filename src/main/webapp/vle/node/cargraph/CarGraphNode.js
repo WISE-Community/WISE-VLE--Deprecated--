@@ -428,7 +428,7 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 				$("#currentSliderValue").html(sliderValue);
 				if(typeof eventManager != 'undefined'){
 					// call filterstudentrows again to filter for selected periods
-					eventManager.fire('filterStudentRows');
+					eventManager.fire('filterStudentRowsRequested');
 				}
 			}
 			});
@@ -498,7 +498,7 @@ CarGraphNode.prototype.overridesIsCompleted = function() {
 CarGraphNode.prototype.isCompleted = function(carGraphState) {
 	if (typeof this.tagMaps == "undefined") return true;
 	// cycle through tag maps, if I get a custom tag map check student work to complete
-	if (typeof carGraphState === "undefined") carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
+	if (typeof carGraphState === "undefined") carGraphState = this.view.getState().getLatestWorkByNodeId(this.id);
 	var isCompleted = true;
 	for (var i = 0; i < this.tagMaps.length; i++){
 		var functionName = this.tagMaps[i].functionName;

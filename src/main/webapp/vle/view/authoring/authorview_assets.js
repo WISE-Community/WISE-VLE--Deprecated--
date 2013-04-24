@@ -857,7 +857,7 @@ View.prototype.getAssetStorage = function(){
 			$('#sizeDiv').html(o.getI18NStringWithParams("authoring_dialog_assets_storage_label", [o.utils.appropriateSizeText(assetsSizeUsed), o.utils.appropriateSizeText(assetsSizeTotalMax)]));
 			$('#sizeBar').progressbar({ value: percentUsed });
 		};
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.getProject().getContentBase())}, callback, this);
+		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'getProjectUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.getProject().getContentBase())}, callback, this);
 	}
 };
 

@@ -408,7 +408,7 @@ MS.prototype.render = function() {
     	$('#numberAttemptsDiv').hide();
 	}
     
-    this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+    this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**

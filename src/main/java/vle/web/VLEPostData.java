@@ -116,6 +116,22 @@ public class VLEPostData extends VLEServlet {
 			//obtain the node type from the json node visit
 			String nodeType = VLEDataUtils.getNodeType(nodeVisitJSON);
 			
+			//get the node states array
+			JSONArray nodeStates = VLEDataUtils.getNodeStates(nodeVisitJSON);
+			
+			//loop through all the node states
+			for(int x=0; x<nodeStates.length(); x++) {
+				//get an element in the node states array
+				Object nodeStateObject = nodeStates.get(x);
+				
+				//check that the element in the array is a JSONObject
+				if(!(nodeStateObject instanceof JSONObject)) {
+					//the element in the array is not a JSONObject so we will respond with an error
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Element in nodeStates array is not an object");
+					return;
+				}
+			}
+			
 			// check if student's posted data size is under the limit of the specific node type.
 			if (nodesWithLargeStudentWork.contains(nodeType)) {
 				if (request.getContentLength() > studentMaxWorkSizeLarge) {  // posted data must not exceed STUDENT_MAX_WORK_SIZE_LARGE
@@ -202,6 +218,7 @@ public class VLEPostData extends VLEServlet {
 				//get the first cRaterItemId if it exists in the POSTed NodeState
 				// also check if isSubmit is true
 				String cRaterItemId = null;
+				String cRaterItemType = "CRATER";
 				boolean isCRaterSubmit = false;
 				try {
 					if (nodeVisitJSON != null) {
@@ -215,6 +232,9 @@ public class VLEPostData extends VLEServlet {
 									if (nodeStateObj.has("isCRaterSubmit")) {
 										isCRaterSubmit = nodeStateObj.getBoolean("isCRaterSubmit");
 									}
+									if(nodeStateObj.has("cRaterItemType")) {
+										cRaterItemType = nodeStateObj.getString("cRaterItemType");
+									}																	
 								}
 							}
 						}
@@ -233,11 +253,12 @@ public class VLEPostData extends VLEServlet {
 					CRaterRequest cRaterRequestForLastNodeState = CRaterRequest.getByStepWorkIdNodeStateId(stepWork, lastNodeStateTimestamp);
 					if (cRaterRequestForLastNodeState == null) {
 						jsonResponse.put("cRaterItemId", cRaterItemId);
+						jsonResponse.put("cRaterItemType", cRaterItemType);
 						jsonResponse.put("isCRaterSubmit", isCRaterSubmit);
 						// also save a CRaterRequest in db for tracking if isCRaterSubmit is true
 						if (isCRaterSubmit) {
 							try {
-								CRaterRequest cRR = new CRaterRequest(cRaterItemId, stepWork, new Long(lastNodeStateTimestamp), runIdLong);
+								CRaterRequest cRR = new CRaterRequest(cRaterItemId, cRaterItemType, stepWork, new Long(lastNodeStateTimestamp), runIdLong);
 								cRR.saveOrUpdate();
 							} catch (Exception cre) {
 								// do nothing if there was an error, let continue

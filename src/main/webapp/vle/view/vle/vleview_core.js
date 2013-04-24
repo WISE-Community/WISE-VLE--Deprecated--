@@ -2,17 +2,17 @@
  * Dispatches events to the appropriate functions for the vle view.
  */
 View.prototype.vleDispatcher = function(type,args,obj){
-	if (type=='retrieveLocalesComplete' && args[0]=="main") {
+	if (type=='retrieveLocalesCompleted' && args[0]=="main") {
 		obj.startVLE();
-	} else if (type=='retrieveLocalesComplete' && args[0]=="theme") {
+	} else if (type=='retrieveLocalesCompleted' && args[0]=="theme") {
 		obj.onThemeLoad();
-	} else if(type=='loadingProjectComplete'){
+	} else if(type=='loadingProjectCompleted'){
 		obj.onProjectLoad();
 		obj.setProjectPostLevel();
 		obj.setDialogEvents();
 	} else if(type=='scriptsLoaded' && args[0]=='theme'){
 		obj.retrieveThemeLocales();
-	} else if(type=='getUserAndClassInfoComplete'){
+	} else if(type=='getUserAndClassInfoCompleted'){
 		obj.renderStartNode();
 		//obj.addGlobalTagMapConstraints();
 		//obj.updateActiveTagMapConstraints();
@@ -20,29 +20,21 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		if (obj.isXMPPEnabled) {
 			obj.startXMPP();
 		}
-	} else if(type=='processLoadViewStateResponseComplete'){
+	} else if(type=='processLoadViewStateResponseCompleted'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
 		obj.addGlobalTagMapConstraints();
 		obj.updateActiveTagMapConstraints();
 		obj.renderStartNode();
-	} else if(type=='navigationLoadingComplete'){
+	} else if(type=='navigationLoadingCompleted'){
 		obj.renderStartNode();
 		obj.processStudentWork();
-	} else if(type=='renderNodeComplete'){
+	} else if(type=='renderNodeCompleted'){
 		if(args){
-			obj.onRenderNodeComplete(args[0]);
+			obj.renderNodeCompletedListener(args[0]);
 		} else {
-			obj.onRenderNodeComplete(null);
+			obj.renderNodeCompletedListener(null);
 		};
-		obj.renderNavigationPanel();
-		obj.expandActivity(args[0]);
-	} else if(type=='resizeNote'){
-		obj.utils.resizePanel('notePanel', args[0]);
-	} else if(type=='onNotePanelResized'){
-		obj.utils.onNotePanelResized(args[0]);
-	} else if(type=='setStyleOnElement'){
-		obj.utils.setStyleOnElement(args[0],args[1],args[2]);
-	} else if(type=='getAnnotationsComplete') {
+	} else if(type=='retrieveAnnotationsCompleted') {
 		if(args != null && args.length != 0) {
 			if(args[0] == 'displayShowAllWork') {
 				obj.displayShowAllWork();
@@ -50,44 +42,30 @@ View.prototype.vleDispatcher = function(type,args,obj){
 				obj.checkForNewTeacherAnnotations();
 			}
 		}
-	} else if(type=='getProjectMetaDataComplete') {
+	} else if(type=='retrieveProjectMetaDataCompleted') {
 		obj.displayShowAllWork();
 		obj.setProjectPostLevel();
-	} else if(type=='getRunExtrasComplete') {
+	} else if(type=='retrieveRunExtrasCompleted') {
 		obj.displayShowAllWork();
 	} else if(type=='ifrmLoaded'){
 		obj.createKeystrokeManagerForFrame();
 		obj.onFrameLoaded();
-	} else if(type=='saveAndLockNote'){
-		
-	} else if(type=='noteHandleEditorKeyPress'){
+	} else if(type=='noteEditorKeyPressed'){
 		if(obj.activeNote){
 			obj.activeNote.responseEdited();
 		}
-	} else if(type=='noteShowStarter'){
-		if(obj.activeNote){
-			obj.activeNote.showStarter();
-		}
-	} else if(type=='contentRenderComplete') {
+	} else if(type=='contentRenderCompleted') {
 		//get the node
 		var nodeId = args[0];
 		var node = obj.getProject().getNodeById(nodeId);
 		
-	} else if (type=='importWork') {
-		//get importFrom and importTo node
-		var fromNodeId = args[0];
-		var toNodeId = args[1];
-		
-		obj.importWork(fromNodeId,toNodeId);
-	} else if (type == 'startVLEComplete') {
+	} else if (type == 'startVLECompleted') {
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
 	} else if (type == 'assetCopiedForReference') {
 		obj.assetCopiedForReference(args[0], args[1]);
 	} else if(type=="chatRoomTextEntrySubmitted") {
 		obj.sendChat(args[0]);
-	} else if(type=="setStepIcon") {
-		obj.setStepIcon(args[0], args[1]);
 	} else if(type=="studentWorkUpdated") {
 		obj.studentWorkUpdatedListener();
 	} else if(type=="currentNodePositionUpdated") {
@@ -116,7 +94,7 @@ View.prototype.startVLEFromConfig = function(configUrl){
 	/* create config by creating content object from given url */
 	this.config = this.createConfig(createContent(configUrl));
 	
-	this.eventManager.fire('loadConfigComplete');
+	this.eventManager.fire('loadConfigCompleted');
 
 	/* retrieve i18n files, defined in view_i18n.js */
 	this.retrieveLocales("main");
@@ -135,7 +113,7 @@ View.prototype.startVLEFromParams = function(obj){
 	/* create the config obj using the content obj */
 	this.config = this.createConfig(contentObj);
 	
-	this.eventManager.fire('loadConfigComplete');
+	this.eventManager.fire('loadConfigCompleted');
 
 	/* start the vle */
 	this.startVLE();
@@ -244,7 +222,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
-		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='view.displayChatRoom()' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
 		$('#viewChatRoom').html(displayChatRoomLink);
 		$('#viewChatRoom').show().css('display','inline');
 	} else {
@@ -325,7 +303,7 @@ View.prototype.showToolsBasedOnConfigs = function(metadata, runInfo) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
-		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='view.displayChatRoom()' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
 		$('#viewChatRoom').html(displayChatRoomLink);
 		$('#viewChatRoom').show().css('display','inline');
 	} else {
@@ -463,7 +441,7 @@ View.prototype.processLoadViewStateResponse = function(responseText, responseXML
 	};
 
 	view.viewStateLoaded = true;
-	view.eventManager.fire('processLoadViewStateResponseComplete');
+	view.eventManager.fire('processLoadViewStateResponseCompleted');
 };
 
 /**
@@ -566,8 +544,7 @@ View.prototype.onThemeLoad = function(){
 	
 	this.renderStartNode();
 	
-	/* fire startVLEComplete event */
-	this.eventManager.fire('startVLEComplete');
+	this.eventManager.fire('startVLECompleted');
 };
 
 /**
@@ -742,7 +719,7 @@ View.prototype.endCurrentNode = function(){
 /**
  * Handles setting/adjusting of html elements after a node has rendered
  */
-View.prototype.onRenderNodeComplete = function(position){
+View.prototype.renderNodeCompletedListener = function(position){
 	this.currentNode = this.getProject().getNodeByPosition(position);
 	
 	/* Set icon in nav bar */
@@ -832,7 +809,7 @@ View.prototype.renderNode = function(position){
 	//update the active tag map constraints to see if any have been satisfied and we need to remove any
 	this.updateActiveTagMapConstraints();
 	
-	this.eventManager.fire('renderNodeComplete', this.currentPosition);
+	this.eventManager.fire('renderNodeCompleted', this.currentPosition);
 };
 
 /**
@@ -906,7 +883,7 @@ View.prototype.onFrameLoaded = function(){
 				node.contentPanel.scriptloader = this.scriptloader;
 			}
 			
-			this.eventManager.fire('pageRenderComplete', node.id);	
+			this.eventManager.fire('pageRenderCompleted', node.id);	
 		}
 	}
 };

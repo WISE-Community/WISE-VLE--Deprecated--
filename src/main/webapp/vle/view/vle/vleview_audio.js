@@ -6,28 +6,9 @@
 //  also, picked just one (the last) of the 'render finished' events...
 View.prototype.audioDispatcher = function(type, args, obj) {
     // debugger;
-    if (type == 'loadingProjectComplete') {
+    if (type == 'loadingProjectCompleted') {
         //obj.createAudioManagerOnProjectLoad();
-    } else if (type == 'rewindStepAudio') {
-        obj.rewindStepAudio();
-    } else if (type == 'previousStepAudio') {
-        obj.previousStepAudio();
-    } else if (type == 'forwardStepAudio') {
-        obj.forwardStepAudio();
-    } else if (type == 'playPauseStepAudio') {
-        obj.playPauseStepAudio();
-//    } else if (type == 'updateAudio') {
-//        obj.updateAudio();
-    } else if (type == 'renderNodeComplete') {
-        // hopefully, 'pageRenderComplete' takes care of this
-        //obj.startAudioAfterRender(args[0]);
-    } else if (type == 'stepThruProject') {
-        //obj.stepThruProject();
-    } else if (type == 'contentRenderComplete') {
-        // hopefully, 'pageRenderComplete' takes care of this
-        //obj.startAudioAfterRender(args[0]);
-        // obj.prepareAudio(args[0]);
-    } else if (type == 'pageRenderComplete') {
+    } else if (type == 'pageRenderCompleted') {
         obj.startAudioAfterRender(args[0]);
         // obj.prepareAudio(args[0]);
     } else if (type == 'createAudioFiles') {

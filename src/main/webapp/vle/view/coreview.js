@@ -44,7 +44,7 @@ View.prototype.loadProject = function(url, contentBase, lazyLoading){
 		/* if both lastEdited and lastMinified exist and it was minified more recently
 		 * than edited, then load minified project file, otherwise load project file normally */
 		if(lastEdited && lastMinified && (lastEdited < lastMinified) && !(view.name=='authoring' || view.name=='vle')){
-			eventManager.fire('loadingProjectStart');
+			eventManager.fire('loadingProjectStarted');
 			
 			try {
 				//try to load the minified project
@@ -60,24 +60,24 @@ View.prototype.loadProject = function(url, contentBase, lazyLoading){
 			}
 			
 			view.isLoadedProjectMinified = true;
-			eventManager.fire('loadingProjectComplete');
+			eventManager.fire('loadingProjectCompleted');
 		} else {
-			eventManager.fire('loadingProjectStart');
+			eventManager.fire('loadingProjectStarted');
 			var project = createProject(createContent(url), contentBase, lazyLoading, view);
 			view.setProject(project);
 			view.isLoadedProjectMinified = false;
 			//$('#currentProjectContainer').show();
 			//$('#authoringContainer').show();
-			eventManager.fire('loadingProjectComplete');
+			eventManager.fire('loadingProjectCompleted');
 		};
 	};
 	
 	/* failure will be called if the project meta data file does not exist, so load project normally */
 	var failure = function(t,o){
-		o.eventManager.fire('loadingProjectStart');
+		o.eventManager.fire('loadingProjectStarted');
 		o.project = createProject(createContent(url), contentBase, lazyLoading, o);
 		o.isLoadedProjectMinified = false;
-		o.eventManager.fire('loadingProjectComplete');
+		o.eventManager.fire('loadingProjectCompleted');
 	};
 	
 	//get the url that we will use to retrieve the metadata
@@ -97,13 +97,13 @@ View.prototype.loadProject = function(url, contentBase, lazyLoading){
 		this.connectionManager.request('GET',1,projectMetaDataUrl,projectMetaDataUrlParams,success, this, failure);					
 	} else {
 		// project metadata does not exist and metadataurl is unspecified so start project normally
-		this.eventManager.fire('loadingProjectStart');
+		this.eventManager.fire('loadingProjectStarted');
 		var project = createProject(createContent(url), contentBase, lazyLoading, this);
 		view.setProject(project);
 		var projectMetadata = {};
 		view.setProjectMetadata(projectMetadata);
 		this.isLoadedProjectMinified = false;
-		this.eventManager.fire('loadingProjectComplete');
+		this.eventManager.fire('loadingProjectCompleted');
 	}
 };
 

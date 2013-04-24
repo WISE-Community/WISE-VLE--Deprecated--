@@ -1,10 +1,10 @@
-/*globals SCUtil */
+/*globals Ember */
 
-SCUtil = {};
+var SCUtil = {};
 
 SCUtil.uuid = function() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
     return v.toString(16);
   });
 };
@@ -30,20 +30,20 @@ SCUtil.ModelObject = Ember.Object.extend({
   rev: 0,
   init: function() {
     this._super();
-    
+
     if(!this.get('dataHash')) {
       var dataHash = {};
       if(this.get('defaultDataHash')){
         jQuery.extend(true, dataHash, this.get('defaultDataHash'));
       }
-      this.set('dataHash', dataHash); 
+      this.set('dataHash', dataHash);
     }
   }
 });
 
 SCUtil.UUIDModel = Ember.Mixin.create({
   uuid: SCUtil.dataHashProperty,
-  
+
   init: function() {
     if(Ember.none(this.get('uuid'))){
       this.set('uuid', SCUtil.uuid());
@@ -52,103 +52,50 @@ SCUtil.UUIDModel = Ember.Mixin.create({
 });
 
 SCUtil.ModelArray = Ember.ArrayController.extend({
-  // // this will point to the dataHashs represnting the models
-  // content: null,
-
-  // // this points to the cached model objects
-  // modelObjects: null,
-
-  // // type of model object to create
-  // modelType: null,
-
-  // useful when the content is coming from iframe that isn't using SC
-  // setExternalContent: function(dataHash) {
-  //   Ember.NativeArray.apply(dataHash);
-  //   this.set('content', dataHash);
-  // },
-
-  // objectAtContent: function(idx) {
-  //   var data = this.get('content').objectAt(idx);
-  //   return this.objectForHash(data);
-  // },
-
-  // objectForHash: function(data) {
-  //   var model = null,
-  //       modelObjects = this.get('modelObjects');
-
-  //   if (Ember.none(modelObjects)) {
-  //     modelObjects = Ember.Set.create();
-  //     this.set('modelObjects',modelObjects);
-  //   }
-
-  //   modelObjects.forEach(function (cur_model){
-  //     if(cur_model.get('dataHash') === data){
-  //       model = cur_model;
-  //     }
-  //   });
-
-  //   if (Ember.none(model)) {
-  //     model = this.get('modelType').create();
-  //     model.set('dataHash',data);
-  //     this.get('modelObjects').add(model);
-  //   }
-  //   return model;
-  // },
-
-  // replaceContent: function(idx, amt, objects) {
-  //   var dataObjects = null;
-  //   if(objects){
-  //     dataObjects = [];
-  //     objects.forEach(function (model){
-  //       dataObjects.push(model.get('dataHash'));
-  //     });
-  //   }
-
-  //   this.get('content').replace(idx, amt, dataObjects);
-
-  //   // we should clean up the cached model objects
-  //   // we don't need to actually add the model objects they will be created as they are requested
-  // },
 
   contentFromHashArray: function(hashArray) {
     // var size = hashArray.length;
     // var i;
-    var item = null;
-    var modelType = this.get('modelType');
-    this.set('content',[]);
-    var newData = [];
-    hashArray.forEach(function(item) {
-      item = modelType.create({dataHash: item});
-      newData.push(item);
+    var self = this;
+    Ember.run( function() {
+      var item = null;
+      var modelType = self.get('modelType');
+      var modelObjects = self.get('content');
+      if (modelObjects !== null) {
+        modelObjects.forEach(function(model){
+          model.destroy();
+        });
+      }
+
+      self.set('content',[]);
+      var newData = [];
+      if (typeof hashArray === 'undefined') {
+        hashArray = [];
+      }
+      hashArray.forEach(function(item) {
+        item = modelType.create({dataHash: item});
+        newData.push(item);
+      });
+      self.set('content',newData);
     });
-    this.set('content',newData);
   },
-  
+
   createItem: function() {
     // this.pushObject(this.get('modelType').create().get('dataHash'));
     this.pushObject(this.get('modelType').create());
   },
 
   removeItem: function(button){
-    this.removeObject(button.get('item'));
+    var item = button.get('item');
+    this.removeObject(item);
+    item.destroy();
   },
 
-  // init: function() {
-  //   this._super();
-  //   this.set('modelObjects', Ember.Set.create());
-  // }
   init: function() {
     this._super();
-    this.set('content', []);
+    this.set('modelObjects', Ember.Set.create());
   }
 
-  // _contentWillChange: function () {
-  //   var modelObjects = this.get('modelObjects') !== null? this.get('modelObjects') : Ember.Set.create();
-  //   modelObjects.forEach(function(model){
-  //     model.destroy();
-  //   });
-  //   this.set('modelObjects', Ember.Set.create());
-  // }.observesBefore('content')
 });
 
 

@@ -9,10 +9,10 @@
         </div>
         
         <div id="buttonBoxNote">
-					<a onclick="eventManager.fire('resizeNote', 'narrow')">Tall</a>
-					<a onclick="eventManager.fire('resizeNote', 'wide')">Wide</a>
-					<a onclick="eventManager.fire('resizeNote', 'original')">Basic</a>
-					<a onclick="eventManager.fire('resizeNote', 'maximize')">Large</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'narrow')"">Tall</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'wide')">Wide</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'original')">Basic</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'maximize')">Large</a>
 		</div>
 		
 	        
@@ -66,7 +66,7 @@
                 </div>
                 
 		<div id='starterParent'>
-			<div id='starterSentenceDiv' class="starterSentence"><a onclick="eventManager.fire('noteShowStarter')">Show Starter Sentence</a></div>
+			<div id='starterSentenceDiv' class="starterSentence"><a onclick="view.activeNote.showStarter()">Show Starter Sentence</a></div>
 		</div>
 		<div id='responseDisplayDiv'>
             <div id='responseLabelDiv' class="itemLabel color1">
@@ -74,7 +74,7 @@
             </div>
 			<div class="promptContainer">
 				<div id="responseBoxDiv">
-					<textarea id="responseBox" class="noteResponseBox" onKeyPress="eventManager.fire('noteHandleEditorKeyPress')"></textarea>
+					<textarea id="responseBox" class="noteResponseBox" onKeyPress="eventManager.fire('noteEditorKeyPressed')"></textarea>
 				</div>
 			</div>
 		</div>
@@ -92,11 +92,8 @@
 
 
 		<div id="submitButtonsNote">
-		   <div class="buttonDiv"><input type="button" id="saveButton" data-i18n="save_changes" value="SAVE CHANGES" onclick="eventManager.fire('saveNote');" /></div>
-		   <div class="buttonDiv"><input type="button" id="closeButton" value="SAVE & CLOSE" onclick="eventManager.fire('saveAndCloseNote');" /></div>
-		   <div class="buttonDiv" id="saveAndLockButtonDiv" style="display:none" disabled="true">
-		   		<input type="button" id="saveAndLockButton" value="SAVE & LOCK" onclick="eventManager.fire('saveAndLock');" />
-		   </div>
+		   <div class="buttonDiv"><input type="button" id="saveButton" data-i18n="save_changes" value="SAVE CHANGES" onclick="view.activeNote.save();" /></div>
+		   <div class="buttonDiv"><input type="button" id="closeButton" value="SAVE & CLOSE" onclick="view.activeNote.save(); view.utils.closeDialog('notePanel');" /></div>
 		</div>
 		
 

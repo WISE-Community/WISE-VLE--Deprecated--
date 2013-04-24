@@ -159,11 +159,23 @@ var scriptloader = function(){
 					//}
 					
 					// set navMode (either based on project config or theme default)
-					var navMode = null;
-					if(currentName[1]){
-						navMode = currentName[1];
-					} else if(data.nav_modes && $.isArray(data.nav_modes)) {
-						navMode = data.nav_modes[0].id;
+					var navModeName = null,
+						navMode = null,
+						navModes = null;
+					if(data.nav_modes && $.isArray(data.nav_modes)){
+						navModes = data.nav_modes;
+						if(currentName[1]){
+							navModeName = currentName[1];
+							for(var i=0; i<navModes.length; i++){
+								if(navModes[i].id === navModeName){
+									navMode = navModes[i];
+									break;
+								}
+							}
+						} else if(data.nav_modes && $.isArray(data.nav_modes)) {
+							navMode = navModes[0];
+							navModeName = navMode.id;
+						}
 					} else {
 						alert('Selected VLE theme "' + themeName + '" is broken: Navigation modes not set.');
 					}
@@ -188,13 +200,32 @@ var scriptloader = function(){
 					
 					// add navigation css and js to load
 					if(navMode){
-						// add navMode's css file to load
-						var navcsspath = 'vle/' + themepath + 'navigation/' + navMode + '/nav.css';
+						var navpath = 'vle/' + themepath + 'navigation/' + navModeName + '/';
+						// add navMode's main css file to load
+						var navcsspath = navpath + 'nav.css';
 						c.push(navcsspath);
 						
 						// add navMode's setup file to load
-						var naveventspath = 'vle/' + themepath + 'navigation/' + navMode + '/nav.js';
+						var naveventspath = navpath + 'nav.js';
 						s.push(naveventspath);
+						
+						// add any additional navMode js files to load
+						if(navMode.js && $.isArray(navMode.js)){
+							var navjs = navMode.js;
+							for(var i=0;i<navjs.length; i++){
+								var jspath = 'vle/' + themepath + navjs[i];
+								s.push(jspath);
+							}
+						}
+						
+						// add any additional navMode css files to load
+						if(navMode.css && $.isArray(navMode.css)){
+							var navcss = navMode.css;
+							for(var i=0;i<navcss.length; i++){
+								var csspath = 'vle/' + themepath + navcss[i];
+								c.push(csspath);
+							}
+						}
 					}
 					
 					// add jqueryui css (either from theme or WISE default)

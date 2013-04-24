@@ -19,15 +19,6 @@ View.prototype.getAbsoluteRemoteStudentReferencedUploadsPath = function() {
 };
 
 /**
- * Utility functions specific to the VLE view
- */
-View.prototype.utils.setStyleOnElement = function(elementToHighlight, styleName, styleValue){
-	if (elementToHighlight && elementToHighlight != null) {
-		elementToHighlight.setStyle(styleName, styleValue);
-	};
-};
-
-/**
  * Closes currently-opened dialogs. If a name is specified, it closes the specified popup.
  * @name optional, name of the poup. if none specified, 
  * tries to close all popups. Choices: {notePanel, journalPanel, hintsPanel, addAnIdeaDiv}

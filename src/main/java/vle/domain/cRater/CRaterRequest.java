@@ -41,7 +41,10 @@ protected static String fromQuery = "from CRaterRequest";
 
 	@Column(name="cRaterItemId", nullable=false)
 	private String cRaterItemId;
-	
+
+	@Column(name="cRaterItemType")
+	private String cRaterItemType;
+
 	@JoinColumn(name="stepWorkId")
 	@ManyToOne(cascade = {CascadeType.PERSIST})
 	private StepWork stepWork;   // the work that is being cRater annotated
@@ -76,10 +79,11 @@ protected static String fromQuery = "from CRaterRequest";
 	 * @param stepWork
 	 * @param nodeStateId
 	 */
-	public CRaterRequest(String cRaterItemId, StepWork stepWork,
+	public CRaterRequest(String cRaterItemId, String cRaterItemType, StepWork stepWork,
 			Long nodeStateId, Long runId) {
 		super();
 		this.cRaterItemId = cRaterItemId;
+		this.cRaterItemType = cRaterItemType;
 		this.stepWork = stepWork;
 		this.nodeStateId = nodeStateId;
 		Calendar now = Calendar.getInstance();
@@ -121,6 +125,20 @@ protected static String fromQuery = "from CRaterRequest";
 	 */
 	public void setcRaterItemId(String cRaterItemId) {
 		this.cRaterItemId = cRaterItemId;
+	}
+
+	/**
+	 * @return the cRaterItemId
+	 */
+	public String getcRaterItemType() {
+		return cRaterItemType;
+	}
+
+	/**
+	 * @param cRaterItemType the cRaterItemType to set
+	 */
+	public void setcRaterItemType(String cRaterItemType) {
+		this.cRaterItemType = cRaterItemType;
 	}
 
 	/**

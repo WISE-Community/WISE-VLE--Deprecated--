@@ -1,79 +1,49 @@
 View.prototype.gradingDispatcher = function(type, args, obj) {
-	if(type=='displayGradeByStepGradingPage') {
-		obj.displayGradeByStepGradingPage(args[0], args[1]);
-	} else if(type=='displayGradeByTeamGradingPage') {
-		obj.displayGradeByTeamGradingPage(args[0]);
-	} else if(type=='displayResearcherToolsPage') {
-		obj.displayResearcherToolsPage();
-	} else if(type=='displayCustomExportPage') {
-		obj.displayCustomExportPage();
-	} else if(type=='displaySpecialExportPage') {
-		obj.displaySpecialExportPage();
-	} else if(type=='saveScore') {
-		obj.checkAndSaveScore(args[0], args[1], args[2], args[3], args[4]);
-	} else if(type=='saveComment') {
-		obj.saveComment(args[0], args[1], args[2], args[3], args[4], args[5]);
-	} else if(type=='saveFlag') {
-		obj.saveFlag(args[0], args[1], args[2], args[3], args[4], args[5]);
-	} else if(type=='saveInappropriateFlag') {
-		obj.saveInappropriateFlag(args[0], args[1], args[2], args[3], args[4], args[5]);
-	} else if(type=='processUserAndClassInfoComplete') {
+	if(type=='scoreUpdated') {
+		obj.scoreUpdatedEventListener(args[0], args[1], args[2], args[3], args[4]);
+	} else if(type=='commentUpdated') {
+		obj.commentUpdatedEventListener(args[0], args[1], args[2], args[3], args[4], args[5]);
+	} else if(type=='flagCheckboxClicked') {
+		obj.flagCheckboxClickedEventListener(args[0], args[1], args[2], args[3], args[4], args[5]);
+	} else if(type=='inappropriateFlagCheckboxClicked') {
+		obj.inappropriateFlagCheckboxClickedEventListener(args[0], args[1], args[2], args[3], args[4], args[5]);
+	} else if(type=='processUserAndClassInfoCompleted') {
 		obj.retrieveProjectMetaData();
 	} else if(type=='gradingConfigUrlReceived') {
 		obj.getGradingConfig(args[0]);
-	} else if(type=='getGradingConfigComplete') {
+	} else if(type=='getGradingConfigCompleted') {
 		obj.retrieveLocales("main");		
-		obj.loadProject(args[0], args[1], args[2]);
+		obj.loadProject(obj.config.getConfigParam('getContentUrl'), obj.config.getConfigParam('getContentBaseUrl'), false);
 		obj.initializeSession();
-	} else if(type=='loadingProjectComplete') {
+	} else if(type=='loadingProjectCompleted') {
 		obj.getStudentUserInfo();
 		obj.checkAndMinify();
-	} else if(type=='getAllStudentWorkXLSExport') {
-		obj.getAllStudentWorkXLSExport();
-	} else if(type=='getLatestStudentWorkXLSExport') {
-		obj.getLatestStudentWorkXLSExport();
-	} else if(type=='getIdeaBasketsExcelExport') {
-		obj.getIdeaBasketsExcelExport();
-	} else if(type=='getFlashExcelExport') {
-		obj.getFlashExcelExport();
-	} else if(type=='getExplanationBuilderWorkExcelExport') {
-		obj.getExplanationBuilderWorkExcelExport();
-	} else if(type=='getCustomLatestStudentWorkExport') {
-		obj.getCustomLatestStudentWorkExport();
-	} else if(type=='getCustomAllStudentWorkExport') {
-		obj.getCustomAllStudentWorkExport();
+	} else if(type=='exportButtonClicked') {
+		obj.exportButtonClickedEventListener(args[0], args[1]);
 	} else if(type=='customActivityCheckBoxClicked') {
 		obj.customActivityCheckBoxClicked(args[0]);
 	} else if(type=='customSelectAllStepsCheckBoxClicked') {
 		obj.customSelectAllStepsCheckBoxClicked();
-	} else if(type=='getStudentNamesExport') {
-		obj.getStudentNamesExport();
-	} else if(type=='getProjectMetaDataComplete') {
+	} else if(type=='retrieveProjectMetaDataCompleted') {
 		obj.retrieveAnnotations();
-	} else if(type=='saveMaxScore') {
+	} else if(type=='maxScoreChanged') {
 		obj.saveMaxScore(args[0], args[1]);
-	} else if(type=='showScoreSummary') {
-		obj.showScoreSummary();
-	} else if(type=='filterPeriod') {
-		obj.filterPeriod(args[0], args[1]);
-	} else if(type=='displayGradeByStepSelectPage') {
+	} else if(type=='gradeByStepViewSelected') {
 		obj.displayGradeByStepSelectPage();
-	} else if(type=='displayGradeByTeamSelectPage') {
+	} else if(type=='gradeByTeamViewSelected') {
 		obj.displayGradeByTeamSelectPage();
-	} else if(type=='displayStudentUploadedFiles') {
+	} else if(type=='displayStudentUploadedFilesSelected') {
 		obj.displayStudentUploadedFiles();
-	} else if(type=='togglePrompt') {
-		obj.togglePrompt(args[0]);
-	} else if(type=='refreshGradingScreen') {
-		obj.refreshGradingScreen();
+	} else if(type=='checkForNewWorkButtonClicked') {
+		obj.checkForNewWorkButtonClickedEventListener();
 	} else if(type=='smartFilter') {
 		obj.smartFilter();
-	} else if(type=='getAnnotationsComplete') {
+	} else if(type=='retrieveAnnotationsCompleted') {
 		obj.getIdeaBaskets();
-	} else if(type=='getIdeaBasketsComplete') {
+	} else if(type=='retrieveIdeaBasketsCompleted') {
 		eventManager.fire("projectDataReceived");
 		obj.initiateGradingDisplay();
-	} else if(type=='getStudentWorkComplete') {
+	} else if(type=='retrieveStudentWorkCompleted') {
 		obj.calculateGradingStatistics();
 		obj.reloadRefreshScreen();
 		if (obj.gradingType == "monitor") {
@@ -81,48 +51,22 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 			obj.displayNodeVisitsInStream();
 		}
 		obj.displayGroupAssignments();
-	} else if(type=='toggleGradingDisplayRevisions') {
-		obj.toggleGradingDisplayRevisions(args[0], args[1]);
-	} else if(type=='toggleAllGradingDisplayRevisions') {
-		obj.toggleAllGradingDisplayRevisions(args[0]);
-	} else if(type=='onlyShowFilteredItemsOnClick') {
-		obj.onlyShowFilteredItemsOnClick();
-	} else if(type=='onlyShowWorkOnClick') {
-		obj.onlyShowWorkOnClick();
-	} else if(type=='filterStudentRows') {
+	} else if(type=='hidePersonalInfoOptionClicked') {
+		obj.hidePersonalInfoOptionClickedEventListener();
+	} else if(type=='filterStudentRowsRequested') {
 		obj.filterStudentRows();
-	} else if(type=='enlargeStudentWorkText') {
+	} else if(type=='enlargeStudentWorkTextOptionClicked') {
 		obj.enlargeStudentWorkText();
-	} else if(type=='openPremadeComments') {
-		obj.openPremadeComments(args[0], args[1]);
-	} else if(type=='selectPremadeComment') {
-		obj.selectPremadeComment(args[0]);
-	} else if(type=='submitPremadeComment') {
-		obj.submitPremadeComment();
 	} else if(type=='premadeCommentWindowLoaded') {
 		obj.premadeCommentWindowLoaded();
-	} else if(type=='addPremadeComment') {
-		obj.addPremadeComment(args[0]);
-	} else if(type=='deletePremadeComment') {
-		obj.deletePremadeComment(args[0], args[1]);
-	} else if(type=='deletePremadeCommentList') {
-		obj.deletePremadeCommentList(args[0]);
 	} else if(type=='premadeCommentLabelClicked') {
-		obj.premadeCommentLabelClicked(args[0]);
-	} else if(type=='premadeCommentListUncheckLabels') {
-		obj.premadeCommentListUncheckLabels(args[0]);
-	} else if(type=='displayExportExplanation') {
-		obj.displayExportExplanation(args[0]);
-	} else if(type=='setSelectedPeriod') {
-		obj.setSelectedPeriod(args[0]);
-	} else if(type=='editGroups') {
-		obj.editGroups(args[0]);
+		obj.premadeCommentLabelClickedEventListener(args[0]);
+	} else if(type=='exportExplanationButtonClicked') {
+		obj.exportExplanationButtonClickedEventListener(args[0]);
 	} else if(type=='groupClicked') {
-		obj.groupClicked(args[0]);
-	} else if(type=='getSpecialExport') {
-		obj.getSpecialExport(args[0]);
-	} else if(type=='displayChatRoom') {
-		obj.displayChatRoom();
+		obj.groupClickedEventListener(args[0]);
+	} else if(type=='specialExportButtonClicked') {
+		obj.specialExportButtonClickedEventListener(args[0]);
 	} else if(type=='chatRoomTextEntrySubmitted') {
 		obj.sendChat(args[0]);
 	} else if(type=='realTimeMonitorSelectWorkgroupIdDropDownClicked') {
@@ -133,8 +77,6 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.realTimeMonitorShareWithClassClicked(args[0],args[1]);
 	} else if(type=='lockScreenAndShareWithClass') {
 		obj.lockScreenAndShareWithClass(args[0]);
-	} else if(type=='maximizeRightTdButtonClicked') {
-		obj.maximizeRightTdButtonClicked();
 	}
 };
 

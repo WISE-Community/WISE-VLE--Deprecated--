@@ -2,12 +2,12 @@
  * Dispatches events specific to the navigation
  */
 View.prototype.navigationDispatcher = function(type,args,obj){
-	if(type=='loadingProjectComplete'){
+	if(type=='loadingProjectCompleted'){
 		obj.createNavigationLogicOnProjectLoad();
-	} else if(type=='renderNodeComplete'){
+	} else if(type=='renderNodeCompleted'){
 		obj.preloadNextNode(args[0]);
-	} else if(type=='processLoadViewStateResponseComplete'){
-		obj.eventManager.fire('navigationLoadingComplete');
+	} else if(type=='processLoadViewStateResponseCompleted'){
+		obj.eventManager.fire('navigationLoadingCompleted');
 	}
 };
 

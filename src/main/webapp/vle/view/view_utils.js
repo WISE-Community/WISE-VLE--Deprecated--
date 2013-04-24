@@ -6,21 +6,9 @@
 View.prototype.utils = {};
 
 View.prototype.utilDispatcher = function(type, args, obj) {
-	if (type == 'loadConfigComplete') {
+	if (type == 'loadConfigCompleted') {
 		obj.initializeSession();
-	} else if (type == 'maintainConnection') {
-		obj.sessionManager.maintainConnection();
-	} else if (type == 'renewSession') {
-		// make a request to renew the session
-		var renewSessionUrl = obj.config.getConfigParam('indexUrl');
-		if (renewSessionUrl == null || renewSessionUrl == 'undefined') {
-			renewSessionUrl = "/webapp/index.html";
-		}
-		obj.connectionManager.request('GET', 2, renewSessionUrl, {}, null, obj);
-	} else if (type == 'checkSession') {
-		// check if session has been expired
-		obj.sessionManager.checkSession();
-	} 
+	}
 };
 
 /**
@@ -62,13 +50,13 @@ View.prototype.retrieveProjectMetaData = function() {
 			}
 	
 			thisView.projectMetaDataRetrieved = true;
-			eventManager.fire("getProjectMetaDataComplete");
+			eventManager.fire("retrieveProjectMetaDataCompleted");
 		};
 		
 		var projectMetaDataCallbackFailure = function(text, args) {
 			var thisView = args[0];
 			thisView.projectMetaDataRetrieved = true;
-			eventManager.fire("getProjectMetaDataComplete");
+			eventManager.fire("retrieveProjectMetaDataCompleted");
 		};
 		
 		var projectMetaDataUrlParams = {
@@ -83,9 +71,9 @@ View.prototype.retrieveProjectMetaData = function() {
  * Get the run extras such as the max scores
  * @return
  */
-View.prototype.getRunExtras = function() {
+View.prototype.retrieveRunExtras = function() {
 	//get the url to retrieve the run extras
-	var getRunExtrasUrl = this.getConfig().getConfigParam('getRunExtrasUrl');
+	var retrieveRunExtrasUrl = this.getConfig().getConfigParam('getRunExtrasUrl');
 	
 	var runExtrasCallbackSuccess = function(text, xml, args) {
 		var thisView = args[0];
@@ -95,16 +83,16 @@ View.prototype.getRunExtras = function() {
 		}
 
 		thisView.runExtrasRetrieved = true;
-		eventManager.fire("getRunExtrasComplete");
+		eventManager.fire("retrieveRunExtrasCompleted");
 	};
 	
 	var runExtrasCallbackFailure = function(text, args) {
 		var thisView = args[0];
 		thisView.runExtrasRetrieved = true;
-		eventManager.fire("getRunExtrasComplete");
+		eventManager.fire("retrieveRunExtrasCompleted");
 	};
 	
-	this.connectionManager.request('GET', 1, getRunExtrasUrl, null, runExtrasCallbackSuccess, [this], runExtrasCallbackFailure);
+	this.connectionManager.request('GET', 1, retrieveRunExtrasUrl, null, runExtrasCallbackSuccess, [this], runExtrasCallbackFailure);
 };
 
 
@@ -783,14 +771,16 @@ View.prototype.escapeIdForJquery = function(id) {
 /**
  * Make a CRater verify request for the given item id
  * @param itemId the item id to verify
+ * @param cRaterItemType the type of CRater {CRATER,HENRY} to verify
  */
-View.prototype.makeCRaterVerifyRequest = function(itemId) {
+View.prototype.makeCRaterVerifyRequest = function(itemId,cRaterItemType) {
 	//get the url to our servlet that will make the request to the CRater server for us
 	var cRaterRequestUrl = this.config.getConfigParam('cRaterRequestUrl');
 	
 	var requestArgs = {
 		cRaterRequestType:'verify',
-		itemId:itemId
+		itemId:itemId,
+		cRaterItemType:cRaterItemType
 	};
 	
 	var responseText = this.connectionManager.request('GET', 1, cRaterRequestUrl, requestArgs, this.makeCRaterVerifyRequestCallback, {vle:this}, this.makeCRaterVerifyRequestCallbackFail, true);
@@ -1103,9 +1093,11 @@ View.prototype.satisfiesCRaterRule = function(studentConcepts, ruleConcepts, num
  * Get the feedback for the given concepts
  * @param scoringRules an array of scoring rules
  * @param concepts a string containing the concepts
+ * @param score the score
+ * @param cRaterItemType the crater item type e.g. 'CRATER' or 'HENRY'
  * @returns the feedback
  */
-View.prototype.getFeedbackFromScoringRules = function(scoringRules, concepts) {
+View.prototype.getCRaterFeedback = function(scoringRules, concepts, score, cRaterItemType) {
 	var feedbackSoFar = "No Feedback";
 	var maxScoreSoFar = 0;
 	
@@ -1115,24 +1107,34 @@ View.prototype.getFeedbackFromScoringRules = function(scoringRules, concepts) {
 			//get a scoring rule
 			var scoringRule = scoringRules[i];
 			
-			if (this.satisfiesCRaterRulePerfectly(concepts, scoringRule.concepts)) {
-				//the concepts perfectly match this scoring rule
+			if(cRaterItemType == null || cRaterItemType == 'CRATER') {
+				if (this.satisfiesCRaterRulePerfectly(concepts, scoringRule.concepts)) {
+					//the concepts perfectly match this scoring rule
+					
+					//if this scoring rule has more than one feedback, choose one randomly
+					feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
+					
+					//no longer need to check other rules if we have a pefect match
+					break;
+				} else if (scoringRule.score > maxScoreSoFar && this.satisfiesCRaterRule(concepts, scoringRule.concepts, parseInt(scoringRule.numMatches))) {
+					/*
+					 * the concepts match this scoring rule but we still need to
+					 * look at the other scoring rules to make sure there aren't
+					 * any better matches that will give the student a better score
+					 */
+					
+					//if this scoring rule has more than one feedback, choose one randomly
+					feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
+					maxScoreSoFar = scoringRule.score;
+				}
+			} else if(cRaterItemType == 'HENRY') {
+				//get the score for this scoring rule
+				var scoringRuleScore = scoringRule.score;
 				
-				//if this scoring rule has more than one feedback, choose one randomly
-				feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
-				
-				//no longer need to check other rules if we have a pefect match
-				break;
-			} else if (scoringRule.score > maxScoreSoFar && this.satisfiesCRaterRule(concepts, scoringRule.concepts, parseInt(scoringRule.numMatches))) {
-				/*
-				 * the concepts match this scoring rule but we still need to
-				 * look at the other scoring rules to make sure there aren't
-				 * any better matches that will give the student a better score
-				 */
-				
-				//if this scoring rule has more than one feedback, choose one randomly
-				feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
-				maxScoreSoFar = scoringRule.score;
+				if(score == scoringRuleScore) {
+					//if this scoring rule has more than one feedback, choose one randomly
+					feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
+				}
 			}
 		}
 	}

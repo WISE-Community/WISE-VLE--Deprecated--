@@ -171,7 +171,7 @@ Connection.prototype.success = function(data, status, request) {
 	} else if (this.handler) {
 		this.handler(data, data, this.hArgs);
 	}
-	this.em.fire("maintainConnection");   // also maintain connection
+	view.sessionManager.maintainConnection();  // update last connection time to maintain connection
 };
 
 Connection.prototype.failure = function(request, status, exception) {

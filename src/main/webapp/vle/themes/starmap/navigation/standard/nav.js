@@ -10,6 +10,9 @@
  * has been opened by a student (see 'nodeRendered' function).
  */
 
+NavigationPanel.prototype.render = function() {
+	$('#toggleNavLink').attr('title',"View Star Map").html("View Map");
+};
 
 /**
  * Creates the html to display an activity (sequence) in the navigation
@@ -179,7 +182,7 @@ NavigationPanel.prototype.nodeRendered = function(node) {
  * element from your theme's 'vle_body.html' and leave this function empty.
  */
 NavigationPanel.prototype.toggleVisibility = function() {
-	eventManager.fire("goToNodePosition", window.env.getProject().getStartNodePosition());
+	eventManager.fire("nodeLinkClicked", this.view.getProject().getStartNodePosition());
 	/*
 	var view = this.view;
 	
@@ -293,8 +296,6 @@ NavigationPanel.prototype.resizeMenu = function() {
 	$('#navigation').css({'position':'absolute', 'top':top, 'left':0, 'right':0, 'bottom':0});
 };
 
-
-
 /**
  * The navMode dispatcher catches events specific to this project
  * navigation mode and delegates them to the appropriate functions for
@@ -303,13 +304,15 @@ NavigationPanel.prototype.resizeMenu = function() {
  * REQUIRED
  */
 View.prototype.navModeDispatcher = function(type,args,obj){
-	if(type=='navigationMenuCreated'){ // REQUIRED (DO NOT EDIT)
+	if(type=='renderNodeCompleted') {
+		obj.renderNavigationPanel();
+	} else if(type=='navigationMenuCreated'){ // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.menuCreated();
 	} else if(type=='navNodeRendered'){ // REQUIRED  (DO NOT EDIT)
 		if(obj.navigationPanel){
 			obj.navigationPanel.nodeRendered(args[0]);
 		}
-	} else if(type=='toggleNavigationVisibility'){ // REQUIRED (DO NOT EDIT)
+	} else if(type=='navigationPanelToggleVisibilityButtonClicked'){ // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.toggleVisibility();
 	} else if(type=='navSequenceOpened'){ // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.sequenceOpened(args[0]);
@@ -323,7 +326,8 @@ View.prototype.navModeDispatcher = function(type,args,obj){
  * REQUIRED
  */
 var events = [
-	'toggleNavigationVisibility', // REQUIRED (DO NOT EDIT)
+    'renderNodeCompleted',
+	'navigationPanelToggleVisibilityButtonClicked', // REQUIRED (DO NOT EDIT)
 	'navigationMenuCreated', // REQUIRED (DO NOT EDIT)
 	'navNodeRendered', // REQUIRED (DO NOT EDIT)
 	'navSequenceOpened', // REQUIRED (DO NOT EDIT)

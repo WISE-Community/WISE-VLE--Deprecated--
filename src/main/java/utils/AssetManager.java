@@ -32,6 +32,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -132,17 +133,6 @@ public class AssetManager extends HttpServlet implements Servlet{
 				this.removeAsset(request, response);
 			} else if (command.equals("getSize")){
 				response.getWriter().write(this.getSize(path, dirName));
-			} else if (command.equals("getAssetsUsageAndMax")) { 
-				String sizeUsed = this.getSize(path, dirName);
-				Long projectMaxTotalAssetsSizeLong = (Long) request.getAttribute("projectMaxTotalAssetsSize");
-				String projectMaxTotalAssetsSizeString = null;
-				if (projectMaxTotalAssetsSizeLong != null) {
-					projectMaxTotalAssetsSizeString = projectMaxTotalAssetsSizeLong.toString();
-				} else {
-					projectMaxTotalAssetsSizeString = vleProperties.getProperty("project_max_total_assets_size", "10485760");
-				}
-				String usageString = sizeUsed + "/" + projectMaxTotalAssetsSizeString;
-				response.getWriter().write(usageString);
 			} else if(command.equals("assetList")){
 				response.getWriter().write(this.assetList(request));
 			} else if(command.equals("download")){
@@ -169,9 +159,14 @@ public class AssetManager extends HttpServlet implements Servlet{
 	@SuppressWarnings("unchecked")
 	private String uploadAsset(HttpServletRequest request) {
 		ServletFileUpload uploader = new ServletFileUpload(new DiskFileItemFactory());
-		Long projectMaxAssetsSize = new Long(vleProperties.getProperty("project_max_total_assets_size", "10485760"));
+		
+		//get the global max project size, we will default to 15MB if none is provided in the vle.properties file
+		Long projectMaxAssetsSize = new Long(vleProperties.getProperty("project_max_total_assets_size", "15728640"));
+		
+		//get the global max student assets folder size, we will default to 20MB if none is provided in the vle.properties file
 		Long studentMaxAssetsSize = new Long(vleProperties.getProperty("student_max_total_assets_size", "2097152"));
 		Long maxSize = projectMaxAssetsSize;
+		String folderPath = "";
 		String path = "";
 		String dirName = (String) request.getAttribute("dirName");
 		if (dirName == null) {
@@ -183,10 +178,12 @@ public class AssetManager extends HttpServlet implements Servlet{
 
 		if (studentUploadsBaseDir != null) {
 			// this is a student asset upload
+			folderPath = studentUploadsBaseDir + "/" + dirName;
 			path = studentUploadsBaseDir;
 			maxSize = studentMaxAssetsSize;
 		} else if(projectFolderPath != null) {
 			//the user is a teacher, trying to upload an asset to the project using the authoring tool
+			folderPath = projectFolderPath;
 			path = projectFolderPath;
 			Long projectMaxTotalAssetsSizeLong = (Long) request.getAttribute("projectMaxTotalAssetsSize");
 			if (projectMaxTotalAssetsSizeLong != null) {
@@ -229,9 +226,10 @@ public class AssetManager extends HttpServlet implements Servlet{
 									}
 								}
 								
-								if(Long.parseLong(this.getSize(path, dirName)) + item.getSize() - duplicateSize > maxSize){
+								if(Long.parseLong(this.getFolderSize(folderPath)) + item.getSize() - duplicateSize > maxSize){
 									return "Uploading \"" + item.getName() + "\" (" + this.appropriateSize(item.getSize()) + ") would exceed the maximum storage capacity (" + this.appropriateSize(maxSize) + "). Please delete some files and try again.";
 								}
+								
 								File asset = new File(assetsDir, item.getName());
 								item.write(asset);
 								return "File \"" + asset.getName() + "\" successfully uploaded!";
@@ -274,7 +272,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 								}
 							}
 							
-							if(Long.parseLong(this.getSize(path, dirName)) + content.length - duplicateSize > maxSize){
+							if(Long.parseLong(this.getFolderSize(folderPath)) + content.length - duplicateSize > maxSize){
 								successMessage += "Uploading \"" + filename + "\" (" + this.appropriateSize(content.length) + ") would exceed the maximum storage capacity ("  + this.appropriateSize(maxSize) + "). Please delete some files and try again.";
 							} else {
 								if(!asset.exists()){
@@ -447,6 +445,38 @@ public class AssetManager extends HttpServlet implements Servlet{
 					return "Given project path does not exist.";
 				}
 			}
+		}
+		
+		/**
+		 * Returns the size in bytes of all of the files in the specified path/dirname
+		 * 
+		 * @param <code>String</code> folderPath the path to the folder as a string
+		 * @return <code>String</code> size of all files in assets folder in bytes
+		 */
+		private String getFolderSize(String folderPath) {
+			String folderSize = "";
+			
+			if(folderPath != null) {
+				//get a handle on the folder
+				File folder = new File(folderPath);
+				
+				//make sure the folder exists and is a folder
+				if(folder.exists() && folder.isDirectory()) {
+					//get the size of the folder
+					long sizeOfDirectory = FileUtils.sizeOfDirectory(folder);
+					
+					//get the folder size as a string
+					folderSize = String.valueOf(sizeOfDirectory);
+				} else {
+					//folder does not exist or is not a folder
+					folderSize = "Given folder path does not exist or is not a folder.";
+				}
+			} else {
+				//folder path is null
+				folderSize = "Folder path not provided.";
+			}
+			
+			return folderSize;
 		}
 
 		/**

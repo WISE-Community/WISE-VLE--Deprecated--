@@ -404,7 +404,7 @@ Node.prototype.renderSummaryView = function(workgroupIdToWork,dom) {
  * Listens for page rendered event: the html has been fully loaded
  * and the event is fired from the page's window.onload function.
  */
-Node.prototype.pageRenderComplete = function(type, args, obj){
+Node.prototype.pageRenderCompletedListener = function(type, args, obj){
 	/* args[0] is the id of node's page that has been rendered */
 	if(obj.id==args[0] && obj.contentPanel && obj.contentPanel.loadContent){
 		obj.contentPanel.loadContent(obj);
@@ -425,7 +425,7 @@ Node.prototype.loadContentAfterScriptsLoad = function(type, args, obj){
  * been fully loaded as has the content and the event is fired from
  * the html's load content function.
  */
-Node.prototype.contentRenderComplete = function(type, args, obj){
+Node.prototype.contentRenderCompletedListener = function(type, args, obj){
 	/* args[0] is the id of node's page that has been rendered */
 	var nodeId = args[0];
 	var node = obj.view.getProject().getNodeById(nodeId);
@@ -1317,7 +1317,7 @@ Node.prototype.linkTo = function(key){
 		}
 		if(!node){
 			this.view.notificationManager.notify('Could not retrieve the step specified in the link.',3);
-		} else if(this.view.name!='vle'){
+		} else if(this.view.name != 'student'){
 			this.view.notificationManager.notify('The link works. The step ' + node.title + ' will be displayed when the project is run.',3);
 		} else {
 			this.view.renderNode(nodePosition);

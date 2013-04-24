@@ -513,6 +513,17 @@ View.prototype.OpenResponseNode.populateCRater = function() {
 			$('#cRaterItemIdInput').val(this.content.cRater.cRaterItemId);
 		}
 		
+		if (this.content.cRater.cRaterItemType == null) {
+			// if cRater type is not set, assume it's CRater (version 1)
+			this.content.cRater.cRaterItemType = "CRATER";
+		}
+		
+		if (this.content.cRater.cRaterItemType == "CRATER") {
+			$("#cRaterItemTypeCRATER").attr('checked', true);			
+		} else if (this.content.cRater.cRaterItemType == "HENRY") {
+			$("#cRaterItemTypeHENRY").attr('checked', true);
+		}
+		
 		if(this.content.cRater.displayCRaterScoreToStudent != null) {
 			//populate the display score to student checkbox
 			$('#cRaterDisplayScoreToStudent').attr('checked', this.content.cRater.displayCRaterScoreToStudent);
@@ -546,9 +557,11 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	
 	//get the item id the user has entered
 	var itemId = $('#cRaterItemIdInput').val();
+
+	var cRaterItemType = this.content.cRater.cRaterItemType;
 	
 	//make a verify request to the CRater server with the item id the user has entered
-	this.view.makeCRaterVerifyRequest(itemId);
+	this.view.makeCRaterVerifyRequest(itemId,cRaterItemType);
 	
 	//obtain the CRater server response from our request
 	var responseText = this.view.cRaterResponseText;
@@ -626,6 +639,16 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 		}
 	}
 	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * 
+ */
+View.prototype.OpenResponseNode.cRaterItemTypeChangedListener = function(cRaterItemType) {
+	this.content.cRater.cRaterItemType = cRaterItemType;
+
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
 };

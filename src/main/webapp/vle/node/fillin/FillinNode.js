@@ -104,7 +104,7 @@ FillinNode.prototype.overridesIsCompleted = function() {
  * @return a boolean value whether the step is completed or not
  */
 FillinNode.prototype.isCompleted = function() {
-	var nodeVisitsForThisNode = this.view.state.getNodeVisitsByNodeId(this.id);
+	var nodeVisitsForThisNode = this.view.getState().getNodeVisitsByNodeId(this.id);
 	if (nodeVisitsForThisNode != null) {
 		for (var i=0; i < nodeVisitsForThisNode.length; i++) {
 			var nodeVisitForThisNode = nodeVisitsForThisNode[i];

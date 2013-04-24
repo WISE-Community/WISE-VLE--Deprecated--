@@ -193,8 +193,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					}
 
 					/* add events for node rendering */
-					eventManager.subscribe('pageRenderComplete', thisNode.pageRenderComplete, thisNode);
-					eventManager.subscribe('contentRenderComplete', thisNode.contentRenderComplete, thisNode);
+					eventManager.subscribe('pageRenderCompleted', thisNode.pageRenderCompletedListener, thisNode);
+					eventManager.subscribe('contentRenderCompleted', thisNode.contentRenderCompletedListener, thisNode);
 					eventManager.subscribe('scriptsLoaded', thisNode.loadContentAfterScriptsLoad, thisNode);
 				}
 			}

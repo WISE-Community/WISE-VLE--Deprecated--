@@ -82,7 +82,7 @@ function OPENRESPONSE(node, view) {
 	 * subscribe this open response to listen for the 'getAnnotationsComplete' event.
 	 * this is for when we need to retrieve annotations for the teacher review
 	 */
-	eventManager.subscribe('getAnnotationsComplete', this.getAnnotationsComplete, this);
+	eventManager.subscribe('retrieveAnnotationsCompleted', this.retrieveAnnotationsCompletedListener, this);
 };
 
 /**
@@ -179,6 +179,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				}
 				
 				orState.cRaterItemId = this.content.cRater.cRaterItemId;
+				orState.cRaterItemType = this.content.cRater.cRaterItemType;
 				
 				if (checkAnswer || !(this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
 					/*
@@ -1023,7 +1024,7 @@ OPENRESPONSE.prototype.displayTeacherWork = function() {
  * @param args
  * @param obj
  */
-OPENRESPONSE.prototype.getAnnotationsComplete = function(type,args,obj) {
+OPENRESPONSE.prototype.retrieveAnnotationsCompletedListener = function(type,args,obj) {
 	if(args[0] == obj.node.id) {
 		obj.displayTeacherReview();
 	}
@@ -1166,8 +1167,8 @@ OPENRESPONSE.prototype.retrieveTeacherReview = function() {
 	if(this.view.getAnnotations() == null) {
 		/*
 		 * retrieve the annotations. this OPENRESPONSE is subscribed to listen
-		 * for getAnnotationsComplete and when that event is fired it will
-		 * call getAnnotationsComplete() which calls displayTeacherReview()
+		 * for retrieveAnnotationsCompleted and when that event is fired it will
+		 * call retrieveAnnotationsCompletedListener() which calls displayTeacherReview()
 		 */
 		this.view.retrieveAnnotations(this.node.id);
 	} else {
@@ -1675,7 +1676,7 @@ OPENRESPONSE.prototype.replaceSlashNWithBR = function(response) {
 OPENRESPONSE.prototype.doneRendering = function() {
 
 	//create any constraints if necessary
-	eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**

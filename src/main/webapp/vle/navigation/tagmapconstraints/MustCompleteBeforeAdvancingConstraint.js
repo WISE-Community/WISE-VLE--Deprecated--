@@ -123,8 +123,8 @@ MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function(
  * allowed to visit due to this constraint.
  */
 MustCompleteBeforeAdvancingConstraint.prototype.constrainNavigation = function() {
-	if(this.view.navigationPanel != null) {
-		this.view.navigationPanel.disableAllStepsAfter(this.nodeId);		
+	if(this.view.navigationLogic != null && this.view.navigationLogic.tagMapConstraintManager != null) {
+		this.view.navigationLogic.tagMapConstraintManager.disableAllStepsAfter(this.nodeId);		
 	}
 };
 

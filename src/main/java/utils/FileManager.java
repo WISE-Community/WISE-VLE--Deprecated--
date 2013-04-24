@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -42,27 +43,40 @@ import org.json.JSONObject;
  * 
  * @author patrick lawler
  */
- public class FileManager extends HttpServlet implements Servlet{
-   static final long serialVersionUID = 1L;
-   
-   private final static String COMMAND = "command";
-   
-   private final static String PARAM1 = "param1";
-   
-   @SuppressWarnings("unused")
-   private final static String PARAM2 = "param2";
-   
-   @SuppressWarnings("unused")
-   private final static String PARAM3 = "param3";
-   
-   @SuppressWarnings("unused")
-   private final static String PARAM4 = "param4";
-   
-   private final static String PROJECT_PATHS = "projectPaths";
- 
-   private boolean standAlone = true;
-   
-   private boolean modeRetrieved = false;
+public class FileManager extends HttpServlet implements Servlet{
+	static final long serialVersionUID = 1L;
+
+	private final static String COMMAND = "command";
+
+	private final static String PARAM1 = "param1";
+
+	@SuppressWarnings("unused")
+	private final static String PARAM2 = "param2";
+
+	@SuppressWarnings("unused")
+	private final static String PARAM3 = "param3";
+
+	@SuppressWarnings("unused")
+	private final static String PARAM4 = "param4";
+
+	private final static String PROJECT_PATHS = "projectPaths";
+
+	private boolean standAlone = true;
+
+	private boolean modeRetrieved = false;
+
+	private static Properties vleProperties = null;
+
+	{
+		try {
+			// Read properties file.
+			vleProperties = new Properties();
+			vleProperties.load(getClass().getClassLoader().getResourceAsStream("vle.properties"));
+		} catch (Exception e) {
+			System.err.println("FileManager could not read in vleProperties file");
+			e.printStackTrace();
+		}
+	}
    
 	/* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -129,6 +143,8 @@ import org.json.JSONObject;
 				this.updateProject(request, response);
 			} else if(command.equals("importSteps")) {
 				this.importSteps(request, response);
+			} else if(command.equals("getProjectUsageAndMax")) {
+				this.getProjectUsageAndMax(request, response);
 			} else {
 				/* we don't understand this command */
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -2614,5 +2630,63 @@ import org.json.JSONObject;
 			//add the file name to the collection
 			fileNameCollection.add(fileNames[i]);
         }
+	}
+	
+	/**
+	 * Get the amount of disk space this project uses and the max project size
+	 * @param request
+	 * @param response
+	 */
+	private void getProjectUsageAndMax(HttpServletRequest request, HttpServletResponse response) {
+		//get the path to the folder
+		String path = (String) request.getAttribute("projectFolderPath");
+		
+		//get the amount of disk space the project folder uses
+		String sizeUsed = this.getProjectSize(path);
+		
+		//get the max project size for this project if it was separately specified for this project
+		Long projectMaxTotalAssetsSizeLong = (Long) request.getAttribute("projectMaxTotalAssetsSize");
+		String projectMaxTotalAssetsSizeString = null;
+		if (projectMaxTotalAssetsSizeLong != null) {
+			//get the max project size as a string
+			projectMaxTotalAssetsSizeString = projectMaxTotalAssetsSizeLong.toString();
+		} else {
+			//get the global max project size value, we will default to 15MB if none is provided in the vle.properties file
+			projectMaxTotalAssetsSizeString = vleProperties.getProperty("project_max_total_assets_size", "15728640");
+		}
+		
+		//get the project folder size usage as a fraction
+		String usageString = sizeUsed + "/" + projectMaxTotalAssetsSizeString;
+		
+		try {
+			//write the usage string to the response
+			response.getWriter().write(usageString);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Returns the size in bytes of all of the files in the specified path/dirname
+	 * 
+	 * @param path the path to the project folder
+	 * @return the size of the folder in bytes as a string
+	 */
+	private String getProjectSize(String path){
+		if(path==null){
+			return "No project path specified";
+		} else {
+			File projectDir = new File(path);
+			if(projectDir.exists()){
+				if(projectDir.isDirectory()){
+					long sizeOfDirectory = FileUtils.sizeOfDirectory(projectDir);
+					return String.valueOf(sizeOfDirectory);
+				} else {
+					return "0";
+				}
+			} else {
+				return "Given project path does not exist.";
+			}
+		}
 	}
 }

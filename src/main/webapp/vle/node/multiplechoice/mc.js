@@ -158,7 +158,7 @@ MC.prototype.render = function() {
 			$('#promptDiv').html('You have completed this step.');
 			
 			//we are done rendering the step
-			this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+			this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 			return;
 		}
 	}
@@ -255,7 +255,7 @@ MC.prototype.render = function() {
 	//turn this flag on so that the step does not shuffle again during this visit
 	this.previouslyRendered = true;
 	
-	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**

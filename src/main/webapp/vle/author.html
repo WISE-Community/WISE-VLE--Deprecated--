@@ -191,7 +191,7 @@
 											
 										<div id="listTitle">Advanced Users Only</div>
 										
-										<li><a onclick="eventManager.fire('openPremadeComments')"><img src="images/constraint.png" alt="find broken links in project" />Open Premade Comments for Project</a></li>
+										<li><a onclick="view.openPremadeComments()"><img src="images/constraint.png" alt="find broken links in project" />Open Premade Comments for Project</a></li>
 										
 										<li><a onclick="eventManager.fire('findBrokenLinksInProject')"><img src="images/constraint.png" alt="find broken links in project" />Find Broken Links in Project</a></li>
 						
@@ -208,7 +208,7 @@
 										Student Navigation Constraints</a></li> -->
 										
 										<!--  
-										<li><a onclick="eventManager.fire('updateAudio')" ><img src="images/textToSpeech.png"
+										<li><a onclick="view.updateAudio()" ><img src="images/textToSpeech.png"
 										alt="generate Text to Speech"  />Text to Speech Audio</a></li>
 							            -->
 							
@@ -803,6 +803,9 @@
 	<div id='cRaterDiv' class="dialog">
 		Enable CRater <input id='enableCRaterCheckbox' name='enableCRaterCheckbox' type='checkbox' onclick='eventManager.fire("enableCRater")' />
 		<div id='cRaterSettingsDiv' style='display:none;'>
+			Type: <input id='cRaterItemTypeCRATER' name='cRaterItemTypeCheckbox' type='radio' value='cRaterItemTypeCRATER' checked='checked' onclick='eventManager.fire("cRaterItemTypeChanged", ["CRATER"])' />CRater
+			<input id='cRaterItemTypeHENRY' name='cRaterItemTypeCheckbox' type='radio' value='cRaterItemTypeHENRY' onclick='eventManager.fire("cRaterItemTypeChanged", ["HENRY"])' />HENRY
+			<br>
 			CRater Item Id: <input id='cRaterItemIdInput' name='cRaterItemIdInput' type='text' size=15 onkeyup='eventManager.fire("cRaterItemIdChanged")' /> <input id='cRaterVerifyButton' type='button' value='Verify' onclick="eventManager.fire('cRaterVerify')"/> <div id='cRaterItemIdStatus' style='display:inline'></div>
 			<br>
 			Display CRater Score to Student <input id='cRaterDisplayScoreToStudent' name='cRaterDisplayScoreToStudent' type='checkbox' onclick='eventManager.fire("cRaterDisplayScoreToStudentChanged")' />

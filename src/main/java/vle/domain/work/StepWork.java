@@ -447,6 +447,35 @@ public class StepWork extends PersistableDomain {
 	}
 	
 	/**
+	 * If this StepWork contains response for a CRater item, return the
+	 * CRaterItemType. Otherwise, return null.
+	 * @return
+	 */
+	public String getCRaterItemType() {
+		String cRaterItemType = null;
+		
+		try {
+			JSONObject dataJSON = new JSONObject(this.data);
+			if (dataJSON != null) {
+				JSONArray nodeStateArray = dataJSON.getJSONArray("nodeStates");
+				if (nodeStateArray != null) {
+					for (int i=0; i<nodeStateArray.length(); i++) {
+						JSONObject nodeStateObj = nodeStateArray.getJSONObject(i);
+						
+						if(nodeStateObj.has("cRaterItemType")) {
+							cRaterItemType = nodeStateObj.getString("cRaterItemType");
+							break;
+						}
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return cRaterItemType;
+	}
+	/**
 	 * Returns the timestamp of the latest NodeState in this StepWork. 
 	 * This is the same as the NodeStateId. If no NodeState exists in this StepWork,
 	 * return 0.

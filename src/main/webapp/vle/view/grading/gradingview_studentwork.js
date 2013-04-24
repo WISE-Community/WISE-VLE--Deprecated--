@@ -127,6 +127,7 @@ View.prototype.getPeerReviewWork = function() {
  * Retrieve the student work from the db
  */
 View.prototype.getStudentWork = function() {
+	console.log('getStudentWork');
 	//clear the student work vle states to make sure we don't get duplicate data
 	this.setStates(Array());
 	
@@ -181,7 +182,7 @@ View.prototype.getStudentWork = function() {
 			//check if we have received all the student work
 			if(thisView.getStudentDataUrlArray.length == 0) {
 				//we have received all the student work
-				eventManager.fire("getStudentWorkComplete");
+				eventManager.fire("retrieveStudentWorkCompleted");
 			}
 	};
 	
@@ -232,7 +233,7 @@ View.prototype.getStudentWork = function() {
 	}
 
 	if(this.getStudentDataUrlArray.length == 0) {
-		eventManager.fire("getStudentWorkComplete");
+		eventManager.fire("retrieveStudentWorkCompleted");
 	}
 };
 
@@ -337,7 +338,7 @@ View.prototype.getIdeaBaskets = function() {
 		//set the array of IdeaBasket objects into the view
 		thisView.ideaBaskets = ideaBaskets;
 		
-		eventManager.fire("getIdeaBasketsComplete");
+		eventManager.fire("retrieveIdeaBasketsCompleted");
 	};
 	
 	var getIdeaBasketParams = {

@@ -185,6 +185,7 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	var id = responseJSONObj.id;
 	var visitPostTime = responseJSONObj.visitPostTime;
 	var cRaterItemId = responseJSONObj.cRaterItemId;
+	var cRaterItemType = responseJSONObj.cRaterItemType;
 	var isCRaterSubmit = responseJSONObj.isCRaterSubmit;
 
 	/*
@@ -228,7 +229,7 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 		var latestState = nodeVisit.getLatestState();
 		var nodeStateTimestamp = latestState.timestamp;
 
-		args.vle.getCRaterResponse(id, nodeStateTimestamp);
+		args.vle.getCRaterResponse(id, nodeStateTimestamp, cRaterItemType);
 	}
 
 	if(args.vle.xmpp != null && args.vle.isXMPPEnabled != null) {
@@ -753,13 +754,14 @@ View.prototype.removeFromPOSTInProgressArray = function(nodeVisit) {
  * @param stepWorkId
  * @param nodeStateId
  */
-View.prototype.getCRaterResponse = function(stepWorkId, nodeStateId) {
+View.prototype.getCRaterResponse = function(stepWorkId, nodeStateId, cRaterItemType) {
 	var postAnnotationsURL = this.getConfig().getConfigParam('getAnnotationsUrl');
 
 	var getCRaterResponseArgs = {
 			stepWorkId:stepWorkId,
 			nodeStateId:nodeStateId,
-			annotationType:"cRater"
+			annotationType:"cRater",
+			cRaterItemType:cRaterItemType
 	};
 
 	//make the call to GET the annotation
@@ -802,9 +804,21 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 
 				// now find the feedback that the student should see
 				var scoringRules = cRaterJSON.cRaterScoringRules;
+				
+				//get the score the student received
+				var score = cRaterAnnotationJSON.score;
+				
+				var cRaterItemType = null;
+				
+				if(cRaterAnnotationJSON.studentResponse != null) {
+					var studentResponse = cRaterAnnotationJSON.studentResponse;
+					
+					//get the crater item type e.g. 'CRATER' or 'HENRY'
+					cRaterItemType = studentResponse.cRaterItemType;
+				}
 
 				//get the feedback for the given concepts the student satisfied
-				var feedbackTextObject = vle.getFeedbackFromScoringRules(scoringRules, concepts);
+				var feedbackTextObject = vle.getCRaterFeedback(scoringRules, concepts, score, cRaterItemType);
 
 				//get the feedback text and feedback id
 				var feedbackText = feedbackTextObject.feedbackText;

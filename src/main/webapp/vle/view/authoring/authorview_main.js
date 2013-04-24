@@ -1466,200 +1466,6 @@ View.prototype.exportProject = function(params){
 };
 
 /**
- * Retrieves a list of any assets associated with the current project
- * from the server, populates a list of the assets in the assetEditorDialog
- * and displays the dialog.
- * 
- * @param params Object (optional) specifying asset editor options (type, extensions to show, optional text for new button, callback function)
- */
-View.prototype.viewAssets = function(params){
-	if(this.getProject()){
-		if (params){
-			this.assetEditorParams = params;
-		} else {
-			this.assetEditorParams = null;
-		}
-		showElement('assetEditorDialog');
-		var populateOptions = function(projectListText, args){
-			var view = args[0];
-
-			if(projectListText && projectListText!==''){
-				//get the project list as JSON
-				var projectList = JSON.parse(projectListText);
-				
-				//get the first project (there will only be one anyway)
-				var projectAssetsInfo = projectList[0];
-				
-				var assets = [];
-
-				if(projectAssetsInfo !== null) {
-					//get the assets array
-					assets = projectAssetsInfo.assets;
-				}
-				
-				var parent = document.getElementById('assetSelect');
-				parent.innerHTML = '';
-				
-				// get allowed file types
-				var extensions = view.allowedAssetExtensions;
-				//check for type parameter and only show files with matching extensions
-				if(view.assetEditorParams && view.assetEditorParams.type === "image"){
-					extensions = view.allowedAssetExtensionsByType.image;
-				} else if(view.assetEditorParams && view.assetEditorParams.type === "flash"){
-					extensions = extensions = view.allowedAssetExtensionsByType.flash;
-				} else if(view.assetEditorParams && view.assetEditorParams.type === "media"){
-					extensions = view.allowedAssetExtensionsByType.video.concat(view.allowedAssetExtensionsByType.flash, view.allowedAssetExtensionsByType.flashVideo, view.allowedAssetExtensionsByType.audio);
-				}
-
-				//loop through all the assets
-				var d = assets.length;
-				for(; d>0; d--){
-					//get an asset
-					var asset = assets[d];
-					
-					//get the file name of the asset
-					var fileName = asset.assetFileName;
-					
-					var status = '';
-					
-					if(asset.activeStepsUsedIn.length > 0) {
-						//the asset is used in an active step
-						status = 'active';
-					} else if(asset.inactiveStepsUsedIn.length > 0) {
-						//the asset is used in an inactive step
-						status = 'inactive';
-					} else {
-						//the asset is not used in any step
-						status = 'notUsed';
-					}
-					
-					if (!view.utils.fileFilter(extensions,fileName)){
-						continue;
-					}
-					
-					var text = '';
-
-					if(status === 'inactive') {
-						//the asset is only used in an inactive step
-						text = fileName + ' (Only used in inactive steps)';
-					} else if(status === 'notUsed') {
-						//the asset is not used in any step
-						text = fileName + ' (Not used)';
-					} else {
-						//the asset is used in an active step
-						text = fileName;
-					}
-					
-					//create an entry for each file
-					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
-					opt.text = text;
-					opt.value = fileName;
-					parent.appendChild(opt);
-				}
-			}
-
-			//call upload asset with 'true' to get total file size for assets
-			view.uploadAsset(true);
-			
-			// get default buttons for asset editor dialog
-			var buttons = $.extend({}, view.assetEditorButtons);
-			
-			// check whether parameters were sent
-			if(view.assetEditorParams && view.assetEditorParams.type){
-				var type = view.assetEditorParams.type;
-				var field_name = view.assetEditorParams.field_name;
-				var win = view.assetEditorParams.win;
-				var callback = view.assetEditorParams.callback;
-				
-				// set z-index to show dialog above tinymce popups
-				//$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
-				
-				// add new button depending on type param
-				if(type === "image"){
-					buttons['Insert Image'] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select an image from the list.");
-						}
-					};
-				} else if (type === "media"){
-					buttons['Insert Media'] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file from the list.");
-						}
-					};
-				} else if (type === "file"){
-					buttons['Insert Link'] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file to link to from the list.");
-						}
-					};
-				} else {
-					var buttonText = 'Choose Selected File';
-					if(view.assetEditorParams.buttontext && typeof view.assetEditorParams.buttontext === 'string'){
-						buttonText = view.assetEditorParams.buttontext;
-					}
-					buttons[buttonText] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file from the list.");
-						}
-					};
-				}
-			} else {
-				//reset z-index
-				$( "#assetEditorDialog" ).dialog( "option", "zIndex", {} );
-			}
-			
-			// set buttons
-			$( "#assetEditorDialog" ).dialog( "option", "buttons", buttons );
-			
-			//show dialog
-			$('#assetEditorDialog').dialog('open');
-			
-			eventManager.fire('browserResize');
-			
-			$('#uploadAssetFile').val('');
-		};
-		
-		//get the list of all assets and which steps those assets are used in
-		var analyzeType = 'findUnusedAssets';
-		
-		//get the project id
-		var projectId = this.portalProjectId;
-		
-		//get the url for making the request to retrieve the asset information
-		var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
-		
-		//the params for the request
-		var requestParams = {
-			analyzeType:analyzeType,
-			projectId:projectId,
-			html:false
-		};
-		
-		//make the request to retrieve the asset information
-		this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, function(txt,xml,obj){populateOptions(txt,obj);}, [this, analyzeType]);
-	} else {
-		this.notificationManager.notify("Please open or create a project that you wish to view assets for.", 3);
-	}
-};
-
-/**
  * Launches the currently opened project in the vle.
  */
 View.prototype.previewProject = function(){
@@ -2136,10 +1942,10 @@ View.prototype.populateIMSettings = function(settings){
 	}
 
 	// make active attribute fields sortable
-	$('#ideaAttributes').sortable({
-		items:'td.attribute.active, td.attribute.empty',
+	$('#ideaAttributes tr').sortable({
+		items:'> td.attribute.active, > td.attribute.empty',
 		handle:'h6',
-		cancel: 'h6 < a'
+		cancel: 'h6 > a'
 	});
 
 	// insert add new attribute links to all unused attribute fields
@@ -2245,8 +2051,8 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 
 			// insert saved options
 			if(options && options.length > 0){
-				var i = options.length;
-				for(; i>0; i--){
+				var i = -1;
+				while(++i < options.length){
 					if(typeof options[i] === 'string' && count<11){
 						addOption(choices,options[i]);
 						count++;
@@ -2265,8 +2071,8 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 				} else if(type==='label'){
 					defaults = ['Label1','Label2'];
 				}
-				var a = defaults.length;
-				for(; a>0; a--){
+				var a = -1;
+				while(++a < defaults.length){
 					addOption(choices,defaults[a]);
 				}
 			} else if (count === 1){
@@ -2292,13 +2098,13 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
 			var icons = {'blank':'None','important':'Important','question':'Not Sure','check':'Check','favorite':'Favorite','star_empty':'Star Empty','star_half':'Star Half Full','star_full':'Star Full'};
 			for(var prop in icons){
-				if (obj.hasOwnProperty(prop)) {
+				if (icons.hasOwnProperty(prop)) {
 					// prop is not inherited
 					var option = $("<div class='optionWrapper'><input type='checkbox' class='option' value='" + prop + "' /><img class='icon' src='images/ideaManager/" + prop + ".png' alt='" + prop + "' />" + icons[prop] + "</div>");
 					choices.append(option);
 					if(options && options.length > 0){
-						var i = options.length;
-						for(; i>0; i--){
+						var i = -1;
+						while(++i < options.length){
 							if(options[i] === prop){
 								$('.option',option).prop('checked',true);
 							}
@@ -2807,8 +2613,8 @@ View.prototype.nodeTypeSelected = function(){
 		var selectText = document.createTextNode('Select an Icon:');
 		var select = createElement(document, 'select', {id: 'selectNodeIcon', name: 'param2'});
 		
-		var x = nodeClassesForNode.length;
-		for(; x>0; x--){
+		var x = -1;
+		while(++x < nodeClassesForNode.length){
 			var nodeClassObj = nodeClassesForNode[x];
 			var opt = createElement(document, 'option', {name: 'nodeClassOption'});
 			opt.value = nodeClassObj.nodeClass;
@@ -2927,11 +2733,11 @@ View.prototype.authorWindowScrolled = function() {
 };
 
 /**
- * Fires the pageRenderComplete event whenever the preview frame is loaded.
+ * Fires the pageRenderCompleted event whenever the preview frame is loaded.
  */
 View.prototype.onPreviewFrameLoad = function(){
 	if(this.activeNode){
-		this.eventManager.fire('pageRenderComplete', this.activeNode.id);
+		this.eventManager.fire('pageRenderCompleted', this.activeNode.id);
 	}
 };
 

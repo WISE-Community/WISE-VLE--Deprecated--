@@ -954,131 +954,6 @@ NavigationPanel.prototype.getTitlePositionFromLocation = function(loc){
 	};
 };
 
-/**
- * Set the constraint status to disabled for all the steps that come after the given node id.
- * If the node id is for a sequence, we will disable all steps after the sequence.
- * @param nodeId the node id to disable all steps after
- */
-NavigationPanel.prototype.disableAllStepsAfter = function(nodeId) {
-	//get all the node ids that come after this one
-	var nodeIdsAfter = view.getProject().getNodeIdsAfter(nodeId);
-
-	//loop through all the node ids that come after the one passed in
-	for(var x=0; x<nodeIdsAfter.length; x++) {
-		//get a node id
-		var nodeIdAfter = nodeIdsAfter[x];
-
-		//get the node
-		var node = view.getProject().getNodeById(nodeIdAfter);
-
-		//set the constraint status to disabled
-		node.setConstraintStatus('disabled');
-	}
-};
-
-/**
- * Set the constraint status to disabled for all the steps except for the given node id.
- * If the node id is for a sequence, we will disable all steps outside of the sequence.
- * @param nodeId the node id to not disable
- */
-NavigationPanel.prototype.disableAllOtherSteps = function(nodeId) {
-	//get all the menu elements
-	var menuItems = this.getMenuItems();
-
-	//get the node
-	var node = this.view.getProject().getNodeById(nodeId);
-	var nodeIds = [];
-
-	if(node.type == 'sequence') {
-		//the node is a sequence so we will get all the node ids in it
-		nodeIds = this.view.getProject().getNodeIdsInSequence(nodeId);
-	}
-
-	//get all the step node ids in the project
-	var allNodeIds = this.view.getProject().getNodeIds();
-
-	//loop through all the step node ids
-	for(var x=0; x<allNodeIds.length; x++) {
-		//get a node id
-		var tempNodeId = allNodeIds[x];
-
-		//get the node
-		var tempNode = view.getProject().getNodeById(tempNodeId);
-
-		if(node.type == 'sequence') {
-			//the node we want to keep enabled is a sequence
-			if(nodeIds.indexOf(tempNodeId) == -1) {
-				//the temp node id is not in our sequence so we will disable it
-
-				//set the constraint status to disabled
-				tempNode.setConstraintStatus('disabled');
-			}
-		} else {
-			//the node that we want to keep enabled is a step
-			if(nodeId != tempNodeId) {
-				//set the constraint status to disabled
-				tempNode.setConstraintStatus('disabled');
-			}
-		}
-	}
-};
-
-/**
- * Set the constraint status to disabled for the given node id
- * @param nodeId the node id to disable
- */
-NavigationPanel.prototype.disableStepOrActivity = function(nodeId) {
-	//get the node
-	var node = this.view.getProject().getNodeById(nodeId);
-
-	if(node.type == 'sequence') {
-		//the node is a sequence
-
-		//get all the node ids in the sequence
-		var nodeIds = this.view.getProject().getNodeIdsInSequence(nodeId);
-
-		//loop through all the node ids
-		for(var x=0; x<nodeIds.length; x++) {
-			//get a node id
-			var tempNodeId = nodeIds[x];
-
-			//get the node
-			var tempNode = this.view.getProject().getNodeById(tempNodeId);
-
-			//set the constraint status to disabled
-			tempNode.setConstraintStatus('disabled');
-		}
-	} else {
-		//the node is a step
-
-		//get the node
-		var node = this.view.getProject().getNodeById(nodeId);
-
-		//set the constraint status to disabled
-		node.setConstraintStatus('disabled');
-	}
-};
-
-/**
- * Enable all the steps
- */
-NavigationPanel.prototype.enableAllSteps = function() {
-	//get all the step node ids in the project
-	var nodeIds = this.view.getProject().getNodeIds();
-
-	//loop through all the node ids
-	for(var x=0; x<nodeIds.length; x++) {
-		//get a node id
-		var nodeId = nodeIds[x];
-
-		//get the node
-		var node = this.view.getProject().getNodeById(nodeId);
-
-		//set the constraint status to disabled
-		node.setConstraintStatus('enabled');
-	}
-};
-
 
 /**
  * Set the step icon in the navigation
@@ -1541,7 +1416,7 @@ View.prototype.updateStepStatusIcon = function(nodeId, src, tooltip) {
  * Dispatches events that are specific to the menu.
  */
 View.prototype.navigationDispatcher = function(type,args,obj){
-	if(type=='renderNodeComplete'){
+	if(type=='renderNodeCompleted'){
 		obj.renderNavigationPanel();
 		obj.expandActivity(args[0]);
 	} else if(type=='menuCreated'){

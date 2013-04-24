@@ -17,7 +17,7 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		} else {
 			obj.projectOptionSelected();
 		}
-	} else if(type=='loadingProjectComplete'){
+	} else if(type=='loadingProjectCompleted'){
 		obj.onProjectLoaded();
 	} else if(type=='hideNodes'){
 		obj.utils.hideNodes();
@@ -77,8 +77,6 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.editProjectFile();
 	} else if(type=='exportProject'){
 		obj.exportProject();
-	} else if(type=='updateAudio'){
-		obj.updateAudio();
 	} else if(type=='publishProject'){
 		obj.publishProject();
 	} else if(type=='previewProject'){
@@ -147,21 +145,11 @@ View.prototype.authorDispatcher = function(type,args,obj){
 };
 
 View.prototype.authoringToolPremadeCommentsDispatcher = function(type, args, obj) {
-	if(type == 'openPremadeComments') {
-		obj.openPremadeComments();
-	} else if(type=='premadeCommentWindowLoaded') {
+	if(type=='premadeCommentWindowLoaded') {
 		obj.premadeCommentWindowLoaded();
-	} else if(type=='addPremadeComment') {
-		obj.addPremadeComment(args[0]);
-	} else if(type=='deletePremadeComment') {
-		obj.deletePremadeComment(args[0], args[1]);
-	} else if(type=='deletePremadeCommentList') {
-		obj.deletePremadeCommentList(args[0]);
 	} else if(type=='premadeCommentLabelClicked') {
-		obj.premadeCommentLabelClicked(args[0]);
-	} else if(type=='premadeCommentListUncheckLabels') {
-		obj.premadeCommentListUncheckLabels(args[0]);
-	}
+		obj.premadeCommentLabelClickedEventListener(args[0]);
+	} 
 };
 
 /**

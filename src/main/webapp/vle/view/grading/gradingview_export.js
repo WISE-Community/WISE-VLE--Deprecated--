@@ -1,75 +1,22 @@
 
-/**
- * Generate the student navigation XLS. This will ask the
- * teacher to save the XLS file.
- */
-View.prototype.getAllStudentWorkXLSExport = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'allStudentWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
 
 /**
- * Generate the student work XLS. This will ask the
- * teacher to save the XLS file.
+ * 
  */
-View.prototype.getLatestStudentWorkXLSExport = function() {
+View.prototype.exportButtonClickedEventListener = function(exportType, fileType) {
 	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'latestStudentWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request the idea basket excel export
- */
-View.prototype.getIdeaBasketsExcelExport = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'ideaBaskets';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request the idea basket excel export
- */
-View.prototype.getFlashExcelExport = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'flashStudentWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request the explanation builder work excel export
- */
-View.prototype.getExplanationBuilderWorkExcelExport = function() {
-	this.setParamsForXLSExport();
-	document.getElementById('exportType').value = 'explanationBuilderWork';
-	document.getElementById('getStudentXLSExport').submit();
-};
-
-/**
- * Request a custom latest student work export
- */
-View.prototype.getCustomLatestStudentWorkExport = function() {
-	this.setParamsForXLSExport();
-	$('#exportType').val('customLatestStudentWork');
+	$('#exportType').val(exportType);
+	$('#fileType').val(fileType);
 	
-	//get all the node ids that were chosen for the custom export
-	var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
-	$('#customStepsArray').val(customStepsArrayJSONString);
-	
-	$('#getStudentXLSExport').submit();
-};
-
-/**
- * Request a custom all student work export
- */
-View.prototype.getCustomAllStudentWorkExport = function() {
-	this.setParamsForXLSExport();
-	$('#exportType').val('customAllStudentWork');
-	
-	//get all the node ids that were chosen for the custom export
-	var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
-	$('#customStepsArray').val(customStepsArrayJSONString);
+	if(exportType == 'customLatestStudentWork') {
+		//get all the node ids that were chosen for the custom export
+		var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
+		$('#customStepsArray').val(customStepsArrayJSONString);
+	} else if(exportType == 'customAllStudentWork') {
+		//get all the node ids that were chosen for the custom export
+		var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
+		$('#customStepsArray').val(customStepsArrayJSONString);
+	}
 	
 	$('#getStudentXLSExport').submit();
 };
@@ -78,7 +25,7 @@ View.prototype.getCustomAllStudentWorkExport = function() {
  * Request a special export
  * @param nodeId the node id for the step we will special export
  */
-View.prototype.getSpecialExport = function(nodeId) {
+View.prototype.specialExportButtonClickedEventListener = function(nodeId) {
 	this.setParamsForSpecialExport();
 	$('#exportType').val('specialExport');
 	
