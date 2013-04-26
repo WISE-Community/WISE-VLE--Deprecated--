@@ -3,10 +3,11 @@
  * @param node
  * @returns
  */
-function Netlogo(node, view) {
+function Netlogo(node) {
   this.node = node;
-	this.view = view;
+  this.view = node.view;
   this.content = node.getContent().getContentJSON();
+  this.node.contentPanel['save'] = this.save.bind(this);
   this.applet = '';
   this.nlObjPanel = null;
   this.nlObjWorkspace = null;
