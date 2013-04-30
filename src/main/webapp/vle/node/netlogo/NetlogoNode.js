@@ -18,11 +18,26 @@ function NetlogoNode(nodeType, view) {
 	this.content = null;
 	this.audios = [];
 	this.contentBase;
-	this.audioSupported = true;	
+	this.audioSupported = true;
 }
+
+NetlogoNode.prototype.parseDataJSONObj = function(stateJSONObj) {
+	return NetlogoState.prototype.parseDataJSONObj(stateJSONObj);
+};
 
 NetlogoNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/netlogo/netlogo.html');
+};
+
+/**
+ * Called when the step is exited. This is used for auto-saving.
+ */
+NetlogoNode.prototype.onExit = function() {
+	//check if the content panel exists
+	if(this.contentPanel && this.contentPanel.save) {
+		//tell the content panel to save
+		this.contentPanel.save();
+	};
 };
 
 NodeFactory.addNode('NetlogoNode', NetlogoNode);
