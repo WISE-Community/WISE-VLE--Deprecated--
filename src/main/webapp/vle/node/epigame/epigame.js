@@ -527,9 +527,20 @@ Epigame.prototype.findNextAvailableMission = function(playerRating,missionList,m
 //return a random index into the warp mission list
 //only choose a mission that hasn't already been played
 Epigame.prototype.randomMissionSelector = function(missionList,missionCompletedValue) {
-	var randomIndex = Math.floor(Math.random()*missionList.length); 
+	var randomIndex = 0; 
+	var numMissionsCompleted = 0;
 	
-	while(missionCompletedValue[randomIndex]) {
+	for(i =0;i<missionList.length;i++) {
+		numMissionsCompleted++;
+	}
+	
+	if(numMissionsCompleted < missionList.length){
+		do {
+			randomIndex = Math.floor(Math.random()*missionList.length);	
+		}
+		while(missionCompletedValue[randomIndex])	
+	}
+	else {
 		randomIndex = Math.floor(Math.random()*missionList.length);	
 	}
 	
@@ -622,22 +633,23 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 	var bucket = this.getCurrentBucketIndex();
 	switch(bucket) {
 		case 0:
-		index = this.adaptiveMissionSelector(numMissionsCompleted,this.getCurrentWarpScore(),this.getPreviousWarpScore(),missionList,missionCompleted,missionDifficulty);
+//		index = this.adaptiveMissionSelector(numMissionsCompleted,this.getCurrentWarpScore(),this.getPreviousWarpScore(),missionList,missionCompleted,missionDifficulty);
+		index = this.randomMissionSelector(missionList,missionCompleted);
 		break;	
 		case 1:
-		index = this.adaptiveMissionSelector(numMissionsCompleted,this.getCurrentWarpScore(),this.getPreviousWarpScore(),missionList,missionCompleted,missionDifficulty);				
+		index = this.randomMissionSelector(missionList,missionCompleted);
 		break;
 		case 2:
-		index = this.adaptiveMissionSelector(numMissionsCompleted,this.getCurrentWarpScore(),this.getPreviousWarpScore(),missionList,missionCompleted,missionDifficulty);				
+		index = this.randomMissionSelector(missionList,missionCompleted);
 		break;
 		case 3:
-		index = this.adaptiveMissionSelector(numMissionsCompleted,this.getCurrentWarpScore(),this.getPreviousWarpScore(),missionList,missionCompleted,missionDifficulty);				
+		index = this.randomMissionSelector(missionList,missionCompleted);
 		break;
 		case 4:
-		index = this.adaptiveMissionSelector(numMissionsCompleted,this.getCurrentWarpScore(),this.getPreviousWarpScore(),missionList,missionCompleted,missionDifficulty);				
+		index = this.randomMissionSelector(missionList,missionCompleted);
 		break;
 		default:
-		index= this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index		
+		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index		
 	}
 	
 		
@@ -650,7 +662,6 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 	var missionIndex1 = missionList[index].split("-")[0];
 	var missionIndex2 = missionList[index].split("-")[1];
 	
-	return missionTable[2][1].string;
 	return missionTable[missionIndex1-1][missionIndex2-1].string;
 };
 

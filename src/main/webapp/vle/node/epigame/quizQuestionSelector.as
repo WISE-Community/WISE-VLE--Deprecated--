@@ -14,29 +14,26 @@ var questionDifficulty:Array = getQuestionDifficulty();
 var playerRating:int = getPlayerRating();
 var previousPlayerRating:int = getPreviousPlayerRating();
 var bucketIndex:int = getBucketIndex();
+var numQuestionsAsked:int = getNumQuestionsAsked();
 var nextQuestionIndex:int = 0;
-
-var numQuestionsAsked:int = 0;
-for(var i:int =0;i<questionAsked.length;i++) {
-	if(questionAsked[i])
-		numQuestionsAsked++;
-}
 
 switch(bucketIndex) {
 	case 0:
-	nextQuestionIndex = adaptiveQuestionSelector(numQuestionsAsked,playerRating, previousPlayerRating, questionAsked,questionDifficulty);
+//formerly
+//	nextQuestionIndex = adaptiveQuestionSelector(numQuestionsAsked,playerRating, previousPlayerRating, questionAsked,questionDifficulty);
+	nextQuestionIndex = randomQuestionSelector(questionAsked);
 	break;
 	case 1:
-	nextQuestionIndex = adaptiveQuestionSelector(numQuestionsAsked,playerRating, previousPlayerRating, questionAsked,questionDifficulty);
+	nextQuestionIndex = randomQuestionSelector(questionAsked);
 	break;
 	case 2:
-	nextQuestionIndex = adaptiveQuestionSelector(numQuestionsAsked,playerRating, previousPlayerRating, questionAsked,questionDifficulty);
+	nextQuestionIndex = randomQuestionSelector(questionAsked);
 	break;
 	case 3:
-	nextQuestionIndex = adaptiveQuestionSelector(numQuestionsAsked,playerRating, previousPlayerRating, questionAsked,questionDifficulty);
+	nextQuestionIndex = randomQuestionSelector(questionAsked);
 	break;
 	case 4:
-	nextQuestionIndex = adaptiveQuestionSelector(numQuestionsAsked,playerRating, previousPlayerRating, questionAsked,questionDifficulty);
+	nextQuestionIndex = randomQuestionSelector(questionAsked);
 	break;
 	default:
 	break;
@@ -79,7 +76,18 @@ function findNextAvailableQuestion(playerRating:int,questionAsked:Array,question
 //return a random index into the question list
 //only choose a question that hasn't already been played
 function randomQuestionSelector(questionAsked) {
-	var randomIndex:int;
+	var randomIndex:int;	
+	
+	var numQuestionsLeft:int = 0;
+	
+	//first check that not all questions have been asked
+	for(var i:int =0;i<questionAsked.length;i++) {
+		if(!questionAsked[i])
+			numQuestionsLeft++;
+	}
+	
+	if(numQuestionsLeft <= 0)
+		return questionAsked.length;
 	
 	do {
 		randomIndex = Math.floor(Math.random()*questionAsked.length);	
