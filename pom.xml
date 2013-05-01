@@ -19,13 +19,39 @@
 	<artifactId>vlewrapper</artifactId>
 	<packaging>war</packaging>
 	<name>VLE Wrapper</name>
-	<version>4.6</version>
-	<url>http://sail-web.googlecode.com/</url>
+	<version>4.7</version>
+	<url>http://wise4.org</url>
 	<developers>
 		<developer>
 			<id>hiroki</id>
 			<name>Hiroki Terashima</name>
 			<email>honchikun@gmail.com</email>
+			<organization>TELS</organization>
+			<organizationUrl>
+				http://www.telscenter.org/
+			</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>-8</timezone>
+		</developer>
+		<developer>
+			<id>geoff</id>
+			<name>Geoffrey Kwan</name>
+			<email>geoffreykwan@gmail.com</email>
+			<organization>TELS</organization>
+			<organizationUrl>
+				http://www.telscenter.org/
+			</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>-8</timezone>
+		</developer>
+		<developer>
+			<id>jon</id>
+			<name>Jonathan Breitbart</name>
+			<email>breity10@gmail.com</email>
 			<organization>TELS</organization>
 			<organizationUrl>
 				http://www.telscenter.org/
