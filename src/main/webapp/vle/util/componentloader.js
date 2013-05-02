@@ -267,14 +267,14 @@ var componentloader = function(em, sl){
 				portalProjectId:undefined, 
 				portalCurriculumBaseDir:undefined, 
 				excludedPrevWorkNodes:['HtmlNode', 'OutsideUrlNode', 'MySystemNode', 'SVGDrawNode', 'MWNode', 'DrawNode','DuplicateNode'], 
-				allowedAssetExtensions:['png', 'jpg', 'jpeg', 'gif', 'bmp', 'tif', 'mp4', 'webm', 'ogg', 'ogv', 'm4v', 'mpg', 'mpeg', 'mov', 'avi', 'wmv', 'mp3', 'm4a', 'oga', 'aac', 'wav', 'swf', 'flv', 'f4v', 'pdf', 'nlogo', 'jar', 'cml', 'mml', 'otml', 'css'],
+				allowedAssetExtensions:['png', 'jpg', 'jpeg', 'gif', 'bmp', 'tif', 'mp4', 'webm', 'ogg', 'ogv', 'm4v', 'mpg', 'mpeg', 'mov', 'avi', 'wmv', 'mp3', 'm4a', 'oga', 'aac', 'wav', 'swf', 'flv', 'f4v', 'pdf', 'nlogo', 'nls', 'jar', 'cml', 'mml', 'otml', 'css'],
 				allowedAssetExtensionsByType:{
 					image:['png', 'jpg', 'jpeg', 'gif', 'bmp', 'tif'],
 					video:['mp4', 'webm', 'ogg', 'ogv', 'm4v', 'mpg', 'mpeg', 'mov', 'avi', 'wmv'],
 					audio:['mp3', 'm4a', 'oga', 'aac', 'wav'],
 					flash:['swf'],
 					flashvideo:['flv', 'f4v'],
-					java:['nlogo', 'jar', 'cml', 'mml', 'otml'],
+					java:['nlogo', 'nls', 'jar', 'cml', 'mml', 'otml'],
 					misc:['pdf', 'css']
 				},
 				MAX_ASSET_SIZE:10485760, 
