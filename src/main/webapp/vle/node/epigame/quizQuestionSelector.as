@@ -15,25 +15,24 @@ var playerRating:int = getPlayerRating();
 var previousPlayerRating:int = getPreviousPlayerRating();
 var bucketIndex:int = getBucketIndex();
 var numQuestionsAsked:int = getNumQuestionsAsked();
+var maxQuestionsToAsk:int = getMaxQuestionsToAsk();
 var nextQuestionIndex:int = 0;
 
 switch(bucketIndex) {
 	case 0:
-//formerly
-//	nextQuestionIndex = adaptiveQuestionSelector(numQuestionsAsked,playerRating, previousPlayerRating, questionAsked,questionDifficulty);
-	nextQuestionIndex = randomQuestionSelector(questionAsked);
+	nextQuestionIndex = randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk);
 	break;
 	case 1:
-	nextQuestionIndex = randomQuestionSelector(questionAsked);
+	nextQuestionIndex = randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk);
 	break;
 	case 2:
-	nextQuestionIndex = randomQuestionSelector(questionAsked);
+	nextQuestionIndex = randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk);
 	break;
 	case 3:
-	nextQuestionIndex = randomQuestionSelector(questionAsked);
+	nextQuestionIndex = randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk);
 	break;
 	case 4:
-	nextQuestionIndex = randomQuestionSelector(questionAsked);
+	nextQuestionIndex = randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk);
 	break;
 	default:
 	break;
@@ -75,8 +74,8 @@ function findNextAvailableQuestion(playerRating:int,questionAsked:Array,question
 
 //return a random index into the question list
 //only choose a question that hasn't already been played
-function randomQuestionSelector(questionAsked) {
-	var randomIndex:int;	
+function randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk) {
+	var randomIndex:int;
 	
 	var numQuestionsLeft:int = 0;
 	
@@ -86,7 +85,7 @@ function randomQuestionSelector(questionAsked) {
 			numQuestionsLeft++;
 	}
 	
-	if(numQuestionsLeft <= 0)
+	if(numQuestionsLeft <= 0 || numQuestionsAsked >= maxQuestionsToAsk - 1)
 		return questionAsked.length;
 	
 	do {

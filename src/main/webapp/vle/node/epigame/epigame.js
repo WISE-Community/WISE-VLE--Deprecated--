@@ -103,7 +103,9 @@ Epigame.prototype.getTotalScore = function(tagName, functionArgs, scoreProp, rea
 		for (var i = 0; i < nodeIds.length; ++i) {
 			var nodeId = nodeIds[i];
 			if (nodeId != null) {
-				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
+//				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);  //4.7 Switch
+				
 				var nodeScore = latestWork.response ? parseFloat(latestWork.response[scoreProp]) : NaN;
 				if (!isNaN(nodeScore)) {
 					var multiplier = 1;
@@ -142,7 +144,9 @@ Epigame.prototype.checkStepScore = function(tagName, scoreProp, readableScoreNam
 			var nodeId = nodeIds[i];
 			if (nodeId != null) {
 				//get the latest work for the node
-				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
+//				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId); //4.7 Switch
+				
 				if (latestWork && latestWork.response) {
 					//get the top score for the step
 					var topScore = parseFloat(latestWork.response[scoreProp]);
@@ -529,7 +533,7 @@ Epigame.prototype.findNextAvailableMission = function(playerRating,missionList,m
 Epigame.prototype.randomMissionSelector = function(missionList,missionCompletedValue) {
 	var randomIndex = 0; 
 	var numMissionsCompleted = 0;
-	
+		
 	for(i =0;i<missionList.length;i++) {
 		numMissionsCompleted++;
 	}
@@ -652,6 +656,12 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index		
 	}
 	
+	//if the previous warp mission was not complete, then stay at that warp index
+//	if(!this.getLatestState().response.success)	{									   
+//		index = this.getLatestState().response.warpIndex;
+//		console.log("setting index......");		
+//	}
+		
 		
 	//check to make sure that the index
 	while (index >= missionList.length)
