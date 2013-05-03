@@ -90,7 +90,7 @@ View.prototype.SurgeNode.generatePage = function(view){
 	
 	var swfDimensionsDiv = $(createElement(document, 'div', {id:'swfDimensionsDiv'}));
 	//create the label for the dimensions section
-	var swfDimensionsLabel = $(document.createElement('div')).text('Dimensions (px):');
+	var swfDimensionsLabel = $(document.createElement('div')).text('Display Dimensions (px):');
 	//create the label for the textarea that the author will write the height in
 	var swfHeightLabel = $(document.createElement('span')).text('Height:');
 	//create the textarea that the author will write the height in
@@ -109,6 +109,7 @@ View.prototype.SurgeNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(authoringSwfDiv);
 	$(pageDiv).append(swfUrlDiv);
+	pageDiv.appendChild(createBreak());
 	$(pageDiv).append(swfDimensionsDiv);
 	//pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
 	pageDiv.appendChild(createBreak());
