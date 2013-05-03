@@ -17,6 +17,8 @@ View.prototype.surgeDispatcher = function(type,args,obj){
 		obj.SurgeNode.updateSwfUrl(args);
 	} else if (type == 'surgeBrowseClicked'){
 		obj.SurgeNode.browseFlashAssets(args);
+	} else if (type == 'surgeDimensionsChanged'){
+		obj.SurgeNode.updateDimensions(args);
 	}
 };
 
@@ -30,7 +32,8 @@ var events = [
 	'surgeImportLevelStringToEditor',
 	'surgeUpdateSource',
 	'surgeSwfUrlChanged',
-	'surgeBrowseClicked'
+	'surgeBrowseClicked',
+	'surgeDimensionsChanged'
 ];
 
 /*
