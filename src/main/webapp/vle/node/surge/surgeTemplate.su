@@ -4,5 +4,7 @@
    "excelExportStringTemplate":"{response}",
    "useCustomSwf": "false",
    "customUri": "",
-   "type": "Surge"
+   "type": "Surge",
+   "height": "480",
+   "width": "770"
 }
