@@ -7,8 +7,8 @@ function starmap() {
       fluid = true, // default for fluid layout (if true, layout scales according to parent DOM element's size; if false, width and height are static
       title = '',
       stepTerm = '',
-  	  canEdit = true, // default for whether project nodes can be edited (draggable, etc.)
-  	  view = {}, // object to hold WISE view object (provides access to project and its nodes)
+  	  editable = false, // default for whether project nodes (positions, etc.) can be edited (authoring mode)
+  	  view = {}, // object to hold WISE view object (provides access to WISE project and its nodes)
       complete = function(){}; // optional callback function
   
   // private variables
@@ -145,10 +145,13 @@ function starmap() {
     	  	  + "' value='Go!'></input>");
     	  visit.on('click',function(){
     		  //d.lastVisit = moment();
+    		  $('.current.node').off('powerTipClose');
+    		  $('.current.node').on('powerTipClose', function(){
+				  var nodePosition = view.getProject().getPositionById(d.identifier);
+			      //go to the node position that was clicked if it is available
+			      view.goToNodePosition(nodePosition);
+ 			  });
     		  $.powerTip.hide();
-    		  var nodePosition = view.getProject().getPositionById(d.identifier);
-    		  //go to the node position that was clicked if it is available
-    		  view.goToNodePosition(nodePosition);
     	  });
     	  actions.append(visit);
     	  content.append(actions);
@@ -339,10 +342,9 @@ function starmap() {
 	  
 	  function zoom(d) {
 		  if($('#powerTipStarmap').is(':visible')){
-			  $('.current').on({
-				 powerTipClose: function(){
-					 svgZoom(d);
-				 } 
+			  $('.current.node').off('powerTipClose');
+			  $('.current.node').on('powerTipClose', function(){
+				  svgZoom(d);
 			  });
 			  $.powerTip.hide();
 		  } else {
@@ -516,12 +518,10 @@ function starmap() {
 		    	  });
 		      });
 		      
-		      if(!canEdit){
-		    	  force.stop();
-				  g.selectAll('.node, .seq').each(function(d){
-					 d.fixed = true; 
-				  });
-		      }
+		      force.stop();
+			  g.selectAll('.node, .seq').each(function(d){
+				 d.fixed = true; 
+			  });
 		      loaded = true;
 		      complete();
 		      
@@ -572,7 +572,7 @@ function starmap() {
 	  draw();
 	  
 	  // TODO: move outside starmap
-	  $('#toggleView').on('click',function(){
+	  /*$('#toggleView').on('click',function(){
 		  if(canEdit){
 			  canEdit = false;
 			  force.stop();
@@ -588,7 +588,7 @@ function starmap() {
 			  });
 			  $(this).text('Author View');
 		  }
-	  });
+	  });*/
 	  
     });
   };
@@ -625,39 +625,7 @@ function starmap() {
 
     recurse(root);
     return nodes;
-  }
-  
-  /*
-   * from: http://dillieodigital.wordpress.com/2013/01/16/quick-tip-how-to-draw-a-star-with-svg-and-javascript/ & 
-   * https://gist.github.com/Dillie-O/4548290
-   */
-  function calculateStarPoints(centerX, centerY, arms, outerRadius, innerRadius) {
-     var results = "";
-   
-     var angle = Math.PI / arms;
-   
-     for (var i = 0; i < 2 * arms; i++)
-     {
-        // Use outer or inner radius depending on what iteration we are in.
-        var r = (i & 1) == 0 ? outerRadius : innerRadius;
-        
-        var currX = centerX + Math.cos(i * angle) * r;
-        var currY = centerY + Math.sin(i * angle) * r;
-   
-        // Our first time we simply append the coordinates, subsequent times
-        // we append a ", " to distinguish each coordinate pair.
-        if (i == 0)
-        {
-           results = currX + "," + currY;
-        }
-        else
-        {
-           results += ", " + currX + "," + currY;
-        }
-     }
-   
-     return results;
-  }
+  };
   
   function getChildren(d,seqs,nodes,full){
 	  if(d.hasOwnProperty('refs')){
@@ -736,9 +704,9 @@ function starmap() {
 	  return chart;
   };
   
-  chart.canEdit = function(_) {
-	  if(!arguments.length) return canEdit;
-	  canEdit = _;
+  chart.editable = function(_) {
+	  if(!arguments.length) return editable;
+	  editable = _;
 	  return chart;
   };
   
@@ -772,10 +740,9 @@ function starmap() {
 	  };
 	  
 	  if($('#powerTipStarmap').is(':visible')){
-		  $('.current').on({
-			 powerTipClose: function(){
-				 doReset();
-			 } 
+		  $('.current.node').off('powerTipClose');
+		  $('.current.node').on('powerTipClose', function(){
+			  doReset();
 		  });
 		  $.powerTip.hide();
 	  } else {
