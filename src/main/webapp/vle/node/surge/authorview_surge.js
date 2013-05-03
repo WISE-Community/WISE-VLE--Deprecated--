@@ -42,9 +42,14 @@ View.prototype.SurgeNode.commonComponents = ['StepIcons'];
 View.prototype.SurgeNode.generatePage = function(view){
 
 	this.view = view;
+	this.defaults = {};
+	this.defaults.height = '480';
+	this.defaults.width = '770';
 	
 	//get the content of the step
 	this.content = this.view.activeContent.getContentJSON();
+	
+	var me = this;
 	
 	//get the html element that all the authoring components will be located
 	var parent = document.getElementById('dynamicParent');
@@ -83,11 +88,29 @@ View.prototype.SurgeNode.generatePage = function(view){
 	var swfBrowseButton = $(createElement(document, 'button', {id: 'swfBrowseButton', onclick:'eventManager.fire("surgeBrowseClicked")'})).text('Browse');
 	swfUrlDiv.append(swfUrlLabel).append(swfUrlInput).append(swfBrowseButton);
 	
+	var swfDimensionsDiv = $(createElement(document, 'div', {id:'swfDimensionsDiv'}));
+	//create the label for the dimensions section
+	var swfDimensionsLabel = $(document.createElement('div')).text('Display Dimensions (px):');
+	//create the label for the textarea that the author will write the height in
+	var swfHeightLabel = $(document.createElement('span')).text('Height:');
+	//create the textarea that the author will write the height in
+	// TODO: add validation (only allow digits)
+	var swfHeightInput = $(createElement(document, 'input', {id: 'swfHeightInput', type:'text', size:'4', value:me.defaults.height, onchange:"eventManager.fire('surgeDimensionsChanged')"}));
+	
+	//create the label for the textarea that the author will write the width in
+	var swfWidthLabel = $(document.createElement('span')).text('Width:');
+	//create the textarea that the author will write the width in
+	// TODO: add validation (only allow digits)
+	var swfWidthInput = $(createElement(document, 'input', {id: 'swfWidthInput', type:'text', size:'4', value:me.defaults.width, onchange:"eventManager.fire('surgeDimensionsChanged')"}));
+	swfDimensionsDiv.append(swfDimensionsLabel).append(swfHeightLabel).append(swfHeightInput).append(swfWidthLabel).append(swfWidthInput);
+	
 	//add the authoring components to the page
 	$(pageDiv).append(sourceDiv);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(authoringSwfDiv);
 	$(pageDiv).append(swfUrlDiv);
+	pageDiv.appendChild(createBreak());
+	$(pageDiv).append(swfDimensionsDiv);
 	//pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(levelStringLabel);
@@ -147,6 +170,8 @@ View.prototype.SurgeNode.generatePage = function(view){
 		if (this.content.customUri != 'undefined'){
 			customUri = this.content.customUri;
 		}
+		// populate the dimensions
+		this.populateDimensions();
 	}
 	
 	//populate the level string into the textarea
@@ -282,6 +307,38 @@ View.prototype.SurgeNode.updateSwfSource = function(){
 		$('#authoringSwfDiv').show();
 	}
 	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Populate the height and width textareas where the user types the dimensions for the swf file
+ */
+View.prototype.SurgeNode.populateDimensions = function() {
+	//get the height from the content and set it into the authoring textarea
+	if('height' in this.content && !isNaN(this.content.height)){
+		$('#swfHeightInput').val(this.content.height);
+	} else {
+		$('#swfHeightInput').val(this.defaults.height);
+	}
+	
+	//get the width from the content and set it into the authoring textarea
+	if('width' in this.content && !isNaN(this.content.width)){
+		$('#swfWidthInput').val(this.content.width);
+	} else {
+		$('#swfWidthInput').val(this.defaults.width);
+	}
+};
+
+/**
+ * Updates the content's dimensions to the user input
+ */
+View.prototype.SurgeNode.updateDimensions = function(){
+	/* update content */
+	this.content.height = $('#swfHeightInput').val();
+	this.content.width = $('#swfWidthInput').val();
 	/*
 	 * fire source updated event, this will update the preview
 	 */
