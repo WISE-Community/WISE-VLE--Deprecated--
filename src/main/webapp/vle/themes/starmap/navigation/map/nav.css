@@ -1,5 +1,7 @@
 /* Navigation menu specific css and theme customization */
 
+@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,400);
+
 #vle_body #toggleNavLink.menu {
 	padding-left:28px;
 	background:transparent url('images/menu.png') no-repeat left center;
@@ -164,25 +166,8 @@ a.glue {
 	left:10;
 }
 
-div#map {
-	position:absolute;
-	top:10px;
-	bottom:10px;
-	left:10px;
-	right:10px;
-}
-
 #my_menu {
-	background: #302d55; /* Old browsers */
-	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMzAyZDU1IiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzEzMTcyMCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
-	background: -moz-linear-gradient(-45deg,  #302d55 0%, #131720 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#302d55), color-stop(100%,#131720)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(-45deg,  #302d55 0%,#131720 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(-45deg,  #302d55 0%,#131720 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(-45deg,  #302d55 0%,#131720 100%); /* IE10+ */
-	background: linear-gradient(135deg,  #302d55 0%,#131720 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#302d55', endColorstr='#131720',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+	
 }
 
 #my_menu > canvas {
@@ -199,11 +184,19 @@ svg#chart {
 	position:absolute;
 }
 
+#mapBgImg.zoom {
+	opacity:0;
+	-webkit-transition: opactiy .4s;
+    -moz-transition: opactiy .4s;
+    -o-transition: opactiy .4s;
+    transition: opactiy .4s;
+}
+
 .item circle, .item image, .seq, .link, .hull {
-	-webkit-transition: all .25s ease;
-    -moz-transition: all .25s ease;
-    -o-transition: all .25s ease;
-    transition: all .25s ease;
+	-webkit-transition: all .4s ease;
+    -moz-transition: all .4s ease;
+    -o-transition: all .4s ease;
+    transition: all .4s ease;
 }
 
 .node {
@@ -298,20 +291,30 @@ svg#chart {
 	font-size:4px;
 }
 
-.seq {
+.seq .icon {
 	cursor:pointer;
 }
 
 .seq text {
 	opacity:1;
-	font-size:1.25em;
-	font-weight:bold;
-}
-
-.seq text {
-	fill:#444;
+	font-size:10pt;
+	font-weight:200;
+	font-family: 'Yanone Kaffeesatz', sans-serif;
+	fill:#cfff4a;
 	stroke:none;
 	stroke-width:0;
+}
+
+.seq .seqInfo {
+	opacity:0;
+	pointer-events: none;
+}
+
+.seq .title.seqInfo, .seq .titleBg.seqInfo {
+}
+
+.seq tspan.pos {
+	fill: #d1ffef;
 }
 
 /*.seq text.outline {
@@ -354,8 +357,8 @@ path.link.seq.active, path.link.seq.inactive {
 }
 
 path.link.path.active {
-	opacity:.6;
-	display:block;
+	/*opacity:.6;
+	display:block;*/
 }
 
 path.link.path.inactive {

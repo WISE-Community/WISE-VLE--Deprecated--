@@ -8,6 +8,8 @@ function starmap() {
       title = '',
       stepTerm = '',
   	  editable = false, // default for whether project nodes (positions, etc.) can be edited (authoring mode)
+  	  backgroundImg = '', // optional background image path
+  	  backgroundCss = '', // optional background CSS
   	  view = {}, // object to hold WISE view object (provides access to WISE project and its nodes)
       complete = function(){}; // optional callback function
   
@@ -63,8 +65,9 @@ function starmap() {
 	  // build groups of nodes from project based on sequence membership
 	  var groups = d3.nest().key(function(d) { return d.group; }).entries(force.nodes().filter(function(d,i){ return d.type === 'sequence' ? null : this }));
       
-	  // Select the svg element, if it exists
+	  // Select the svg, g elements, if they exists
       var svg = d3.select(this).select("svg#chart");
+      g = d3.select("g#wrap");
 
       // Otherwise, create the map and inner wrap element    	
       if (svg.empty()) {
@@ -75,7 +78,20 @@ function starmap() {
     	  svg.append('svg:g')
     	     //.call(d3.behavior.zoom().on("zoom", redraw))
     	   .append('svg:g')
-    	     .attr('class', 'wrap');
+    	     .attr('id', 'wrap');
+    	  g = d3.select('g#wrap');
+    	  g.append('svg:rect')
+	         .attr('width', width)
+	         .attr('height', height)
+	         .attr('id','mapBg')
+	         .attr('fill', 'transparent');
+	      g.append('svg:image')
+	         .attr('id', 'mapBgImg')
+	         .attr('xlink:xlink:href', backgroundImg)
+	         .attr('x',0)
+	         .attr('y',0)
+	         .attr('width',width)
+	         .attr('height',height);
       }
 
       // Update the outer dimensions
@@ -95,14 +111,7 @@ function starmap() {
       }
 
       // Update the inner dimensions with padding
-      g = svg.select("g.wrap")
-          //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-      
-      g.append('svg:rect')
-      	  .attr('width', width)
-          .attr('height', height)
-          .attr('id','mapBg')
-          .attr('fill', 'transparent');
+      // g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       
 	  // function to build a group's hull path
 	  var groupPath = function(d) {
@@ -129,34 +138,6 @@ function starmap() {
 		  }
 		  var nodeIconPath = view.nodeIconPaths[node.type];
 		  return nodeIconPath + nodeClass + '16.png';
-      };
-      
-      var getInfo = function(d) {
-		  var pos = "#" + (d.position+1) + "";
-    	  var title = d.title;
-    	  var lastVisit = d.lastVisit ? d.lastVisit.calendar() : "Never";
-    	  var head = $("<h5>"
-    		  + "<span class='pos'>" + pos + "</span>"
-    		  + title + "</h5>");
-    	  var content = $("<div class='content'></div>");
-    	  content.append("<p>Last Visited: " + lastVisit + "</p>");
-    	  var actions = $("<p class='actions'></p>");
-    	  var visit = $("<input type='button' data-id='visit_" + d.identifier
-    	  	  + "' value='Go!'></input>");
-    	  visit.on('click',function(){
-    		  //d.lastVisit = moment();
-    		  $('.current.node').off('powerTipClose');
-    		  $('.current.node').on('powerTipClose', function(){
-				  var nodePosition = view.getProject().getPositionById(d.identifier);
-			      //go to the node position that was clicked if it is available
-			      view.goToNodePosition(nodePosition);
- 			  });
-    		  $.powerTip.hide();
-    	  });
-    	  actions.append(visit);
-    	  content.append(actions);
-    	  var tip = $("<div></div>").append(head).append(content);
-    	  return tip;
       };
 	  
 	  // add links between activities and steps to links array
@@ -214,8 +195,8 @@ function starmap() {
 	
 	  function sDragEnd(d,i) {
 	      d.fixed = true; // set the node to fixed so the force doesn't include the node in its auto positioning stuff
-	      force.tick();
-	      force.resume();
+	      //force.tick();
+	      force.stop();
 	  }
 	  
 	  var sDrag = d3.behavior.drag()
@@ -230,6 +211,12 @@ function starmap() {
 		      "scale(" + scale + ") "
 		      + "translate(" + d3.event.translate + ")");
 	  }*/
+	  
+	  function renderNode(d){
+		  var nodePosition = view.getProject().getPositionById(d.identifier);
+	      //go to the node position that was clicked if it is available
+	      view.goToNodePosition(nodePosition);
+	  };
 	  
 	  function svgZoom(d){
 		  //console.log("here", d3.event.x, d3.event.y);
@@ -248,6 +235,7 @@ function starmap() {
 		  	  .classed('inactive',function(d){ return this.getAttribute('data-group') !== group; });
 		  
 		  if(d.classList.contains('seq')){
+			  d3.select('#mapBgImg').classed('zoom',true);
 			  d3.selectAll('.node.active').each(function(n,i){
 				  if(i===0){
 					  n.current = true;
@@ -255,11 +243,11 @@ function starmap() {
 				  if(n.current === true){
 					  x = n.x;
 					  y = n.y;
-				  } 
+				  }
 			  });
 			  
 			  d3.select(d).each(function(n){
-				  $('#currentAct').text("Mission " + (n.position+1) + ": " + n.title); 
+				  $('#currentAct').text("#" + (n.position+1) + ": " + n.title); 
 			  });
 			  
 			  $('#activityControls').show();
@@ -277,8 +265,7 @@ function starmap() {
 			  
 		  } else if(d.classList.contains('node')){
 			  var circle = $(document.getElementById("anchor_" + d.id));
-			  circle.data('powertipjq', getInfo(d3.select(d).data()[0]));
-			  force.stop();
+			  //force.stop();
 			  target = d3.select('#' + group + '-target');
 			  d3.selectAll('.node.active').classed('current',false)
 			  	  .attr("r",r)
@@ -289,8 +276,9 @@ function starmap() {
 					  x = n.x;
 					  y = n.y;
 				  });
-			  force.tick();
-			  force.resume();
+			  //force.tick();
+			  //force.resume();
+			  //force.stop();
 			  
 			  /*x = -current.x + $(map).width()/(2*k) - 300/k;
 			  y = -current.y + $(map).height()/(2*k);
@@ -335,21 +323,21 @@ function starmap() {
   	  	  	  .attr("transform", "scale(" + k + ") translate(" + x + "," + y + ")")
   	  	  	  .each("end", function(){
 		  	  	  if(d.classList.contains('node')){
-		  	  		  $(document.getElementById("anchor_" + d.id)).powerTip('show');
+		  	  		  //$(document.getElementById("anchor_" + d.id)).powerTip('show');
 		  		  }
   	  	  	  });
 	  };
 	  
 	  function zoom(d) {
-		  if($('#powerTipStarmap').is(':visible')){
-			  $('.current.node').off('powerTipClose');
-			  $('.current.node').on('powerTipClose', function(){
-				  svgZoom(d);
-			  });
-			  $.powerTip.hide();
-		  } else {
+		  //if($('#powerTipStarmap').is(':visible')){
+			  //$('.current.node').off('powerTipClose');
+			  //$('.current.node').on('powerTipClose', function(){
+				  //svgZoom(d);
+			  //});
+			  //$.powerTip.hide();
+		  //} else {
 			  svgZoom(d);
-		  }
+		  //}
 	  };
 	  var loaded = false;
 	  
@@ -381,8 +369,10 @@ function starmap() {
 				  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 				  .attr("data-group", function(d){ return d.group; })
 				  .attr("id", function(d){ return d.identifier })
-				  .on("click", function(){ zoom(this); })
-				  .on("touchstart", function(){ zoom(this); })
+				  .on("click", function(d){ renderNode(d); })
+				  .on("touchstart", function(d){ renderNode(d); })
+				  //.on("click", function(){ zoom(this); })
+				  //.on("touchstart", function(){ zoom(this); })
 				  /*.on("mouseover", function(d){ 
 			  		  d3.select(this).select("circle.main")
 			  		  	  .filter(function(d){ return !d.current; })
@@ -444,22 +434,80 @@ function starmap() {
 				   })
 				  .attr("data-group", function(d){ return d.group; })
 				  .attr('id', function(d){ return d.identifier })
-			      .on("click", function(){ zoom(this); })
-			  	  .on("touchstart", function(){ zoom(this); })
+			      .on("click", function(){ svgZoom(this); })
+			  	  .on("touchstart", function(){ svgZoom(this); })
 				  .call(sDrag);
 			  
 			  forceSeq.append("svg:image")
-			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/star.png")
-			  	  .attr("x", -30)
-			      .attr("y", -30)
-			      .attr("width", 60)
-			      .attr("height", 60);
+			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-radial.png")
+			  	  .attr("width", 0)
+			  	  .attr("height", 0)
+			  	  .attr("x", 0)
+			      .attr("y", 0)
+			      .attr("id", function(d){ return d.identifier + "_radial"; });
 			  
-			  forceSeq.append("svg:text")
-				  .text(function(d){ return "" + (d.position+1) + ""; })
-				  .attr("text-anchor","middle")
-				  .attr("x",0)
-				  .attr("y",12);
+			  forceSeq.append("svg:image")
+			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/star-bronze.png")
+			  	  .attr("x", -18)
+			      .attr("y", -18)
+			      .attr("width", 36)
+			      .attr("height", 36)
+			      .on("mouseover", function(d){
+			    	  this.parentNode.parentNode.appendChild(this.parentNode);
+			    	  d3.select("#" + d.identifier + "_radial")
+			    	  	  .transition()
+			    		  .attr("width", 80)
+					  	  .attr("height", 80)
+					  	  .attr("x", -40)
+					      .attr("y", -40)
+			    		  .duration(125);
+			    	  d3.select("#" + d.identifier + "_info")
+			    	  	  .transition()
+			    	  	  .style("opacity",1)
+			    	  	  .duration(100)
+			    	  	  .delay(200);
+			      })
+			      .on("mouseout", function(d){
+			    	  d3.select("#" + d.identifier + "_info")
+			    	  	  .transition()
+			    	  	  .duration(125)
+			    	  	  .style("opacity",0);
+			    	  d3.select("#" + d.identifier + "_radial")
+			    	  	  .transition()
+			    		  .attr("width", 0)
+					  	  .attr("height", 0)
+					  	  .attr("x", 0)
+					      .attr("y", 0)
+			    		  .duration(100)
+			    		  .delay(200);
+			      })
+			      .attr("class", "icon");
+			  
+			  var forceSeqInfo = forceSeq.append("svg:g")
+			  	  .attr("class","seqInfo")
+			  	  .attr("id", function(d){ return d.identifier + "_info"; });
+			  
+			  forceSeqInfo.append("svg:image")
+			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-header-blank.png")
+			  	  .attr("width", 199)
+			  	  .attr("height", 36)
+			  	  .attr("x", 12)
+			  	  .attr("y", -30)
+			  	  .attr("class", "titleBg");
+			  
+			  var forceSeqText = forceSeqInfo.append("svg:text")
+			  	  .attr("x", 26)
+			  	  .attr("y", -7)
+			  	  .attr("class", "title");
+			  
+			  forceSeqText.append("svg:tspan")
+				  .text(function(d){ return "#" + (d.position+1) + ""; })
+				  .attr("class", "pos");
+			  
+			  forceSeqText.append("svg:tspan")
+			  	  .text(function(d){ return  "" + (d.title) + ""; })
+			  	  .attr("class", "name")
+			  	  .attr("dx", 4);
 			  
 			  // Update the links
 			  g.selectAll("path.link")
@@ -509,13 +557,12 @@ function starmap() {
 		      
 		      // add info tooltips to each step node
 		      forceCircle.each(function(d,i){
-		    	  $(this).powerTip({
-		    		  popupId: "powerTipStarmap",
-		    		  mouseOnToPopup: true,
-		    		  placement: 'e',
-		    		  manual:true,
-		    		  keepAlive: true
-		    	  });
+		    	  //$(this).powerTip({
+		    		  //popupId: "powerTipStarmap",
+		    		  //mouseOnToPopup: true,
+		    		  //placement: 'e',
+		    		  //manual:true
+		    	  //});
 		      });
 		      
 		      force.stop();
@@ -710,6 +757,12 @@ function starmap() {
 	  return chart;
   };
   
+  chart.backgroundImg = function(_) {
+	  if(!arguments.length) return backgroundImg;
+	  backgroundImg = _;
+	  return chart;
+  };
+  
   chart.view = function(_) {
 	  if(!arguments.length) return view;
 	  view = _;
@@ -723,31 +776,20 @@ function starmap() {
   };
   
   chart.reset = function() {
-	  function doReset(){
-		  $('#activityControls').hide();
-		  g.transition()
-	  	  	  .duration(400)
-	  	  	  .ease("cubic-out")
-	  	  	  .attr("transform", "scale(1) translate(1)");
-		  
-		  d3.selectAll('.item, .link, .target, .hull')
-	  	  	  .classed('active',false);
-
-		  d3.selectAll('.item, .link, .hull')
-		  	  .classed('inactive',false);
-		  
-		  return chart;
-	  };
+	  $('#activityControls').hide();
+	  d3.select('#mapBgImg').classed('zoom',false);
+	  g.transition()
+  	  	  .duration(400)
+  	  	  .ease("cubic-out")
+  	  	  .attr("transform", "scale(1) translate(1)");
 	  
-	  if($('#powerTipStarmap').is(':visible')){
-		  $('.current.node').off('powerTipClose');
-		  $('.current.node').on('powerTipClose', function(){
-			  doReset();
-		  });
-		  $.powerTip.hide();
-	  } else {
-		  doReset();
-	  }
+	  d3.selectAll('.item, .link, .target, .hull')
+  	  	  .classed('active',false);
+
+	  d3.selectAll('.item, .link, .hull')
+	  	  .classed('inactive',false);
+	  
+	  return chart;
   };
 
   return chart;

@@ -282,6 +282,9 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		//the nav ui is empty so we need to build it
 		
 		this.map = starmap() // create map instance
+			.height(528)
+			.width(940)
+			.backgroundImg('themes/starmap/navigation/map/images/background.png')
 			.view(view);
 	
 		this.currentStepNum = 1;
@@ -627,7 +630,7 @@ NavigationPanel.prototype.setStepIcon = function(nodeId, stepIconPath) {
 * REQUIRED
 */
 View.prototype.navModeDispatcher = function(type,args,obj){
-	if(type=='renderNodeCompleted') {
+	if(type=='renderNodeCompleted') { // REQUIRED (DO NOT EDIT)
 		obj.renderNavigationPanel();
 	} if(type=='navigationMenuCreated'){ // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.menuCreated();
@@ -635,17 +638,17 @@ View.prototype.navModeDispatcher = function(type,args,obj){
 		if(obj.navigationPanel){
 			obj.navigationPanel.nodeRendered(args[0]);
 		}
-	} else if(type=='toggleNavigationVisibility'){ // REQUIRED (DO NOT EDIT)
+	} else if(type=='toggleNavigationVisibility'){ 
 		obj.navigationPanel.toggleVisibility();
-	} else if(type=='navSequenceOpened'){ // REQUIRED (DO NOT EDIT)
+	} else if(type=='navSequenceOpened'){ 
 		obj.navigationPanel.sequenceOpened(args[0]);
-	} else if(type=='navSequenceClosed'){ // REQUIRED (DO NOT EDIT)
+	} else if(type=='navSequenceClosed'){ 
 		obj.navigationPanel.sequenceClosed(args[0]);
 	} else if(type=="navigationPanelPrevButtonClicked") {
 		obj.navigationPanel.navigationPanelPrevButtonClickedListener();
 	} else if(type=="navigationPanelNextButtonClicked") {
 		obj.navigationPanel.navigationPanelNextButtonClickedListener();
-	} else if(type=="navigationPanelToggleVisibilityButtonClicked") {
+	} else if(type=="navigationPanelToggleVisibilityButtonClicked") { // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.navigationPanelToggleVisibilityButtonClickedListener();
 	} else if(type=="navigationNodeClicked") {
 		obj.navigationPanel.navigationNodeClickedListener(args[0]);
@@ -659,15 +662,15 @@ View.prototype.navModeDispatcher = function(type,args,obj){
 * REQUIRED
 */
 var events = [
-             'renderNodeCompleted',
-             'toggleNavigationVisibility', // REQUIRED (DO NOT EDIT)
+             'renderNodeCompleted', // REQUIRED (DO NOT EDIT)
+             'toggleNavigationVisibility', 
              'navigationMenuCreated', // REQUIRED (DO NOT EDIT)
              'navNodeRendered', // REQUIRED (DO NOT EDIT)
-             'navSequenceOpened', // REQUIRED (DO NOT EDIT)
-             'navSequenceClosed', // REQUIRED (DO NOT EDIT)
+             'navSequenceOpened', 
+             'navSequenceClosed', 
              'navigationPanelPrevButtonClicked',
              'navigationPanelNextButtonClicked',
-             'navigationPanelToggleVisibilityButtonClicked',
+             'navigationPanelToggleVisibilityButtonClicked', // REQUIRED (DO NOT EDIT)
              'navigationNodeClicked',
              'visitNode'
              ];
