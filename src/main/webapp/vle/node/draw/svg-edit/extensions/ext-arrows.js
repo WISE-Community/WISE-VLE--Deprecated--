@@ -27,6 +27,9 @@ svgEditor.addExtension("Arrows", function(S) {
 			]
 		};
 		
+		var urlBase = parent.location.href; // retrieves url base for the WISE4 step content iframe
+		urlBase = urlBase.replace(/(.*)#$/,'$1');
+		
 		var prefix = 'se_arrow_';
 		if (randomize_ids) {
 		  var arrowprefix = prefix + nonce + '_';
@@ -158,7 +161,8 @@ svgEditor.addExtension("Arrows", function(S) {
 				dir = "bk";
 			} else if(type == "both") {
 				addMarker("bk", type);
-				svgCanvas.changeSelectedAttribute("marker-start", "url(#" + pathdata.bk.id + ")");
+				//svgCanvas.changeSelectedAttribute("marker-start", "url(#" + pathdata.bk.id + ")");
+				svgCanvas.changeSelectedAttribute("marker-start", "url(" + urlBase + "#" + pathdata.bk.id + ")"); // fix for WISE4 url() reference problems - need to include absolute path
 				type = "end";
 				dir = "fw";
 			} else if (type == "start") {
@@ -166,7 +170,8 @@ svgEditor.addExtension("Arrows", function(S) {
 			}
 			
 			addMarker(dir, type);
-			svgCanvas.changeSelectedAttribute("marker-"+type, "url(#" + pathdata[dir].id + ")");
+			//svgCanvas.changeSelectedAttribute("marker-"+type, "url(#" + pathdata[dir].id + ")");
+			svgCanvas.changeSelectedAttribute("marker-"+type, "url(" + urlBase + "#" + pathdata[dir].id + ")"); // fix for WISE4 url() reference problems - need to include absolute path
 			S.call("changed", selElems);
 		}
 		
@@ -205,14 +210,16 @@ svgEditor.addExtension("Arrows", function(S) {
 					$(new_marker).children().attr('fill', color);
 				}
 				
-				$(elem).attr('marker-'+type, "url(#" + new_marker.id + ")");
+				//$(elem).attr('marker-'+type, "url(#" + new_marker.id + ")");
+				$(elem).attr('marker-'+type, "url(" + urlBase + "#" + new_marker.id + ")"); // fix for WISE4 url() reference problems - need to include absolute path
 				
 				// Check if last marker can be removed
 				var remove = true;
 				$(S.svgcontent).find('line, polyline, path, polygon').each(function() {
 					var elem = this;
 					$.each(mtypes, function(j, mtype) {
-						if($(elem).attr('marker-' + mtype) === "url(#" + marker.id + ")") {
+						//if($(elem).attr('marker-' + mtype) === "url(#" + marker.id + ")") {
+						if($(elem).attr('marker-' + mtype) === "url(#" + marker.id + ")" || $(elem).attr('marker-' + mtype) === "url(" + urlBase + "#" + marker.id + ")") { // fix for WISE4 url() reference problems - need to include absolute path
 							return remove = false;
 						}
 					});

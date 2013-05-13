@@ -367,6 +367,9 @@ $(function() {
 			
 			var all_elems = svg_el[0].getElementsByTagName('*'), len = all_elems.length;
 			
+			var urlBase = parent.location.href; // retrieves url base for the WISE4 step content iframe
+			urlBase = urlBase.replace(/(.*)#$/,'$1');
+			
 			id_elems.each(function(i) {
 				var id = this.id;
 				var no_dupes = ($(svgdoc).find('#' + id).length <= 1);
@@ -376,7 +379,8 @@ $(function() {
 				this.id = new_id;
 				
 				var old_val = 'url(#' + id + ')';
-				var new_val = 'url(#' + new_id + ')';
+				//var new_val = 'url(#' + new_id + ')';
+				var new_val = 'url(' + urlBase + '#' + new_id + ')'; // fix for Firefox/WISE4 url() reference problems - need to include absolute path
 				
 				// Selector method, possibly faster but fails in Opera / jQuery 1.4.3
 // 				svg_el.find('[fill="url(#' + id + ')"]').each(function() {

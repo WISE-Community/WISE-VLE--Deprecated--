@@ -2024,7 +2024,13 @@ var recalculateDimensions = this.recalculateDimensions = function(selected) {
 			m = transformListToTransform(tlist).matrix;
 			switch (selected.tagName) {
 				case 'line':
-					changes = $(selected).attr(["x1","y1","x2","y2"]);
+					//changes = $(selected).attr(["x1","y1","x2","y2"]);
+					// WISE4: Edit to work with jQuery 1.9.1
+					var changes = {};
+					changes.x1 = $(selected).attr("x1");
+					changes.y1 = $(selected).attr("y1");
+					changes.x2 = $(selected).attr("x2");
+					changes.y2 = $(selected).attr("y2");
 				case 'polyline':
 				case 'polygon':
 					changes.points = selected.getAttribute("points");
@@ -2986,8 +2992,11 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 				
 				break;
 			case "circle":
-				var c = $(shape).attr(["cx", "cy"]);
-				var cx = c.cx, cy = c.cy,
+				//var c = $(shape).attr(["cx", "cy"]);
+				// WISE4: Edit to work with jQuery 1.9.1
+				var cx = $(shape).attr("cx"),
+					cy = $(shape).attr("cy");
+				//var cx = c.cx, cy = c.cy;
 					rad = Math.sqrt( (x-cx)*(x-cx) + (y-cy)*(y-cy) );
 				if(curConfig.gridSnapping){
 					rad = snapToGrid(rad);
@@ -2995,8 +3004,11 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 				shape.setAttributeNS(null, "r", rad);
 				break;
 			case "ellipse":
-				var c = $(shape).attr(["cx", "cy"]);
-				var cx = c.cx, cy = c.cy;
+				//var c = $(shape).attr(["cx", "cy"]);
+				// WISE4: Edit to work with jQuery 1.9.1
+				var cx = $(shape).attr("cx"),
+					cy = $(shape).attr("cy");
+				//var cx = c.cx, cy = c.cy;
 				// Opera has a problem with suspendRedraw() apparently
 					handle = null;
 				if (!window.opera) svgroot.suspendRedraw(1000);
@@ -3247,14 +3259,24 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 				}
 				break;
 			case "line":
-				var attrs = $(element).attr(["x1", "x2", "y1", "y2"]);
+				//var attrs = $(element).attr(["x1", "x2", "y1", "y2"]);
+				// WISE4: Edit to work with jQuery 1.9.1
+				var attrs = {};
+				attrs.x1 = $(element).attr("x1");
+				attrs.x2 = $(element).attr("x2");
+				attrs.y1 = $(element).attr("y1");
+				attrs.y2 = $(element).attr("y2");
 				keep = (attrs.x1 != attrs.x2 || attrs.y1 != attrs.y2);
 				break;
 			case "foreignObject":
 			case "square":
 			case "rect":
 			case "image":
-				var attrs = $(element).attr(["width", "height"]);
+				//var attrs = $(element).attr(["width", "height"]);
+				// WISE4: Edit to work with jQuery 1.9.1
+				var attrs = {};
+				attrs.width = $(element).attr("width");
+				attrs.height = $(element).attr("height");
 				// Image should be kept regardless of size (use inherit dimensions later)
 				keep = (attrs.width != 0 || attrs.height != 0) || current_mode === "image";
 				break;
@@ -3262,8 +3284,14 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 				keep = (element.getAttribute('r') != 0);
 				break;
 			case "ellipse":
-				var attrs = $(element).attr(["rx", "ry"]);
+				//var attrs = $(element).attr(["rx", "ry"]);
+				// WISE4: Edit to work with jQuery 1.9.1
+				var attrs = {};
+				attrs.rx = $(element).attr("rx");
+				attrs.ry = $(element).attr("ry");
+				
 				keep = (attrs.rx != null || attrs.ry != null);
+				
 				break;
 			case "fhellipse":
 				if ((freehand.maxx - freehand.minx) > 0 &&
@@ -5549,7 +5577,14 @@ var convertGradients = this.convertGradients = function(elem) {
 			if(!bb) return;
 			
 			if(grad.tagName === 'linearGradient') {
-				var g_coords = $(grad).attr(['x1', 'y1', 'x2', 'y2']);
+				//var g_coords = $(grad).attr(['x1', 'y1', 'x2', 'y2']);
+				// WISE4: Edit to work with jQuery 1.9.1
+				var g_coords = {};
+				g_coords.x1 = $(svg).attr('x1');
+				g_coords.y1 = $(svg).attr('y1');
+				g_coords.x2 = $(svg).attr('x2');
+				g_coords.y2 = $(svg).attr('y2');
+				
 				
 				// If has transform, convert
 				var tlist = grad.gradientTransform.baseVal;
@@ -5613,7 +5648,11 @@ var convertToGroup = this.convertToGroup = function(elem) {
 	if($elem.data('gsvg')) {
 		// Use the gsvg as the new group
 		var svg = elem.firstChild;
-		var pt = $(svg).attr(['x', 'y']);
+		//var pt = $(svg).attr(['x', 'y']);
+		// WISE4: Edit to work with jQuery 1.9.1
+		var pt = {};
+		pt.x = $(svg).attr('x');
+		pt.y = $(svg).attr('y');
 		
 		$(elem.firstChild.firstChild).unwrap();
 		$(elem).removeData('gsvg');
@@ -5628,7 +5667,11 @@ var convertToGroup = this.convertToGroup = function(elem) {
 		elem = $elem.data('symbol');
 		
 		ts = $elem.attr('transform');
-		var pos = $elem.attr(['x','y']);
+		//var pos = $elem.attr(['x','y']);
+		// WISE4: Edit to work with jQuery 1.9.1
+		var pos = {};
+		pos.x = $elem.attr('x');
+		pos.y = $elem.attr('y');
 
 		var vb = elem.getAttribute('viewBox');
 		
@@ -5876,7 +5919,11 @@ this.setSvgString = function(xmlString) {
 		
 		batchCmd.addSubCommand(new InsertElementCommand(svgcontent));
 		// update root to the correct size
-		var changes = content.attr(["width", "height"]);
+		//var changes = content.attr(["width", "height"]);
+		// WISE4: Edit to work with jQuery 1.9.1
+		var changes = {};
+		changes.width = content.attr("width");
+		changes.height = content.attr("height");
 		batchCmd.addSubCommand(new ChangeElementCommand(svgroot, changes));
 		
 		// reset zoom
@@ -6653,7 +6700,12 @@ this.setResolution = function(x, y) {
 // Returns an object with x, y values indicating the svgcontent element's
 // position in the editor's canvas.
 this.getOffset = function() {
-	return $(svgcontent).attr(['x', 'y']);
+	//return $(svgcontent).attr(['x', 'y']);
+	// WISE4: Edit to work with jQuery 1.9.1
+	var offset = {};
+	offset.x = $(svgcontent).attr('x');
+	offset.y = $(svgcontent).attr('y');
+	return offset;
 }
 
 // Function: setBBoxZoom
@@ -7426,7 +7478,10 @@ this.setImageURL = function(val) {
 	var elem = selectedElements[0];
 	if(!elem) return;
 	
-	var attrs = $(elem).attr(['width', 'height']);
+	//var attrs = $(elem).attr(['width', 'height']);
+	var attrs = {};
+	attrs.width = $(elem).attr('width');
+	attrs.height = $(elem).attr('height');
 	var setsize = (!attrs.width || !attrs.height);
 
 	var cur_href = getHref(elem);
@@ -7445,7 +7500,11 @@ this.setImageURL = function(val) {
 
 	if(setsize) {
 		$(new Image()).load(function() {
-			var changes = $(elem).attr(['width', 'height']);
+			//var changes = $(elem).attr(['width', 'height']);
+			// WISE4: Edit to work with jQuery 1.9.1
+			var changes = {};
+			changes.width = $(elem).attr('width');
+			changes.hegiht = $(elem).attr('height');
 		
 			$(elem).attr({
 				width: this.width,
@@ -7623,7 +7682,13 @@ this.convertToPath = function(elem, getBBox) {
 	switch (elem.tagName) {
 	case 'ellipse':
 	case 'circle':
-		var a = $(elem).attr(['rx', 'ry', 'cx', 'cy']);
+		//var a = $(elem).attr(['rx', 'ry', 'cx', 'cy']);
+		// WISE4: Edit to work with jQuery 1.9.1
+		var a = {};
+		a.rx = $(elem).attr("rx");
+		a.ry = $(elem).attr("ry");
+		a.cx = $(elem).attr("cx");
+		a.cy = $(elem).attr("cy");
 		var cx = a.cx, cy = a.cy, rx = a.rx, ry = a.ry;
 		if(elem.tagName == 'circle') {
 			rx = ry = $(elem).attr('r');
@@ -7642,7 +7707,13 @@ this.convertToPath = function(elem, getBBox) {
 		d = elem.getAttribute('d');
 		break;
 	case 'line':
-		var a = $(elem).attr(["x1", "y1", "x2", "y2"]);
+		//var a = $(elem).attr(["x1", "y1", "x2", "y2"]);
+		// WISE4: Edit to work with jQuery 1.9.1
+		var a = {};
+		a.x1 = $(elem).attr("x1");
+		a.y1 = $(elem).attr("y1");
+		a.x2 = $(elem).attr("x2");
+		a.y2 = $(elem).attr("y2");
 		d = "M"+a.x1+","+a.y1+"L"+a.x2+","+a.y2;
 		break;
 	case 'polyline':
@@ -7650,7 +7721,12 @@ this.convertToPath = function(elem, getBBox) {
 		d = "M" + elem.getAttribute('points');
 		break;
 	case 'rect':
-		var r = $(elem).attr(['rx', 'ry']);
+		//var r = $(elem).attr(['rx', 'ry']);
+		// WISE4: Edit to work with jQuery 1.9.1
+		var r = {};
+		r.rx = $(elem).attr('rx');
+		r.ry = $(elem).attr('ry');
+		
 		var rx = r.rx, ry = r.ry;
 		var b = elem.getBBox();
 		var x = b.x, y = b.y, w = b.width, h = b.height;
@@ -8091,7 +8167,12 @@ var pushGroupProperties = this.pushGroupProperties = function(g, undoable) {
 	var i = 0;
 	var gangle = getRotationAngle(g);
 	
-	var gattrs = $(g).attr(['filter', 'opacity']);
+	//var gattrs = $(g).attr(['filter', 'opacity']);
+	// WISE4: Edit to work with jQuery 1.9.1
+	var gattrs = {};
+	gattrs.filter = $(g).attr('filter');
+	gattrs.opacity = $(g).attr('opacity');
+	
 	var gfilter, gblur;
 	
 	for(var i = 0; i < len; i++) {

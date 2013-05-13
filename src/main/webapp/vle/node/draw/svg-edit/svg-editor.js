@@ -325,7 +325,8 @@
 					'image':'image.png',
 					'zoom':'zoom.png',
 
-					'clone':'clone.png',
+					//'clone':'clone.png',
+					'clone':'copy.png', //changed clone image for WISE4
 					'node_clone':'node_clone.png',
 					'delete':'delete.png',
 					'node_delete':'node_delete.png',
@@ -954,7 +955,8 @@
 							} else {
 								holder.css('left', l).show();
 							}
-							holder.data('shown_popop',true);
+							//holder.data('shown_popop',true);
+							holder.data('shown_popop',false); // always show flyout menus in wise4
 						},time);
 						evt.preventDefault();
 					}).mouseup(function(evt) {
@@ -2377,7 +2379,8 @@
 			var clickSelect = function() {
 				if (toolButtonClick('#tool_select')) {
 					svgCanvas.setMode('select');
-					$('#styleoverrides').text('#svgcanvas svg *{cursor:move;pointer-events:all}, #svgcanvas svg{cursor:default}');
+					//$('#styleoverrides').text('#svgcanvas svg *{cursor:move;pointer-events:all}, #svgcanvas svg{cursor:default}');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
@@ -2390,18 +2393,21 @@
 			var clickLine = function() {
 				if (toolButtonClick('#tool_line')) {
 					svgCanvas.setMode('line');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
 			var clickSquare = function(){
 				if (toolButtonClick('#tool_square')) {
 					svgCanvas.setMode('square');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
 			var clickRect = function(){
 				if (toolButtonClick('#tool_rect')) {
 					svgCanvas.setMode('rect');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
@@ -2414,12 +2420,14 @@
 			var clickCircle = function(){
 				if (toolButtonClick('#tool_circle')) {
 					svgCanvas.setMode('circle');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
 			var clickEllipse = function(){
 				if (toolButtonClick('#tool_ellipse')) {
 					svgCanvas.setMode('ellipse');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
@@ -2432,6 +2440,7 @@
 			var clickImage = function(){
 				if (toolButtonClick('#tool_image')) {
 					svgCanvas.setMode('image');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
@@ -2452,12 +2461,14 @@
 			var clickText = function(){
 				if (toolButtonClick('#tool_text')) {
 					svgCanvas.setMode('text');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
 			var clickPath = function(){
 				if (toolButtonClick('#tool_path')) {
 					svgCanvas.setMode('path');
+					workarea.css('cursor','default'); // update cursor (WISE4)
 				}
 			};
 
@@ -3329,7 +3340,8 @@
 				var cur_class = 'tool_button_current';
 
 				$.each(toolnames, function(i,item) {
-					all_tools += '#tool_' + item + (i==toolnames.length-1?',':'');
+					//all_tools += '#tool_' + item + (i==toolnames.length-1?',':'');
+					all_tools += '#tool_' + item + (i==toolnames.length-1?'':', '); // WISE4: Edit to work with jQuery 1.9.1 (https://groups.google.com/forum/?fromgroups=#!topic/svg-edit/XP67MWW4_zE)
 				});
 
 				$(all_tools).mousedown(function() {
@@ -3603,7 +3615,8 @@
 
 			// Test for embedImage support (use timeout to not interfere with page load)
 			setTimeout(function() {
-				svgCanvas.embedImage('images/logo.png', function(datauri) {
+				//svgCanvas.embedImage('images/logo.png', function(datauri) {
+				svgCanvas.embedImage(curConfig.imgPath + 'logo.png', function(datauri) { // wise4 corrected image path
 					if(!datauri) {
 						// Disable option
 						$('#image_save_opts [value=embed]').attr('disabled','disabled');
