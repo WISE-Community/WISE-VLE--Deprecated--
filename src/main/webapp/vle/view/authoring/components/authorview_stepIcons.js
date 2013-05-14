@@ -71,13 +71,13 @@ View.prototype.stepIconsManager.createStepIconsContent = function() {
 	var stepIcons = [];
 	
 	//get all the statuses available for the current step we are authoring
-	var statuses = this.view.activeNode.getStatuses();
+	var availableStatuses = this.view.activeNode.getAvailableStatuses();
 	
-	if(statuses != null) {
+	if(availableStatuses != null) {
 		//loop through all the statuses
-		for(var x=0; x<statuses.length; x++) {
+		for(var x=0; x<availableStatuses.length; x++) {
 			//get a status
-			var status = statuses[x];
+			var status = availableStatuses[x];
 			
 			//create an object to hold the status and icon path
 			var stepIcon = {};

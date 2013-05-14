@@ -733,8 +733,11 @@ Epigame.prototype.save = function(st) {
 	//Push the state object into this or object's own copy of states
 	this.states.push(epigameState);
 	
+	//get all the node visits for this step
+	var nodeVisits = this.view.getState().getNodeVisitsByNodeId(this.node.id);
+	
 	// Process the student work for nav display
-	this.node.processStudentWork(epigameState);
+	this.node.processStudentWork(nodeVisits);
 	
 	//Post the current node visit to the DB immediately without waiting for exit.
 	this.node.view.postCurrentNodeVisit();

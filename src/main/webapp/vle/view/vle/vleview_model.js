@@ -88,6 +88,16 @@ StudentModel.prototype.pushStudentWorkToLatestNodeVisit = function(nodeId, nodeS
 				if(typeof nodeState == 'object') {
 					//the nodeState is an object
 					nodeVisit.nodeStates.push(nodeState);
+					
+					//get the node
+					var node = this.getProject().getNodeById(nodeId);
+					
+					//get all the node visits for the node
+					var nodeVisits = this.getState().getNodeVisitsByNodeId(nodeId);
+					
+					//process the student work in case we need to change the node's status
+					node.processStudentWork(nodeVisits);
+					
 					eventManager.fire('studentWorkUpdated');
 				} else {
 					//the nodeState is not an object so we will not save the nodeState

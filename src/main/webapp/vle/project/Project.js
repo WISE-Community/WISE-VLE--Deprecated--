@@ -156,6 +156,15 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						} else {
 							thisNode.associatedAnnotateNode = currNode.associatedAnnotateNode;
 						}
+						
+						//set the icons
+						if(currNode.icons != null) {
+							thisNode.icons = currNode.icons;
+						}
+						
+						//initialize the statuses and constraints arrays
+						thisNode.statuses = [];
+						thisNode.constraints = [];
 
 						/* if project is loading minified, create each node's content from the parsed totalProjectContent */
 						if(totalProjectContent){

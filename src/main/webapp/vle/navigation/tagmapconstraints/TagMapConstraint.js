@@ -74,10 +74,10 @@ TagMapConstraint.prototype.isCompleted = function(nodeId) {
 			var node = this.view.getProject().getNodeById(tempNodeId);
 			
 			//get the latest work for the step
-			var nodeState = this.view.getState().getLatestWorkByNodeId(tempNodeId);
+			var nodeVisits = this.view.getState().getNodeVisitsByNodeId(tempNodeId);
 			
 			//check if the work is completed
-			if(!node.isCompleted(nodeState)) {
+			if(!node.isCompleted(nodeVisits)) {
 				completed = false;
 			}
 		}
@@ -85,10 +85,10 @@ TagMapConstraint.prototype.isCompleted = function(nodeId) {
 		//node is a step
 
 		//get the latest work for the step
-		var nodeState = this.view.getState().getLatestWorkByNodeId(nodeId);
+		var nodeVisits = this.view.getState().getNodeVisitsByNodeId(nodeId);
 		
 		//check if the work is completed
-		if(!node.isCompleted(nodeState)) {
+		if(!node.isCompleted(nodeVisits)) {
 			completed = false;
 		}
 	}
@@ -195,6 +195,15 @@ TagMapConstraint.prototype.getConstraintMessage = function() {
  */
 TagMapConstraint.prototype.constrainNavigation = function() {
 	
+};
+
+/**
+ * Get the nodes that this constraint requires the student to complete
+ * but the student has not completed yet. Child constraint classes
+ * may need to override this function. 
+ */
+TagMapConstraint.prototype.getNodesFailed = function() {
+	return [];
 };
 
 //used to notify scriptloader that this script has finished loading

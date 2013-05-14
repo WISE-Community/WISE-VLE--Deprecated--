@@ -111,8 +111,10 @@ MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, 
  * @param nodeState the latest node state for the step
  * @return whether the student has completed the step or not
  */
-MatchSequenceNode.prototype.isCompleted = function(nodeState) {
+MatchSequenceNode.prototype.isCompleted = function(nodeVisits) {
 	var result = false;
+	
+	var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
 	
 	if(nodeState != null && nodeState != '') {
 		if(nodeState.isCorrect) {

@@ -7,7 +7,7 @@ View.prototype.navigationDispatcher = function(type,args,obj){
 	} else if(type=='renderNodeCompleted'){
 		obj.preloadNextNode(args[0]);
 	} else if(type=='processLoadViewStateResponseCompleted'){
-		obj.eventManager.fire('navigationLoadingCompleted');
+
 	}
 };
 

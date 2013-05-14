@@ -26,10 +26,8 @@ SurgeNode.tagMapFunctions = [
 /*
  * The statuses that this step can return
  */
-SurgeNode.statuses = [
-	'bronze',
-	'silver',
-	'gold'
+SurgeNode.availableStatuses = [
+	{statusType:'surgeMedal', possibleStatusValues:['bronze', 'silver', 'gold']}
 ];
 
 /**
@@ -155,81 +153,51 @@ SurgeNode.prototype.getHTMLContentTemplate = function() {
 };
 
 /**
- * Process the student work to see if we need to display a colored
- * star next to the step in the nav menu
- * @param studentWork the student's surge state
+ * Process the student work and change the node status if necessary
+ * 
+ * @param nodeVisits the student's node visits for this step
  */
-SurgeNode.prototype.processStudentWork = function(studentWork) {
-	if(studentWork != null) {
-		if(studentWork.response != null && studentWork.response != "") {
-			//var className = "";
-			var imgPath = '';
-			var tooltip = '';
+SurgeNode.prototype.processStudentWork = function(nodeVisits) {
+	if(nodeVisits != null) {
+		//get the latest node state
+		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+		
+		if(nodeState != null) {
+			var response = nodeState.response;
 			
-			//get the top score
-			var topScore = studentWork.response.topScore;
-			var scoreAbsolute = studentWork.response.scoreAbsolute;
-			
-			var best;
-			
-			if(topScore > scoreAbsolute || topScore == scoreAbsolute){
-				best = topScore;
-			} else {
-				best = scoreAbsolute;
+			if(response != null && response != "") {
+				var imgPath = '';
+				var tooltip = '';
+				
+				//get the top score
+				var topScore = response.topScore;
+				var scoreAbsolute = response.scoreAbsolute;
+				
+				var best = null;
+				
+				//get the best score
+				if(topScore > scoreAbsolute || topScore == scoreAbsolute) {
+					best = topScore;
+				} else {
+					best = scoreAbsolute;
+				}
+				
+				var statusValue = null;
+				
+				//get the status value based on the score
+				if(best == 10) {
+					statusValue = 'bronze';
+				} else if(best == 20) {
+					statusValue = 'silver';
+				} else if(best == 30) {
+					statusValue = 'gold';
+				}
+				
+				//set the status value
+				this.setStatus('surgeMedal', statusValue);
 			}
-			
-			if(best == 10) {
-				//className = "bronzeStar";
-				imgPath = '/vlewrapper/vle/node/surge/images/bronzeStar.gif';
-				tooltip = "You have earned a bronze medal";
-			} else if(best == 20) {
-				//className = "silverStar";
-				imgPath = '/vlewrapper/vle/node/surge/images/silverStar.png';
-				tooltip = "You have earned a silver medal";
-			} else if(best == 30) {
-				//className = "goldStar";
-				imgPath = '/vlewrapper/vle/node/surge/images/goldStar.png';
-				tooltip = "You have earned a gold medal";
-			}
-			
-			//display the star next to the step in the nav menu
-			eventManager.fire('updateStepStatusIcon', [this.id, imgPath, tooltip]);			
 		}
 	}
-};
-
-/**
- * Get the status given the latest node state
- * @param nodeState the latest student work
- * @return the status for the node state
- */
-SurgeNode.prototype.getStatus = function(nodeState) {
-	var status = '';
-	
-	if(nodeState != null) {
-		//get the best score
-		var topScore = nodeState.response.topScore;
-		var scoreAbsolute = nodeState.response.scoreAbsolute;
-		
-		var best;
-		
-		if(topScore >= scoreAbsolute) {
-			best = topScore;
-		} else {
-			best = scoreAbsolute;
-		}
-		
-		//get the status given the score
-		if(best == 10) {
-			status = 'bronze';
-		} else if(best == 20) {
-			status = 'silver';
-		} else if(best == 30) {
-			status = 'gold';
-		}
-	}
-	
-	return status;
 };
 
 /**
@@ -264,18 +232,63 @@ SurgeNode.prototype.getStepIconForStatus = function(status) {
 };
 
 /**
+ * Get the step icon to display determined by the step's statuses. Child nodes
+ * should override this function.
+ * 
+ * @param statuses (optional) the statuses to determine what step icon
+ * to display. if this parameter is not passed in, we will just use the
+ * statuses from the node.
+ * 
+ * @return the icon path for the given statuses
+ */
+SurgeNode.prototype.getStepIconForStatuses = function(statuses) {
+	if(statuses == null) {
+		//get the statuses from the step
+		statuses = this.statuses;
+	}
+	
+	//get the status type
+	var statusType = 'surgeMedal';
+	
+	//get the status value
+	var statusValue = this.getStatus(statusType, statuses);
+	
+	//get the icon path for the status
+	var iconPath = this.getStepIconPathForStatusFromContent(statusType, statusValue);
+	
+	return iconPath;
+};
+
+/**
  * Get all the statuses that this step can return
  */
-SurgeNode.prototype.getStatuses = function() {
-	var statuses = [];
+SurgeNode.prototype.getAvailableStatuses = function() {
+	var availableStatuses = [];
 	
 	/*
 	 * get the statuses from the parent and combine it 
 	 * with the statuses from this step
 	 */
-	statuses = Node.statuses.concat(SurgeNode.statuses);
+	availableStatuses = Node.statuses.concat(SurgeNode.availableStatuses);
 	
 	return statuses;
+};
+
+/**
+ * Determine whether the student has completed the step or not
+ * @param nodeVisits an array of node visits for the step
+ * @return whether the student has completed the step or not
+ */
+SurgeNode.prototype.isCompleted = function(nodeVisits) {
+	var result = false;
+
+	var latestNodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+	
+	if(latestNodeState != null) {
+		result = true;
+	}
+
+	return result;
 };
 
 //Add this node to the node factory so the vle knows it exists.

@@ -484,8 +484,9 @@ ExplanationBuilderNode.prototype.canExit = function(){
  * @param nodeState the latest node state for the step
  * @return whether the student has completed the step or not
  */
-ExplanationBuilderNode.prototype.isCompleted = function(nodeState) {
+ExplanationBuilderNode.prototype.isCompleted = function(nodeVisits) {
 	var result = false;
+	var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
 	
 	if(nodeState != null && nodeState != '') {
 		var content = this.content.getContentJSON();

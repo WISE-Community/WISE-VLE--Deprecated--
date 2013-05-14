@@ -762,6 +762,9 @@ View.prototype.utils.prependContentBaseUrlToAssets = function(contentBaseUrl, st
  * @returns the id with . escaped
  */
 View.prototype.escapeIdForJquery = function(id) {
+	//make sure the id is a string
+	id = id + "";
+	
 	//replace all . with \.
 	id = id.replace(/\./g, '\\.');
 	
@@ -1790,6 +1793,89 @@ View.prototype.getStepNodeIdsStudentCanVisitHelper = function(nodeIds, currentNo
 	
 	//return the updated array of nodeIds
 	return nodeIds;
+};
+
+/**
+ * Check if the student has completed the node
+ * @param nodeId the node id that needs to be checked for completion.
+ * the node id may be an id of a step or activity. if it is an activity,
+ * the student must have completed all the steps in the activity.
+ * @return whether the student has completed the node
+ */
+View.prototype.isCompleted = function(nodeId) {
+	var completed = false;
+	
+	//get the node
+	var node = this.getProject().getNodeById(nodeId);
+	
+	if(node.type == 'sequence') {
+		//node is an activity
+		
+		//get all the node ids in this activity
+		var nodeIds = this.getProject().getNodeIdsInSequence(nodeId);
+		
+		//loop through all the node ids in the activity
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var tempNodeId = nodeIds[x];
+			
+			//get the node
+			var node = this.getProject().getNodeById(tempNodeId);
+			
+			//get the latest work for the step
+			var nodeVisits = this.getState().getNodeVisitsByNodeId(tempNodeId);
+			
+			//check if the work is completed
+			if(!node.isCompleted(nodeVisits)) {
+				return false;
+			}
+		}
+		
+		completed = true;
+	} else {
+		//node is a step
+
+		//get the latest work for the step
+		var nodeVisits = this.getState().getNodeVisitsByNodeId(nodeId);
+		
+		//check if the work is completed
+		if(node.isCompleted(nodeVisits)) {
+			completed = true;
+		}
+	}
+	
+	return completed;
+};
+
+/**
+ * Get the latest node state that has work from the node visits that
+ * are provided
+ * 
+ * @param nodeVisits the node visits to look in
+ * 
+ * @return a node state with work or null if there are no node states
+ */
+View.prototype.getLatestNodeStateWithWorkFromNodeVisits = function(nodeVisits) {
+	
+	if(nodeVisits != null) {
+		//loop through all the node visits
+		for(var x=nodeVisits.length - 1; x>=0; x--) {
+			//get a node visit
+			var nodeVisit = nodeVisits[x];
+			
+			if(nodeVisit != null) {
+				//get the latest work from the node visit
+				var latestWork = nodeVisit.getLatestWork();
+				
+				if(latestWork != null && latestWork != "") {
+					//return the latest node state
+					return latestWork;					
+				}
+			}
+		}	
+	}
+	
+	return null;
 };
 
 /* used to notify scriptloader that this script has finished loading */

@@ -166,7 +166,7 @@ Box2dModelNode.prototype.overridesIsCompleted = function() {
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
  */
-Box2dModelNode.prototype.isCompleted = function() {
+Box2dModelNode.prototype.isCompleted = function(nodeVisits) {
 	return this.isStepCompleted;
 };
 

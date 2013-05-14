@@ -132,7 +132,6 @@ NavigationPanel.prototype.menuCreated = function() {
 	// show project content
 	$('#vle_body').css('opacity',1);
 
-	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
 	view.eventManager.subscribe('constraintStatusUpdated', this.constraintStatusUpdatedListener, this);
 };
 
@@ -301,7 +300,7 @@ NavigationPanel.prototype.resizeMenu = function() {
  */
 NavigationPanel.prototype.studentWorkUpdatedListener = function(type, args, obj) {
 	//update the step icon
-	obj.setStepIcon();
+	//obj.setStepIcon();
 };
 
 /**
@@ -550,6 +549,21 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		/* add appropriate classes for any constraints that may apply to 
 		 * the current navigation */
 		//this.processConstraints();
+	}
+	
+	//check if the navigation panel has been rendered before
+	if(!this.navigationPanelLoaded) {
+		//the navigation panel has not been rendered before so we will perform some initialization
+		
+		//set up listeners for these events
+		view.eventManager.subscribe('nodeStatusUpdated', this.nodeStatusUpdatedListener, view);
+		view.eventManager.subscribe('navigationLoadingCompleted', this.navigationLoadingCompletedListener, view);
+		
+		//set this flag so that we do not perform this initialization again for subsequent NavigationPanel.render() calls
+		this.navigationPanelLoaded = true;
+		
+		//we are done loading the navigation panel for the first time
+		eventManager.fire('navigationLoadingCompleted');
 	}
 };
 
@@ -971,39 +985,6 @@ NavigationPanel.prototype.setStepIcon = function(nodeId, stepIconPath) {
 
 		//set the img src to the step icon path
 		$('#stepIcon_' + nodeId).attr('src', stepIconPath);
-	} else {
-		//get the current node
-		var currentNode = this.view.getCurrentNode();
-
-		if(currentNode != null) {
-			//get the node id
-			nodeId = currentNode.id;
-
-			//get the latest work for the step
-			var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
-
-			//get the status for the latest work
-			var status = currentNode.getStatus(latestWork);
-
-			if(status != null) {
-				//get the step icon for the status
-				var stepIconPath = currentNode.getStepIconForStatus(status);
-
-				if(stepIconPath != null && stepIconPath != '') {
-					/*
-					 * replace all the '.' with '\\.' so that the jquery id selector works
-					 * if we didn't do this, it would treat the '.' as a class selector and
-					 * would not be able to find the element by its id because almost all
-					 * of our ids contain a '.'
-					 * e.g. node_1.ht
-					 */
-					nodeId = nodeId.replace(/\./g, '\\.');
-
-					//set the img src to the step icon path
-					$('#stepIcon_' + nodeId).attr('src', stepIconPath);					
-				}
-			}
-		}
 	}
 };
 
@@ -1427,8 +1408,75 @@ View.prototype.updateStepStatusIcon = function(nodeId, src, tooltip) {
 	}
 };
 
+/**
+ * A node has updated its status so we will perform any changes based on
+ * the new node status
+ * 
+ * @param type the type of event that was fired
+ * @param args the parameters passed to the event when the event was fired
+ * @param obj the view object
+ */
+NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) {
+	var thisView = obj;
+	var nodeId = args[0];
+	var statusType = args[1];
+	var statusValue = args[2];
+	
+	//get the node that had its status updated
+	var node = thisView.getProject().getNodeById(nodeId);
 
+	//get the step icon for the given statuses
+	var stepIcon = node.getStepIconForStatuses();
+	
+	//set the step icon
+	thisView.navigationPanel.setStepIcon(nodeId, stepIcon);
+	
+	if(statusType == 'isVisitable' && statusValue == false) {
+		//the step is not visitable so we will grey out the step
+		
+		//get the position of the step
+		var position = thisView.getProject().getPositionById(nodeId);
+		var positionEscaped = thisView.escapeIdForJquery(position);
 
+		//grey out the step
+		$('#node_' + positionEscaped).addClass('constraintDisable');
+	} else if(statusType == 'isVisitable' && statusValue == true) {
+		//the step is visitable so we will make sure it is not greyed out
+		
+		//get the position of the step
+		var position = thisView.getProject().getPositionById(nodeId);
+		var positionEscaped = thisView.escapeIdForJquery(position);
+
+		//remove the class that greys out the step
+		$('#node_' + positionEscaped).removeClass('constraintDisable');
+	}
+};
+
+/**
+ * The navigation has loaded so we will perform any necessary processing.
+ * 
+ * @param type the event that was fired
+ * @param args arguments that were provided when the event was fired
+ * @param obj the view object
+ */
+NavigationPanel.prototype.navigationLoadingCompletedListener = function(type, args, obj) {
+	var thisView = obj;
+	
+	//get all the steps in the project
+	var leafNodes = thisView.getProject().getLeafNodes();
+	
+	//loop through all the steps and update their icon if necessary
+	for(var x=0; x<leafNodes.length; x++) {
+		var node = leafNodes[x];
+		var nodeId = node.id;
+		
+		//get the step icon for the given statuses
+		var stepIcon = node.getStepIconForStatuses();
+		
+		//set the step icon
+		thisView.navigationPanel.setStepIcon(nodeId, stepIcon);
+	}
+};
 
 /**
  * Dispatches events that are specific to the menu.

@@ -173,7 +173,7 @@ EpigameNode.prototype.getHTMLContentTemplate = function() {
  * star next to the step in the nav menu
  * @param studentWork the student's epigame state
  */
-EpigameNode.prototype.processStudentWork = function(studentWork) {
+EpigameNode.prototype.processStudentWork = function(nodeVisits) {
 	//Disabled for now...
 	/*
 	if(studentWork != null) {

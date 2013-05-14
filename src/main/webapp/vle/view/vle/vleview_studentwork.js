@@ -911,6 +911,7 @@ View.prototype.getCRaterResponseCallbackFail = function(responseText, responseXM
  */
 View.prototype.studentWorkUpdatedListener = function() {
 	this.updateActiveTagMapConstraints();
+	this.updateSequenceStatuses();
 };
 
 //used to notify scriptloader that this script has finished loading
