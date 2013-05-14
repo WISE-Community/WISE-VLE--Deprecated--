@@ -20,9 +20,11 @@
  * navigation menu should be included here. (It is okay to leave this function empty.)
  */
 NavigationPanel.prototype.menuCreated = function() {
+	$('#navigation').show();
+	
 	// set the text and title for the toggle navigation menu button
 	$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title","theme")).html(view.getI18NString("toggle_nav_button_text","theme"));
-
+	
 	// on stepHeader hover show step title, vice versa
 	$('#stepHeader').hover(
 			function(){
@@ -64,6 +66,7 @@ NavigationPanel.prototype.menuCreated = function() {
  */
 NavigationPanel.prototype.nodeRendered = function(node) {
 	//$('#stepContent').show();
+	$('#navigation').hide();
 	
 	// clear the stepHeaderTimer timeout actions on the step header
 	clearTimeout($('#stepHeader').data('stepHeaderTimer'));
@@ -115,6 +118,33 @@ NavigationPanel.prototype.toggleVisibility = function() {
 };
 
 /**
+ * Listener for the constraintStatusUpdated event
+ * @param type the event name
+ * @param args the arguments passed into the event when it is fired
+ * @param obj the view
+ */
+NavigationPanel.prototype.constraintStatusUpdatedListener = function(type, args, obj) {
+	//get the node id that has been updated
+	var nodeId = args[0];
+
+	//get the constraint status
+	var constraintStatus = args[1];
+
+	//get the position of the step
+	var position = view.getProject().getPositionById(nodeId);
+	var positionEscaped = view.escapeIdForJquery(position);
+
+	//add or remove the constraintDisable class 
+	if(constraintStatus == 'disabled') {
+		//grey out the step
+		$('#node_' + positionEscaped).addClass('constraintDisable');
+	} else if(constraintStatus == 'enabled') {
+		//make the step available
+		$('#node_' + positionEscaped).removeClass('constraintDisable');
+	}
+};
+
+/**
  * Listener for the studentWorkUpdated event
  * @param type the event name
  * @param args the arguments passed into the event when it is fired
@@ -161,14 +191,6 @@ NavigationPanel.prototype.visitNodeListener = function(nodeId){
  * @param forceReRender true iff we want to rerender the navigation from scratch
  */
 NavigationPanel.prototype.render = function(forceReRender) {
-	//var view = this.view;
-	
-	$('#navigation').show();
-	
-	this.map = starmap() // create map instance
-		.view(view)
-		.canEdit(false);
-	
 	//obtain the html in the nav div and run trim on it
 	var currentNavHtml = document.getElementById("my_menu").innerHTML.replace(/^\s*/, "").replace(/\s*$/, "");
 	
@@ -257,7 +279,13 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		}
 
 	} else {
-		//the nav ui is empty so we need to build the nav ui
+		//the nav ui is empty so we need to build it
+		
+		this.map = starmap() // create map instance
+			.height(528)
+			.width(940)
+			.backgroundImg('themes/starmap/navigation/map/images/background.png')
+			.view(view);
 	
 		this.currentStepNum = 1;
 		var navHtml = "";
@@ -602,7 +630,7 @@ NavigationPanel.prototype.setStepIcon = function(nodeId, stepIconPath) {
 * REQUIRED
 */
 View.prototype.navModeDispatcher = function(type,args,obj){
-	if(type=='renderNodeCompleted') {
+	if(type=='renderNodeCompleted') { // REQUIRED (DO NOT EDIT)
 		obj.renderNavigationPanel();
 	} if(type=='navigationMenuCreated'){ // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.menuCreated();
@@ -610,17 +638,17 @@ View.prototype.navModeDispatcher = function(type,args,obj){
 		if(obj.navigationPanel){
 			obj.navigationPanel.nodeRendered(args[0]);
 		}
-	} else if(type=='toggleNavigationVisibility'){ // REQUIRED (DO NOT EDIT)
+	} else if(type=='toggleNavigationVisibility'){ 
 		obj.navigationPanel.toggleVisibility();
-	} else if(type=='navSequenceOpened'){ // REQUIRED (DO NOT EDIT)
+	} else if(type=='navSequenceOpened'){ 
 		obj.navigationPanel.sequenceOpened(args[0]);
-	} else if(type=='navSequenceClosed'){ // REQUIRED (DO NOT EDIT)
+	} else if(type=='navSequenceClosed'){ 
 		obj.navigationPanel.sequenceClosed(args[0]);
 	} else if(type=="navigationPanelPrevButtonClicked") {
 		obj.navigationPanel.navigationPanelPrevButtonClickedListener();
 	} else if(type=="navigationPanelNextButtonClicked") {
 		obj.navigationPanel.navigationPanelNextButtonClickedListener();
-	} else if(type=="navigationPanelToggleVisibilityButtonClicked") {
+	} else if(type=="navigationPanelToggleVisibilityButtonClicked") { // REQUIRED (DO NOT EDIT)
 		obj.navigationPanel.navigationPanelToggleVisibilityButtonClickedListener();
 	} else if(type=="navigationNodeClicked") {
 		obj.navigationPanel.navigationNodeClickedListener(args[0]);
@@ -634,15 +662,15 @@ View.prototype.navModeDispatcher = function(type,args,obj){
 * REQUIRED
 */
 var events = [
-             'renderNodeCompleted',
-             'toggleNavigationVisibility', // REQUIRED (DO NOT EDIT)
+             'renderNodeCompleted', // REQUIRED (DO NOT EDIT)
+             'toggleNavigationVisibility', 
              'navigationMenuCreated', // REQUIRED (DO NOT EDIT)
              'navNodeRendered', // REQUIRED (DO NOT EDIT)
-             'navSequenceOpened', // REQUIRED (DO NOT EDIT)
-             'navSequenceClosed', // REQUIRED (DO NOT EDIT)
+             'navSequenceOpened', 
+             'navSequenceClosed', 
              'navigationPanelPrevButtonClicked',
              'navigationPanelNextButtonClicked',
-             'navigationPanelToggleVisibilityButtonClicked',
+             'navigationPanelToggleVisibilityButtonClicked', // REQUIRED (DO NOT EDIT)
              'navigationNodeClicked',
              'visitNode'
              ];

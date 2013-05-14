@@ -25,13 +25,10 @@
 			"name" : "Map",
 			"description" : "Full screen navigation map and maximized step content",
 			"screenshot" : "navigation/map/images/screenshot-map.png",
-			"css": [
-				"navigation/map/js/jquery-powertip/css/jquery.powertip-starmap.css"
-			],
+			"css": [],
 			"js": [
 				"navigation/map/js/starmap.js",
-				"navigation/map/js/d3.min.js",
-				"navigation/map/js/jquery-powertip/jquery.powertip-1.2.0pre.min.js"
+				"navigation/map/js/d3.min.js"
 			]
 		}
 	]

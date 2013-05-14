@@ -46,8 +46,9 @@ EpigameNode.prototype.getAdaptiveMissionData = function(customURL) {
 	if (customURL && customURL != "") {
 		content = createContent(customURL);
 	} else {
-		if (!this.defaultAdaptiveMissionContent)
-			this.defaultAdaptiveMissionContent = createContent("node/epigame/adaptiveMissionData.json");
+		if (!this.defaultAdaptiveMissionContent) {
+			this.defaultAdaptiveMissionContent = createContent("node/epigame/adaptiveMissionData.json");		
+		}
 			
 		content = this.defaultAdaptiveMissionContent;
 	}
@@ -277,11 +278,14 @@ EpigameNode.prototype.navHelper = function() {
 			};
 		},
 		toggleNav: function() {
-			view.navigationPanel.toggleVisibility();
+//			eventManager.fire('toggleNavigationVisibility');
+			eventManager.fire('navigationPanelToggleVisibilityButtonClicked'); //4.7 switch
+			
 		},
 		executeNode: function(sequenceIndex, stepIndex) {
-			var pos = String(sequenceIndex) + "." + String(stepIndex);
-			view.goToNodePosition(pos);
+			var pos = String(sequenceIndex) + "." + String(stepIndex);			
+//			eventManager.fire('renderNode', pos);
+			view.goToNodePosition(pos);	//4.7 Switch
 		}
 	};
 }();

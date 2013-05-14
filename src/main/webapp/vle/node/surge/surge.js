@@ -174,6 +174,9 @@ Surge.prototype.getAccumulatedScoreForTags = function(tagName, functionArgs) {
 Surge.prototype.render = function() {
 	//whether we want to allow the student to work on this step
 	var enableStep = true;
+	var defaults = {};
+	defaults.height = '480';
+	defaults.width = '770';
 	
 	/*
 	 * a message to display to the student at the top of the step
@@ -217,12 +220,20 @@ Surge.prototype.render = function() {
 			}
 		}
 		
-		var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="surge" align="middle">'
+		var height = defaults.height, width = defaults.width;
+		if("height" in this.content && !isNaN(this.content.height)){
+			height = this.content.height;
+		}
+		if("width" in this.content && !isNaN(this.content.width)){
+			width = this.content.width;
+		}
+		
+		var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="' + width + '" height="' + height + '" id="surge" align="middle">'
 			+ '<param name="allowScriptAccess" value="sameDomain" />'
 			+ '<param name="allowFullScreen" value="false" />'
 			+ '<param name="wmode" value="opaque" />'
 			+ '<param name="movie" value="' + surgeSource + '" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />'
-			+ '<embed src="' + surgeSource + '" wmode="opaque" quality="high" bgcolor="#ffffff" width="770" height="480" name="surge" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
+			+ '<embed src="' + surgeSource + '" wmode="opaque" quality="high" bgcolor="#ffffff" width="' + width + '" height="' + height + '" name="surge" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
 			+ '</object>';
 		
 		$('#swfDiv').html(swfHtml);	

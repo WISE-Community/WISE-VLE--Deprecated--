@@ -183,11 +183,9 @@ SC.setupBodyClassNames = function() {
     function main() {
       MySystem.main();
       
-      if (window.opener && divId) {
+      if (window.opener) {
         // if this window is a popup (e.g. from a WISE gradingtool's 'enlarge' link),
         // get the content and data from the parent window and load them into MySystem
-        var data = window.opener.$("#studentwork_"+divId).html();
-        var contentString = window.opener.$("#content_"+divId).html();
 
         /** 
         From: geoffreykwan
@@ -208,13 +206,15 @@ SC.setupBodyClassNames = function() {
         to end up with  <style type='text/css'>
         **/
 
-        contentString = contentString.replace(/"\\&quot;/g, "'");
-        contentString = contentString.replace(/\\&quot;"/g, "'");
+        if(contentString != null && data != null) {
+            contentString = contentString.replace(/"\\&quot;/g, "'");
+            contentString = contentString.replace(/\\&quot;"/g, "'");
 
-        var domIO = document.getElementById('my_system_state');
-        domIO.textContent = data;
-        MySystem.loadWiseConfig(JSON.parse(contentString),null);
-        MySystem.updateFromDOM();
+            var domIO = document.getElementById('my_system_state');
+            domIO.textContent = data;
+            MySystem.loadWiseConfig(JSON.parse(contentString),null);
+            MySystem.updateFromDOM();
+        }
       }
     }
   </script>

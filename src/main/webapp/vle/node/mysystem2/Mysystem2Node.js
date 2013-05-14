@@ -127,86 +127,15 @@ Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, node
     
     var divContent = "";
     
-    // given the nodeState, returns the HTML that should be displayed in the div for student work.
-    function getDivContentFromNodeState(nodeState, nodeStateIndex, view, contentBaseUrl) {
-			var studentWork = nodeState.response;
-			var isSubmit = nodeState.isSubmit;
-            var svg = null; 
-            var png = null;
-			var feedback = "";
-			var timestamp = "";
-			
-			//get the response string
-			var responseString = nodeState.response;
-			
-			//remove all the \n
-			responseString = responseString.replace(/\n/g, "");
-			
-			//create a JSON object from the response
-			var responseJSON = JSON.parse(responseString);
-			
-			if(responseJSON["MySystem.RuleFeedback"] != null &&
-			   responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK != null) {
-				
-				if(responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.feedback != null) {
-					//get the feedback
-					feedback = responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.feedback;    					
-				}
-				
-				if(responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.timeStampMs != null) {
-					//get the timestamp
-					var timestampMS = responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.timeStampMs;
-					timestamp = new Date(timestampMS);
-				}
-                if(responseJSON["MySystem.GraphicPreview"] != null &&
-                   responseJSON["MySystem.GraphicPreview"].LAST_GRAPHIC_PREVIEW != null) {
-                    svg = responseJSON["MySystem.GraphicPreview"].LAST_GRAPHIC_PREVIEW.svg;
-                    if (svg != null) {
-                        svg = unescape(svg);
-                        svg = new LZ77().decompress(svg);
-                    }
-                    png = responseJSON["MySystem.GraphicPreview"].LAST_GRAPHIC_PREVIEW.png;
-                    if (png != null) { png = "<img src='" + png + "'' />"; }
-                }
-			}
-			
-    	    // prepend contentbaseurl in front of "assets" to student's work
-    	    var studentWork = view.utils.prependContentBaseUrlToAssets(contentBaseUrl, studentWork);
-    		
-    	    divContent += "Diagram: ";
-    	    
-            // put the student work and content in a hidden element
-            // add enlarge link to show student's diagram in a popup window
-            divContent += "<a class='msEnlarge' style='text-decoration:underline; color:blue;'" +
-                "onclick='var newWindow=window.open(\"/vlewrapper/vle/node/mysystem2/mysystem2.html\"); newWindow.divId=\""+divId+"_"+nodeStateIndex+"\"'>enlarge</a>" +
-                "<span id='content_"+divId+"_"+nodeStateIndex+"' style='display:none'>"+contentString+"</span>" +
-                "<span id='studentwork_"+divId+"_"+nodeStateIndex+"' style='display:none'>"+studentWork+"</span>";
-
-    		if (svg != null) {
-                divContent += "<div class='preview svg image'" + 
-                " style='display: block; overflow: auto; width: 100%; height:500px;'> " + 
-                svg + "</div>";
-            }
-            else if (png != null) {
-                 divContent += "<span class='preview png image'> " + png + "</span>";
-            }
-        
-            divContent += "<br>";
-    		divContent += "Is Submit: " + isSubmit;
-    		divContent += "<br>";
-    		divContent += "Feedback: " + feedback;
-    		divContent += "<br>";
-    		divContent += "Timestamp: " + timestamp;
-    		divContent += "<br>";
-    		return divContent;
-    }
+    //the array to keep track of student work so we can use the work in the enlarge link click event
+    var studentWorkArray = [];
     
     if(contentJSON != null) {
     	if(contentJSON.customRuleEvaluator == null || contentJSON.customRuleEvaluator == ""){
     		//only display the latest node state
     		//Get the latest student state object for this step
     		var nodeState = nodeVisit.getLatestWork();
-    		divContent = getDivContentFromNodeState(nodeState, 0, this.view, contentBaseUrl);
+    		divContent = this.getDivContentFromNodeState(nodeState, 0, this.view, contentBaseUrl, stepWorkId, studentWorkArray);
     	} else {
     		/*
     		 * display all the node states because this step utilizes automated feedback
@@ -217,7 +146,7 @@ Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, node
     		for(var x=nodeVisit.nodeStates.length - 1; x>=0; x--) {
     			//get a node state
     			var nodeState = nodeVisit.nodeStates[x];
-    			divContent += getDivContentFromNodeState(nodeState, x, this.view, contentBaseUrl);
+    			divContent += this.getDivContentFromNodeState(nodeState, x, this.view, contentBaseUrl, stepWorkId, studentWorkArray);
     			if(x != nodeVisit.nodeStates.length - 1) {
     				//divide each node state with an hr
     				divContent += "<hr style='border:1px solid lightgrey'>";
@@ -227,8 +156,138 @@ Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, node
     }
     
     displayStudentWorkDiv.html(divContent);
+    
+    //bind all the enlarge link click events
+    this.bindEnlargeLinkClickEvents(studentWorkArray, contentString);
 };
 
+// given the nodeState, returns the HTML that should be displayed in the div for student work.
+Mysystem2Node.prototype.getDivContentFromNodeState = function(nodeState, nodeStateIndex, view, contentBaseUrl, stepWorkId, studentWorkInfoArray) {
+		var studentWork = nodeState.response;
+		var isSubmit = nodeState.isSubmit;
+        var svg = null; 
+        var png = null;
+		var feedback = "";
+		var timestamp = "";
+		
+		//get the response string
+		var responseString = nodeState.response;
+		
+		//remove all the \n
+		responseString = responseString.replace(/\n/g, "");
+		
+		//create a JSON object from the response
+		var responseJSON = JSON.parse(responseString);
+		
+		if(responseJSON["MySystem.RuleFeedback"] != null &&
+		   responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK != null) {
+			
+			if(responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.feedback != null) {
+				//get the feedback
+				feedback = responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.feedback;    					
+			}
+			
+			if(responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.timeStampMs != null) {
+				//get the timestamp
+				var timestampMS = responseJSON["MySystem.RuleFeedback"].LAST_FEEDBACK.timeStampMs;
+				timestamp = new Date(timestampMS);
+			}
+            if(responseJSON["MySystem.GraphicPreview"] != null &&
+               responseJSON["MySystem.GraphicPreview"].LAST_GRAPHIC_PREVIEW != null) {
+                svg = responseJSON["MySystem.GraphicPreview"].LAST_GRAPHIC_PREVIEW.svg;
+                if (svg != null) {
+                    svg = unescape(svg);
+                    svg = new LZ77().decompress(svg);
+                }
+                png = responseJSON["MySystem.GraphicPreview"].LAST_GRAPHIC_PREVIEW.png;
+                if (png != null) { png = "<img src='" + png + "'' />"; }
+            }
+		}
+		
+	    // prepend contentbaseurl in front of "assets" to student's work
+	    var studentWork = this.view.utils.prependContentBaseUrlToAssets(contentBaseUrl, studentWork);
+		
+	    var divContent = "";
+	    
+	    divContent += "Diagram: ";
+	    
+	    divContent += "<a id='enlargeLink_" + stepWorkId + "_" + nodeStateIndex + "'>Enlarge</a>";
+	    
+	    //create an object to remember the details of this student work
+	    var studentWorkInfo = {
+	    	stepWorkId:stepWorkId,
+	    	nodeStateIndex:nodeStateIndex,
+	    	studentWork:studentWork
+	    }
+	    
+	    //add this object to the array that we will use later to create the enlarge link click events
+	    studentWorkInfoArray.push(studentWorkInfo);
+	    
+		if (svg != null) {
+            divContent += "<div class='preview svg image'" + 
+            " style='display: block; overflow: auto; width: 100%; height:500px;'> " + 
+            svg + "</div>";
+        }
+        else if (png != null) {
+             divContent += "<span class='preview png image'> " + png + "</span>";
+        }
+    
+        divContent += "<br>";
+		divContent += "Is Submit: " + isSubmit;
+		divContent += "<br>";
+		divContent += "Feedback: " + feedback;
+		divContent += "<br>";
+		divContent += "Timestamp: " + timestamp;
+		divContent += "<br>";
+		return divContent;
+}
+
+/**
+ * Create the click events for the enlarge links
+ * @param studentWorkInfoArray an array of of objects that contain
+ * stepWorkId, nodeStateIndex, and studentWork
+ * @param contentString the step content as a JSON string
+ */
+Mysystem2Node.prototype.bindEnlargeLinkClickEvents = function(studentWorkInfoArray, contentString) {
+	
+	/*
+	 * the function to call when the enlarge link is clicked
+	 * @param event the event object that also contains the parameters we pass in
+	 * when we bind the click event
+	 */
+	var enlargeLinkClicked = function(event) {
+		//get the studentWork JSON string
+		var studentWork = event.data.studentWork;
+		
+		//open a new tab to display the enlarged Mysystem2 work
+		var newWindow = window.open("/vlewrapper/vle/node/mysystem2/mysystem2.html");
+
+		//set the content string and student work into the new tab
+		newWindow.contentString = contentString;
+		newWindow.data = studentWork;
+	};
+	
+	//loop through all the elements in the array to create the click events
+	for(var x=0; x<studentWorkInfoArray.length; x++) {
+		//get a student work info object
+		var studentWorkInfo = studentWorkInfoArray[x];
+		
+		//get the student work info values
+		var stepWorkId = studentWorkInfo.stepWorkId;
+		var nodeStateIndex = studentWorkInfo.nodeStateIndex;
+		var studentWork = studentWorkInfo.studentWork;
+		
+		/*
+		 * get the enlarge link for a specific student work based on
+		 * stepWorkId and nodeStateIndex.
+		 * pass in the studentWork as an argument to the function that
+		 * will be called when the link is clicked.
+		 * bind the function that will open a new tab and display
+		 * the student work.
+		 */
+		$('#enlargeLink_' + stepWorkId + '_' + nodeStateIndex).click({studentWork:studentWork}, enlargeLinkClicked);	
+	}
+};
 
 /**
  * Get the html file associated with this step that we will use to

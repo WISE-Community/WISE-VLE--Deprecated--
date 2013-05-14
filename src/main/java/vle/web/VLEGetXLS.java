@@ -3121,7 +3121,8 @@ public class VLEGetXLS extends VLEServlet {
 				nodeType.equals("Brainstorm") || nodeType.equals("Fillin") ||
 				nodeType.equals("MultipleChoice") || nodeType.equals("MatchSequence") ||
 				nodeType.equals("AssessmentList") || nodeType.equals("Sensor") ||
-				nodeType.equals("ExplanationBuilder") || nodeType.equals("SVGDraw")) {
+				nodeType.equals("ExplanationBuilder") || nodeType.equals("SVGDraw")  ||
+				nodeType.equals("Netlogo")) {
     		try {
     			//obtain the json string
     			String data = stepWork.getData();
@@ -3319,6 +3320,11 @@ public class VLEGetXLS extends VLEServlet {
 									stepWorkResponse = lastState.toString();									
 								}
 							} else if(nodeType.equals("SVGDrawNode")) {
+								if(lastState != null) {
+									//just return the JSON as a string
+									stepWorkResponse = (String) lastState.get("data");
+								}
+							} else if(nodeType.equals("Netlogo")) {
 								if(lastState != null) {
 									//just return the JSON as a string
 									stepWorkResponse = (String) lastState.get("data");
