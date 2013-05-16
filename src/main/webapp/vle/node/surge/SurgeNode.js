@@ -201,65 +201,6 @@ SurgeNode.prototype.processStudentWork = function(nodeVisits) {
 };
 
 /**
- * Get the step icon for the status
- * @param status the status to retrieve the step icon for
- * @return the step icon path for the status
- */
-SurgeNode.prototype.getStepIconForStatus = function(status) {
-	var iconPath = '';
-	
-	/*
-	 * try to retrieve the step icon path from the step content
-	 * if it is available
-	 */
-	iconPath = this.getStepIconPathForStatusFromContent(status);
-	
-	if(iconPath == null) {
-		/*
-		 * the step icon path was not authored in the step so
-		 * we will use the default step icons
-		 */
-		if(status == 'bronze') {
-			iconPath = '/vlewrapper/vle/node/surge/images/bronzeStar.gif';
-		} else if(status == 'silver') {
-			iconPath = '/vlewrapper/vle/node/surge/images/silverStar.png';
-		} else if(status == 'gold') {
-			iconPath = '/vlewrapper/vle/node/surge/images/goldStar.png';
-		}		
-	}
-	
-	return iconPath;
-};
-
-/**
- * Get the step icon to display determined by the step's statuses. Child nodes
- * should override this function.
- * 
- * @param statuses (optional) the statuses to determine what step icon
- * to display. if this parameter is not passed in, we will just use the
- * statuses from the node.
- * 
- * @return the icon path for the given statuses
- */
-SurgeNode.prototype.getStepIconForStatuses = function(statuses) {
-	if(statuses == null) {
-		//get the statuses from the step
-		statuses = this.statuses;
-	}
-	
-	//get the status type
-	var statusType = 'surgeMedal';
-	
-	//get the status value
-	var statusValue = this.getStatus(statusType, statuses);
-	
-	//get the icon path for the status
-	var iconPath = this.getStepIconPathForStatusFromContent(statusType, statusValue);
-	
-	return iconPath;
-};
-
-/**
  * Get all the statuses that this step can return
  */
 SurgeNode.prototype.getAvailableStatuses = function() {
@@ -288,6 +229,25 @@ SurgeNode.prototype.isCompleted = function(nodeVisits) {
 		result = true;
 	}
 
+	return result;
+};
+
+/**
+ * Check if the status value satisfies the requirement
+ * 
+ * @param statusValue the status value of the node
+ * @param statusValueToSatisfy the status requirement
+ * 
+ * @return whether the status value satisfies the requirement
+ */
+SurgeNode.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatisfy) {
+	var result = false;
+	
+	if(statusValue == statusValueToSatisfy) {
+		//the status matches the required value
+		result = true;
+	}
+	
 	return result;
 };
 

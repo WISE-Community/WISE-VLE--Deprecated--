@@ -21,6 +21,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
 		eventManager.fire('startVLECompleted');
 	} else if(type=='navigationLoadingCompleted'){
+		obj.populateNodeDependencies();
 		obj.setStatuses();
 		obj.addGlobalTagMapConstraints();
 		obj.updateActiveTagMapConstraints();
@@ -479,8 +480,54 @@ View.prototype.setStatuses = function() {
 			
 			//check that the sequence is actually used in the project and not an inactive sequence
 			if(this.getProject().getVLEPositionById(sequenceNodeId) != "NaN") {
-				//the sequence is an active sequence so we will populate the statuse for this sequence
+				//the sequence is an active sequence so we will populate the statuses for this sequence
 				sequenceNode.populateSequenceStatuses(this.getState());
+			}
+		}
+	}
+};
+
+/**
+ * Populate the node dependencies. Nodes may depend on other node's statuses to determine
+ * which icon to display. We need to accumulate all the dependencies for a node so that
+ * a node knows which other nodes depend on it.
+ */
+View.prototype.populateNodeDependencies = function() {
+	//get the project
+	var project = this.getProject();
+	
+	//get all the step nodes
+	var leafNodes = project.getLeafNodes();
+	
+	if(leafNodes != null) {
+		//loop through all the step nodes
+		for(var x=0; x<leafNodes.length; x++) {
+			//get the step node
+			var leafNode = leafNodes[x];
+			var leafNodeId = leafNode.id;
+			
+			//check that the step is actually used in the project and not an inactive step
+			if(this.getProject().getVLEPositionById(leafNodeId) != "NaN") {
+				//the step is an active step so we will populate the status dependencies for this node
+				leafNode.populateNodeStatusDependencies();
+			}
+		}		
+	}
+	
+	//get all the sequence nodes
+	var sequenceNodes = project.getSequenceNodes();
+	
+	if(sequenceNodes != null) {
+		//loop through all the sequence nodes 
+		for(var y=1; y<sequenceNodes.length; y++) {
+			//get a sequence node
+			var sequenceNode = sequenceNodes[y];
+			var sequenceNodeId = sequenceNode.id;
+			
+			//check that the sequence is actually used in the project and not an inactive sequence
+			if(this.getProject().getVLEPositionById(sequenceNodeId) != "NaN") {
+				//the sequence is an active sequence so we will populate the status dependencies for this sequence
+				sequenceNode.populateNodeStatusDependencies();
 			}
 		}
 	}

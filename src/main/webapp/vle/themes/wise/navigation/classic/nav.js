@@ -299,8 +299,7 @@ NavigationPanel.prototype.resizeMenu = function() {
  * @param obj the view
  */
 NavigationPanel.prototype.studentWorkUpdatedListener = function(type, args, obj) {
-	//update the step icon
-	//obj.setStepIcon();
+
 };
 
 /**
@@ -969,7 +968,7 @@ NavigationPanel.prototype.getTitlePositionFromLocation = function(loc){
  * @param nodeId the node id
  * @param stepIconPath the path to the new icon
  */
-NavigationPanel.prototype.setStepIcon = function(nodeId, stepIconPath) {
+NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath) {
 
 	if(nodeId != null && nodeId != '' && stepIconPath != null && stepIconPath != '') {
 		//the node id and step icon path were provided so we will use them
@@ -1426,10 +1425,28 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
 	var node = thisView.getProject().getNodeById(nodeId);
 
 	//get the step icon for the given statuses
-	var stepIcon = node.getStepIconForStatuses();
+	var iconPath = node.getIconPathForStatuses();
 	
 	//set the step icon
-	thisView.navigationPanel.setStepIcon(nodeId, stepIcon);
+	thisView.navigationPanel.setIcon(nodeId, iconPath);
+	
+	//get all the node ids that depend on this node's status
+	var nodeIdsListening = node.nodeIdsListening;
+	
+	//loop through all the node ids that depend on this node's status
+	for(var x=0; x<nodeIdsListening.length; x++) {
+		//get a node id
+		var nodeIdListening = nodeIdsListening[x];
+		
+		//get the node
+		var tempNode = thisView.getProject().getNodeById(nodeIdListening);
+		
+		//get the icon path for the node depending on the statuses
+		var tempIconPath = tempNode.getIconPathForStatuses();
+		
+		//set the icon for the node
+		thisView.navigationPanel.setIcon(nodeIdListening, tempIconPath);
+	}
 	
 	if(statusType == 'isVisitable' && statusValue == false) {
 		//the step is not visitable so we will grey out the step
@@ -1460,22 +1477,7 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
  * @param obj the view object
  */
 NavigationPanel.prototype.navigationLoadingCompletedListener = function(type, args, obj) {
-	var thisView = obj;
-	
-	//get all the steps in the project
-	var leafNodes = thisView.getProject().getLeafNodes();
-	
-	//loop through all the steps and update their icon if necessary
-	for(var x=0; x<leafNodes.length; x++) {
-		var node = leafNodes[x];
-		var nodeId = node.id;
-		
-		//get the step icon for the given statuses
-		var stepIcon = node.getStepIconForStatuses();
-		
-		//set the step icon
-		thisView.navigationPanel.setStepIcon(nodeId, stepIcon);
-	}
+
 };
 
 /**

@@ -68,7 +68,7 @@ View.prototype.stepIconsManager.insertStepIcons = function(view) {
  * icon status and icon path pairings
  */
 View.prototype.stepIconsManager.createStepIconsContent = function() {
-	var stepIcons = [];
+	var icons = [];
 	
 	//get all the statuses available for the current step we are authoring
 	var availableStatuses = this.view.activeNode.getAvailableStatuses();
@@ -108,7 +108,7 @@ View.prototype.stepIconsManager.stepIconUpdated = function(index) {
 	
 	if(content.stepIcons == null) {
 		//create an empty stepIcons array if one does not exist
-		content.stepIcons = [];
+		content.icons = [];
 	}
 	
 	if(content.stepIcons[index] != null) {

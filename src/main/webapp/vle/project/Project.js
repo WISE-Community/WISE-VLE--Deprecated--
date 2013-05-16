@@ -162,9 +162,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							thisNode.icons = currNode.icons;
 						}
 						
-						//initialize the statuses and constraints arrays
+						//initialize the statuses, constraints, and nodeIdsListening arrays
 						thisNode.statuses = [];
 						thisNode.constraints = [];
+						thisNode.nodeIdsListening = [];
 
 						/* if project is loading minified, create each node's content from the parsed totalProjectContent */
 						if(totalProjectContent){

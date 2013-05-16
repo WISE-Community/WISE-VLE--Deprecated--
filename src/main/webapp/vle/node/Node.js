@@ -51,8 +51,9 @@ function Node(nodeType, view){
 	
 	this.constraintStatus = 'enabled';
 	this.statuses = [];
-	this.stepIcons = [];
+	this.icons = [];
 	this.constraints = [];
+	this.nodeIdsListening = [];
 };
 
 //the status types and possible values for all nodes
@@ -1888,62 +1889,126 @@ Node.prototype.getFeedback = function() {
 };
 
 /**
- * Get the step icon for the given status. This function should be
- * overriden by child classes.
- * @param status the status to get the step icon for
- * @return the step icon for the given status
+ * Get the step icon to display determined by the step's statuses.
+ * 
+ * @param icons (optional) the icons array that contains the mappings
+ * of icon path to statuses. if this parameter is not passed in, we will
+ * use the icons from the node.
+ * @param statuses (optional) the statuses to determine what step icon
+ * to display. if this parameter is not passed in, we will use the
+ * statuses from the node.
+ * 
+ * @return the icon path for the given statuses
  */
-Node.prototype.getStepIconForStatus = function(status) {
-	return null;
-};
-
-/**
- * Get the status step icon from the content for the given status type
- * and status value
- * @param statusType the status type
- * @param statusValue the status value
- * @return the step icon for the given status from the authored
- * step content
- */
-Node.prototype.getStepIconPathForStatusFromContent = function(statusType, statusValue) {
+Node.prototype.getIconPathForStatuses = function(icons, statuses) {
 	var iconPath = null;
 	
-	//get the icons for this step
-	var icons = this.icons;
+	//use the icons from this node if none were passed in
+	if(icons == null) {
+		icons = this.icons;
+	}
+	
+	//use the statuses from this node if none were passed in
+	if(statuses == null) {
+		statuses = this.statuses;
+	}
 	
 	if(icons != null) {
-		//loop through all the icons for this step
+		//loop through all the icons
 		for(var x=0; x<icons.length; x++) {
 			//get an icon object
 			var icon = icons[x];
 			
-			//get the status type, status value, and icon path
-			var tempStatusType = icon.statusType;
-			var tempStatusValue = icon.statusValue;
+			//get the icon path
 			var tempIconPath = icon.iconPath;
 			
-			if(statusType == tempStatusType && statusValue == tempStatusValue) {
-				/*
-				 * the status type and status value match so we have found
-				 * the icon path we want
-				 */
+			//get the statuses that need to be satisfied
+			var tempStatuses = icon.statuses;
+			
+			//check if the statuses match
+			if(this.statusesMatch(tempStatuses, statuses)) {
+				//the statuses match so we will return the icon path
 				iconPath = tempIconPath;
 				break;
 			}
 		}
 	}
 	
-	if(iconPath == null) {
-		if(statusType == 'surgeMedal' && statusValue == 'bronze') {
-			iconPath = '/vlewrapper/vle/node/surge/images/bronzeStar.gif';
-		} else if(statusType == 'surgeMedal' && statusValue == 'silver') {
-			iconPath = '/vlewrapper/vle/node/surge/images/silverStar.png';
-		} else if(statusType == 'surgeMedal' && statusValue == 'gold') {
-			iconPath = '/vlewrapper/vle/node/surge/images/goldStar.png';
+	return iconPath;
+};
+
+/**
+ * Check if the statuses satisfy the requirements
+ * 
+ * @param statusesToSatisfy the status values that need to be satisfied
+ * @param statuses (optional) the statuses that we will look at to see if
+ * they satisfy the required values. if this parameters is not provided
+ * we will just use the statuses from the node.
+ * 
+ * @return whether the statuses from the step satisfy the requirements
+ */
+Node.prototype.statusesMatch = function(statusesToSatisfy, statuses) {
+	//use the statuses from this node if none were passed in
+	if(statuses == null) {
+		statuses = this.statuses;
+	}
+	
+	var result = false;
+	var initializedResult = false;
+	
+	//loop through all the status values that we need to satisfy
+	for(var x=0; x<statusesToSatisfy.length; x++) {
+		var tempResult = false;
+		
+		//get a status object that needs to be satisfied
+		var tempStatusMapping = statusesToSatisfy[x];
+		var tempNodeId = tempStatusMapping.nodeId;
+		var tempStatusType = tempStatusMapping.statusType;
+		var tempStatusValue = tempStatusMapping.statusValue;
+		
+		//get the node whose status we need to look at
+		var tempNode = this.view.getProject().getNodeById(tempNodeId);
+		
+		//get the status value for the node
+		var tempNodeStatusValue = tempNode.getStatus(tempStatusType);
+		
+		//check if the value satisfies the requirement
+		if(this.isStatusValueSatisfied(tempNodeStatusValue, tempStatusValue)) {
+			tempResult = true;
+		} else {
+			tempResult = false;
+		}
+		
+		if(initializedResult) {
+			//this is not the first iteration of the for loop so we will accumulate the result value with && logic
+			result = result && tempResult;
+		} else {
+			//this is the first iteration of the for loop so we will initialize the result value
+			result = tempResult;
+			initializedResult = true;
 		}
 	}
 	
-	return iconPath;
+	return result;
+};
+
+/**
+ * Check if the status value satisfies the requirement
+ * 
+ * @param statusValue the status value of the node
+ * @param statusValueToSatisfy the status requirement
+ * 
+ * @return whether the status value satisfies the requirement
+ */
+Node.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatisfy) {
+	var result = false;
+	
+	if(statusValue == statusValueToSatisfy) {
+		//the status matches the required value
+		result = true;
+	}
+	
+	return result;
 };
 
 /**
@@ -2189,20 +2254,6 @@ Node.prototype.populateSequenceStatuses = function(state) {
 };
 
 /**
- * Get the step icon to display determined by the step's statuses. Child nodes
- * should override this function.
- * 
- * @param statuses (optional) the statuses to determine what step icon
- * to display. if this parameter is not passed in, we will just use the
- * statuses from the node.
- * 
- * @return the icon path for the given statuses
- */
-Node.prototype.getStepIconForStatuses = function(statuses) {
-	return null;
-};
-
-/**
  * Add the constraint to this node.
  * 
  * @param constraintObject the constraint to add to this node
@@ -2317,6 +2368,63 @@ Node.prototype.getActiveConstraints = function() {
 	}
 	
 	return this.constraints;
+};
+
+/**
+ * Find all the nodes that this node depends on. The icons that this
+ * node has specified may depend on the status of other nodes. We will
+ * tell other nodes that this node depends on them by giving them this
+ * node's node id.
+ */
+Node.prototype.populateNodeStatusDependencies = function() {
+	var icons = this.icons;
+	
+	var nodeIds = [];
+	
+	if(icons != null) {
+		
+		//loop through all the icons
+		for(var x=0; x<icons.length; x++) {
+			var icon = icons[x];
+			
+			//get the statuses for this icon
+			var statuses = icon.statuses;
+			
+			if(statuses != null) {
+				
+				//loop through all the statuses
+				for(var y=0; y<statuses.length; y++) {
+					//get a status object
+					var status = statuses[y];
+					
+					//get the node id the status is for
+					var nodeId = status.nodeId;
+					
+					/*
+					 * make sure we don't already have this node id since we need a
+					 * list of unique node ids
+					 */
+					if(nodeIds.indexOf(nodeId) == -1) {
+						nodeIds.push(nodeId);						
+					}
+				}
+			}
+		}
+	}
+	
+	//loop through all the node ids that we have accumulated
+	for(var z=0; z<nodeIds.length; z++) {
+		//get a node id
+		var nodeId = nodeIds[z];
+
+		//get the node
+		var node = this.view.getProject().getNodeById(nodeId);
+		
+		/*
+		 * add this node id to that node's array of nodeIdsListening
+		 */
+		node.nodeIdsListening.push(this.id);
+	}
 };
 
 //used to notify scriptloader that this script has finished loading
