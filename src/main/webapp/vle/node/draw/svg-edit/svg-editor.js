@@ -16,7 +16,7 @@
 // 3) svgcanvas.js
 
 (function() {
-
+	
 	document.addEventListener("touchstart", touchHandler, true);
   document.addEventListener("touchmove", touchHandler, true);
   document.addEventListener("touchend", touchHandler, true);
@@ -614,6 +614,13 @@
 
 			var saveHandler = function(window,svg) {
 				Editor.show_save_warning = false;
+				
+				// strip out any wise4 base/absolute urls
+				var def_attrs = ['fill', 'stroke', 'filter', 'marker-start', 'marker-mid', 'marker-end'];
+				for(i=0; i<def_attrs.length; i++){
+					var re = new RegExp(def_attrs[i] + "=\"url\\(http.+?(#.+?)\\)\"","ig");
+					svg = svg.replace(re, def_attrs[i] + "=\"url($1)\"");
+				}
 
 				// by default, we add the XML prolog back, systems integrating SVG-edit (wikis, CMSs)
 				// can just provide their own custom save handler and might not want the XML prolog

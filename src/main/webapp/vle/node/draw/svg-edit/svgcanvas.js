@@ -2372,8 +2372,8 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 		root_sctm = svgcontent.getScreenCTM().inverse();
 		
 		var pt = transformPoint( evt.pageX, evt.pageY, root_sctm ),
-			mouse_x = pt.x * current_zoom,
-			mouse_y = pt.y * current_zoom;
+		mouse_x = pt.x * current_zoom,
+		mouse_y = pt.y * current_zoom;
 			
 		evt.preventDefault();
 
@@ -5073,7 +5073,8 @@ var removeUnusedDefElems = this.removeUnusedDefElems = function() {
 		}
 	};
 	
-	var defelems = $(defs).find("linearGradient, radialGradient, filter, marker, svg, symbol");
+	//var defelems = $(defs).find("linearGradient, radialGradient, filter, marker, svg, symbol");
+	var defelems = $(defs).find("linearGradient, radialGradient, filter, svg, symbol"); // allow markers in wise4 to have non-local references
 		defelem_ids = [],
 		i = defelems.length;
 	while (i--) {

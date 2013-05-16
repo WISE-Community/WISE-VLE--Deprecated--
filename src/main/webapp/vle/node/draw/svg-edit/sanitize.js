@@ -234,7 +234,8 @@ svgedit.sanitize.sanitizeSvg = function(node) {
 		}
 		// if the element has attributes pointing to a non-local reference, 
 		// need to remove the attribute
-		$.each(["clip-path", "fill", "filter", "marker-end", "marker-mid", "marker-start", "mask", "stroke"],function(i,attr) {
+		// allow markers in wise4 to have non-local references
+		$.each(["clip-path", "fill", "filter", /*"marker-end", "marker-mid", "marker-start",*/ "mask", "stroke"],function(i,attr) {
 			var val = node.getAttribute(attr);
 			if (val) {
 				val = svgedit.utilities.getUrlFromAttr(val);
