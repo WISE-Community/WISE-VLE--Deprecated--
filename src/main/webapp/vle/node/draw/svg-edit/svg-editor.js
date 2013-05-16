@@ -17,6 +17,8 @@
 
 (function() {
 	
+	window.svgEditor = null; // WISE4 fix for Chrome, which seems to keep the svgEditor object after visiting a draw step
+
 	document.addEventListener("touchstart", touchHandler, true);
   document.addEventListener("touchmove", touchHandler, true);
   document.addEventListener("touchend", touchHandler, true);
