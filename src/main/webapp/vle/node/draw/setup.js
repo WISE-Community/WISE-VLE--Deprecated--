@@ -70,8 +70,8 @@ var dependencies = [
 ];
 
 var css = [
-	/*scriptloader.jqueryUICss,
-	'vle/node/draw/svg-edit/jgraduate/css/jPicker.css',
+	scriptloader.jqueryUICss,
+	/*'vle/node/draw/svg-edit/jgraduate/css/jPicker.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jgraduate.css',
 	'vle/node/draw/svg-edit/svg-editor.css',
 	'vle/node/draw/svg-edit/spinbtn/JQuerySpinBtn.css'*/
