@@ -487,7 +487,29 @@
  </svg>
 </g>
 
-<g id="clone">
+<g id="clone"> <!-- modified for wise4, original clone svg used for stamps extension -->
+<svg viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <rect stroke-width="2" fill="#ffffff" stroke="#888888" x="1.49953" y="1.49833" width="30.13238" height="36.95142" id="svg_2"/>
+  <line stroke-width="2" id="svg_28" fill="none" stroke="#888888" x1="6.32884" y1="7.9151" x2="27.21267" y2="7.9151"/>
+  <line stroke-width="2" id="svg_29" fill="none" stroke="#888888" x1="6.32884" y1="14.03417" x2="27.21267" y2="14.03417"/>
+  <line stroke-width="2" id="svg_30" fill="none" stroke="#888888" x1="6.32884" y1="20.15323" x2="27.21267" y2="20.15323"/>
+  <line stroke-width="2" id="svg_31" fill="none" stroke="#888888" x1="6.32884" y1="31.87176" x2="22.75693" y2="31.87176"/>
+  <line stroke-width="2" id="svg_32" fill="none" stroke="#888888" x1="6.32884" y1="26.18343" x2="27.21267" y2="26.18343"/>
+  <path stroke-width="2" fill="#ffffff" stroke="#555555" d="m16.21296,9.60206l30.13238,0l0.10084,28.91962l-7.55935,8.03181l-22.67387,0l0,-36.95143z" id="svg_1"/>
+  <line stroke-width="2" fill="none" stroke="#555555" x1="37.37848" y1="37.61038" x2="46.33751" y2="37.4725" id="svg_3"/>
+  <g id="svg_26">
+   <line stroke-width="2" fill="none" stroke="#6f6f6f" x1="21.13612" y1="16.09894" x2="42.01995" y2="16.09894" id="svg_5"/>
+   <line stroke-width="2" fill="none" stroke="#6f6f6f" x1="21.13612" y1="22.218" x2="42.01995" y2="22.218" id="svg_7"/>
+   <line stroke-width="2" fill="none" stroke="#6f6f6f" x1="21.13612" y1="28.33707" x2="42.01995" y2="28.33707" id="svg_11"/>
+   <line stroke-width="2" fill="none" stroke="#6f6f6f" x1="21.13612" y1="40.0556" x2="37.56422" y2="40.0556" id="svg_14"/>
+   <line stroke-width="2" id="svg_25" fill="none" stroke="#7f7f7f" x1="21.13612" y1="34.36726" x2="42.01995" y2="34.36726"/>
+  </g>
+  <line stroke-width="2" fill="none" stroke="#555555" x1="38.28605" y1="38.41202" x2="38.28605" y2="45.94358" id="svg_4"/>
+ </g>
+</svg>
+</g>
+<!--<g id="clone">
 <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
  <defs>
   <linearGradient y2="1" x2="1" y1="0" x1="0" id="svg_36">
@@ -505,7 +527,7 @@
   <line x1="2.44838" y1="12.03512" x2="15.5524" y2="12.03512" id="svg_39" stroke="#f9f3de" fill="none"/>
   <path d="m6.72427,12.55859l4.74203,0l-2.30831,2.07258l-2.43372,-2.07258z" id="svg_43" fill="#000000" stroke="none"/>
 </svg>
-</g>
+</g>-->
 
 <g id="delete">
 <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
