@@ -1397,6 +1397,11 @@ var updateClipPath = function(attr, tx, ty) {
 var recalculateDimensions = this.recalculateDimensions = function(selected) {
 	if (selected == null) return null;
 	
+	// Firefox Issue - 1081
+	if (selected.nodeName == "svg" && navigator.userAgent.indexOf("Firefox/20") >= 0) {
+		return null;
+	}
+	
 	var tlist = getTransformList(selected);
 	
 	// remove any unnecessary transforms
@@ -2370,6 +2375,18 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 		}
 	
 		root_sctm = svgcontent.getScreenCTM().inverse();
+		
+		// wise4: Firefox fix (https://bugzilla.mozilla.org/show_bug.cgi?id=863205)
+		// possibly addresses svg-edit issues 1067, 1077, 1080, 1081, 1084, 1091
+		if(current_zoom !== 1 && root_sctm.a === 1) {
+			root_sctm = svgcontent.getScreenCTM();
+			var offset = $('#canvasBackground').offset();
+			root_sctm.a = current_zoom;
+			root_sctm.d = current_zoom;
+			root_sctm.e = offset.left;
+			root_sctm.f = offset.top;
+			root_sctm = root_sctm.inverse();
+		}
 		
 		var pt = transformPoint( evt.pageX, evt.pageY, root_sctm ),
 		mouse_x = pt.x * current_zoom,
@@ -3509,6 +3526,19 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 		e.preventDefault();
 
 		root_sctm = svgcontent.getScreenCTM().inverse();
+		
+		// wise4: Firefox fix (https://bugzilla.mozilla.org/show_bug.cgi?id=863205)
+		// possibly addresses svg-edit issues 1067, 1077, 1080, 1081, 1084, 1091
+		if(current_zoom !== 1 && root_sctm.a === 1) {
+			root_sctm = svgcontent.getScreenCTM();
+			var offset = $('#canvasBackground').offset();
+			root_sctm.a = current_zoom;
+			root_sctm.d = current_zoom;
+			root_sctm.e = offset.left;
+			root_sctm.f = offset.top;
+			root_sctm = root_sctm.inverse();
+		}
+		
 		var pt = transformPoint( e.pageX, e.pageY, root_sctm );
 		var bbox = {
 			'x': pt.x,

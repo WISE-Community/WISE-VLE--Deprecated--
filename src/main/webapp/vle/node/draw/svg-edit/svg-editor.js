@@ -3376,8 +3376,11 @@
 					var button = document.getElementById(shortcutButtons[i]);
 					if (button != null) {
 						var title = button.title;
-						var index = title.indexOf("Ctrl+");
-						button.title = [title.substr(0, index), "Cmd+", title.substr(index + 5)].join('');
+						//wise4: Fix title replacements
+						//var index = title.indexOf("Ctrl+");
+						//button.title = [title.substr(0, index), "Cmd+", title.substr(index + 5)].join('');
+						title = title.replace("Ctrl+","Cmd+");
+						button.title = title;
 					}
 				}
 			}
