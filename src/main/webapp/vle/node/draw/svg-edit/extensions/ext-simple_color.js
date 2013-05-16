@@ -1,16 +1,16 @@
 /*
- * ext-arrows.js
+ * ext-simple_color.js
  *
  * Licensed under the Apache License, Version 2
  *
- * Copyright(c) 2010 Jonathan Breitbart
+ * Copyright(c) 2013 Jonathan Breitbart
  *
  * This extension removes the jpicker-based and palette color picker and implements a simplified
  * color picker using the Really Simple Color Picker in jQuery by Lakshan Perera (www.laktek.com,
  * http://github.com/laktek/really-simple-color-picker)
  *
  * Note: For this extension to function correctly, the jquery.colorPicker.js
- * must be loaded by svg-edit (e.g. included in head <script> and <link> tags in svg-editor.html)
+ * must be loaded by svg-edit (e.g. included in head <script> in svg-editor.html)
  * 
  */
 
@@ -28,20 +28,20 @@ svgEditor.addExtension("Simple Color", function(S) {
 		svgdocbox.documentElement.setAttribute('width',24);
 		svgdocbox.documentElement.setAttribute('style','margin-left:-4px');
 		
-		var fill = svgCanvas.getFillColor();
-		var stroke = svgCanvas.getStrokeColor();
+		var fill = svgCanvas.getStyle().fill;
+		var stroke = svgCanvas.getStyle().stroke;
 		$('#fill').val(fill);
 		$('#stroke').val(stroke);
 		$('#fill ~ div.color_picker').html("&nbsp;");
 		$('#stroke ~ div.color_picker').html("&nbsp;");
 		
-		if(fill=='none'){
+		if(fill==='none'){
 			$('#fill ~ div.color_picker').append( document.importNode(svgdocbox.documentElement,true) );
 			$('#fill ~ div.color_picker').css('background-color','#fff');
 		} else {
 			$('#fill').change();
 		}
-		if(stroke=='none'){
+		if(stroke==='none'){
 			$('#stroke ~ div.color_picker').append( document.importNode(svgdocbox.documentElement,true) );
 			$('#stroke ~ div.color_picker').css('background-color','#fff');
 		} else {
@@ -50,12 +50,11 @@ svgEditor.addExtension("Simple Color", function(S) {
 	}
 	
 	function changeColor(fill,stroke){
-		if (mode=='fill'){
-			svgCanvas.setFillColor(fill);
-			//svgEditor.updateToolbar();
-		} else if (mode=='stroke'){
-			svgCanvas.setStrokeColor(stroke);
-			//svgEditor.updateToolbar();
+		var p = {};
+		if (mode==='fill'){
+			svgCanvas.setColor('fill',fill);
+		} else if (mode==='stroke'){
+			svgCanvas.setColor('stroke',stroke);
 		}
 	}
 	
@@ -105,19 +104,20 @@ svgEditor.addExtension("Simple Color", function(S) {
 			$('#stroke_width').css({'border':'1px solid #BBBBBB','margin-left':'-1px','margin-top':'3px','padding':'2px 6px 2px 1px'});
 			$('#stroke_width').attr('size',1);
 			
-			$('#color_tools').remove();
+			//$('#color_tools').remove();
+			$('#tool_fill, #tool_stroke').remove();
 			
 			// set up click events for the fill and stroke selectors
-			$('#fill ~ div.color_picker').click(function(){
+			$('#fill ~ div.color_picker').on('click', function(){
 				mode = 'fill';
 			});
 			
-			$('#stroke ~ div.color_picker').click(function(){
+			$('#stroke ~ div.color_picker').on('click', function(){
 				mode = 'stroke';
 			});
 			
 			// set up click events for the color swatches
-			$('#color_selector > div.color_swatch').click(function(){
+			$('#color_selector > div.color_swatch').on('click', function(){
 				if($(this).hasClass('no_color')){
 					var fill = 'none';
 					var stroke = 'none';
