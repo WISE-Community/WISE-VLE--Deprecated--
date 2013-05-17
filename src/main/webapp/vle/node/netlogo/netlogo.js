@@ -75,9 +75,18 @@ Netlogo.prototype = {
         elapsedTime = Date.now() - startTime;
       }
     }
-    jsonStr = JSON.stringify(modelData);
-    nlState = new NetlogoState(jsonStr);
-    console.log("save, jsonStr:" + jsonStr);
+    
+    var modelDataObject = {};
+    
+    try {
+    	//create a JSON object from the model data string
+    	modelDataObject = JSON.parse(modelData);    	
+    } catch(e) {
+    	console.log(e);
+    }
+    
+    nlState = new NetlogoState(modelDataObject);
+    
     /*
     * fire the event to push this state to the global view.states object.
     * the student work is saved to the server once they move on to the
