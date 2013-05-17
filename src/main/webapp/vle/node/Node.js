@@ -64,6 +64,11 @@ Node.availableStatuses = [
 	{statusType:'isCompleted', possibleStatusValues:[true, false]}
 ];
 
+//The special statuses that can be satisfied by any of the statuses in the group
+Node.specialStatusValues = [
+
+];
+
 Node.prototype.getNodeId = function() {
 	return this.id;
 };
@@ -2006,9 +2011,54 @@ Node.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatis
 	if(statusValue == statusValueToSatisfy) {
 		//the status matches the required value
 		result = true;
+	} else if(this.matchesSpecialStatusValue(statusValue, statusValueToSatisfy)) {
+		result = true;
 	}
 	
 	return result;
+};
+
+/**
+ * Determines if a status value satisfies the status value to satisfy
+ * 
+ * @param statusValue the status value for the node
+ * @param statusValueToSatisfy the status value to satisfy
+ * @param specialStatusValues (optional) the special status. this is
+ * usually the special status values from a child step.
+ * 
+ * @return whether the status value satisfies the status value to satisfy
+ */
+Node.prototype.matchesSpecialStatusValue = function(statusValue, statusValueToSatisfy, specialStatusValues) {
+	//use the special status values from the generic node if none were passed in
+	if(specialStatusValues == null) {
+		specialStatusValues = Node.specialStatusValues;
+	}
+	
+	//loop through all the special status values
+	for(var x=0; x<specialStatusValues.length; x++) {
+		//get a special status value
+		var tempSpecialStatusValue = specialStatusValues[x];
+		
+		if(tempSpecialStatusValue != null) {
+			//get the status value e.g. 'atLeastBronze'
+			var tempStatusValue = tempSpecialStatusValue.statusValue;
+			
+			//get the possible actual status values that will satisfy the tempStatusValue e.g. ['bronze', 'silver', 'gold']
+			var tempPossibleStatusValues = tempSpecialStatusValue.possibleStatusValues;
+			
+			if(statusValueToSatisfy == tempStatusValue) {
+				if(tempPossibleStatusValues != null) {
+					//check if the status value the node has is in the array of acceptible status values
+					if(tempPossibleStatusValues.indexOf(statusValue) != -1) {
+						//the status value is in the array so it satisfies the value to satisfy
+						return true;
+					}
+				}
+			}
+		}
+	}
+	
+	return false;
 };
 
 /**
@@ -2420,9 +2470,7 @@ Node.prototype.populateNodeStatusDependencies = function() {
 		//get the node
 		var node = this.view.getProject().getNodeById(nodeId);
 		
-		/*
-		 * add this node id to that node's array of nodeIdsListening
-		 */
+		//add this node id to that node's array of nodeIdsListening
 		node.nodeIdsListening.push(this.id);
 	}
 };

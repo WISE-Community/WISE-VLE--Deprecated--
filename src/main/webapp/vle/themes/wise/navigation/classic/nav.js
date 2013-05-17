@@ -1423,12 +1423,6 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
 	
 	//get the node that had its status updated
 	var node = thisView.getProject().getNodeById(nodeId);
-
-	//get the step icon for the given statuses
-	var iconPath = node.getIconPathForStatuses();
-	
-	//set the step icon
-	thisView.navigationPanel.setIcon(nodeId, iconPath);
 	
 	//get all the node ids that depend on this node's status
 	var nodeIdsListening = node.nodeIdsListening;
@@ -1440,10 +1434,10 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
 		
 		//get the node
 		var tempNode = thisView.getProject().getNodeById(nodeIdListening);
-		
+
 		//get the icon path for the node depending on the statuses
 		var tempIconPath = tempNode.getIconPathForStatuses();
-		
+
 		//set the icon for the node
 		thisView.navigationPanel.setIcon(nodeIdListening, tempIconPath);
 	}

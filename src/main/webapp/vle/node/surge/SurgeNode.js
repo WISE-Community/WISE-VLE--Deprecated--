@@ -23,12 +23,18 @@ SurgeNode.tagMapFunctions = [
 	{functionName:'getAccumulatedScore', functionArgs:[]}
 ];
 
-/*
- * The statuses that this step can return
- */
+//The statuses that this step can return
 SurgeNode.availableStatuses = [
 	{statusType:'surgeMedal', possibleStatusValues:['bronze', 'silver', 'gold']}
 ];
+
+//The special statuses that can be satisfied by any of the statuses in the group
+SurgeNode.specialStatusValues = [
+	{statusValue:'atLeastBronze', possibleStatusValues:['bronze', 'silver', 'gold']},
+	{statusValue:'atLeastSilver', possibleStatusValues:['silver', 'gold']},
+	{statusValue:'atLeastGold', possibleStatusValues:['gold']}
+];
+
 
 /**
  * This is the constructor for the Node
@@ -233,20 +239,19 @@ SurgeNode.prototype.isCompleted = function(nodeVisits) {
 };
 
 /**
- * Check if the status value satisfies the requirement
+ * Determines if a status value satisfies the status value to satisfy
  * 
- * @param statusValue the status value of the node
- * @param statusValueToSatisfy the status requirement
+ * @param statusValue the status value for the node
+ * @param statusValueToSatisfy the status value to satisfy
  * 
- * @return whether the status value satisfies the requirement
+ * @return whether the status value satisfies the status value to satisfy
  */
-SurgeNode.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatisfy) {
-	var result = false;
+SurgeNode.prototype.matchesSpecialStatusValue = function(statusValue, statusValueToSatisfy) {
+	//get the special status values for this step type
+	var specialStatusValues = SurgeNode.specialStatusValues;
 	
-	if(statusValue == statusValueToSatisfy) {
-		//the status matches the required value
-		result = true;
-	}
+	//check if the status value satisfies the status value to satisfy
+	var result = Node.prototype.matchesSpecialStatusValue(statusValue, statusValueToSatisfy, specialStatusValues)
 	
 	return result;
 };
