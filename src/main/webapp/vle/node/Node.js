@@ -1969,7 +1969,7 @@ Node.prototype.statusesMatch = function(statusesToSatisfy, statuses) {
 		var tempStatusMapping = statusesToSatisfy[x];
 		var tempNodeId = tempStatusMapping.nodeId;
 		var tempStatusType = tempStatusMapping.statusType;
-		var tempStatusValue = tempStatusMapping.statusValue;
+		var tempStatusValueToSatisfy = tempStatusMapping.statusValue;
 		
 		//get the node whose status we need to look at
 		var tempNode = this.view.getProject().getNodeById(tempNodeId);
@@ -1978,7 +1978,7 @@ Node.prototype.statusesMatch = function(statusesToSatisfy, statuses) {
 		var tempNodeStatusValue = tempNode.getStatus(tempStatusType);
 		
 		//check if the value satisfies the requirement
-		if(this.isStatusValueSatisfied(tempNodeStatusValue, tempStatusValue)) {
+		if(tempNode.isStatusValueSatisfied(tempNodeStatusValue, tempStatusValueToSatisfy)) {
 			tempResult = true;
 		} else {
 			tempResult = false;

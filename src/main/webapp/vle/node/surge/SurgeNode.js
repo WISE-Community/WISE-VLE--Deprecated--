@@ -239,19 +239,23 @@ SurgeNode.prototype.isCompleted = function(nodeVisits) {
 };
 
 /**
- * Determines if a status value satisfies the status value to satisfy
+ * Check if the status value satisfies the requirement
  * 
- * @param statusValue the status value for the node
- * @param statusValueToSatisfy the status value to satisfy
+ * @param statusValue the status value of the node
+ * @param statusValueToSatisfy the status requirement
  * 
- * @return whether the status value satisfies the status value to satisfy
+ * @return whether the status value satisfies the requirement
  */
-SurgeNode.prototype.matchesSpecialStatusValue = function(statusValue, statusValueToSatisfy) {
-	//get the special status values for this step type
+SurgeNode.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatisfy) {
+	var result = false;
 	var specialStatusValues = SurgeNode.specialStatusValues;
 	
-	//check if the status value satisfies the status value to satisfy
-	var result = Node.prototype.matchesSpecialStatusValue(statusValue, statusValueToSatisfy, specialStatusValues)
+	if(statusValue == statusValueToSatisfy) {
+		//the status matches the required value
+		result = true;
+	} else if(this.matchesSpecialStatusValue(statusValue, statusValueToSatisfy, specialStatusValues)) {
+		result = true;
+	}
 	
 	return result;
 };

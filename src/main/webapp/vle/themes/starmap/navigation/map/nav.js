@@ -325,6 +325,21 @@ NavigationPanel.prototype.render = function(forceReRender) {
 	/* add appropriate classes for any constraints that may apply to 
 	 * the current navigation */
 	//this.processConstraints();
+	
+	//check if the navigation panel has been rendered before
+	if(!this.navigationPanelLoaded) {
+		//the navigation panel has not been rendered before so we will perform some initialization
+		
+		//set up listeners for these events
+		view.eventManager.subscribe('nodeStatusUpdated', this.nodeStatusUpdatedListener, view);
+		view.eventManager.subscribe('navigationLoadingCompleted', this.navigationLoadingCompletedListener, view);
+		
+		//set this flag so that we do not perform this initialization again for subsequent NavigationPanel.render() calls
+		this.navigationPanelLoaded = true;
+		
+		//we are done loading the navigation panel for the first time
+		eventManager.fire('navigationLoadingCompleted');
+	}
 };
 
 NavigationPanel.prototype.menuLoaded = function() {
@@ -570,8 +585,7 @@ NavigationPanel.prototype.enableAllSteps = function() {
  * @param nodeId the node id
  * @param stepIconPath the path to the new icon
  */
-NavigationPanel.prototype.setStepIcon = function(nodeId, stepIconPath) {
-
+NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath) {
 	if(nodeId != null && nodeId != '' && stepIconPath != null && stepIconPath != '') {
 		//the node id and step icon path were provided so we will use them
 
@@ -585,40 +599,63 @@ NavigationPanel.prototype.setStepIcon = function(nodeId, stepIconPath) {
 		nodeId = nodeId.replace(/\./g, '\\.');
 
 		//set the img src to the step icon path
-		$('#stepIcon_' + nodeId).attr('src', stepIconPath);
-	} else {
-		//get the current node
-		var currentNode = this.view.getCurrentNode();
+		$('#anchor_' + nodeId).attr('xlink:href', stepIconPath);
+	}
+};
 
-		if(currentNode != null) {
-			//get the node id
-			nodeId = currentNode.id;
+/**
+ * A node has updated its status so we will perform any changes based on
+ * the new node status
+ * 
+ * @param type the type of event that was fired
+ * @param args the parameters passed to the event when the event was fired
+ * @param obj the view object
+ */
+NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) {
+	var thisView = obj;
+	var nodeId = args[0];
+	var statusType = args[1];
+	var statusValue = args[2];
+	
+	//get the node that had its status updated
+	var node = thisView.getProject().getNodeById(nodeId);
+	
+	//get all the node ids that depend on this node's status
+	var nodeIdsListening = node.nodeIdsListening;
+	
+	//loop through all the node ids that depend on this node's status
+	for(var x=0; x<nodeIdsListening.length; x++) {
+		//get a node id
+		var nodeIdListening = nodeIdsListening[x];
+		
+		//get the node
+		var tempNode = thisView.getProject().getNodeById(nodeIdListening);
 
-			//get the latest work for the step
-			var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
+		//get the icon path for the node depending on the statuses
+		var tempIconPath = tempNode.getIconPathForStatuses();
 
-			//get the status for the latest work
-			var status = currentNode.getStatus(latestWork);
+		//set the icon for the node
+		thisView.navigationPanel.setIcon(nodeIdListening, tempIconPath);
+	}
+	
+	if(statusType == 'isVisitable' && statusValue == false) {
+		//the step is not visitable so we will grey out the step
+		
+		//get the position of the step
+		var position = thisView.getProject().getPositionById(nodeId);
+		var positionEscaped = thisView.escapeIdForJquery(position);
 
-			if(status != null) {
-				//get the step icon for the status
-				var stepIconPath = currentNode.getStepIconForStatus(status);
+		//grey out the step
+		$('#node_' + positionEscaped).addClass('constraintDisable');
+	} else if(statusType == 'isVisitable' && statusValue == true) {
+		//the step is visitable so we will make sure it is not greyed out
+		
+		//get the position of the step
+		var position = thisView.getProject().getPositionById(nodeId);
+		var positionEscaped = thisView.escapeIdForJquery(position);
 
-				if(stepIconPath != null && stepIconPath != '') {
-					/*
-					 * replace all the '.' with '\\.' so that the jquery id selector works
-					 * if we didn't do this, it would treat the '.' as a class selector and
-					 * would not be able to find the element by its id because almost all
-					 * of our ids contain a '.'
-					 * e.g. node_1.ht
-					 */
-					nodeId = nodeId.replace(/\./g, '\\.');
-
-					//set the img src to the step icon path
-					$('#stepIcon_' + nodeId).attr('src', stepIconPath);					
-				}
-			}
-		}
+		//remove the class that greys out the step
+		$('#node_' + positionEscaped).removeClass('constraintDisable');
 	}
 };
 

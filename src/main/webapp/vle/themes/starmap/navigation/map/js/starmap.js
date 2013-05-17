@@ -447,6 +447,7 @@ function starmap() {
 			      .attr("id", function(d){ return d.identifier + "_radial"; });
 			  
 			  forceSeq.append("svg:image")
+			  	  .attr("id",function(d){ return "anchor_" + d.identifier; })
 			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/star-bronze.png")
 			  	  .attr("x", -18)
 			      .attr("y", -18)
