@@ -41,6 +41,9 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			"spilloff_volume_perc" : 0.50,
 			"total_objects_made" : 0,
 			"total_objects_made_in_world" : 0,
+			"total_beakers_made" : 0,
+			"total_scales_made" : 0,
+			"total_balances_made" : 0,
 			"materials_available":[],
 			"materials": {},
 			"premades_available":[],
@@ -97,16 +100,24 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				// load parameters file to overwrite defaults
 				$(document).ready( function (){
 					$.getJSON('box2dModelTemplate.b2m', function(data) {
-						for (var key in data)
-						{
-							GLOBAL_PARAMETERS[key] = data[key];
-						}
+						GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").width();
+						GLOBAL_PARAMETERS.STAGE_HEIGHT = $("#canvas").height();
+					
+						for (var key in data) { GLOBAL_PARAMETERS[key] = data[key]; }
+						// did we change size?
+						if (GLOBAL_PARAMETERS.STAGE_WIDTH != $("#canvas").width()) $("#canvas").width(GLOBAL_PARAMETERS.STAGE_WIDTH);	
+						if (GLOBAL_PARAMETERS.STAGE_HEIGHT != $("#canvas").height()) $("#canvas").height(GLOBAL_PARAMETERS.STAGE_HEIGHT);	
+
 						if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 						if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 						GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").attr("width");
 						GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
-						GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
-						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
+						if (GLOBAL_PARAMETERS.INCLUDE_BUILDER){
+							 GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
+						} else {
+							 GLOBAL_PARAMETERS.BUILDER_HEIGHT = 0;
+						}
+						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.STAGE_HEIGHT - GLOBAL_PARAMETERS.BUILDER_HEIGHT;
 						GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
 						GLOBAL_PARAMETERS.INCLUDE_LIBRARY = !GLOBAL_PARAMETERS.INCLUDE_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.INCLUDE_LIBRARY : true; 
 						if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
@@ -119,25 +130,33 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				});
 			} else
 			{
-				// load from WISE
-				for (var key in wiseData)
-				{
-					GLOBAL_PARAMETERS[key] = wiseData[key];
-				}
-				if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
-				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
-				GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").attr("width");
-				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
-				GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
-				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
-				GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
-				GLOBAL_PARAMETERS.INCLUDE_LIBRARY = !GLOBAL_PARAMETERS.INCLUDE_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.INCLUDE_LIBRARY : true; 
-				if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
-					for (var key in GLOBAL_PARAMETERS.materials){
-						GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
+				$(document).ready( function (){
+					GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").width();
+					GLOBAL_PARAMETERS.STAGE_HEIGHT = $("#canvas").height();
+					// load from WISE
+					for (var key in wiseData){ GLOBAL_PARAMETERS[key] = wiseData[key];}
+					// did we change size?
+					if (GLOBAL_PARAMETERS.STAGE_WIDTH != $("#canvas").width()) $("#canvas").attr('width',GLOBAL_PARAMETERS.STAGE_WIDTH);	
+					if (GLOBAL_PARAMETERS.STAGE_HEIGHT != $("#canvas").height()) $("#canvas").attr('height',GLOBAL_PARAMETERS.STAGE_HEIGHT);	
+					
+					if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
+					if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
+					GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
+					if (GLOBAL_PARAMETERS.INCLUDE_BUILDER){
+						 GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
+					} else {
+						 GLOBAL_PARAMETERS.BUILDER_HEIGHT = 0;
 					}
-				}
-				start(typeof makePremades=="undefined"? true:makePremades);
+					GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.STAGE_HEIGHT - GLOBAL_PARAMETERS.BUILDER_HEIGHT;
+					GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
+					GLOBAL_PARAMETERS.INCLUDE_LIBRARY = !GLOBAL_PARAMETERS.INCLUDE_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.INCLUDE_LIBRARY : true; 
+					if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
+						for (var key in GLOBAL_PARAMETERS.materials){
+							GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
+						}
+					}
+					start(typeof makePremades=="undefined"? true:makePremades);
+				});
 			}	
 		}
 
@@ -202,22 +221,13 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				var protation = typeof premade.rotation != "undefined" ? premade.rotation : 0; 
 				var pworld = typeof premade.world != "undefined" ? premade.world : "empty"; 
 				var ptype = typeof premade.type != "undefined" ? premade.type : "dynamic"; 
-				createObjectInWorld(GLOBAL_PARAMETERS.premades[obj], pworld, px, py, protation, ptype);
+				createObjectInWorld(GLOBAL_PARAMETERS.premades[obj], px, py, protation, ptype);
 			}
 
 			createjs.Ticker.setFPS(24);
 			createjs.Ticker.addListener(window);
 		}
 
-		function tick() 
-		{ 
-
-			if (tester != null) tester._tick();
-			if (stage != null && stage.needs_to_update)
-			{
-				stage.update();
-			}
-		}
 
 		/** This will create an object that will go in the library */
 		function createObject(savedObject, already_in_globals, is_premade)
@@ -269,6 +279,15 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			} else {} // too mancy shapes already			
 		}
 
+
+		function tick() { 
+
+			if (tester != null) tester._tick();
+			if (stage != null && stage.needs_to_update)
+			{
+				stage.update();
+			}
+		}
 
 
 
