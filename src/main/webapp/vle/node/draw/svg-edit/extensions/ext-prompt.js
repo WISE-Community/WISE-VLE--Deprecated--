@@ -1,12 +1,12 @@
 /*
  * ext-prompt.js
  *
- * Licensed under the Apache License, Version 2
+ * Licensed under the MIT License
  *
- * Copyright(c) 2010 Jonathan Breitbart
+ * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
  * Adds a prompt/instructions tool to svg-edit
- * JQuery UI with dialogs plus accompanying css also required
+ * jQuery UI with dialogs plus accompanying css also required
  * TODO: Perhaps add a prompt setter function
  * 
  */
@@ -40,11 +40,14 @@ svgEditor.addExtension("Prompt", function(S) {
 			modal: true,
 			autoOpen:false,
 			width:650,
-			buttons: {
-				'OK': function() {
-					$(this).dialog('close');
-				}
-			}
+			buttons: [
+				{
+			    	text: 'OK',
+			    	click: function() {
+			    		$(this).dialog('close');
+					}
+			    }
+			]
 		});
 		
 		$('.tool_prompt').click(function(){
