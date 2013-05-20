@@ -101,20 +101,6 @@ svgEditor.addExtension("Simple Color", function(S) {
 				$('#stroke').spectrum('toggle');
 			});
 			
-			var svgdocbox = new DOMParser().parseFromString(
-				'<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="svg_icon">'+
-				'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' + 
-				'<line fill="none" stroke="#d40000" id="svg_90" y2="24" x2="24" y1="0" x1="0"/>' +
-				'<line id="svg_92" fill="none" stroke="#d40000" y2="24" x2="0" y1="0" x1="24"/>' +
-				'</svg></svg>', 'text/xml');
-			svgdocbox.documentElement.setAttribute('width',12);
-			$('.colorPicker-palette').each(function(){
-				$('.colorPicker-swatch',$(this)).last()
-					.text('')
-					.append( document.importNode(svgdocbox.documentElement,true) )
-					.addClass('no_color');
-			});
-			
 			// set color pickers with initial colors
 			setColors();
 		},
