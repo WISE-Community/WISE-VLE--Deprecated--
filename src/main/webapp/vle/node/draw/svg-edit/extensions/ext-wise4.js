@@ -54,16 +54,17 @@ svgEditor.addExtension("WISE4", function(S) {
 			resizable: false,
 			modal: true,
 			autoOpen: false,
-			width: 420,
+			width: 550,
 			buttons: [
 			    {
 			    	text: 'OK',
 			    	click: function() {
 			    		// delete all elements in the student layer
 			    		// TODO: Eventually allow foreground (editable) starting drawings as well
-			    		svgCanvas.selectAllInCurrentLayer();
-			    		svgCanvas.deleteSelectedElements();
-			    		
+			    		if(svgCanvas.getSelectedElems()[0] !== undefined){
+			    			svgCanvas.selectAllInCurrentLayer();
+				    		svgCanvas.deleteSelectedElements();
+			    		}
 			    		$(this).dialog('close');
 					}
 			    },
@@ -109,10 +110,12 @@ svgEditor.addExtension("WISE4", function(S) {
 		$('#zoom_panel').hide();
 		
 		// move elements and adjust display in wise4
-		$('#tools_top').css({'left':'2px','height':'40px'});
+		$('#tools_top').css({'left':'2px','height':'60px'});
 		$('#tools_bottom_2').css('width','280px');
 		$('#tool_stroke').css('width','auto');
 		$('#tools_bottom_2 .icon_label').css('margin-top','4px');
+		$('#tools_left').css('top','66px');
+		$('#workarea, #sidepanels').css('top','66px');
 		/*$('#tool_angle').insertAfter('#tool_reorient');
 		$('#tool_opacity').insertAfter('#tool_angle');
 		$('#tool_move_top').insertAfter('#tool_opacity');
