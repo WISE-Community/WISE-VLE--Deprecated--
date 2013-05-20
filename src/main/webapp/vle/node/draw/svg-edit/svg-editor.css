@@ -67,8 +67,8 @@ html, body, div{
 	  A subtle gradient effect in the canvas.
 	  Just experimenting - not sure if this is worth it.
 	*/
-	background: -moz-radial-gradient(45deg,#bbb,#222);
-	background: -webkit-gradient(radial, center center, 3, center center, 1000, from(#bbb), to(#222));
+	background: -moz-radial-gradient(45deg,#bbb,#555);
+	background: -webkit-gradient(radial, center center, 3, center center, 1000, from(#bbb), to(#555));
 }
 
 
