@@ -7,6 +7,7 @@
  *
  * Customizes the svg-edit user interface for use in the WISE4 learning environment
  * Adds an erase drawing button (which removes all student drawing objects)
+ * TODO: Extract erase button portion to its own extension
  */
 
  
@@ -109,6 +110,9 @@ svgEditor.addExtension("WISE4", function(S) {
 		
 		// move elements and adjust display in wise4
 		$('#tools_top').css({'left':'2px','height':'40px'});
+		$('#tools_bottom_2').css('width','280px');
+		$('#tool_stroke').css('width','auto');
+		$('#tools_bottom_2 .icon_label').css('margin-top','4px');
 		/*$('#tool_angle').insertAfter('#tool_reorient');
 		$('#tool_opacity').insertAfter('#tool_angle');
 		$('#tool_move_top').insertAfter('#tool_opacity');
