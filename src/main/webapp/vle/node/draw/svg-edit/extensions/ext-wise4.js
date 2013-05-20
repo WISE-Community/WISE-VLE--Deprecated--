@@ -6,10 +6,10 @@
  * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
  * Customizes the svg-edit user interface for use in the WISE4 learning environment
- * Adds an erase drawing button (which removes all student drawing objects)
- * TODO: Extract erase button portion to its own extension
+ * Adds svgEditor.changed variable for use when saving student data in WISE4
+ * 
+ * TODO: i18n
  */
-
  
 svgEditor.addExtension("WISE4", function(S) {
 	//var svgcontent = S.svgcontent;
@@ -39,38 +39,6 @@ svgEditor.addExtension("WISE4", function(S) {
 			    {
 			    	text: 'OK',
 			    	click: function() { $(this).dialog('close'); }
-			    }
-			]
-		});
-		
-		var revertWarning = '<div id="revert_dialog"><div class="ui-state-error">' +
-			'<span class="ui-icon ui-icon-alert" style="float:left"></span>Warning! This will erase your current drawing and replace it with the default state.' +
-			'</div><div class="ui-dialog-content-content"><p>If you would like to continue, press "OK".</p>' +
-			'</div></div>';
-		$('#svg_editor').append(revertWarning);
-		
-		$('#revert_dialog').dialog({
-			title: 'Erase Drawing',
-			resizable: false,
-			modal: true,
-			autoOpen: false,
-			width: 550,
-			buttons: [
-			    {
-			    	text: 'OK',
-			    	click: function() {
-			    		// delete all elements in the student layer
-			    		// TODO: Eventually allow foreground (editable) starting drawings as well
-			    		if(svgCanvas.getSelectedElems()[0] !== undefined){
-			    			svgCanvas.selectAllInCurrentLayer();
-				    		svgCanvas.deleteSelectedElements();
-			    		}
-			    		$(this).dialog('close');
-					}
-			    },
-				{
-			    	text: 'Cancel',
-			    	click: function() {	$(this).dialog('close'); }
 			    }
 			]
 		});
@@ -169,18 +137,6 @@ svgEditor.addExtension("WISE4", function(S) {
 		
 	return {
 		name: "WISE4",
-		buttons: [{
-            id: "tool_erase",
-            type: "context",
-            panel: "editor_panel",
-            title: "Erase Current Drawing",
-            icon: '/vlewrapper/vle/node/draw/svg-edit/images/erase.png',
-            events: {
-                'click': function() {
-                    $('#revert_dialog').dialog('open');
-                }
-            }
-		}],
 		callback: function() {
 			updateDisplay();
 		},
