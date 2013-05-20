@@ -6,6 +6,7 @@
  * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
  * Adds a prompt/instructions tool to svg-edit
+ * Requires 'ext-prompt.css' to be included in 'extension' directory
  * jQuery UI with dialogs plus accompanying css also required
  * TODO: Perhaps add a prompt setter function
  * 
@@ -61,7 +62,7 @@ svgEditor.addExtension("Prompt", function(S) {
 		name: "Prompt",
 		callback: function() {
 			//add extension css
-			var csspath = '/vlewrapper/vle/node/draw/svg-edit/extensions/ext-prompt.css'; // corrected path for wise4
+			var csspath = 'extensions/ext-prompt.css';
 			var fileref=document.createElement("link");
 			fileref.setAttribute("rel", "stylesheet");
 			fileref.setAttribute("type", "text/css");

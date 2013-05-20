@@ -7,6 +7,10 @@
  *
  * Adds a stamp tool to svg-edit (an alternative to the built-in image tool)
  * Designed for use in the WISE4 learning environment (http://wise4.berkeley.edu)
+ * 
+ * Requires 'ext-stamps.css' to be included in 'extension' directory
+ * 
+ * TODO: i18n
  */
 var stampsLoaded = false; // wise4 var to indicate when extension has finished loading
  
@@ -124,7 +128,7 @@ svgEditor.addExtension("Stamps", function(S) {
 	
 	return {
 		name: "Stamps",
-		svgicons: "/vlewrapper/vle/node/draw/svg-edit/extensions/stamp.xml", // corrected path for wise4
+		svgicons: "extensions/stamp.xml",
 		buttons: [{
 			id: "tool_stamp",
 			type: "mode",
@@ -143,7 +147,7 @@ svgEditor.addExtension("Stamps", function(S) {
 		}],
 		callback: function() {
 			//add extension css
-			var csspath = '/vlewrapper/vle/node/draw/svg-edit/extensions/ext-stamps.css'; // corrected path for wise4
+			var csspath = 'extensions/ext-stamps.css';
 			var fileref=document.createElement("link");
 			fileref.setAttribute("rel", "stylesheet");
 			fileref.setAttribute("type", "text/css");

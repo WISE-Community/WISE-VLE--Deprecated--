@@ -9,8 +9,9 @@
  * color picker using Spectrum (http://bgrins.github.io/spectrum/)
  *
  * Note: For this extension to function correctly, the Spectrum jQuery plugin and
- * css must be included in head <script> in svg-editor.html
+ * css must be included in head of svg-editor.html
  * 
+ * TODO: i18n
  */
 
  

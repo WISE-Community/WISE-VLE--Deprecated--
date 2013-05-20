@@ -5,10 +5,10 @@
 
 #svg_editor #tool_prompt {
 	position:relative;
-	top:-1px;
+	top:0;
 	clear:left;
 	float:right;
-	margin-right:8px;
+	margin:0 2px;
 	cursor:pointer;
 }
 
