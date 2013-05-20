@@ -1,11 +1,11 @@
 /*
  * ext-stamps.js
  *
- * Licensed under the Apache License, Version 2
+ * Licensed under the MIT License
  *
- * Copyright(c) 2010 Jonathan Breitbart
+ * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
- * Adds a stamp tool to svg-edit (an alternative to the image tool)
+ * Adds a stamp tool to svg-edit (an alternative to the built-in image tool)
  * Designed for use in the WISE4 learning environment (http://wise4.berkeley.edu)
  */
 var stampsLoaded = false; // wise4 var to indicate when extension has finished loading
@@ -149,27 +149,23 @@ svgEditor.addExtension("Stamps", function(S) {
 			fileref.setAttribute("type", "text/css");
 			fileref.setAttribute("href", csspath);
 			document.getElementsByTagName("head")[0].appendChild(fileref);
-		
-			setTimeout(function(){
-				$('#tool_stamp').insertAfter('#tool_image'); // place stamp tool below image tool
-			},500);
 			
-			var images = []; // initiate stamp images
-			
-			/*var images = [ // sample images (json) array
+			// initiate stamp images (sample images array)
+			var images = [
 	          	{
-	                "title": "Hydrogen",
-	                "uri": "assets/hydrogen.png",
-	                "width": 33,
-	                "height": 35
+	                "title": "Logo (SVG)",
+	                "uri": "extensions/logo.svg",
+	                "width": 50,
+	                "height": 50
 	             },
 	             {
-	                "title": "NSF",
-	                "uri": "assets/NSF-logo.gif",
+	                "title": "Logo (PNG)",
+	                "uri": "extensions/logo.png",
 	                "width": 50,
 	                "height": 50
 	             }
-	          ],*/
+	        ];
+			
 			var stampChooser = '<div id="tools_stamps">' +
 				'<div class="tools_title">Choose a Stamp:</div>' +
 				'<div id="stamp_images"></div>' +
@@ -209,7 +205,8 @@ svgEditor.addExtension("Stamps", function(S) {
 				y = opts.start_y / current_zoom,
 				canvasw = svgCanvas.getResolution().w / current_zoom,
 				canvash = svgCanvas.getResolution().h / current_zoom;
-			if(mode == 'stamp' && x>0 && x<canvasw && y>0 && y<canvash){ //wise4 - don't create new image if cursor is outside canvas boundaries - avoid extraneous elements
+			if(mode === 'stamp' && x>0 && x<canvasw && y>0 && y<canvash){ //wise4 - don't create new image if cursor is outside canvas boundaries - avoid extraneous elements
+				svgCanvas.clearSelection(); // prevent image url dialog from opening when another image is selected and selectNew config option is set to false
 				var currStamp = svgEditor.currStamp;
 				var xlinkns = "http://www.w3.org/1999/xlink";
 				var newImage = addSvgElementFromJson({
@@ -243,7 +240,7 @@ svgEditor.addExtension("Stamps", function(S) {
 				y = opts.mouse_y / current_zoom;
 			var shape = getElem(getId());
 			var mode = svgCanvas.getMode();
-			if(mode == 'stamp'){
+			if(mode === 'stamp'){
 				var currStamp = svgEditor.currStamp;
 				// when adding an image (stamp), assign dimensions and coordinates without dragging (on mouse click)
 				// image dimensions assigned from currStamp
@@ -254,11 +251,10 @@ svgEditor.addExtension("Stamps", function(S) {
 					'y': y-currStamp.height/2,
 					"style": "pointer-events:inherit;"
 				},1000);
-				started = false;
 				return {
 					keep: true,
 					element: shape,
-					started: started
+					started: false
 				};
 			};
 		}
