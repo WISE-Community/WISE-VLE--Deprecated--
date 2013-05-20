@@ -946,7 +946,8 @@
 					var timer;
 
 					var pos = $(show_sel).position();
-					$(hold_sel).css({'left': pos.left+34, 'top': pos.top+40});
+					//$(hold_sel).css({'left': pos.left+34, 'top': pos.top+40});
+					$(hold_sel).css({'left': pos.left+34, 'top': pos.top+71}); // positioning fix for wise4
 
 					// Clicking the "show" icon should set the current mode
 					shower.mousedown(function(evt) {
@@ -1538,9 +1539,10 @@
 					if(svgCanvas.addedNew) {
 						if(elname === 'image') {
 							// Prompt for URL if not a data URL
-							if(svgCanvas.getHref(elem).indexOf('data:') !== 0) {
+							// wise4: disable image prompt (image tool is unused and we don't want the prompt to appear at all)
+							/*if(svgCanvas.getHref(elem).indexOf('data:') !== 0) {
 								promptImgURL();
-							}
+							}*/
 						} /*else if(elname == 'text') {
 							// TODO: Do something here for new text
 						}*/
