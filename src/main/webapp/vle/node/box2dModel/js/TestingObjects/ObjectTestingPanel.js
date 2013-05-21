@@ -48,47 +48,29 @@
 		this.dragging_object = null;
 		//balanceWorld
 		//this.height_px = current_y;
-		var B2WORLD_HEIGHT = this.height_px-this.BORDER_WIDTH-current_y;
-		if (GLOBAL_PARAMETERS.INCLUDE_SCALE)
-		{
-			this.scaleWorld = new Scaleb2World((this.max_shape_width_px-this.width_from_depth)*4, B2WORLD_HEIGHT, current_x, current_y, 5, 5);
-			this.addChild(this.scaleWorld);
-			this.scaleWorld.x = current_x;
-			this.scaleWorld.y = current_y;
-			current_x = this.scaleWorld.x + GLOBAL_PARAMETERS.PADDING + this.scaleWorld.width_px;
-			//this.height_px = Math.max(this.height_px, current_y + this.scaleWorld.height_px);
-		} else if (GLOBAL_PARAMETERS.INCLUDE_BALANCE)
-		{
-			this.balanceWorld = new Balanceb2World((this.max_shape_width_px-this.width_from_depth)*4, B2WORLD_HEIGHT, current_x, current_y, 5, 5);
-			this.addChild(this.balanceWorld);
-			this.balanceWorld.x = current_x;
-			this.balanceWorld.y = current_y;
-			current_x = this.balanceWorld.x + GLOBAL_PARAMETERS.PADDING + this.balanceWorld.width_px;
-			//this.height_px = Math.max(this.height_px, current_y + this.balanceWorld.height_px)
-		}
-		//beakerWorld
 		var separation_x = 0;
-		if (GLOBAL_PARAMETERS.INCLUDE_BEAKER)
-		{
-			var beaker_world_width_px = this.width_px - this.BORDER_WIDTH - current_x;
+		var world_width_px = this.width_px - this.BORDER_WIDTH - current_x;
+		var world_height_px = this.height_px - this.BORDER_WIDTH - current_y;
+		this.testingWorld = new Testingb2World(world_width_px, world_height_px, current_x , current_y) ;
+		this.addChild(this.testingWorld);
+		this.testingWorld.x = current_x;
+		this.testingWorld.y = current_y;
+		separation_x = current_x - GLOBAL_PARAMETERS.PADDING;
+			
+		if (GLOBAL_PARAMETERS.INCLUDE_SCALE) {
+		} 
+		if (GLOBAL_PARAMETERS.INCLUDE_BALANCE) {
+		}	
+		
+		if (GLOBAL_PARAMETERS.INCLUDE_BEAKER) {
 			var beaker_width_px = this.max_shape_width_px-this.width_from_depth;
 			var beaker_height_px = beaker_width_px*2;
 			var beaker_depth_px = this.max_shape_width_px - this.width_from_depth;
-			this.beakerWorld = new Beakerb2World(beaker_world_width_px, B2WORLD_HEIGHT, current_x , current_y, beaker_width_px, beaker_height_px, beaker_depth_px) ;
-			this.addChild(this.beakerWorld);
-			this.beakerWorld.x = current_x;
-			this.beakerWorld.y = current_y;
-			separation_x = current_x - GLOBAL_PARAMETERS.PADDING;
-			//this.height_px = Math.max(this.height_px, current_y + this.beakerWorld.height_px)
-		} else if (GLOBAL_PARAMETERS.INCLUDE_EMPTY)
-		{
-			var empty_world_width_px = this.width_px - this.BORDER_WIDTH - current_x;
-			this.emptyWorld = new Emptyb2World(empty_world_width_px, B2WORLD_HEIGHT, current_x , current_y) ;
-			this.addChild(this.emptyWorld);
-			this.emptyWorld.x = current_x;
-			this.emptyWorld.y = current_y;
-			separation_x = current_x - GLOBAL_PARAMETERS.PADDING;
-		}
+			
+			this.createBeakerInWorld(world_width_px/4, world_height_px-10, 5, 8, 5, 1.0, 0.5, "dynamic");
+			//this.createBeakerInWorld(world_width_px*2/3, world_height_px-10, 10, 3, 5, 0.0, 0.0, "dynamic");
+			this.createScaleInWorld(world_width_px*2/3, world_height_px-10, 5, "dynamic");
+		} 
 		var export_offsetL = 250;
 		var export_offsetR = 50;
 
@@ -159,6 +141,7 @@
 			this.g.lineTo(separation_x,this.height_px-this.BORDER_WIDTH);
 			this.g.endFill();
 		}
+		//this.shape.cache(0, 0, this.height_px, this.width_px);
 
 		this.actors = new Array();
 
@@ -174,7 +157,7 @@
 	p.redraw = function()
 	{
 		stage.ready_to_update = true;
-			
+		this.shape.cache(0, 0, this.height_px, this.width_px);	
 	}
 
 	
@@ -188,8 +171,7 @@
 			actor = new Cylinderb2Actor(o); 
 		} else if (o.is_rectPrism){
 			actor = new RectPrismb2Actor(o); 
-		}
-		 
+		}	 
 		 
 		if (this.library != null && this.library.addObject(actor)){
 			actor.onPress = this.actorPressHandler.bind(this);
@@ -199,7 +181,6 @@
 			if (this.library.getIsFull() && typeof builder != "undefined" && builder != null){
 				builder.disableWithText('The library is full. To make a new model, first delete an old one.');
 			}
-
 			return true;
 		} else {
 			return false;
@@ -212,22 +193,9 @@
 	}
 
 	/** Place an object directly in the world */
-	p.createObjectInWorld = function (o, world, x, y, rotation, type)
+	p.createObjectInWorld = function (o, x, y, rotation, type)
 	{
 		
-		var b2world;
-		if (world == "empty" && typeof this.emptyWorld != "undefined" && this.emptyWorld != null){
-			b2world = this.emptyWorld;
-		} else if (world == "balance" && typeof this.balanceWorld != "undefined" && this.balanceWorld != null){
-			b2world = this.balanceWorld;
-		} else if (world == "scale" && typeof this.scaleWorld != "undefined" && this.scaleWorld != null){
-			b2world = this.scaleWorld;
-		} else if (world == "beaker" && typeof this.beakerWorld != "undefined" && this.beakerWorld != null){
-			b2world = this.beakerWorld;
-		} else {
-			return false;
-		}
-
 		var actor;
 		if (o.is_blockComp){
 			actor = new BlockCompb2Actor(o); 
@@ -238,79 +206,112 @@
 		}
 		actor.can_switch_worlds = false;
 
-		var wpoint = b2world.globalToLocal(b2world.x + x * GLOBAL_PARAMETERS.SCALE + actor.skin.width_px_left, b2world.y + b2world.height_px - y * GLOBAL_PARAMETERS.SCALE - actor.skin.height_px_below);
-		//b2world.addActor(actor, wpoint.x, wpoint.y);
-		b2world.addActor(actor, x * GLOBAL_PARAMETERS.SCALE, b2world.height_px - y * GLOBAL_PARAMETERS.SCALE - actor.skin.height_px_below);
-		actor.orig_parent = b2world;
+		//var wpoint = this.testingWorld.globalToLocal(testingWorld.x + x * GLOBAL_PARAMETERS.SCALE + actor.skin.width_px_left, testingWorld.y + testingWorld.height_px - y * GLOBAL_PARAMETERS.SCALE - actor.skin.height_px_below);
+		
+		this.testingWorld.addActor(actor, x * GLOBAL_PARAMETERS.SCALE, testingWorld.height_px - y * GLOBAL_PARAMETERS.SCALE - actor.skin.height_px_below);
+		actor.orig_parent = this.testingWorld;
 		if (type == "dynamic"){
 			actor.onPress = this.actorPressHandler.bind(this);
 		}
 
 		return true;
-		
 	}	
-	
+
+	/** Place an interactive beaker in the testing world */
+	p.createBeakerInWorld = function (x, y, width_units, height_units, depth_units, init_liquid_volume_perc, spilloff_volume_perc, type){
+		var beaker = new Beakerb2Actor(width_units, height_units, depth_units, init_liquid_volume_perc, spilloff_volume_perc);
+		beaker.can_switch_worlds = false;
+		this.testingWorld.addBeaker(beaker, x, y);
+		beaker.orig_parent = this.testingWorld;
+		if (typeof type !== "undefined" && type == "dynamic"){
+			beaker.skin.backContainer.onPress = this.actorPressHandler.bind(this);
+		}
+
+		return true;		
+	}
+
+	p.createScaleInWorld = function (x, y, pan_width_units, type){
+		var scale = new Scaleb2Actor(pan_width_units, 0.1);
+		scale.can_switch_worlds = false;
+		this.testingWorld.addScale (scale, x, y);
+		scale.orig_parent = this.testingWorld;
+		if (typeof type !== "undefined" && type == "dynamic"){
+			scale.onPress = this.actorPressHandler.bind(this);
+		}
+
+		return true;
+	}
+
 	/** Removes object from its current parent, allows movement based on current*/
 	p.actorPressHandler = function (evt)
 	{
 		if (this.dragging_object != null) return;
-		this.dragging_object = evt.target;
+		var is_beaker = false;
+		if (typeof evt.target.beakerShape !== "undefined"){
+			is_beaker = true;
+			evt.target = evt.target.beakerShape.relativeParent;
+		}
 		var source_parent = evt.target.parent;
-		var gp = source_parent.localToGlobal(evt.target.x, evt.target.y);
+		//some special processing here for a beaker because the beaker has its front and back directly as children on world, put on beaker itself
 		var offset = evt.target.globalToLocal(evt.stageX, evt.stageY);
-		// remove object from wherever it is and place it on this object
-		if (source_parent instanceof ObjectLibrary)
-		{
+
+		var lp = source_parent.localToLocal(evt.target.x, evt.target.y, this);
+		// if object was in libarary remove
+		if (source_parent instanceof ObjectLibrary){
 			source_parent.removeObject(evt.target);
-		} else if (source_parent instanceof Balanceb2World)
-		{
-			source_parent.removeActor(evt.target);
-		} else if (source_parent instanceof Scaleb2World)
-		{
-			source_parent.removeActor(evt.target);
-		} else if (source_parent instanceof Beakerb2World)
-		{
-			source_parent.removeActor(evt.target);
-		} else if (source_parent instanceof Emptyb2World)
-		{
+		} else if (source_parent instanceof Testingb2World){
+			if (evt.target instanceof Beakerb2Actor) {
+				source_parent.removeBeaker(evt.target);
+			} else if (evt.target instanceof Scaleb2Actor) {
+				source_parent.removeScale(evt.target);
+			} else {
+				source_parent.removeActor(evt.target);
+			}
+		} else if (source_parent instanceof Beakerb2Actor){
+			source_parent = source_parent.parent;
+			if (evt.target instanceof Beakerb2Actor) {
+				source_parent.removeBeaker(evt.target);
+			} else if (evt.target instanceof Scaleb2Actor) {
+				source_parent.removeScale(evt.target);
+			} else {
+				source_parent.removeActor(evt.target);
+			}
+		} else {
 			source_parent.removeActor(evt.target);
 		}
-		var lp = this.globalToLocal(gp.x, gp.y);
+
+		this.dragging_object = evt.target;
+		//var gp = source_parent.localToGlobal(evt.target.x, evt.target.y);
+					
+		//var lp = this.globalToLocal(gp.x, gp.y);
 		this.addChild(evt.target);
 		evt.target.x = lp.x;
 		evt.target.y = lp.y;
 		evt.target.rotation = 0;
 		evt.target.update();
-		evt.onMouseMove = function (ev)
-		{
+		evt.onMouseMove = function (ev){
 			var parent = this.target.parent;
 			var lpoint = parent.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
 			var newX = lpoint.x;
 			var newY = lpoint.y;
-			
-			
 			// place within bounds of this object
-			if (parent instanceof ObjectTestingPanel)
-			{
+			if (parent instanceof ObjectTestingPanel){
 				if (this.target.can_switch_worlds){
-					if (newX < 0){this.target.x = 0;
+					if (newX < 0){ this.target.x = 0;
 					} else if (newX > parent.width_px){	this.target.x = parent.width_px;
-					} else{	this.target.x = newX;
+					} else { this.target.x = newX;
 					}
 
-					if (newY < 0){this.target.y = 0;
-					} else if (newY > parent.height_py){this.target.y = parent.height_py;
-					} else{this.target.y = newY;
+					if (newY < 0){ this.target.y = 0;
+					} else if (newY > parent.height_py){ this.target.y = parent.height_py;
+					} else { this.target.y = newY;
 					} 
 				} else {
 					// keep the target within the space of its source_parent object
 					if (newX > source_parent.x + this.target.width_px_left && newX < source_parent.x + source_parent.width_px - this.target.width_px_right) this.target.x = newX;
-					if (newY > source_parent.y + this.target.height_px_above && newY < source_parent.y + source_parent.height_px - this.target.height_px_below) this.target.y = newY;
+					if (newY > source_parent.y && newY < source_parent.y + source_parent.height_px - this.target.height_px_below) this.target.y = newY;
 				}
-			} else if (parent instanceof Beakerb2World)
-			{
-				parent.placeObject(this.target, ev.stageX-offset.x, ev.stageY-offset.y);
-			}
+			} 
 			stage.needs_to_update = true;
 		}
 		evt.onMouseUp = function (ev)
@@ -319,35 +320,32 @@
 			var parent = this.target.parent;
 			var wpoint;
 			//
-			if (parent.balanceWorld != null && parent.balanceWorld.hitTestObject(this.target))
-			{
-				wpoint = parent.balanceWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
-				parent.balanceWorld.addActor(this.target, wpoint.x, wpoint.y);
-			} else if (parent.scaleWorld != null && parent.scaleWorld.hitTestObject(this.target))
-			{
-				wpoint = parent.scaleWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
-				parent.scaleWorld.addActor(this.target, wpoint.x, wpoint.y);
-			} else if (parent.beakerWorld != null && parent.beakerWorld.hitTestObject(this.target))
-			{
-				wpoint = parent.beakerWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
-				parent.beakerWorld.addActor(this.target, wpoint.x, wpoint.y);
-			} else if (parent.emptyWorld != null && parent.emptyWorld.hitTestObject(this.target))
-			{
-				wpoint = parent.emptyWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
-				parent.emptyWorld.addActor(this.target, wpoint.x, wpoint.y);
-			}else
-			{
+			if (parent.testingWorld != null && (!this.target.can_switch_worlds || parent.testingWorld.hitTestObject(this.target))) {
+				wpoint = parent.testingWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
+				if (this.target instanceof Beakerb2Actor){
+					parent.testingWorld.addBeaker(this.target, wpoint.x, wpoint.y);
+				} else if (this.target instanceof Scaleb2Actor){
+					parent.testingWorld.addScale(this.target, wpoint.x, wpoint.y);
+				} else {
+					parent.testingWorld.addActor(this.target, wpoint.x, wpoint.y);
+				}
+			} else {
 				if (parent.library != null){
 					parent.library.addObject(this.target);
 				} else {
 					wpoint = source_parent.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
-					source_parent.addActor(this.target, wpoint.x, wpoint.y);
+					if (this.target instanceof Beakerb2Actor){
+						source_parent.addBeaker(this.target, wpoint.x, wpoint.y);
+					} else if (this.target instanceof Scaleb2Actor){
+						source_parent.addScale(this.target, wpoint.x, wpoint.y);
+					} else {
+						source_parent.addActor(this.target, wpoint.x, wpoint.y);
+					}					
 				}
 			}
 			stage.needs_to_update = true;			
 		}
 	}
-
 	
 	window.ObjectTestingPanel = ObjectTestingPanel;
 }(window));

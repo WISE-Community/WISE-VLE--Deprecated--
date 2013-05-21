@@ -878,6 +878,12 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 			 */
 		}
 	}
+	
+	/*
+	 * unlock the screen since we previously locked it to make the student wait
+	 * for the feedback to be displayed
+	 */
+	eventManager.fire('unlockScreenEvent');
 };
 
 /**
