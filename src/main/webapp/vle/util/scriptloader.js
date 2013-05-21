@@ -466,7 +466,8 @@ var scriptloader = function(){
 		            'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js',
 		            'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js',
 		            'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js',
-		            'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js'],
+		            'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js',
+		            'vle/navigation/tagmapconstraints/XMustHaveStatusYConstraint.js'],
 		uicontrol:['vle/view/vle/vleview_uicontrol.js'],
 		audio:['vle/sound/AudioManager.js',
 		       'vle/sound/md5.js',
@@ -564,7 +565,8 @@ var scriptloader = function(){
         'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
         'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
         'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
-        'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js']
+        'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/XMustHaveStatusYConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js']
     };
 	
 	// add jQuery UI/jQuery core dependency

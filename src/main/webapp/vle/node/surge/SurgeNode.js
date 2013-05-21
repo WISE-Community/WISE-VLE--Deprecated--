@@ -30,9 +30,9 @@ SurgeNode.availableStatuses = [
 
 //The special statuses that can be satisfied by any of the statuses in the group
 SurgeNode.specialStatusValues = [
-	{statusValue:'atLeastBronze', possibleStatusValues:['bronze', 'silver', 'gold']},
-	{statusValue:'atLeastSilver', possibleStatusValues:['silver', 'gold']},
-	{statusValue:'atLeastGold', possibleStatusValues:['gold']}
+	{statusType:'surgeMedal', statusValue:'atLeastBronze', possibleStatusValues:['bronze', 'silver', 'gold']},
+	{statusType:'surgeMedal', statusValue:'atLeastSilver', possibleStatusValues:['silver', 'gold']},
+	{statusType:'surgeMedal', statusValue:'atLeastGold', possibleStatusValues:['gold']}
 ];
 
 
@@ -165,10 +165,20 @@ SurgeNode.prototype.getHTMLContentTemplate = function() {
  */
 SurgeNode.prototype.processStudentWork = function(nodeVisits) {
 	if(nodeVisits != null) {
+		if(nodeVisits.length > 0) {
+			//the student has visited this step
+			this.setStatus('isVisited', true);
+		}
+	}
+	
+	if(nodeVisits != null) {
 		//get the latest node state
 		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
 		
 		if(nodeState != null) {
+			//the student has completed this step
+			this.setStatus('isCompleted', true);
+			
 			var response = nodeState.response;
 			
 			if(response != null && response != "") {
@@ -246,14 +256,14 @@ SurgeNode.prototype.isCompleted = function(nodeVisits) {
  * 
  * @return whether the status value satisfies the requirement
  */
-SurgeNode.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatisfy) {
+SurgeNode.prototype.isStatusValueSatisfied = function(statusType, statusValue, statusValueToSatisfy) {
 	var result = false;
 	var specialStatusValues = SurgeNode.specialStatusValues;
 	
-	if(statusValue == statusValueToSatisfy) {
+	if(statusValue + '' == statusValueToSatisfy + '') {
 		//the status matches the required value
 		result = true;
-	} else if(this.matchesSpecialStatusValue(statusValue, statusValueToSatisfy, specialStatusValues)) {
+	} else if(this.matchesSpecialStatusValue(statusType, statusValue, statusValueToSatisfy, specialStatusValues)) {
 		result = true;
 	}
 	

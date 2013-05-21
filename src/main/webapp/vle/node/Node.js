@@ -37,7 +37,8 @@ function Node(nodeType, view){
 		                        {functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
 		                        {functionName:'mustCompleteBeforeExiting', functionArgs:[]},
 		                        {functionName:'mustCompleteXBefore', functionArgs:[]},
-		                        {functionName:'mustVisitXBefore', functionArgs:[]}
+		                        {functionName:'mustVisitXBefore', functionArgs:[]},
+		                        {functionName:'xMustHaveStatusY', functionArgs:['statusType', 'statusValue']}
 		                        ];
 	} else {
 		//node is a step
@@ -45,7 +46,8 @@ function Node(nodeType, view){
 		                        {functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
 		                        {functionName:'mustCompleteBeforeExiting', functionArgs:[]},
 		                        {functionName:'mustCompleteXBefore', functionArgs:[]},
-		                        {functionName:'mustVisitXBefore', functionArgs:[]}
+		                        {functionName:'mustVisitXBefore', functionArgs:[]},
+		                        {functionName:'xMustHaveStatusY', functionArgs:['statusType', 'statusValue']}
 		                        ];
 	}
 	
@@ -1978,7 +1980,7 @@ Node.prototype.statusesMatch = function(statusesToSatisfy, statuses) {
 		var tempNodeStatusValue = tempNode.getStatus(tempStatusType);
 		
 		//check if the value satisfies the requirement
-		if(tempNode.isStatusValueSatisfied(tempNodeStatusValue, tempStatusValueToSatisfy)) {
+		if(tempNode.isStatusValueSatisfied(tempStatusType, tempNodeStatusValue, tempStatusValueToSatisfy)) {
 			tempResult = true;
 		} else {
 			tempResult = false;
@@ -2005,13 +2007,13 @@ Node.prototype.statusesMatch = function(statusesToSatisfy, statuses) {
  * 
  * @return whether the status value satisfies the requirement
  */
-Node.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatisfy) {
+Node.prototype.isStatusValueSatisfied = function(statusType, statusValue, statusValueToSatisfy) {
 	var result = false;
 	
-	if(statusValue == statusValueToSatisfy) {
+	if(statusValue + '' == statusValueToSatisfy + '') {
 		//the status matches the required value
 		result = true;
-	} else if(this.matchesSpecialStatusValue(statusValue, statusValueToSatisfy)) {
+	} else if(this.matchesSpecialStatusValue(statusType, statusValue, statusValueToSatisfy)) {
 		result = true;
 	}
 	
@@ -2021,14 +2023,14 @@ Node.prototype.isStatusValueSatisfied = function(statusValue, statusValueToSatis
 /**
  * Determines if a status value satisfies the status value to satisfy
  * 
- * @param statusValue the status value for the node
- * @param statusValueToSatisfy the status value to satisfy
+ * @param statusValue the status value for the node e.g. 'surgeMedal'
+ * @param statusValueToSatisfy the status value to satisfy e.g. 'atLeastBronze'
  * @param specialStatusValues (optional) the special status. this is
  * usually the special status values from a child step.
  * 
  * @return whether the status value satisfies the status value to satisfy
  */
-Node.prototype.matchesSpecialStatusValue = function(statusValue, statusValueToSatisfy, specialStatusValues) {
+Node.prototype.matchesSpecialStatusValue = function(statusType, statusValue, statusValueToSatisfy, specialStatusValues) {
 	//use the special status values from the generic node if none were passed in
 	if(specialStatusValues == null) {
 		specialStatusValues = Node.specialStatusValues;
@@ -2040,13 +2042,19 @@ Node.prototype.matchesSpecialStatusValue = function(statusValue, statusValueToSa
 		var tempSpecialStatusValue = specialStatusValues[x];
 		
 		if(tempSpecialStatusValue != null) {
+			//get the status type e.g. 'surgeMedal'
+			var tempStatusType = tempSpecialStatusValue.statusType;
+			
 			//get the status value e.g. 'atLeastBronze'
 			var tempStatusValue = tempSpecialStatusValue.statusValue;
 			
 			//get the possible actual status values that will satisfy the tempStatusValue e.g. ['bronze', 'silver', 'gold']
 			var tempPossibleStatusValues = tempSpecialStatusValue.possibleStatusValues;
 			
-			if(statusValueToSatisfy == tempStatusValue) {
+			//check that the status types match and the status values match
+			if(statusType == tempStatusType && statusValueToSatisfy == tempStatusValue) {
+				//we have found the special status entry we want
+				
 				if(tempPossibleStatusValues != null) {
 					//check if the status value the node has is in the array of acceptible status values
 					if(tempPossibleStatusValues.indexOf(statusValue) != -1) {
