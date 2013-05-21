@@ -740,11 +740,18 @@ SVGDRAW.prototype.autoGradeWork = function() {
 				if(this.content.autoScoring.autoScoringDoNotDisplayFeedbackToStudentOnLastChance && chancesLeft == 1) {
 					alert('Good Job!\n\nYou have used up all your chances to submit.\n\nYou can continue to edit your drawing if you need to.');
 				} else {
-					//show the Feedback button at the top right of the vle next to the previous and next arrows
-					this.view.displayNodeAnnotation(this.node.id);
-					
-					//display the feedback in a popup dialog
-					eventManager.fire("showNodeAnnotations",[this.node.id]);
+					if(this.content.autoScoring.autoScoringDisplayScoreToStudent || this.content.autoScoring.autoScoringDisplayFeedbackToStudent) {
+						//we need to show the score of text feedback to the student
+						
+						//show the Feedback button at the top right of the vle next to the previous and next arrows
+						this.view.displayNodeAnnotation(this.node.id);
+						
+						//display the feedback in a popup dialog
+						eventManager.fire("showNodeAnnotations",[this.node.id]);
+					} else {
+						//we are not going to show the score or the text feedback to the student
+						alert('Thank you for submitting your work.');
+					}
 				}
 			}
 		} else {
