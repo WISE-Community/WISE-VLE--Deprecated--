@@ -6,76 +6,54 @@
  * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
  * Allows users to add a description/annotation to their drawing
- * Requires 'ext-description.css' to be included in 'extension' directory
- * JQuery UI with dialogs and sliders plus accompanying css also required
+ * 
+ * Dependencies:
+ * - Accompanying css file ('ext-description.css' should be included in 'extensions' directory)
+ * - jQuery UI with dialogs and sliders plus accompanying css
  * 
  * TODO: i18n
  */
 
 svgEditor.addExtension("Description", function(S) {
 	
-	// public extension variables and methods (accessible via svgEditor object)
-	svgEditor.ext_description = {
-		content: '', // String to store the description text
-		loaded: false, // Boolean to indicate whether extension has finished loading
-		/** 
-		 * Sets the stored description text to the given value and updates the UI display
-		 * 
-		 * @param value String for description text
-		 */
-		set: function(value){
-			this.content = value;
-			if(value && value !== ''){
-				$('#description span.minimized').text(value);
-			} else {
-				$('#description span.minimized').text('(Click to add)');
-			}
-			this.changed(value); // call description update listener
-		},
-		/** 
-		 * Returns the stored description text
-		 * 
-		 * @param value String for description text
-		 */
-		get: function(){
-			return this.content;
-		},
-		/**
-		 * Toggles the UI to be maximized or minimized; Accessible via svgEditor object
-		 * 
-		 * @param close Boolean to indicate whether we should be closing the input field or not
-		 */
-		toggle: function(close){
-			if(close){
-				$('#description').css('height','30px');
-				$('#description_content').hide();
-				$('#description_edit').show();
-				$('#description_collapse').hide();
-				$('#description span.maximized').hide();
-				$('#description span.minimized').show();
-			}
-			else {
-				$('#description').css('height','125px');
-				$('#description_content').css('height','75px').show().focus();
-				$('#description_edit').hide();
-				$('#description_collapse').show();
-				$('#description span.minimized').hide();
-				$('#description span.maximized').show();
-			}
-		},
-		/**
-		 * Listener function that is called when the description has been updated
-		 */
-		changed: function(){
-			// optional: override with custom actions
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
+	/* Private variables */
+	var content = '', // String to store the description text
+		loaded = false; // Boolean to indicate whether extension has finished loading
+	
+	/* Private functions */
+	function setContent(value){
+		content = value;
+		if(value !== ''){
+			$('#description span.minimized').text(value);
+		} else {
+			$('#description span.minimized').text('(Click to add)');
 		}
-	};
+		
+		if(!loaded){
+			// on first load, set extension loaded variable to true and call extension loaded listener
+			loaded = true;
+			svgEditor.ext_stamps.loadComplete();
+		}
+	}
+	
+	function toggle(close){
+		if(close){
+			$('#description').css('height','30px');
+			$('#description_content').hide();
+			$('#description_edit').show();
+			$('#description_collapse').hide();
+			$('#description span.maximized').hide();
+			$('#description span.minimized').show();
+		}
+		else {
+			$('#description').css('height','125px');
+			$('#description_content').css('height','75px').show().focus();
+			$('#description_edit').hide();
+			$('#description_collapse').show();
+			$('#description span.minimized').hide();
+			$('#description span.maximized').show();
+		}
+	}
 	
 	function setupDisplay(){
 		// setup extension UI components
@@ -93,8 +71,7 @@ svgEditor.addExtension("Description", function(S) {
 		// save current description text on keyup events in the description content input field
 		$('#description_content').on('keyup', function(event){
 			var value = $('#description_content').val();
-			svgEditor.ext_description.set(value);
-			svgEditor.ext_description.changed(); // call extension update listener
+			svgEditor.ext_description.content(value);
 			//svgEditor.changed = true;
 		});
 		
@@ -106,11 +83,58 @@ svgEditor.addExtension("Description", function(S) {
 			svgEditor.ext_description.toggle(true);
 		});
 		
-		svgEditor.ext_description.toggle(true);
-		
-		// set extension loaded variable to true and call extension loaded listener
-		svgEditor.ext_description.loaded = true;
-		svgEditor.ext_description.loadComplete();
+		setContent(content); // set initial description content
+		toggle(true);
+	};
+	
+	/* Public API (accessible via svgEditor object) */
+	svgEditor.ext_description = {
+		/** 
+		 * Gets or sets the stored description text and updates the UI display
+		 * 
+		 * @param _ String description content
+		 * @returns String description content
+		 * @returns Object this
+		 */
+		content: function(_){
+			if(!arguments.length){ return content; } // no arguments, so return content
+			
+			if(typeof _ === 'string'){
+				setContent(_);
+				this.changed(); // call content update listener
+			}
+			return this;
+		},
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		},
+		/**
+		 * Toggles the UI to be maximized or minimized
+		 * 
+		 * @param close Boolean to indicate whether we should be closing the input field or not
+		 * @returns Object this
+		 */
+		toggle: function(close){
+			toggle(close);
+			return this;
+		},
+		/**
+		 * Listener function that is called when the description has been updated
+		 */
+		changed: function(){
+			// optional: override with custom actions
+		},
+		/**
+		 * Listener function that is called when the extension has fully loaded
+		 */
+		loadComplete: function(){
+			// optional: override with custom actions
+		}
 	};
 	
 	return {

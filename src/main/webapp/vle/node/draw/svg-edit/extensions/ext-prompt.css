@@ -4,12 +4,10 @@
 }
 
 #svg_editor #tool_prompt {
-	position:relative;
-	top:0;
-	clear:left;
-	float:right;
-	margin:0 2px;
-	cursor:pointer;
+	cursor: pointer;
+    float: right;
+    margin-left: 4px;
+    padding-top: 34px;
 }
 
 #svg_editor #tool_prompt div {

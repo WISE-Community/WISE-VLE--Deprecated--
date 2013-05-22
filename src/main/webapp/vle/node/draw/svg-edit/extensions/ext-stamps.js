@@ -6,14 +6,16 @@
  * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
  * Adds a stamp tool to svg-edit (an alternative to the built-in image tool)
- * Designed for use in the WISE4 learning environment (http://wise4.berkeley.edu)
  * 
- * Requires 'ext-stamps.css' to be included in 'extension' directory
+ * Dependencies:
+ * - Accompanying css ('ext-stamps.css' should be included in 'extensions' directory)
  * 
  * TODO: i18n
  */
  
 svgEditor.addExtension("Stamps", function(S) {
+	
+	/* Private variables */
 	var getNextId = S.getNextId,
 		addSvgElementFromJson = S.addSvgElementFromJson,
 		assignAttributes = S.assignAttributes,
@@ -22,64 +24,27 @@ svgEditor.addExtension("Stamps", function(S) {
 		getId = S.getId,
 		transformPoint = S.transformPoint;
 	
-	var activeStamp = null; // holds active stamp image
-	// default stamp images
-	var defaultStamps = [
-	    {
-		    "title": "Logo (SVG)",
-		    "uri": "extensions/logo.svg",
-		    "width": 50,
-		    "height": 50
-		},
-		{
-		    "title": "Logo (PNG)",
-		    "uri": "extensions/logo.png",
-		    "width": 50,
-		    "height": 50
-		}
-	]; 
+	var activeIndex = -1; // Index to hold active stamp (from 'content' Array)
+		// Array to store the stamp images
+		content = [
+			{
+			    "title": "Logo (SVG)",
+			    "uri": "extensions/logo.svg",
+			    "width": 50,
+			    "height": 50
+			},
+			{
+			    "title": "Logo (PNG)",
+			    "uri": "extensions/logo.png",
+			    "width": 50,
+			    "height": 50
+			}
+		],
+		loaded = false; // Boolean to indicate whether extension has finished loading
 	
-	// public extension variables and methods (accessible via svgEditor object)
-	svgEditor.ext_stamps = {
-		content: [], // Array to store the stamp images
-		loaded: false, // Boolean to indicate whether extension has finished loading
-		/** 
-		 * Sets the stored prompt to the given value and updates the UI display
-		 * 
-		 * @param value String for prompt content
-		 */
-		set: function(images) {
-			this.content = images;
-			addStamps(images);
-			this.changed(images); // call extension update listener
-		},
-		/** 
-		 * Returns the stored prompt
-		 * 
-		 * @returns String representing prompt content
-		 */
-		get: function() {
-			return this.content;
-		},
-		/**
-		 * Listener function that is called when the prompt content has been updated;
-		 * Accessible via svgEditor object
-		 * 
-		 * @param value String for new prompt content
-		 */
-		changed: function(images){
-			// optional: override with custom actions
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
-		}
-	};
-	
+	/* Private functions */
 	function setActive(index){
-		activeStamp = svgEditor.ext_stamps.content[index];
+		activeIndex = index;
 		$("#stamp" + index).addClass("tool_stamp_current");
 		$('.tool_stamp').each(function(){
 			var id = 'stamp' + index;
@@ -91,43 +56,48 @@ svgEditor.addExtension("Stamps", function(S) {
 	}
 	
 	function setPreview(){
-		var height = activeStamp.height;
-		var width = activeStamp.width;
-		
-		$('#stamp_preview').attr('src',activeStamp.uri);
-		setPreviewSize();
-		
-		// align stamp preview center point to cursor on mousemove
-		$('#svgcanvas').on('mousemove', function(e){
-			var mode = svgCanvas.getMode();
-			if(mode == 'stamp'){
-				var current_zoom = svgCanvas.getZoom();
-				var offset = $('#workarea').offset();
-				var width = activeStamp.width*current_zoom;
-				var height = activeStamp.height*current_zoom;
-				var x = e.pageX-offset.left-width/2;
-				var y = e.pageY-offset.top-height/2;
-				$('#stamp_preview').css({'left': x, 'top': y, 'cursor':'crosshair'});
-				$('#stamp_preview').show();
-			}
-		});
-		
-		$('#svgcanvas').on('mouseleave', function(e){
-			$('#stamp_preview').hide();
-		});
+		if(activeIndex > -1){
+			var stamp = content[activeIndex];
+			var height = stamp.height;
+			var width = stamp.width;
+			
+			$('#stamp_preview').attr('src',stamp.uri);
+			setPreviewSize();
+			
+			// align stamp preview center point to cursor on mousemove
+			$('#svgcanvas').on('mousemove', function(e){
+				var mode = svgCanvas.getMode();
+				if(mode == 'stamp'){
+					var current_zoom = svgCanvas.getZoom();
+					var offset = $('#workarea').offset();
+					var width = stamp.width*current_zoom;
+					var height = stamp.height*current_zoom;
+					var x = e.pageX-offset.left-width/2;
+					var y = e.pageY-offset.top-height/2;
+					$('#stamp_preview').css({'left': x, 'top': y, 'cursor':'crosshair'});
+					$('#stamp_preview').show();
+				}
+			});
+			
+			$('#svgcanvas').on('mouseleave', function(e){
+				$('#stamp_preview').hide();
+			});
+		}
 	}
 	
 	function setPreviewSize(){
-		if(activeStamp){
+		if(activeIndex > -1){
+			var stamp = content[activeIndex];
 			var current_zoom = svgCanvas.getZoom();
-			var height = activeStamp.height*current_zoom;
-			var width = activeStamp.width*current_zoom;
+			var height = stamp.height*current_zoom;
+			var width = stamp.width*current_zoom;
 			$('#stamp_preview').height(height).width(width);
 		}
 	}
 	
-	function addStamps(images){
-		var stamps = images;
+	function setContent(stamps){
+		content = stamps;
+		$('#stamp_images').html(); // clear out existing stamps
 		for (var i=0; i<stamps.length; i++){
 			var num = i*1 + 1;
 			// add stamp preview image to stamp selector
@@ -154,7 +124,7 @@ svgEditor.addExtension("Stamps", function(S) {
 		setActive(0);
 		$("#stamp_images > #0").addClass("tool_stamp_current");
 		
-		// bind click event to set selected stamp image
+		// bind click event to thumbnails to set selected stamp
 		$('.tool_stamp').on('click',function(){
 			var index = $(this).attr('id');
 			index = index.replace(/^stamp/,'');
@@ -162,12 +132,9 @@ svgEditor.addExtension("Stamps", function(S) {
 			$('#tools_stamps').fadeOut("slow");
 		});
 		
-		if(svgEditor.ext_stamps.loaded){
-			// extension has already loaded, so call change listener
-			svgEditor.ext_stamps.changed();
-		} else {
-			// set extension loaded variable to true and call extension loaded listener
-			svgEditor.ext_stamps.loaded = true;
+		if(!loaded){
+			// on first load, set extension loaded variable to true and call extension loaded listener
+			loaded = true;
 			svgEditor.ext_stamps.loadComplete();
 		}
 		
@@ -194,8 +161,67 @@ svgEditor.addExtension("Stamps", function(S) {
 			}
 		});
 		
-		svgEditor.ext_stamps.set(defaultStamps); // set initial stamp images
+		setContent(content); // set initial stamp images
 	}
+	
+	/* Public API (accessible via svgEditor object) */
+	svgEditor.ext_stamps = {
+		/** 
+		 * Gets or sets the stored stamps array and updates the UI display
+		 * 
+		 * @param _ Array of stamp objects
+		 * @returns Array of stamp objects
+		 * @returns Object this
+		 */
+		content: function(_){
+			if(!arguments.length){ return content; } // no arguments, so return content
+			
+			if(typeof _ === 'string'){
+				content = _;
+				setContent(_);
+				this.changed(); // call content update listener
+			}
+			return this;
+		},
+		/** 
+		 * Gets or sets the active stamp index
+		 * 
+		 * @param value Integer of active stamp image
+		 * @returns Array active stamp index
+		 * @returns Object this
+		 */
+		active: function(_){
+			if(!arguments.length){ return activeIndex; } // no arguments, so return content
+			
+			if(_ > -1){
+				setActive(_);
+			}
+			return this;
+		},
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		},
+		/**
+		 * Listener function that is called when the prompt content has been updated;
+		 * Accessible via svgEditor object
+		 * 
+		 * @param value String for new prompt content
+		 */
+		changed: function(){
+			// optional: override with custom actions
+		},
+		/**
+		 * Listener function that is called when the extension has fully loaded
+		 */
+		loadComplete: function(){
+			// optional: override with custom actions
+		}
+	};
 	
 	return {
 		name: "Stamps",
@@ -240,21 +266,22 @@ svgEditor.addExtension("Stamps", function(S) {
 				canvash = svgCanvas.getResolution().h / current_zoom;
 			if(mode === 'stamp' && x>0 && x<canvasw && y>0 && y<canvash){ //wise4 - don't create new image if cursor is outside canvas boundaries - avoid extraneous elements
 				svgCanvas.clearSelection(); // prevent image url dialog from opening when another image is selected and selectNew config option is set to false
-				var xlinkns = "http://www.w3.org/1999/xlink";
+				var xlinkns = "http://www.w3.org/1999/xlink",
+					stamp = content[activeIndex];
 				var newImage = addSvgElementFromJson({
 					"element": "image",
 					"attr": {
-						"x": x-activeStamp.width/2,
-						"y": y-activeStamp.height/2,
-						'width': activeStamp.width,
-						'height': activeStamp.height,
+						"x": x-stamp.width/2,
+						"y": y-stamp.height/2,
+						'width': stamp.width,
+						'height': stamp.height,
 						"id": getNextId(),
 						"opacity": svgCanvas.getFillOpacity(),
 						"style": "pointer-events:inherit; display:none;" //hide stamp image initially, show it on mouseUp
 					}
 				});
 				// set image uri to current stamp uri
-        		newImage.setAttributeNS(xlinkns, "xlink:href", activeStamp.uri);
+        		newImage.setAttributeNS(xlinkns, "xlink:href", stamp.uri);
 				
 				$('#tools_stamps').fadeOut("slow");
 					
@@ -274,11 +301,12 @@ svgEditor.addExtension("Stamps", function(S) {
 			if(mode === 'stamp'){
 				// when adding an image (stamp), assign dimensions and coordinates without dragging (on mouse click)
 				// image dimensions assigned from currStamp
+				var stamp = content[activeIndex];
 				assignAttributes(shape,{
-					'width': activeStamp.width,
-					'height': activeStamp.height,
-					'x': x-activeStamp.width/2,
-					'y': y-activeStamp.height/2,
+					'width': stamp.width,
+					'height': stamp.height,
+					'x': x-stamp.width/2,
+					'y': y-stamp.height/2,
 					"style": "pointer-events:inherit;"
 				},1000);
 				return {
