@@ -39,8 +39,8 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'brainstorm', nodeClassText:'Brainstorm session'},
-	{nodeClass:'qadiscuss', nodeClassText:'Q&A Discussion'}
+	{nodeClass:'brainstorm', nodeClassText:'Brainstorm session', icon:'node/brainstorm/icons/brainstorm28.png'},
+	{nodeClass:'qadiscuss', nodeClassText:'Q&A Discussion', icon:'node/brainstorm/icons/qadiscuss28.png'}
 ];
 
 var nodeIconPath = 'node/brainstorm/icons/';

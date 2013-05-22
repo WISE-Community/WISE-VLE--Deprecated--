@@ -34,7 +34,7 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'display', nodeClassText:'Surge'}
+	{nodeClass:'display', nodeClassText:'Surge', icon:'node/surge/icons/display28.png'}
 ];
 
 var nodeIconPath = 'node/surge/icons/';

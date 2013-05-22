@@ -36,7 +36,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'datatable', nodeClassText:'Data Graph'}
+	{nodeClass:'datatable', nodeClassText:'Data Graph', icon:'node/datagraph/icons/datatable28.png'}
 ];
 
 var nodeIconPath = 'node/datagraph/icons/';

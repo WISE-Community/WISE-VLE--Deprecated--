@@ -123,11 +123,13 @@ function starmap() {
     	  var node = project.getNodeById(d.identifier),
     	  	  isValid = false,
     	  	  nodeClass = '';
+    	  var nodeIconPath = '';
     	  if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
 			nodeClass = node.getNodeClass();
 			for(var a=0;a<view.nodeClasses[node.type].length;a++){
 				if(view.nodeClasses[node.type][a].nodeClass == nodeClass){
 					isValid = true;
+					nodeIconPath = view.nodeClasses[node.type][a].icon;
 					break;
 				}
 			}
@@ -135,9 +137,9 @@ function starmap() {
     	  
     	  if(!isValid){
     		  nodeClass = view.nodeClasses[node.type][0].nodeClass;
+    		  nodeIconPath = view.nodeClasses[node.type][0].icon;
 		  }
-		  var nodeIconPath = view.nodeIconPaths[node.type];
-		  return nodeIconPath + nodeClass + '16.png';
+		  return nodeIconPath;
       };
 	  
 	  // add links between activities and steps to links array

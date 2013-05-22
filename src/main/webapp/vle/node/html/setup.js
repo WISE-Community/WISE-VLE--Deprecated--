@@ -24,15 +24,15 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'intro', nodeClassText:'Introductory Page'},
-	{nodeClass:'curriculum', nodeClassText:'Curriculum Page'},
-	{nodeClass:'display', nodeClassText:'Display Page'},
-	{nodeClass:'cartoon', nodeClassText:'Cartoon Page'},
-	{nodeClass:'codeit', nodeClassText:'Coding Page'},
-	{nodeClass:'simulation', nodeClassText:'Simulation Page'},
-	{nodeClass:'movie', nodeClassText:'Movie Page'},
-	{nodeClass:'homework', nodeClassText:'Homework Page'},
-	{nodeClass:'summary', nodeClassText:'Summary Page'}
+	{nodeClass:'intro', nodeClassText:'Introductory Page', icon:'node/html/icons/intro28.png'},
+	{nodeClass:'curriculum', nodeClassText:'Curriculum Page', icon:'node/html/icons/curriculum28.png'},
+	{nodeClass:'display', nodeClassText:'Display Page', icon:'node/html/icons/display28.png'},
+	{nodeClass:'cartoon', nodeClassText:'Cartoon Page', icon:'node/html/icons/cartoon28.png'},
+	{nodeClass:'codeit', nodeClassText:'Coding Page', icon:'node/html/icons/codeit28.png'},
+	{nodeClass:'simulation', nodeClassText:'Simulation Page', icon:'node/html/icons/simulation28.png'},
+	{nodeClass:'movie', nodeClassText:'Movie Page', icon:'node/html/icons/movie28.png'},
+	{nodeClass:'homework', nodeClassText:'Homework Page', icon:'node/html/icons/homework28.png'},
+	{nodeClass:'summary', nodeClassText:'Summary Page', icon:'node/html/icons/summary28.png'}
 ];
 
 var nodeIconPath = 'node/html/icons/';

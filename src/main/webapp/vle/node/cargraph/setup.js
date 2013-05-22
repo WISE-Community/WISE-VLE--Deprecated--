@@ -41,7 +41,7 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'simulation', nodeClassText:'CarGraph'}
+	{nodeClass:'simulation', nodeClassText:'CarGraph', icon:'node/cargraph/icons/simulation28.png'}
 ];
 
 var nodeIconPath = 'node/cargraph/icons/';

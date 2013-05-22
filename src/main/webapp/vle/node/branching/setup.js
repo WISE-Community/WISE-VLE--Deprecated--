@@ -78,7 +78,7 @@ var dependencies = [
  * 'Quiz'
  */
 var nodeClasses = [
-	{nodeClass:'display', nodeClassText:'Branching'}
+	{nodeClass:'display', nodeClassText:'Branching', icon:'node/html/icons/display28.png'}
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);

@@ -28,7 +28,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'simulation', nodeClassText:'Netlogo'}
+	{nodeClass:'simulation', nodeClassText:'Netlogo', icon:'node/netlogo/icons/simulation28.png'}
 ];
 
 componentloader.addNodeIconPath('NetlogoNode', nodeIconPath);

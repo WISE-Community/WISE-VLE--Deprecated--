@@ -34,8 +34,8 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'instantquiz', nodeClassText:'Survey 1'},
-	{nodeClass:'teacherquiz', nodeClassText:'Survey 2'}
+	{nodeClass:'instantquiz', nodeClassText:'Survey 1', icon:'node/assessmentlist/icons/instantquiz28.png'},
+	{nodeClass:'teacherquiz', nodeClassText:'Survey 2', icon:'node/assessmentlist/icons/teacherquiz28.png'}
 ];
 
 var nodeIconPath = 'node/assessmentlist/icons/';

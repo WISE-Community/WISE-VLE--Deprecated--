@@ -103,7 +103,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'codeit', nodeClassText:'Explanation Builder'}
+	{nodeClass:'codeit', nodeClassText:'Explanation Builder', icon:'node/explanationbuilder/icons/codeit28.png'}
 ];
 
 var nodeIconPath = 'node/explanationbuilder/icons/';

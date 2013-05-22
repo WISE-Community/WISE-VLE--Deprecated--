@@ -34,7 +34,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'simulation', nodeClassText:'Sensor'}
+	{nodeClass:'simulation', nodeClassText:'Sensor', icon:'node/sensor/icons/simulation28.png'}
 ];
 
 var nodeIconPath = 'node/sensor/icons/';

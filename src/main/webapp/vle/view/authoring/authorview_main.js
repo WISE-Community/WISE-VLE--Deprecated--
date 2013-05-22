@@ -268,9 +268,10 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 			}
 		}
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-			var nodeIconPath = this.nodeIconPaths[node.type];
-			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
-			mainDiv.innerHTML = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
+			var nodeType = node.type;
+			var nodeClass = node.getNodeClass();
+			var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+			mainDiv.innerHTML = '<img src=\'' + iconPath + '\' width=\'16px\'/> ';
 		} //else {
 			//mainDiv.innerHTML = reviewHtml + tabs;
 			//mainDiv.innerHTML = reviewHtml;
@@ -324,8 +325,18 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 			for(var x=0; x<nodeClassesForNode.length; x++) {
 				var nodeClassObj = nodeClassesForNode[x];
 				var opt = createElement(document, 'option');
+				
+				//get the node type
+				var nodeType = node.type;
+				
+				//get the node class
+				var nodeClass = nodeClassObj.nodeClass;
+				
+				//get the icon path
+				var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+				
 				opt.value = nodeClassObj.nodeClass;
-				opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
+				opt.innerHTML = '<img src=\'' + iconPath + '\' width=\'16px\'/> ' + nodeClassObj.nodeClassText;
 				selectDrop.appendChild(opt);
 				if(node.getNodeClass() == nodeClassObj.nodeClass){
 					selectDrop.selectedIndex = x + 1;
@@ -1912,8 +1923,18 @@ View.prototype.nodeTypeSelected = function(){
 		for(var x=0;x<nodeClassesForNode.length;x++){
 			var nodeClassObj = nodeClassesForNode[x];
 			var opt = createElement(document, 'option', {name: 'nodeClassOption'});
+			
+			//get the node type
+			var nodeType = val;
+			
+			//get the node class
+			var nodeClass = nodeClassObj.nodeClass;
+			
+			//get the icon path
+			var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+			
 			opt.value = nodeClassObj.nodeClass;
-			opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
+			opt.innerHTML = '<img src=\'' + iconPath + '\' width=\'16px\'/> ' + nodeClassObj.nodeClassText;
 			
 			select.appendChild(opt);
 		};

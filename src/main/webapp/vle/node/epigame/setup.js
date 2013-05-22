@@ -35,10 +35,10 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'mission', nodeClassText:'Generic Mission'},
-	{nodeClass:'bronze', nodeClassText:'Easy Mission'},
-	{nodeClass:'silver', nodeClassText:'Medium Mission'},
-	{nodeClass:'gold', nodeClassText:'Hard Mission'}
+	{nodeClass:'mission', nodeClassText:'Generic Mission', icon:'node/epigame/icons/mission28.png'},
+	{nodeClass:'bronze', nodeClassText:'Easy Mission', icon:'node/epigame/icons/bronze28.png'},
+	{nodeClass:'silver', nodeClassText:'Medium Mission', icon:'node/epigame/icons/silver28.png'},
+	{nodeClass:'gold', nodeClassText:'Hard Mission', icon:'node/epigame/icons/gold28.png'}
 ];
 
 var nodeIconPath = 'node/epigame/icons/';

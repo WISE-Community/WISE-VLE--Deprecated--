@@ -80,7 +80,7 @@ var dependencies = [
  * 'Quiz'
  */
 var nodeClasses = [
-	{nodeClass:'ideabasket', nodeClassText:'Idea Basket'}
+	{nodeClass:'ideabasket', nodeClassText:'Idea Basket', icon:'node/ideabasket/icons/ideabasket28.png'}
 ];
 
 var nodeIconPath = 'node/ideabasket/icons/';

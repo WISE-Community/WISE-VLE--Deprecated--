@@ -810,9 +810,16 @@ View.prototype.renderNodeCompletedListener = function(position){
 	
 	/* Set icon in nav bar */
 	if(this.currentNode.getNodeClass() && this.currentNode.getNodeClass()!='null' && this.currentNode.getNodeClass()!=''){
-		var nodeIconPath = this.nodeIconPaths[this.currentNode.type];
-		//document.getElementById('stepIcon').innerHTML = '<img src=\'' + this.iconUrl + this.currentNode.getNodeClass() + '28.png\'/>';
-		document.getElementById('stepIcon').innerHTML = '<img src=\'' + nodeIconPath + this.currentNode.getNodeClass() + '28.png\'/>';
+		//get the node type
+		var nodeType = this.currentNode.type;
+		
+		//get the node class
+		var nodeClass = this.currentNode.getNodeClass();
+		
+		//get the step icon
+		var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+		
+		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconPath + '\' width=\'28px\'/>';
 	}
 	
 	/* set title in nav bar */

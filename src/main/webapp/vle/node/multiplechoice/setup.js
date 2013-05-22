@@ -48,11 +48,11 @@ var css = [
 ];
 
 var multipleChoiceNodeClasses = [
-	{nodeClass:'multiplechoice', nodeClassText:'Multiple Choice'}
+	{nodeClass:'multiplechoice', nodeClassText:'Multiple Choice', icon:'node/multiplechoice/icons/multiplechoice28.png'}
 ];
 
 var challengeNodeClasses = [
-	{nodeClass:'challengequestion', nodeClassText:'Challenge Question'}
+	{nodeClass:'challengequestion', nodeClassText:'Challenge Question', icon:'node/multiplechoice/icons/challengequestion28.png'}
 ];
 
 var nodeIconPath = 'node/multiplechoice/icons/';

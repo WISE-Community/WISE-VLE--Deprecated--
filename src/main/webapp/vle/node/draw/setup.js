@@ -59,7 +59,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'quickdraw', nodeClassText:'Drawing'}
+	{nodeClass:'quickdraw', nodeClassText:'Drawing', icon:'node/draw/icons/quickdraw28.png'}
 ];
 
 var nodeIconPath = 'node/draw/icons/';

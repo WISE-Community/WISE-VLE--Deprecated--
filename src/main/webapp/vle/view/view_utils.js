@@ -1878,6 +1878,44 @@ View.prototype.getLatestNodeStateWithWorkFromNodeVisits = function(nodeVisits) {
 	return null;
 };
 
+/**
+ * Get the icon path given the node type and node class
+ * 
+ * @param nodeType the node type
+ * @param nodeClass the node class
+ * 
+ * @return the icon path for the node type and node class or null
+ * if none was found
+ */
+View.prototype.getIconPathFromNodeTypeNodeClass = function(nodeType, nodeClass) {
+	var iconPath = null;
+	
+	//get all the node classes for this node type
+	var nodeClassArray = this.nodeClasses[nodeType];
+	
+	if(nodeClassArray != null) {
+		//loop through all the node classes for this node type
+		for(var x=0; x<nodeClassArray.length; x++) {
+			//get a node class object
+			var tempNodeClassObj = nodeClassArray[x];
+			
+			//get the node class
+			var tempNodeClass = tempNodeClassObj.nodeClass;
+			
+			if(nodeClass == tempNodeClass) {
+				/*
+				 * the node class matches the one we want so we will get the
+				 * icon from it
+				 */
+				iconPath = tempNodeClassObj.icon;
+				break;
+			}
+		}
+	}
+	
+	return iconPath;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');
