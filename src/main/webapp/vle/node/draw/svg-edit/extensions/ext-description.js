@@ -8,7 +8,7 @@
  * Allows users to add a description/annotation to their drawing
  * 
  * Dependencies:
- * - Accompanying css file ('ext-description.css' should be included in 'extensions' directory)
+ * - Accompanying css file ('ext-description.css' should be included svg-editor.html <head>)
  * - jQuery UI with dialogs and sliders plus accompanying css
  * 
  * TODO: i18n
@@ -19,6 +19,56 @@ svgEditor.addExtension("Description", function(S) {
 	/* Private variables */
 	var content = '', // String to store the description text
 		loaded = false; // Boolean to indicate whether extension has finished loading
+	
+	/* Public API (accessible via svgEditor object) */
+	var api = svgEditor.ext_description = {
+		/** 
+		 * Gets or sets the stored description text and updates the UI display
+		 * 
+		 * @param _ String description content
+		 * @returns String description content
+		 * @returns Object this
+		 */
+		content: function(_){
+			if(!arguments.length){ return content; } // no arguments, so return content
+			
+			if(typeof _ === 'string'){
+				setContent(_);
+				this.changed(); // call content changed listener
+			}
+			return this;
+		},
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		},
+		/**
+		 * Toggles the UI to be maximized or minimized
+		 * 
+		 * @param close Boolean to indicate whether we should be closing the input field or not
+		 * @returns Object this
+		 */
+		toggle: function(close){
+			toggle(close);
+			return this;
+		},
+		/**
+		 * Listener function that is called when the description has been updated
+		 */
+		changed: function(){
+			// optional: override with custom actions
+		},
+		/**
+		 * Listener function that is called when the extension has fully loaded
+		 */
+		loadComplete: function(){
+			// optional: override with custom actions
+		}
+	};
 	
 	/* Private functions */
 	function setContent(value){
@@ -32,7 +82,7 @@ svgEditor.addExtension("Description", function(S) {
 		if(!loaded){
 			// on first load, set extension loaded variable to true and call extension loaded listener
 			loaded = true;
-			svgEditor.ext_stamps.loadComplete();
+			api.loadComplete();
 		}
 	}
 	
@@ -71,83 +121,30 @@ svgEditor.addExtension("Description", function(S) {
 		// save current description text on keyup events in the description content input field
 		$('#description_content').on('keyup', function(event){
 			var value = $('#description_content').val();
-			svgEditor.ext_description.content(value);
+			api.content(value);
 			//svgEditor.changed = true;
 		});
 		
 		// bind click events to toggle the description input display
 		$('#description_edit, .description_header span').on('click', function(){
-			svgEditor.ext_description.toggle(false);
+			toggle(false);
 		});
 		$('#description_collapse').on('click', function(){
-			svgEditor.ext_description.toggle(true);
+			toggle(true);
 		});
+		
+		// set header preview text position
+		var left = $('#description .panel_title').width() + 15;
+		var right = $('#description .description_buttons').width() + 15;
+		$('#description span.minimized').css({'left': left, 'right': right});
 		
 		setContent(content); // set initial description content
 		toggle(true);
 	};
 	
-	/* Public API (accessible via svgEditor object) */
-	svgEditor.ext_description = {
-		/** 
-		 * Gets or sets the stored description text and updates the UI display
-		 * 
-		 * @param _ String description content
-		 * @returns String description content
-		 * @returns Object this
-		 */
-		content: function(_){
-			if(!arguments.length){ return content; } // no arguments, so return content
-			
-			if(typeof _ === 'string'){
-				setContent(_);
-				this.changed(); // call content update listener
-			}
-			return this;
-		},
-		/** 
-		 * Gets whether extensions has completely loaded
-		 * 
-		 * @returns Boolean
-		 */
-		isLoaded: function(){
-			return loaded;
-		},
-		/**
-		 * Toggles the UI to be maximized or minimized
-		 * 
-		 * @param close Boolean to indicate whether we should be closing the input field or not
-		 * @returns Object this
-		 */
-		toggle: function(close){
-			toggle(close);
-			return this;
-		},
-		/**
-		 * Listener function that is called when the description has been updated
-		 */
-		changed: function(){
-			// optional: override with custom actions
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
-		}
-	};
-	
 	return {
 		name: "Description",
 		callback: function() {
-			//add extension css
-			var csspath = 'extensions/ext-description.css';
-			var fileref=document.createElement("link");
-			fileref.setAttribute("rel", "stylesheet");
-			fileref.setAttribute("type", "text/css");
-			fileref.setAttribute("href", csspath);
-			document.getElementsByTagName("head")[0].appendChild(fileref);
-			
 			setupDisplay(); // setup extension UI components and events
 		}
 	};

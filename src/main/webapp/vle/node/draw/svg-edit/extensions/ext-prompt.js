@@ -8,7 +8,7 @@
  * Adds a dialog to svg-edit that displays a prompt or instructions
  * 
  * Dependencies:
- * - Accompanying css file ('ext-prompt.css' should be included in 'extensions' directory)
+ * - Accompanying css file ('ext-prompt.css' should be included svg-editor.html <head>)
  * - jQuery UI with dialogs plus accompanying css
  * - Icon for link to open prompt (prompt.png)
  * 
@@ -21,6 +21,47 @@ svgEditor.addExtension("Prompt", function(S) {
 	var content = 'This is a prompt.', // String to store the prompt html content
 		loaded = false; // Boolean to indicate whether extension has finished loading
 	
+	/* Public API (accessible via svgEditor object) */
+	var api = svgEditor.ext_prompt = {
+		/** 
+		 * Gets or sets the stored prompt text and updates the UI display
+		 * 
+		 * @param value String prompt content
+		 * @returns String prompt content
+		 * @returns Object this
+		 */
+		content: function(_){
+			if(!arguments.length){ return content; } // no arguments, so return content
+			
+			if(typeof _ === 'string'){
+				content = _;
+				setContent(_);
+				this.changed(); // call content changed listener
+			}
+			return this;
+		},
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		},
+		/**
+		 * Listener function that is called when the prompt content has been updated
+		 */
+		changed: function(){
+			// optional: override with custom actions
+		},
+		/**
+		 * Listener function that is called when the extension has fully loaded
+		 */
+		loadComplete: function(){
+			// optional: override with custom actions
+		}
+	};
+	
 	/* Private functions */
 	function setContent(value){
 		$('#prompt_content').html(value);
@@ -28,7 +69,7 @@ svgEditor.addExtension("Prompt", function(S) {
 		if(!loaded){
 			// on first load, set extension loaded variable to true and call extension loaded listener
 			loaded = true;
-			svgEditor.ext_stamps.loadComplete();
+			api.loadComplete();
 		}
 	}
 	
@@ -70,58 +111,9 @@ svgEditor.addExtension("Prompt", function(S) {
 		setContent(content); // set initial prompt content
 	}
 	
-	/* Public API (accessible via svgEditor object) */
-	svgEditor.ext_prompt = {
-		/** 
-		 * Gets or sets the stored prompt text and updates the UI display
-		 * 
-		 * @param value String prompt content
-		 * @returns String prompt content
-		 * @returns Object this
-		 */
-		content: function(_){
-			if(!arguments.length){ return content; } // no arguments, so return content
-			
-			if(typeof _ === 'string'){
-				content = _;
-				setContent(_);
-				this.changed(); // call content update listener
-			}
-			return this;
-		},
-		/** 
-		 * Gets whether extensions has completely loaded
-		 * 
-		 * @returns Boolean
-		 */
-		isLoaded: function(){
-			return loaded;
-		},
-		/**
-		 * Listener function that is called when the prompt content has been updated
-		 */
-		changed: function(){
-			// optional: override with custom actions
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
-		}
-	};
-	
 	return {
 		name: "Prompt",
 		callback: function() {
-			//add extension css
-			var csspath = 'extensions/ext-prompt.css';
-			var fileref=document.createElement("link");
-			fileref.setAttribute("rel", "stylesheet");
-			fileref.setAttribute("type", "text/css");
-			fileref.setAttribute("href", csspath);
-			document.getElementsByTagName("head")[0].appendChild(fileref);
-			
 			setupDisplay(); // setup extension UI components and events
 		}
 	};

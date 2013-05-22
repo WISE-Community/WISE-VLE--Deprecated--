@@ -8,7 +8,7 @@
  * Adds a stamp tool to svg-edit (an alternative to the built-in image tool)
  * 
  * Dependencies:
- * - Accompanying css ('ext-stamps.css' should be included in 'extensions' directory)
+ * - Accompanying css ('ext-stamps.css' should be included svg-editor.html <head>)
  * 
  * TODO: i18n
  */
@@ -41,6 +41,65 @@ svgEditor.addExtension("Stamps", function(S) {
 			}
 		],
 		loaded = false; // Boolean to indicate whether extension has finished loading
+		
+	/* Public API (accessible via svgEditor object) */
+	var api = svgEditor.ext_stamps = {
+		/** 
+		 * Gets or sets the stored stamps array and updates the UI display
+		 * 
+		 * @param _ Array of stamp objects
+		 * @returns Array of stamp objects
+		 * @returns Object this
+		 */
+		content: function(_){
+			if(!arguments.length){ return content; } // no arguments, so return content
+			
+			if(typeof _ === 'string'){
+				content = _;
+				setContent(_);
+				this.changed(); // call content changed listener
+			}
+			return this;
+		},
+		/** 
+		 * Gets or sets the active stamp index
+		 * 
+		 * @param value Integer of active stamp image
+		 * @returns Array active stamp index
+		 * @returns Object this
+		 */
+		active: function(_){
+			if(!arguments.length){ return activeIndex; } // no arguments, so return content
+			
+			if(_ > -1){
+				setActive(_);
+			}
+			return this;
+		},
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		},
+		/**
+		 * Listener function that is called when the prompt content has been updated;
+		 * Accessible via svgEditor object
+		 * 
+		 * @param value String for new prompt content
+		 */
+		changed: function(){
+			// optional: override with custom actions
+		},
+		/**
+		 * Listener function that is called when the extension has fully loaded
+		 */
+		loadComplete: function(){
+			// optional: override with custom actions
+		}
+	};
 	
 	/* Private functions */
 	function setActive(index){
@@ -135,7 +194,7 @@ svgEditor.addExtension("Stamps", function(S) {
 		if(!loaded){
 			// on first load, set extension loaded variable to true and call extension loaded listener
 			loaded = true;
-			svgEditor.ext_stamps.loadComplete();
+			api.loadComplete();
 		}
 		
 	}
@@ -164,65 +223,6 @@ svgEditor.addExtension("Stamps", function(S) {
 		setContent(content); // set initial stamp images
 	}
 	
-	/* Public API (accessible via svgEditor object) */
-	svgEditor.ext_stamps = {
-		/** 
-		 * Gets or sets the stored stamps array and updates the UI display
-		 * 
-		 * @param _ Array of stamp objects
-		 * @returns Array of stamp objects
-		 * @returns Object this
-		 */
-		content: function(_){
-			if(!arguments.length){ return content; } // no arguments, so return content
-			
-			if(typeof _ === 'string'){
-				content = _;
-				setContent(_);
-				this.changed(); // call content update listener
-			}
-			return this;
-		},
-		/** 
-		 * Gets or sets the active stamp index
-		 * 
-		 * @param value Integer of active stamp image
-		 * @returns Array active stamp index
-		 * @returns Object this
-		 */
-		active: function(_){
-			if(!arguments.length){ return activeIndex; } // no arguments, so return content
-			
-			if(_ > -1){
-				setActive(_);
-			}
-			return this;
-		},
-		/** 
-		 * Gets whether extensions has completely loaded
-		 * 
-		 * @returns Boolean
-		 */
-		isLoaded: function(){
-			return loaded;
-		},
-		/**
-		 * Listener function that is called when the prompt content has been updated;
-		 * Accessible via svgEditor object
-		 * 
-		 * @param value String for new prompt content
-		 */
-		changed: function(){
-			// optional: override with custom actions
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
-		}
-	};
-	
 	return {
 		name: "Stamps",
 		svgicons: "extensions/stamp.xml",
@@ -243,14 +243,6 @@ svgEditor.addExtension("Stamps", function(S) {
 			}
 		}],
 		callback: function() {
-			//add extension css
-			var csspath = 'extensions/ext-stamps.css';
-			var fileref=document.createElement("link");
-			fileref.setAttribute("rel", "stylesheet");
-			fileref.setAttribute("type", "text/css");
-			fileref.setAttribute("href", csspath);
-			document.getElementsByTagName("head")[0].appendChild(fileref);
-			
 			setupDisplay();
 		},
 		zoomChanged: function(opts){
