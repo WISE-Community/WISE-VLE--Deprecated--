@@ -25,15 +25,15 @@ svgEditor.addExtension("Description", function(S) {
 		/** 
 		 * Gets or sets the stored description text and updates the UI display
 		 * 
-		 * @param _ String description content
+		 * @param val String description content
 		 * @returns String description content
 		 * @returns Object this
 		 */
-		content: function(_){
+		content: function(val){
 			if(!arguments.length){ return content; } // no arguments, so return content
 			
-			if(typeof _ === 'string'){
-				setContent(_);
+			if(typeof val === 'string'){
+				setContent(val);
 				this.changed(); // call content changed listener
 			}
 			return this;
@@ -134,7 +134,7 @@ svgEditor.addExtension("Description", function(S) {
 		});
 		
 		// set header preview text position
-		var left = $('#description .panel_title').width() + 15;
+		var left = $('#description .panel_title').width() + 12;
 		var right = $('#description .description_buttons').width() + 15;
 		$('#description span.minimized').css({'left': left, 'right': right});
 		

@@ -51,12 +51,12 @@ svgEditor.addExtension("Stamps", function(S) {
 		 * @returns Array of stamp objects
 		 * @returns Object this
 		 */
-		content: function(_){
+		content: function(val){
 			if(!arguments.length){ return content; } // no arguments, so return content
 			
-			if(typeof _ === 'string'){
-				content = _;
-				setContent(_);
+			if(typeof val === 'string'){
+				content = val;
+				setContent(val);
 				this.changed(); // call content changed listener
 			}
 			return this;
@@ -68,11 +68,11 @@ svgEditor.addExtension("Stamps", function(S) {
 		 * @returns Array active stamp index
 		 * @returns Object this
 		 */
-		active: function(_){
+		active: function(val){
 			if(!arguments.length){ return activeIndex; } // no arguments, so return content
 			
-			if(_ > -1){
-				setActive(_);
+			if(val > -1){
+				setActive(val);
 			}
 			return this;
 		},
