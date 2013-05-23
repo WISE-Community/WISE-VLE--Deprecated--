@@ -12,7 +12,7 @@
  * - jQuery UI with dialogs plus accompanying css
  * - Icon for link to open prompt (prompt.png)
  * 
- * TODO: i18n
+ * TODO: i18n; fix link placement
  */
  
 svgEditor.addExtension("Prompt", function(S) {
@@ -30,12 +30,12 @@ svgEditor.addExtension("Prompt", function(S) {
 		 * @returns String prompt content
 		 * @returns Object this
 		 */
-		content: function(_){
+		content: function(val){
 			if(!arguments.length){ return content; } // no arguments, so return content
 			
-			if(typeof _ === 'string'){
-				content = _;
-				setContent(_);
+			if(typeof val === 'string'){
+				content = val;
+				setContent(val);
 				this.changed(); // call content changed listener
 			}
 			return this;
@@ -47,6 +47,15 @@ svgEditor.addExtension("Prompt", function(S) {
 		 */
 		isLoaded: function(){
 			return loaded;
+		},
+		/**
+		 * Opens this prompt dialog
+		 * 
+		 * @returns Object this
+		 */
+		show: function(){
+			$('#prompt_dialog').dialog('open');
+			return this;
 		},
 		/**
 		 * Listener function that is called when the prompt content has been updated
@@ -76,12 +85,12 @@ svgEditor.addExtension("Prompt", function(S) {
 	function setupDisplay(){
 		// setup extension UI components
 		var linktext = '<div id="tool_prompt" class="extension_link">' +
-			'<a class="label tool_prompt" title="Review Instructions">Review Instructions</a>' +
+			'<a class="label tool_prompt" title="Review Instructions">Instructions</a>' +
 			'<img class="tool_prompt" src="extensions/prompt.png" ' + // TODO: create svg icon
 			'title="Review Instructions" alt="icon" />' +
 			'</div>';
-		var dialogtxt = '<div id="prompt_dialog" title="Instructions" style="display:none;">' +
-			'<div id="prompt_content" class="ui-dialog-content-content"></div></div>';
+		var dialogtxt = '<div id="prompt_dialog" style="display:none;">' +
+			'<div id="prompt_content"></div></div>';
 		
 		// add extension UI components to page
 		$('#tools_top').append(linktext);
@@ -89,10 +98,11 @@ svgEditor.addExtension("Prompt", function(S) {
 		
 		// setup jQuery UI dialog to view prompt content
 		$('#prompt_dialog').dialog({
+			title: 'Instructions',
 			resizable: false,
 			modal: true,
 			autoOpen:false,
-			width:650,
+			width:600,
 			buttons: [
 				{
 			    	text: 'OK',
