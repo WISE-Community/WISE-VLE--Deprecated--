@@ -6,7 +6,7 @@
  * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
  * Customizes the svg-edit user interface for use in the WISE4 learning environment
- * Adds svgEditor.changed variable for use when saving student data in WISE4
+ * Adds check for drawing size limits and an svgEditor.changed variable for use when saving student data in WISE4
  * 
  * TODO: i18n
  */
@@ -18,7 +18,7 @@ svgEditor.addExtension("WISE4", function(S) {
 	svgEditor.initLoad = false; // boolean to specify whether svgeditor is populating canvas on node entry or on snapshot click
 	var changeNum = 0;
 	
-	// fit drawing canvas and toolbars to window
+	// fit drawing canvas to workarea (accessible vie svgEditor object)
 	svgEditor.resizeCanvas = function() {
 		$('#fit_to_canvas').mouseup();
 	};
@@ -67,23 +67,23 @@ svgEditor.addExtension("WISE4", function(S) {
 		$('#tool_reorient').remove();
 		$('#tool_make_link').remove();
 		$('#tool_make_link_multi').remove();
-		$('#layerpanel').remove();
+		$('#layerpanel, #sidepanel_handle').remove();
 		$('#palette_holder').remove();
 		$('#main_button').remove();
 		$('#editor_panel > .tool_sep').remove();
 		$('#history_panel > .tool_sep').remove();
 		$('#tool_image').hide();
 		$('#image_panel > .toolset').remove();
-		$('#sidepanel_handle').remove();
 		$('#zoom_panel').hide();
 		
 		// move elements and adjust display in wise4
-		$('#tools_top').css({'left':'2px','height':'60px'});
+		$('#tools_top').css({'left':'2px','height':'62px'});
 		$('#tools_bottom_2').css('width','280px');
 		$('#tool_stroke').css('width','auto');
 		$('#tools_bottom_2 .icon_label').css('margin-top','4px');
 		$('#tools_left').css('top','66px');
 		$('#workarea, #sidepanels').css('top','66px');
+		$('#sidepanels').css('border-width','0');
 		/*$('#tool_angle').insertAfter('#tool_reorient');
 		$('#tool_opacity').insertAfter('#tool_angle');
 		$('#tool_move_top').insertAfter('#tool_opacity');

@@ -33,7 +33,12 @@ html, body, div{
 }
 
  a {
-	color: #19c;
+	color: #1C8CA8;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
  hr {
