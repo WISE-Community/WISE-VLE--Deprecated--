@@ -80,10 +80,8 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
                   shapeDensity = (fixture.materialSpaces + fixture.interiorSpaces + fixture.protectedSpaces) / fixture.area;
                } else {
                   // if we don't have the details about the fixtures try to calculate
-                  var depth = Math.sqrt(this.surfaceArea);
-                  if (depth == 0) depth = 5;
-                  var aabb = fixture.GetAABB();
-                  shapeDensity = depth / ((aabb.upperBound.x - aabb.lowerBound.x) * (aabb.upperBound.y - aabb.lowerBound.y));
+                  shapeDensity = Math.sqrt(this.surfaceArea);
+                  if (shapeDensity == 0) depth = 5;
                }
             }
             mass += sarea * shapeDensity;

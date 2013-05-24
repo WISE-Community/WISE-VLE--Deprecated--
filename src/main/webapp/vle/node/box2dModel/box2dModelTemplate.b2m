@@ -5,12 +5,10 @@
    	"type": "Box2dModel",
 	"IN_WISE":true,
 	"DEBUG" : false,
-	"STAGE_WIDTH" : 810,
-	"STAGE_HEIGHT" : 730,
+	"LAB_HEIGHT" : 500,
 	"INCLUDE_BUILDER": false,
 	"INCLUDE_CYLINDER_BUILDER":true,
 	"INCLUDE_RECTPRISM_BUILDER":false,
-	"INCLUDE_LIBRARY":true,
 	"ALLOW_REVISION":true,
 	"SHOW_VALUES_SLIDER_BUILDER":true,
 	"INCREMENT_UNITS_SLIDER_BUILDER":true,
@@ -18,22 +16,31 @@
 	"INCLUDE_BALANCE": false,
 	"INCLUDE_SCALE": true,
 	"INCLUDE_BEAKER": true,
-	"SHOW_MASS_BALANCE": false,
-    "SCALE" : 20,
+	"SCALE" : 30,
 	"MAX_WIDTH_UNITS":5,
 	"MAX_HEIGHT_UNITS":5,
 	"MAX_DEPTH_UNITS":5,
 	"MAX_OBJECTS_IN_LIBRARY": 5,
 	"view_sideAngle_degrees" : 10,
 	"view_topAngle_degrees" : 20,
-	"liquid_volume_perc" : 0.5,
- 	"spilloff_volume_perc" : 0.5,
-	"fill_spilloff_by_height":true,
-	"fill_spilloff_depth_from_middle":false,
 	"materials_available" : ["DWood", "Metal", "Plastic"],
-	"liquid_available":"Water",
 	"premades_available": [],
-	"premades_in_world":[]
+	"premades_in_world":[],
+	"beakers_in_world":[
+		{
+			"x":5,
+			"y":0,
+			"material":"Pyrex",
+			"liquid":"Water",
+			"width":5,
+			"height":8,
+			"depth":5,
+			"init_liquid_volume_perc":0.75,
+			"spilloff_volume_perc": 0,
+			"type": "dynamic"
+		}
+	],
+
 	"feedbackEvents": [],
 	"materials" :
 	{
