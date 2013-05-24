@@ -1958,7 +1958,7 @@ Node.prototype.setConstraintStatus = function(constraintStatus) {
  * @param nodeStatesJSONObj a state JSON object
  * @return a STATE object
  */
-Node.prototype.parseDataJSONObj = function(ndoeStateJSONObj) {
+Node.prototype.parseDataJSONObj = function(nodeStateJSONObj) {
 	return null;
 };
 
