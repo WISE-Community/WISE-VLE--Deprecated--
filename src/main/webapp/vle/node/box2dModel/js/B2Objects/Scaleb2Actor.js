@@ -36,6 +36,11 @@
 		this.width_px_right = this.skin.width_px_right;
 		this.height_from_depth = this.skin.height_from_depth;
 		this.width_from_depth = this.skin.width_from_depth;
+		this.height_units_below = this.skin.height_px_below / GLOBAL_PARAMETERS.SCALE;
+		this.height_units_above = this.skin.height_px_above / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_left = this.skin.width_px_left / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_right = this.skin.width_px_right / GLOBAL_PARAMETERS.SCALE;
+		
 
 		var bodyDef = this.bodyDef = new b2BodyDef;
 		bodyDef.type = b2Body.b2_dynamicBody;
@@ -85,7 +90,7 @@
 		baseBodyDef.type = b2Body.b2_dynamicBody;
 		
 		var panFixtureDef = this.panFixtureDef = new b2FixtureDef;
-		panFixtureDef.density = 200;
+		panFixtureDef.density = 100;
 		panFixtureDef.restitution = 0.0;
 		panFixtureDef.linearDamping = 1.0;
 		panFixtureDef.friction = 5.0;
@@ -118,7 +123,7 @@
 		this.controlledByBuoyancy = false;
 
 		// first destroy any current body on actor
-		if (typeof this.body !== "undefined" && this.body != null) b2world.DestroyBody(this.body);
+		if (typeof this.base !== "undefined" && this.base != null){b2world.DestroyBody(this.base); b2world.DestroyBody(this.pan); }
 		
 		var baseBodyDef = this.baseBodyDef;
 		var baseFixtureDef = this.baseFixtureDef;
@@ -126,8 +131,11 @@
 		baseBodyDef.position.y = position_y - this.base_height_units;
 		var base = this.base = this.b2world.CreateBody(baseBodyDef);
 		this.baseFixture = base.CreateFixture(baseFixtureDef);
-		base.SetFixedRotation(true);
 		base.volume = (this.base_width_units + this.base_width_top_units) / 2 * this.base_height_units * this.base_width_units;
+		this.baseFixture.materialSpaces = base.volume;
+		this.baseFixture.protectedSpaces = 0;
+		this.baseFixture.interiorSpaces = 0;
+		this.baseFixture.area = (this.base_width_units + this.base_width_top_units) / 2 * this.base_height_units;
 
 		var panBodyDef = this.panBodyDef;
 		var panFixtureDef = this.panFixtureDef;
@@ -136,7 +144,12 @@
 		var pan = this.pan = this.b2world.CreateBody(panBodyDef);
 		this.panFixture = pan.CreateFixture(panFixtureDef);
 		pan.SetFixedRotation(true);
-		pan.volume = Math.PI * Math.pow((this.pan_width_units / 2), 2) * this.pan_height_units;
+		pan.volume = Math.pow(this.pan_width_units, 2) * this.pan_height_units;
+		this.panFixture.materialSpaces = pan.volume;
+		this.panFixture.protectedSpaces = 0;
+		this.panFixture.interiorSpaces = 0;
+		this.panFixture.area = this.pan_width_units * this.pan_height_units;
+		this.pan.ResetMassData();
 
 		var panPrismJointDef = this.panPrismJointDef;
 		var vec = new b2Vec2(); vec.Set(0, 1);
@@ -145,10 +158,8 @@
 		panPrismJointDef.localAnchorB = new b2Vec2(0, 0);
 		panPrismJointDef.referenceAngle = 0;
 		panPrismJointDef.collideConnected = true;
-		//panPrismJointDef.enableMotor = true;
 		this.panPrismJoint = this.b2world.CreateJoint (panPrismJointDef);
-		//this.panPrismJoint.EnableMotor(true);
-
+		
 		var panDistJointDef = this.panDistJointDef;
 		panDistJointDef.Initialize(pan, base, pan.GetPosition(), base.GetPosition());
 		panDistJointDef.dampingRatio = 0.008;
@@ -218,15 +229,16 @@
 
 			//console.log(this.panDistJoint.GetReactionForce(1/createjs.Ticker.getFPS()).y);
 			var rF = this.panDistJoint.GetReactionForce(createjs.Ticker.getFPS()).y;
+
 			if (this.prev_rF != rF){
 				var displayrF;
 				// acount for liqiud if necessary
 				if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
-					var density = this.containedWithin.liquid.density;
-					displayrF = (rF - this.pan.GetMass()*10)/1000;
+					displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/1000;
 				} else {
 					displayrF = (rF - this.pan.GetMass()*10)/1000;
 				}
+				//displayrF = (rF - this.pan.GetMass()*10)/1000;
 				this.skin.redraw(pan_y - this.y, displayrF);
 				this.prev_rF = rF;
 			} 

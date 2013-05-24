@@ -1,9 +1,9 @@
 (function (window)
 {
 	/** This actor in the world creates its own skin based upon dimensions */
-	function Beakerb2Actor (width_units, height_units, depth_units, init_liquid_volume_perc, spilloff_volume_perc)
+	function Beakerb2Actor (material, liquid, width_units, height_units, depth_units, init_liquid_volume_perc, spilloff_volume_perc, showRuler)
 	{
-		this.initialize (width_units, height_units, depth_units, typeof init_liquid_volume_perc === "undefined"? 0: init_liquid_volume_perc, typeof spilloff_volume_perc === "undefined"? 0: spilloff_volume_perc);
+		this.initialize (material, liquid, width_units, height_units, depth_units, typeof init_liquid_volume_perc === "undefined"? 0: init_liquid_volume_perc, typeof spilloff_volume_perc === "undefined"? 0 : spilloff_volume_perc, typeof showRuler === "undefined"?true:showRuler);
 	}
 
 	var p = Beakerb2Actor.prototype = new createjs.Container();
@@ -18,9 +18,11 @@
 	p.DRAINING_PER_SECOND = 5;
 	p.ALLOW_FILL_INTERIOR = true;
 	
-	p.initialize = function (width_units, height_units, depth_units, init_liquid_volume_perc, spilloff_volume_perc)
+	p.initialize = function (material, liquid, width_units, height_units, depth_units, init_liquid_volume_perc, spilloff_volume_perc, showRuler)
 	{
 		this.Container_initialize();
+		this.material = material;
+		this.liquid = liquid;
 		this.width_units = width_units;
 		this.height_units = height_units;
 		this.depth_units = depth_units;
@@ -32,6 +34,7 @@
 		this.liquid_volume = this.init_liquid_volume;
 		this.spilloff_volume_perc = spilloff_volume_perc;
 		this.spilloff_height = height_units * spilloff_volume_perc;
+		this.showRuler = showRuler;
 
 		// save
 		this.savedObject.id = "bk" + GLOBAL_PARAMETERS.total_beakers_made++;
@@ -41,8 +44,7 @@
 		this.savedObject.init_liquid_volume_perc = init_liquid_volume_perc;
 		this.savedObject.spilloff_volume_perc = spilloff_volume_perc;
 
-
-		this.skin = new BeakerShape(this, width_units*GLOBAL_PARAMETERS.SCALE, height_units*GLOBAL_PARAMETERS.SCALE, depth_units*GLOBAL_PARAMETERS.SCALE, init_liquid_volume_perc, spilloff_volume_perc, this.savedObject);
+		this.skin = new BeakerShape(this, width_units*GLOBAL_PARAMETERS.SCALE, height_units*GLOBAL_PARAMETERS.SCALE, depth_units*GLOBAL_PARAMETERS.SCALE, init_liquid_volume_perc, spilloff_volume_perc, showRuler, this.savedObject);
 		this.addChild(this.skin.backContainer);
 		this.addChild(this.skin.frontContainer);
 		// for use when dragging
@@ -58,8 +60,6 @@
 		this.onPress = this.skin.frontContainer.onPress;
 		this.onMouseMove = this.skin.frontContainer.onMouseMove;
 		this.onMouseUp = this.skin.frontContainer.onMouseUp;
-
-		this.liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
 		
 		var bodyDef = this.bodyDef = new b2BodyDef;
 		bodyDef.type = b2Body.b2_dynamicBody;
@@ -73,6 +73,7 @@
 		this.releaseElement = null;
 		
 
+		this.puddles = [];
 		this.constructFixtures();
 	}
 
@@ -97,7 +98,7 @@
 		var skin = this.skin;
 		// beaker
 		var beakerFloorFixture = this.beakerFloorFixtureDef = new b2FixtureDef;
-		beakerFloorFixture.density = 1.0;
+		beakerFloorFixture.density = this.material.density;
 		beakerFloorFixture.filter.categoryBits = 2;
 		beakerFloorFixture.filter.maskBits = 3;
 		beakerFloorFixture.friction = 0.5;
@@ -105,7 +106,7 @@
 		beakerFloorFixture.shape.SetAsOrientedBox(this.width_units / 2 + this.BEAKER_WALL_THICKNESS / GLOBAL_PARAMETERS.SCALE, this.BEAKER_WALL_THICKNESS / 2 / GLOBAL_PARAMETERS.SCALE, new b2Vec2(0, -this.BEAKER_WALL_THICKNESS / 2 / GLOBAL_PARAMETERS.SCALE));
 		
 		var beakerLeftWallFixture = this.beakerLeftWallFixtureDef = new b2FixtureDef;
-		beakerLeftWallFixture.density = 1.0;
+		beakerLeftWallFixture.density = this.material.density * 2;
 		beakerLeftWallFixture.filter.categoryBits = 2;
 		beakerLeftWallFixture.filter.maskBits = 3;
 		beakerLeftWallFixture.friction = 0.0;
@@ -113,7 +114,7 @@
 		beakerLeftWallFixture.shape.SetAsOrientedBox(this.BEAKER_WALL_THICKNESS / 2 / GLOBAL_PARAMETERS.SCALE, this.height_units / 2, new b2Vec2(-this.width_units / 2 -this.BEAKER_WALL_THICKNESS / 2 / GLOBAL_PARAMETERS.SCALE , -this.height_units/2-this.BEAKER_WALL_THICKNESS / 2 / GLOBAL_PARAMETERS.SCALE) );
 		
 		var beakerRightWallFixture = this.beakerRightWallFixtureDef = new b2FixtureDef;
-		beakerRightWallFixture.density = 1.0;
+		beakerRightWallFixture.density = this.material.density * 2;
 		beakerRightWallFixture.filter.categoryBits = 2;
 		beakerRightWallFixture.filter.maskBits = 3;
 		beakerRightWallFixture.friction = 0.0;
@@ -173,7 +174,6 @@
 		this.draining = false;
 
 		this.actors = [];
-		this.puddles = [];
 		
 		// draw spout first time
 		if (this.refillElement != null) $("#refill-button-" + this.id).show();
@@ -193,30 +193,7 @@
 	/** Remove the body of this beaker as well as the buoyancy controller */
 	p.removeFromWorld = function (){
 		for (var i = this.actors.length-1; i >= 0; i--){
-			var actor = this.actors.splice(i, 1)[0];
-			var body = actor.body;
-			var bodyDef = actor.bodyDef;
-			body.percentSubmerged2d = [];
-			for (j = 0; j < actor.skin.array2d.length; j++) {
-				body.percentSubmerged2d[j] = [];
-				for (k = 0; k < actor.skin.array2d[0].length; k++){
-					body.percentSubmerged2d[j][k] = 0;
-				}
-			}
-			body.fullySubmerged = false;
-			body.fullyEmerged = true;
-			body.percentSubmerged2d = bodyDef.percentSubmerged2d;
-			body.percentSubmergedChangedFlag = false;
-			body.soaked = false;
-			body.SetAwake(true);
-			actor.update_flag = true;
-			actor.containedWithin = null;
-			actor.controlledByBuoyancy = false;
-			this.controller.RemoveBody(actor.body);
-			var lp = this.localToLocal(actor.x, actor.y, this.parent);
-			this.parent.addChild(actor);
-			actor.x = lp.x;
-			actor.y = lp.y;
+			this.removeActor(this.actors.splice(i, 1)[0]);
 		}
 		
 		this.contents_volume = 0;
@@ -240,48 +217,37 @@
 
 			// add only if within confines of beaker
 			//console.log(actor.y + actor.height_px_below, this.y + this.controller.offset * GLOBAL_PARAMETERS.SCALE, actor.x - actor.width_px_left, this.x - this.width_px_left,actor.x + actor.width_px_right , this.x + this.width_px_right);
-			if (actor.y + actor.height_px_below >= this.y + this.controller.offset * GLOBAL_PARAMETERS.SCALE && actor.x - actor.width_px_left/2 >= this.x - this.width_px_left && actor.x + actor.width_px_right/2 <= this.x + this.width_px_right){
-				// just test the first fixture - I mean its either in or out right?	
-				//var f;
-				//if (actor instanceof Scaleb2Actor){
-				//	f = actor.base.GetFixtureList();
-				//} else {
-				//	f = actor.body.GetFixtureList();
-				//}				
-				//var p1 = new b2Vec2(this.beakerLeftWallFixture.GetAABB().lowerBound.x, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
-				//var p2 = new b2Vec2(this.beakerRightWallFixture.GetAABB().upperBound.x, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
-				//var p1 = new b2Vec2(this.body.GetPosition().x-this.width_units/2, this.body.GetPosition().y+this.controller.offset)
-				//var p2 = new b2Vec2(this.body.GetPosition().x+this.width_units/2, this.body.GetPosition().y+this.controller.offset)
-				//console.log(p1.x, p1.y, p2.x, p2.y);
-				//var ray_in = new Box2D.Collision.b2RayCastInput(p1, p2, 1);
-				//var ray_out = new Box2D.Collision.b2RayCastOutput();
-				//f.RayCast(ray_out, ray_in);
-				//if (ray_out.fraction >= 0 && ray_out.fraction <= 1)
-			//	{
-					eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
-					if (actor instanceof Scaleb2Actor){
-						this.contents_volume += actor.base.volume;
-						this.controller.MyAddBody(actor.base);
-						this.contents_volume += actor.pan.volume;
-						this.controller.MyAddBody(actor.pan);	
-					} else {
-						this.contents_volume += actor.body.volume;
-						this.controller.MyAddBody(actor.body);	
-					}
+			if (actor.skin.width_px <= this.skin.width_px && actor.y + actor.height_px_below >= this.y - this.height_units * GLOBAL_PARAMETERS.SCALE && actor.y + actor.height_px_below <= this.y && actor.x - actor.width_px_left/2 >= this.x - this.width_px_left && actor.x + actor.width_px_right/2 <= this.x + this.width_px_right){
+				eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
+				if (actor instanceof Scaleb2Actor){
+					this.contents_volume += actor.base.volume;
+					this.controller.MyAddBody(actor.base);
+					this.contents_volume += actor.pan.volume;
+					this.controller.MyAddBody(actor.pan);	
+				} else if (actor instanceof Scaleb2Actor){
+					this.contents_volume += actor.base.volume;
+					this.controller.MyAddBody(actor.base);
+					this.contents_volume += actor.beam.volume;
+					this.controller.MyAddBody(actor.beam);
+					this.contents_volume += actor.leftPan.volume;
+					this.controller.MyAddBody(actor.leftPan);	
+					this.contents_volume += actor.rightPan.volume;
+					this.controller.MyAddBody(actor.rightPan);	
+				}else {
+					this.contents_volume += actor.body.volume;
+					this.controller.MyAddBody(actor.body);	
+				}
 
-					// set a reference so we can look for initial contact with this object
-					this.justAddedActorToBuoyancy = actor;
-					actor.controlledByBuoyancy = true;
-					actor.containedWithin = this;
-					this.addChildAt(actor, 1 + this.actors.length);
-					this.actors.push(actor);
-					actor.x = actor.x - this.x;
-					actor.y = actor.y - this.y;
-					this.drawReleaseButton();
-			//	} else
-			//	{
-			//		actor.controlledByBuoyancy = false;
-			//	}
+				// set a reference so we can look for initial contact with this object
+				this.justAddedActorToBuoyancy = actor;
+				actor.controlledByBuoyancy = true;
+				actor.containedWithin = this;
+				this.addChildAt(actor, 1 + this.actors.length);
+				this.actors.push(actor);
+				actor.x = actor.x - this.x;
+				actor.y = actor.y - this.y;
+				this.drawReleaseButton();			
+			
 			} else {
 				actor.controlledByBuoyancy = false;
 			}
@@ -291,16 +257,33 @@
 	/** Remove a single actor from this beaker */
 	p.removeActor = function (actor){
 		if (actor instanceof Scaleb2Actor){
-			//this.controller.RemoveBody(actor.base);
+			this.controller.RemoveBody(actor.base);
 			this.contents_volume -= actor.base.volume;
-			//this.controller.RemoveBody(actor.pan);
+			actor.base.SetAwake(true);
+			this.controller.RemoveBody(actor.pan);
 			this.contents_volume -= actor.pan.volume;
+			actor.pan.SetAwake(true);
 		} else {
 			this.controller.RemoveBody(actor.body);
 			this.contents_volume -= actor.body.volume;
-		}
+			actor.body.percentSubmerged2d = [];
+			for (j = 0; j < actor.skin.array2d.length; j++) {
+				actor.body.percentSubmerged2d[j] = [];
+				for (k = 0; k < actor.skin.array2d[0].length; k++){
+					actor.body.percentSubmerged2d[j][k] = 0;
+				}
+			}
+			actor.body.percentSubmerged2d = actor.bodyDef.percentSubmerged2d;
+			actor.body.fullySubmerged = false;
+			actor.body.fullyEmerged = true;
+			actor.body.percentSubmergedChangedFlag = false;
+			actor.body.soaked = false;
+			actor.body.SetAwake(true);
+		}		
 		
-		actor.controlledByBuoyancy = false;	
+		actor.update_flag = true;
+		actor.containedWithin = null;
+		actor.controlledByBuoyancy = false;
 		this.actors.splice(this.actors.indexOf(actor),1);
 		actor.containedWithin = null;	
 		var lp = this.localToLocal(actor.x, actor.y, this.parent);
@@ -332,7 +315,12 @@
 				eventManager.fire("press-refill-beaker", [beaker.init_liquid_volume - (beaker.contents_volume + beaker.liquid_volume)], box2dModel);
 				// wake up any actors in this
 				for (var i = 0; i < beaker.actors.length; i++){
-					beaker.actors[i].body.SetAwake(true);
+					if (beaker.actors[i] instanceof Scaleb2Actor){
+						beaker.actors[i].base.SetAwake(true);
+						beaker.actors[i].pan.SetAwake(true);
+					} else {
+						beaker.actors[i].body.SetAwake(true);
+					}					
 				}
 				// find puddles with liquid from this beaker, and replace
 				beaker.parent.removeLiquidAssociatedWithBeaker(beaker);
@@ -361,7 +349,12 @@
 			if (!beaker.draining){
 				// wake up any actors in this
 				for (var i = 0; i < beaker.actors.length; i++){
-					beaker.actors[i].body.SetAwake(true);
+					if (beaker.actors[i] instanceof Scaleb2Actor){
+						beaker.actors[i].base.SetAwake(true);
+						beaker.actors[i].pan.SetAwake(true);
+					} else {
+						beaker.actors[i].body.SetAwake(true);
+					}
 				}
 				beaker.draining = true;
 				$('#release-button-' + beaker.id).attr('value', 'Stop');
@@ -378,7 +371,12 @@
 	p.addLiquidVolume = function(volume, beaker){
 		// wake up any actors in this
 		for (var i = 0; i < this.actors.length; i++){
-			this.actors[i].body.SetAwake(true);
+			if (this.actors[i] instanceof Scaleb2Actor){
+				this.actors[i].base.SetAwake(true);
+				this.actors[i].pan.SetAwake(true);
+			} else {
+				this.actors[i].body.SetAwake(true);
+			}
 		}
 		if (typeof beaker !== "undefined"){
 			if (beaker.liquid.display_name == this.liquid.display_name){
@@ -411,7 +409,12 @@
 			if (this.puddles[i].beaker == beaker){
 				// wake up any actors in this
 				for (var j = 0; j < this.actors.length; j++){
-					this.actors[j].body.SetAwake(true);
+					if (beaker.actors[i] instanceof Scaleb2Actor){
+						beaker.actors[i].base.SetAwake(true);
+						beaker.actors[i].pan.SetAwake(true);
+					} else {
+						beaker.actors[i].body.SetAwake(true);
+					}
 				}
 				var volume = this.puddles[i].volume;
 				this.liquid_volume -= volume;
@@ -460,6 +463,7 @@
 				this.parent.addLiquidVolumeToWorld(this.x+this.skin.spout_point.x, this.y+this.skin.spout_point.y, spilloff, this);
 				this.drawRefillButton();
 			}
+			if (-this.controller.offset > this.spilloff_height) this.drawReleaseButton();
 
 			if (prevx != this.x || prevy != this.y){
 				if (this.refillElement != null){

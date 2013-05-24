@@ -830,8 +830,8 @@
 
 							var percentSubmerged = typeof percentSubmerged2d == "undefined" ? 0 : percentSubmerged2d[i_shift][j_shift];
 							// draw liquid in front
-							if (percentSubmerged > 0 && percentSubmerged < 1 && (k != 0 || this.parent.body.soaked)){ 
-								var liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
+							if (percentSubmerged > 0 && percentSubmerged < 1 && (k != 0 || this.parent.body.soaked) && typeof this.parent.containedWithin.liquid !== "undefined"){ 
+								var liquid = this.parent.containedWithin.liquid;
 								var angle = rotation / 180 * Math.PI;
 								var pheightSubmerged;
 								if (angle % (Math.PI/2) != 0){
