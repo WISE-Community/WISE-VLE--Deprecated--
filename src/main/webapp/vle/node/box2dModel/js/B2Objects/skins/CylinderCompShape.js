@@ -35,9 +35,11 @@
 		this.heights = this.cylinderArrays.heights;
 		this.materials = this.cylinderArrays.materials;
 		this.diameter_units = Math.max.apply(null, this.diameters);
+		//this.diameter_units = max_depth_units;
 		this.width_units = this.diameter_units;
 		this.depth_units = this.diameter_units;
 		this.max_depth_units = Math.max(this.depth_units, max_depth_units);
+		this.max_depth_px = this.max_depth_units * GLOBAL_PARAMETERS.SCALE;
 		this.height_units = this.heights.reduce(function(a, b) { return a + b; }, 0);  
 		this.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle;
 		this.view_topAngle = GLOBAL_PARAMETERS.view_topAngle;
@@ -47,6 +49,7 @@
 		// composition vars
 		var g = this.g = new createjs.Graphics();
 		this.shape = new createjs.Shape(g);
+		this.shape.x = (max_depth_units - this.diameter_units)/2 * this.unit_width_px * Math.sin(GLOBAL_PARAMETERS.view_sideAngle);
 		this.addChild(this.shape);
 
 		this.update_array2d();
@@ -313,11 +316,12 @@
 				}
 			}
 		}
+		this.shape.x = (this.max_depth_units - this.diameter_units)/2 * this.unit_width_px * Math.sin(view_sideAngle);
 
-		if (this.DEBUG)
+	if (this.DEBUG)
 		{
 			g.beginFill("rgba(0,0,0,1.0)");
-			g.drawCircle(0,0, 2);
+			g.drawCircle(fbl_x,fbl_y, 2);
 			g.endFill();
 		}
 		stage.needs_to_update = true;

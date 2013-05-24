@@ -48,6 +48,8 @@
 		var g = this.g = new createjs.Graphics();
 		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
+		this.shape.x = (this.max_depth_units - this.depth_units)/2 * this.unit_width_px * Math.sin(GLOBAL_PARAMETERS.view_sideAngle);
+		
 
 		this.update_array2d();
 		// draw figure
@@ -145,14 +147,11 @@
 		var view_topAngle = this.view_topAngle * Math.cos(rotation * Math.PI / 180) +  this.view_sideAngle * Math.sin(rotation * Math.PI / 180);
 		
 		var rowarr = []; index = 0; var row; var index = 0;
-		if (view_topAngle < 0) //90 && rotation < 270)
-		{
+		if (view_topAngle < 0){
 			for (row = 0; row < this.heights.length; row++){rowarr[index] = row; index++}
-		} else
-		{
+		} else{
 			for (row = this.heights.length-1; row >= 0; row--){rowarr[index] = row; index++}
 		}
-
 		
 		if (this.is_mystery && !this.reveal_mystery){
 			g.beginStroke("rgba(0,0,0,1.0)");
@@ -300,13 +299,14 @@
 				}
 			}
 		}
-
-		if (this.DEBUG)
-		{
+		this.shape.x = (this.max_depth_units - this.depth_units)/2 * this.unit_width_px * Math.sin(view_sideAngle);
+		/*
+		if(this.DEBUG) {
 			g.beginFill("rgba(0,0,0,1.0)");
 			g.drawCircle(0,0, 2);
 			g.endFill();
 		}
+		*/
 		stage.needs_to_update = true;
 	}
 

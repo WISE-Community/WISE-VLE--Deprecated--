@@ -55,6 +55,11 @@
 		this.height_from_depth = this.skin.height_from_depth;
 		this.width_from_depth = this.skin.width_from_depth;
 
+		this.height_units_below = this.skin.height_px_below / GLOBAL_PARAMETERS.SCALE;
+		this.height_units_above = this.skin.height_px_above / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_left = this.skin.width_px_left / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_right = this.skin.width_px_right / GLOBAL_PARAMETERS.SCALE;
+		
 		this.justAddedActorToBuoyancy = null;
 		this.actorsInBeakerCount = 0;
 		this.onPress = this.skin.frontContainer.onPress;
@@ -246,7 +251,8 @@
 				this.actors.push(actor);
 				actor.x = actor.x - this.x;
 				actor.y = actor.y - this.y;
-				this.drawReleaseButton();			
+				this.drawReleaseButton();		
+				this.sortActorsDisplayDepth();	
 			
 			} else {
 				actor.controlledByBuoyancy = false;
@@ -425,6 +431,54 @@
 			}
 		}
 		return 0;
+	}
+
+	/**
+	*	Will sort by the highest objects on top, then right-most objects
+	*/
+	p.sortActorsDisplayDepth = function(){
+		var actors = this.actors;
+		for (var i = actors.length-1; i >= 0; i--){
+			if (actors[i].parent == this){
+				var i_index = this.getChildIndex(actors[i]);
+				var bodyi = typeof actors[i].body !== "undefined" ? actors[i].body : actors[i].base; 
+				for (var j = i+1; j < actors.length; j++){
+					if (actors[j].parent == this){
+						var j_index = this.getChildIndex(actors[j]);
+						var bodyj = typeof actors[j].body !== "undefined" ? actors[j].body : actors[j].base; 
+						// do the position of these two objects overlap vertically?
+						if ( (actors[i].x - actors[i].width_px_left >= actors[j].x - actors[j].width_px_left && actors[i].x - actors[i].width_px_left <= actors[j].x + actors[j].width_px_right) || (actors[i].x + actors[i].width_px_right >= actors[j].x - actors[j].width_px_left && actors[i].x + actors[i].width_px_left <= actors[j].x + actors[j].width_px_right)){
+							// compare center of mass
+							// is object i higher than j, and therefore should have a larger display index?
+							if (bodyi.GetWorldCenter().y < bodyj.GetWorldCenter().y){
+								if (i_index < j_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							} else {
+								if (j_index < i_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							}
+						} else {
+							// these objects don't overlap, put them in order of x
+							if (actors[i].x > actors[j].x){
+								if (i_index < j_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							} else {
+								if (j_index < i_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/** Update skin to reflect position of b2 body on screen */

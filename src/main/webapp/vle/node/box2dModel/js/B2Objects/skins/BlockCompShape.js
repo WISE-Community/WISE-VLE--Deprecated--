@@ -272,22 +272,17 @@
 					var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
 					for (k = 0; k < this.blockArray3d[i][j].length; k++)
 					{
-						if (this.blockArray3d[i][j][k] != "")
-						{
+						if (this.blockArray3d[i][j][k] != ""){
 							mass += GLOBAL_PARAMETERS.materials[this.blockArray3d[i][j][k]].density;
 						}
 
-						if (spaces3d[i][j][k] == "B")
-						{
+						if (spaces3d[i][j][k] == "B"){
 							materialSpaces++;
-						} else if (spaces3d[i][j][k] == "E")
-						{
+						} else if (spaces3d[i][j][k] == "E"){
 							exteriorSpaces++;
-						} else if (spaces3d[i][j][k] == "I")
-						{
+						} else if (spaces3d[i][j][k] == "I"){
 							interiorSpaces++;
-						} else if (spaces3d[i][j][k] == "P")
-						{
+						} else if (spaces3d[i][j][k] == "P"){
 							protectedSpaces++;
 						}
 					}

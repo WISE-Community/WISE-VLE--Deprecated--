@@ -32,7 +32,7 @@
 		this.position_y_px = position_y * GLOBAL_PARAMETERS.SCALE;
 		this.dragging_object = null;
 
-		this.skin = new LabShape(this.width_px, this.height_px, this.WALL_WIDTH_UNITS * GLOBAL_PARAMETERS.SCALE, 7 * GLOBAL_PARAMETERS.SCALE * Math.sin(GLOBAL_PARAMETERS.view_topAngle), this.shelf_height_px);
+		this.skin = new LabShape(this.width_px, this.height_px, this.wall_width_units * GLOBAL_PARAMETERS.SCALE, 7 * GLOBAL_PARAMETERS.SCALE * Math.sin(GLOBAL_PARAMETERS.view_topAngle), this.shelf_height_px);
 		this.addChild(this.skin);
 
 		this.b2world = new b2World(new b2Vec2(0, 10), true);
@@ -57,10 +57,10 @@
 		leftWallFixture.filter.categoryBits = 2;
 		leftWallFixture.filter.maskBits = 3;
 		leftWallFixture.shape = new b2PolygonShape;
-		leftWallFixture.shape.SetAsBox(this.WALL_WIDTH_UNITS / 2 , this.height_units / 2);
+		leftWallFixture.shape.SetAsBox(this.wall_width_units / 2 , this.height_units / 2);
 		var leftWallBodyDef = new b2BodyDef;
 		leftWallBodyDef.type = b2Body.b2_staticBody;
-		leftWallBodyDef.position.x = this.position_x + this.WALL_WIDTH_UNITS / 2;
+		leftWallBodyDef.position.x = this.position_x + this.wall_width_units / 2;
 		leftWallBodyDef.position.y = this.position_y + this.height_units / 2;
 		var leftWall = this.b2world.CreateBody(leftWallBodyDef);
 		leftWall.CreateFixture(leftWallFixture);
@@ -71,10 +71,10 @@
 		rightWallFixture.filter.categoryBits = 2;
 		rightWallFixture.filter.maskBits = 3;
 		rightWallFixture.shape = new b2PolygonShape;
-		rightWallFixture.shape.SetAsBox(this.WALL_WIDTH_UNITS / 2, this.height_units / 2);
+		rightWallFixture.shape.SetAsBox(this.wall_width_units / 2, this.height_units / 2);
 		var rightWallBodyDef = new b2BodyDef;
 		rightWallBodyDef.type = b2Body.b2_staticBody;
-		rightWallBodyDef.position.x = this.position_x + this.width_units - this.WALL_WIDTH_UNITS / 2;
+		rightWallBodyDef.position.x = this.position_x + this.width_units - this.wall_width_units / 2;
 		rightWallBodyDef.position.y = this.position_y + this.height_units / 2;
 		var rightWall = this.b2world.CreateBody(rightWallBodyDef);
 		rightWall.CreateFixture(rightWallFixture);
@@ -311,8 +311,6 @@
 		return new b2Vec2(x , y);
 	}
 
-
-
 	p.removeActor = function (actor)
 	{
 		this.justRemovedActor = actor;
@@ -446,8 +444,9 @@
 			var lpoint = parent.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
 			var newX = lpoint.x;
 			var newY = lpoint.y;
-			if (newX > source_parent.x + this.target.width_px_left && newX < source_parent.x + source_parent.width_px - this.target.width_px_right) this.target.x = newX;
-			if (newY > source_parent.y && newY < source_parent.y + source_parent.height_px - this.target.height_px_below) this.target.y = newY;
+			//console.log(newY, source_parent.y, source_parent.y + source_parent.height_px - this.target.height_px_below, source_parent.height_px , this.target.height_px_below);
+			if (newX > this.target.width_px_left && newX < source_parent.width_px - this.target.width_px_right) this.target.x = newX;
+			if (newY > 0 && newY < source_parent.height_px - this.target.height_px_below) this.target.y = newY;
 			stage.needs_to_update = true;
 		}
 		evt.onMouseUp = function (ev)
@@ -492,9 +491,41 @@
 		for (var i = actors.length-1; i >= 0; i--){
 			if (actors[i].parent == this){
 				var i_index = this.getChildIndex(actors[i]);
+				var bodyi = typeof actors[i].body !== "undefined" ? actors[i].body : actors[i].base; 
 				for (var j = i+1; j < actors.length; j++){
 					if (actors[j].parent == this){
 						var j_index = this.getChildIndex(actors[j]);
+						var bodyj = typeof actors[j].body !== "undefined" ? actors[j].body : actors[j].base; 
+						// do the position of these two objects overlap vertically?
+						if ( (actors[i].x - actors[i].width_px_left >= actors[j].x - actors[j].width_px_left && actors[i].x - actors[i].width_px_left <= actors[j].x + actors[j].width_px_right) || (actors[i].x + actors[i].width_px_right >= actors[j].x - actors[j].width_px_left && actors[i].x + actors[i].width_px_left <= actors[j].x + actors[j].width_px_right)){
+							// compare center of mass
+							// is object i higher than j, and therefore should have a larger display index?
+							if (bodyi.GetWorldCenter().y < bodyj.GetWorldCenter().y){
+								if (i_index < j_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							} else {
+								if (j_index < i_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							}
+						} else {
+							// these objects don't overlap, put them in order of x
+							if (actors[i].x > actors[j].x){
+								if (i_index < j_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							} else {
+								if (j_index < i_index){
+									this.swapChildrenAt(i_index, j_index);
+									i_index = j_index;
+								}
+							}
+						}
+						/*
 						//console.log(i_index, j_index, this.getChildAt(i_index).x, this.getChildAt(i_index).y, this.getChildAt(j_index).x, this.getChildAt(j_index).y);
 						if (this.getChildAt(j_index).y - this.getChildAt(i_index).y > 10  || (Math.abs(this.getChildAt(i_index).y - this.getChildAt(j_index).y) <= 10 && this.getChildAt(i_index).x > this.getChildAt(j_index).x)){
 							// Actor i is in front of j if order in display is not the same, switch
@@ -509,6 +540,7 @@
 								i_index = j_index;
 							}
 						}
+						*/
 					}
 				}
 			}

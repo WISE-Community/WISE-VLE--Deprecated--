@@ -140,6 +140,14 @@
 				body.percentSubmerged2d[i][j] = 0;
 			}
 		}
+		if (GLOBAL_PARAMETERS.DEBUG){
+			g = this.g = new createjs.Graphics();
+			this.shape = new createjs.Shape(g);	
+			g.beginFill("rgba(250,0,0,1.0)");
+			g.drawCircle(0, 5, 5);
+			g.endFill();
+			this.addChild(this.shape);
+		}
 	}
 
 	
