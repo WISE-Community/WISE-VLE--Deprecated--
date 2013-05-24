@@ -28,9 +28,6 @@
 		this.pan_width_units = pan_width_units;
 		this.pan_height_units = pan_height_units;
 		this.pan_dy_units = pan_width_units/2;
-		this.base_width_units = pan_width_units+2;
-		this.base_height_units = 1;
-		this.base_height_edge_units = 0.5;
 		this.beam_length_x_units = pan_width_units;
 		this.beam_length_y_units = this.beam_length_x_units/5;
 		this.beam_height_units = 0.4;
@@ -39,6 +36,9 @@
 		this.beam_angle = Math.tan(this.beam_length_y_units/this.beam_length_x_units)
 		this.stem_width_units = 0.5;
 		this.stem_height_units = height_units - this.beam_height_units;
+		this.base_width_units = this.stem_width_units;
+		this.base_height_units = 1;
+		this.base_height_edge_units = 0.5;
 		
 
 		this.savedObject = {};
@@ -46,7 +46,7 @@
 		
 		this.savedObject.pan_width_units = pan_width_units;
 		
-		this.skin = new BalanceShape(this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.pan_height_units * GLOBAL_PARAMETERS.SCALE, this.pan_dy_units * GLOBAL_PARAMETERS.SCALE, this.base_width_units * GLOBAL_PARAMETERS.SCALE, this.base_height_units * GLOBAL_PARAMETERS.SCALE, this.base_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.stem_width_units * GLOBAL_PARAMETERS.SCALE, this.stem_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_x_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_y_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.savedObject);
+		this.skin = new BalanceShape(this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.pan_height_units * GLOBAL_PARAMETERS.SCALE, this.pan_dy_units * GLOBAL_PARAMETERS.SCALE, this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.base_height_units * GLOBAL_PARAMETERS.SCALE, this.base_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.stem_width_units * GLOBAL_PARAMETERS.SCALE, this.stem_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_x_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_y_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.savedObject);
 		this.addChild(this.skin);
 		this.height_px_below = this.skin.height_px_below;
 		this.height_px_above = this.skin.height_px_above;
@@ -301,13 +301,11 @@
 		this.x = (this.base.GetPosition().x) * GLOBAL_PARAMETERS.SCALE - this.parent.x;
 		this.y = (this.height_units + this.base.GetPosition().y) * GLOBAL_PARAMETERS.SCALE - this.parent.y;
 		
-		//var pan_y = (this.pan.GetPosition().y) * GLOBAL_PARAMETERS.SCALE - this.parent.y;
-		
-		// contact listener
-		//var contactListener = new b2ContactListener;
-		//contactListener.BeginContact = this.BeginContact.bind(this);
-		//this.b2world.SetContactListener(contactListener);
-		//this.skin.redraw(pan_y - this.y, this.panPrismJoint.GetMotorForce());
+		this.leftContactedBodies = [this.leftPan];	
+		this.massOnLeftPan = 0;
+
+		this.rightContactedBodies = [this.rightPan];	
+		this.massOnRightPan = 0;
 
 		/*	
 		g = this.g = new createjs.Graphics();
@@ -337,8 +335,116 @@
 		this.beamJoint = null;
 		this.world = null;
 		//this.skin.redraw();
+		this.leftContactedBodies = [];	
+		this.massOnLeftPan = 0;
+		this.rightContactedBodies = [];	
+		this.massOnRightPan = 0;
 		this.parent.removeChild(this);
 	}	
+
+	p.BeginContact = function (bodyA, bodyB){
+		this.PanBeginContact("left", bodyA, bodyB);
+		this.PanBeginContact("right", bodyA, bodyB);
+	}
+	p.EndContact = function (bodyA, bodyB){
+		this.PanEndContact("left", bodyA, bodyB);
+		this.PanEndContact("right", bodyA, bodyB);
+	}
+
+	p.PanBeginContact = function (leftOrRight, bodyA, bodyB){
+		// is one body directly touching the pan?
+		var pan;
+		var contactedBodies;
+		var massOnPan;
+		var contactLinkToPan;
+		if (leftOrRight == "left"){
+			pan = this.leftPan;
+			contactedBodies = this.leftContactedBodies;
+			massOnPan = this.massOnLeftPan;
+			contactLinkToPan = "contactLinkToLeftPan";
+		} else {
+			pan = this.rightPan;
+			contactedBodies = this.rightContactedBodies;
+			massOnPan = this.massOnRightPan;
+			contactLinkToPan = "contactLinkToRightPan";
+		}
+
+		if ((bodyA == pan) || (bodyB == pan)){
+			var obody = bodyA == pan ? bodyB : bodyA;
+			if (contactedBodies.indexOf(obody) == -1){
+				contactedBodies.push(obody);
+				massOnPan += obody.GetMass();
+				obody[contactLinkToPan] = pan;
+			}
+		} else {
+			// are either body touching a body that is in the contact list?
+			for (var i = 0; i < contactedBodies.length; i++){
+				if (contactedBodies[i] == bodyA){
+					if (contactedBodies.indexOf(bodyB) == -1){
+						contactedBodies.push(bodyB);
+						massOnPan += bodyB.GetMass();
+						bodyB[contactLinkToPan] = bodyA;
+					}
+					break;
+				} else if (contactedBodies[i] == bodyB){
+					if (contactedBodies.indexOf(bodyA) == -1){
+						contactedBodies.push(bodyA);
+						massOnPan += bodyA.GetMass();
+						bodyA[contactLinkToPan] = bodyB;
+					} 
+					break;
+				}
+			}
+		}
+		// mass doesn't change by reference
+		if (leftOrRight == "left"){this.massOnLeftPan = massOnPan;}
+		else {this.massOnRightPan = massOnPan;}
+	}
+	p.PanEndContact = function (leftOrRight, bodyA, bodyB){
+		var pan;
+		var contactedBodies;
+		var massOnPan;
+		var contactLinkToPan;
+		if (leftOrRight == "left"){
+			pan = this.leftPan;
+			contactedBodies = this.leftContactedBodies;
+			massOnPan = this.massOnLeftPan;
+			contactLinkToPan = "contactLinkToLeftPan";
+		} else {
+			pan = this.rightPan;
+			contactedBodies = this.rightContactedBodies;
+			massOnPan = this.massOnRightPan;
+			contactLinkToPan = "contactLinkToRightPan";
+		}
+		// was one body directly touching the pan?
+		if (bodyA == pan || bodyB == pan){
+			var obody = bodyA == pan ? bodyB : bodyA;
+			var index = contactedBodies.indexOf(obody); 
+			if (index != -1){
+				contactedBodies.splice(index, 1);
+				massOnPan -= obody.GetMass();
+				obody[contactLinkToPan] = null;
+			}
+		} else {
+			// if both are on contact list then remove one
+			var indexA = contactedBodies.indexOf(bodyA); 
+			var indexB = contactedBodies.indexOf(bodyB); 
+			if (indexA > -1 && indexB > -1){
+				if (bodyA[contactLinkToPan] == bodyB){
+					contactedBodies.splice(indexA, 1);
+					massOnPan -= bodyA.GetMass();
+					bodyA[contactLinkToPan] = null;
+				} else if (bodyB[contactLinkToPan] == bodyA){
+					contactedBodies.splice(indexB, 1);
+					massOnPan -= bodyB.GetMass();
+					bodyB[contactLinkToPan] = null;
+				}				
+			}
+		}
+		// mass doesn't change by reference
+		if (leftOrRight == "left"){this.massOnLeftPan = massOnPan;}
+		else {this.massOnRightPan = massOnPan;}
+	}
 
 	p.hitTestPoint = function (x, y){
 		if (x >= -this.width_px_left && x <= this.width_px_right && y >= -this.height_px_above && y <= this.height_px_below){
@@ -374,19 +480,29 @@
 				leftPanPoint = new b2Vec2(this.leftPan.GetPosition().x * GLOBAL_PARAMETERS.SCALE - this.x - this.parent.x - this.parent.parent.x, this.leftPan.GetPosition().y * GLOBAL_PARAMETERS.SCALE - this.y - this.parent.y - this.parent.parent.y)
 				rightPanPoint = new b2Vec2(this.rightPan.GetPosition().x * GLOBAL_PARAMETERS.SCALE - this.x - this.parent.x - this.parent.parent.x, this.rightPan.GetPosition().y * GLOBAL_PARAMETERS.SCALE - this.y - this.parent.y - this.parent.parent.y)
 			}
-			var lrF = -1*this.leftPanJoint.GetReactionForce(createjs.Ticker.getFPS()).y;
-			var rrF = -1*this.rightPanJoint.GetReactionForce(createjs.Ticker.getFPS()).y;
 			if (this.beamAngle != this.beam.GetAngle()){
 				//console.log(lrF, rrF, rrF-lrF, lrF-rrF, rrF - lrF > 0.01, lrF - rrF > 0.01);
 				this.beamAngle = this.beam.GetAngle(); 
-				if (rrF - lrF > 0.1){
-					this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,"#CC9999", "#99CC99");
-				} else if (lrF - rrF > 0.1){
-					this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint, "#99CC99","#CC9999");
+				if (true){
+					console.log(this.massOnLeftPan, this.massOnRightPan);
+					if (this.massOnRightPan - this.massOnLeftPan > 0.3){
+						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,"#CC9999", "#99CC99");
+					} else if (this.massOnLeftPan - this.massOnRightPan > 0.3){
+						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint, "#99CC99","#CC9999");
+					} else {
+						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,  "#CCCCCC",  "#CCCCCC");
+					}
 				} else {
-					this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,  "#CCCCCC",  "#CCCCCC");
+					var lrF = -1*this.leftPanJoint.GetReactionForce(createjs.Ticker.getFPS()).y;
+					var rrF = -1*this.rightPanJoint.GetReactionForce(createjs.Ticker.getFPS()).y;
+					if (rrF - lrF > 0.1){
+						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,"#CC9999", "#99CC99");
+					} else if (lrF - rrF > 0.1){
+						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint, "#99CC99","#CC9999");
+					} else {
+						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,  "#CCCCCC",  "#CCCCCC");
+					}
 				}
-				
 			}
 		}
 	}

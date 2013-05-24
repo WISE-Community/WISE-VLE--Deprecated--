@@ -60,7 +60,7 @@
 		this.width_units_left = this.skin.width_px_left / GLOBAL_PARAMETERS.SCALE;
 		this.width_units_right = this.skin.width_px_right / GLOBAL_PARAMETERS.SCALE;
 		
-		this.justAddedActorToBuoyancy = null;
+		this.justAddedBodyToBuoyancy = null;
 		this.actorsInBeakerCount = 0;
 		this.onPress = this.skin.frontContainer.onPress;
 		this.onMouseMove = this.skin.frontContainer.onMouseMove;
@@ -169,10 +169,6 @@
 		massData.mass += this.liquid.density * this.liquid_volume;
 		body.SetMassData(massData);
 		
-		// contact listener
-		//var contactListener = new b2ContactListener;
-		//contactListener.BeginContact = this.BeginContact.bind(this);
-		//this.b2world.SetContactListener(contactListener);
 		this.skin.redraw(-this.controller.offset, true);
 
 		
@@ -244,7 +240,7 @@
 				}
 
 				// set a reference so we can look for initial contact with this object
-				this.justAddedActorToBuoyancy = actor;
+				this.justAddedBodyToBuoyancy = actor.body;
 				actor.controlledByBuoyancy = true;
 				actor.containedWithin = this;
 				this.addChildAt(actor, 1 + this.actors.length);
@@ -290,6 +286,7 @@
 		actor.update_flag = true;
 		actor.containedWithin = null;
 		actor.controlledByBuoyancy = false;
+		if (this.justAddedBodyToBuoyancy == actor.body) this.justAddedBodyToBuoyancy = null;
 		this.actors.splice(this.actors.indexOf(actor),1);
 		actor.containedWithin = null;	
 		var lp = this.localToLocal(actor.x, actor.y, this.parent);
@@ -297,6 +294,17 @@
 		actor.x = lp.x;
 		actor.y = lp.y;
 		this.drawRefillButton();
+	}
+
+	/** Called from world */
+	p.BeginContact = function (bodyA, bodyB){
+		if (bodyA == this.justAddedBodyToBuoyancy || bodyB == this.justAddedBodyToBuoyancy){
+			bodyA.SetAwake();
+			bodyB.SetAwake();
+		}
+	}
+	p.EndContact = function (bodyA, bodyB){
+		return;
 	}
 
 	/**

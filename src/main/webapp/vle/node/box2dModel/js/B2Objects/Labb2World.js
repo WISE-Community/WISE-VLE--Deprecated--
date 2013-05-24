@@ -107,6 +107,7 @@
 		// contact listener
 		var contactListener = new b2ContactListener;
 		contactListener.BeginContact = this.BeginContact.bind(this);
+		contactListener.EndContact = this.EndContact.bind(this);
 		this.b2world.SetContactListener(contactListener);
 
 		if (GLOBAL_PARAMETERS.DEBUG){
@@ -473,14 +474,29 @@
 	p.BeginContact = function (contact)
 	{
 		this.sortActorsDisplayDepth();
+		// deal with contacts for each beaker scale and balance
+		for (var i = 0; i < this.beakers.length; i++){
+			this.beakers[i].BeginContact(contact.GetFixtureA().m_body, contact.GetFixtureB().m_body);
+		}
+		for (var i = 0; i < this.scales.length; i++){
+			this.scales[i].BeginContact(contact.GetFixtureA().m_body, contact.GetFixtureB().m_body);
+		}
+		for (var i = 0; i < this.balances.length; i++){
+			this.balances[i].BeginContact(contact.GetFixtureA().m_body, contact.GetFixtureB().m_body);
+		}
+	}
 
-		if (contact.GetFixtureA().m_body == this.justAddedActorToBuoyancy)
-		{	
-			contact.GetFixtureB().m_body.SetAwake(true);
-		} else if (contact.GetFixtureB().m_body == this.justAddedActorToBuoyancy)
-		{
-			contact.GetFixtureA().m_body.SetAwake(true);
-		} 
+	p.EndContact = function (contact){
+		// deal with contacts for each beaker scale and balance
+		for (var i = 0; i < this.beakers.length; i++){
+			this.beakers[i].EndContact(contact.GetFixtureA().m_body, contact.GetFixtureB().m_body);
+		}
+		for (var i = 0; i < this.scales.length; i++){
+			this.scales[i].EndContact(contact.GetFixtureA().m_body, contact.GetFixtureB().m_body);
+		}
+		for (var i = 0; i < this.balances.length; i++){
+			this.balances[i].EndContact(contact.GetFixtureA().m_body, contact.GetFixtureB().m_body);
+		}
 	}
 
 	/**
@@ -497,6 +513,7 @@
 						var j_index = this.getChildIndex(actors[j]);
 						var bodyj = typeof actors[j].body !== "undefined" ? actors[j].body : actors[j].base; 
 						// do the position of these two objects overlap vertically?
+						//console.log(actors[i].x - actors[i].width_px_left , "[",actors[j].x- actors[j].width_px_left, actors[j].x + actors[j].width_px_right, "] OR ", actors[i].x + actors[i].width_px_right, "[", actors[j].x - actors[j].width_px_left, actors[j].x + actors[j].width_px_right,"]");
 						if ( (actors[i].x - actors[i].width_px_left >= actors[j].x - actors[j].width_px_left && actors[i].x - actors[i].width_px_left <= actors[j].x + actors[j].width_px_right) || (actors[i].x + actors[i].width_px_right >= actors[j].x - actors[j].width_px_left && actors[i].x + actors[i].width_px_left <= actors[j].x + actors[j].width_px_right)){
 							// compare center of mass
 							// is object i higher than j, and therefore should have a larger display index?
@@ -525,22 +542,6 @@
 								}
 							}
 						}
-						/*
-						//console.log(i_index, j_index, this.getChildAt(i_index).x, this.getChildAt(i_index).y, this.getChildAt(j_index).x, this.getChildAt(j_index).y);
-						if (this.getChildAt(j_index).y - this.getChildAt(i_index).y > 10  || (Math.abs(this.getChildAt(i_index).y - this.getChildAt(j_index).y) <= 10 && this.getChildAt(i_index).x > this.getChildAt(j_index).x)){
-							// Actor i is in front of j if order in display is not the same, switch
-							if (i_index < j_index){
-								this.swapChildrenAt(i_index, j_index);
-								i_index = j_index;
-							}
-						} else {
-							// Actor j is in front of i if order in display is not the same, switch
-							if (j_index < i_index){
-								this.swapChildrenAt(i_index, j_index);
-								i_index = j_index;
-							}
-						}
-						*/
 					}
 				}
 			}
