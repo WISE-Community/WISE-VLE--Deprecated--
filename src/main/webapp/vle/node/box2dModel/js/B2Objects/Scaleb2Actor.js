@@ -107,15 +107,7 @@
 		panBodyDef.type = b2Body.b2_dynamicBody;
 
 		var panPrismJointDef = this.panPrismJointDef = new Box2D.Dynamics.Joints.b2PrismaticJointDef();
-		var panDistJointDef = this.panDistJointDef = new Box2D.Dynamics.Joints.b2DistanceJointDef();
-		// contact listener
-		//var contactListener = new b2ContactListener;
-		//contactListener.BeginContact = this.BeginContact.bind(this);
-		//this.b2world.SetContactListener(contactListener);
-		
-
-		this.actors = [];
-		
+		var panDistJointDef = this.panDistJointDef = new Box2D.Dynamics.Joints.b2DistanceJointDef();		
 	}
 
 	p.setupInWorld = function (position_x, position_y, b2world){
@@ -178,11 +170,9 @@
 		this.prev_rF = 0;
 		//this.faceShape.onClick = this.haltBeam.bind(this);
 		
+		this.contactedBodies = [this.pan];	
+		this.massOnPan = 0;
 
-		// contact listener
-		//var contactListener = new b2ContactListener;
-		//contactListener.BeginContact = this.BeginContact.bind(this);
-		//this.b2world.SetContactListener(contactListener);
 		this.skin.redraw(pan_y - this.y, this.panPrismJoint.GetMotorForce());
 
 		/*
@@ -208,7 +198,67 @@
 		this.world = null;
 		//this.skin.redraw();
 		this.parent.removeChild(this);
+		this.contactedBodies = [];
+		this.massOnPan = 0;
 	}	
+
+	p.BeginContact = function (bodyA, bodyB){
+		// is one body directly touching the pan?
+		if ((bodyA == this.pan) || (bodyB == this.pan)){
+			var obody = bodyA == this.pan ? bodyB : bodyA;
+			if (this.contactedBodies.indexOf(obody) == -1){
+				this.contactedBodies.push(obody);
+				this.massOnPan += obody.GetMass();
+				obody.contactLinkToScalePan = this.pan;
+			}
+		} else {
+			// are either body touching a body that is in the contact list?
+			for (var i = 0; i < this.contactedBodies.length; i++){
+				if (this.contactedBodies[i] == bodyA){
+					if (this.contactedBodies.indexOf(bodyB) == -1){
+						this.contactedBodies.push(bodyB);
+						this.massOnPan += bodyB.GetMass();
+						bodyB.contactLinkToScalePan = bodyA;
+					}
+					break;
+				} else if (this.contactedBodies[i] == bodyB){
+					if (this.contactedBodies.indexOf(bodyA) == -1){
+						this.contactedBodies.push(bodyA);
+						this.massOnPan += bodyA.GetMass();
+						bodyA.contactLinkToScalePan = bodyB;
+					} 
+					break;
+				}
+			}
+		}
+	}
+	p.EndContact = function (bodyA, bodyB){
+		// was one body directly touching the pan?
+		if (bodyA == this.pan || bodyB == this.pan){
+			var obody = bodyA == this.pan ? bodyB : bodyA;
+			var index = this.contactedBodies.indexOf(obody); 
+			if (index != -1){
+				this.contactedBodies.splice(index, 1);
+				this.massOnPan -= obody.GetMass();
+				obody.contactLinkToScalePan = null;
+			}
+		} else {
+			// if both are on contact list then remove one
+			var indexA = this.contactedBodies.indexOf(bodyA); 
+			var indexB = this.contactedBodies.indexOf(bodyB); 
+			if (indexA > -1 && indexB > -1){
+				if (bodyA.contactLinkToScalePan == bodyB){
+					this.contactedBodies.splice(indexA, 1);
+					this.massOnPan -= bodyA.GetMass();
+					bodyA.contactLinkToScalePan = null;
+				} else if (bodyB.contactLinkToScalePan == bodyA){
+					this.contactedBodies.splice(indexB, 1);
+					this.massOnPan -= bodyB.GetMass();
+					bodyB.contactLinkToScalePan = null;
+				}				
+			}
+		}
+	}
 	
 	p.update = function (){
 		if (this.base != null){
@@ -233,25 +283,20 @@
 			if (this.prev_rF != rF){
 				var displayrF;
 				// acount for liqiud if necessary
-				if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
-					displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/1000;
+				if (true){
+					displayrF = this.massOnPan;
 				} else {
-					displayrF = (rF - this.pan.GetMass()*10)/1000;
+					if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
+						displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/1000;
+					} else {
+						displayrF = (rF - this.pan.GetMass()*10)/1000;
+					}
 				}
+				
 				//displayrF = (rF - this.pan.GetMass()*10)/1000;
 				this.skin.redraw(pan_y - this.y, displayrF);
 				this.prev_rF = rF;
 			} 
-			
-			// power the joint
-			/*
-			var pj = this.panPrismJoint;
-			var pjt = pj.GetJointTranslation();
-			var pjs = pj.GetJointSpeed();
-			var baseSpringForce = this.pan.GetMass() * 10;
-			pj.SetMaxMotorForce(baseSpringForce + (20 * baseSpringForce * Math.pow(pjt, 2)));
-			pj.SetMotorSpeed(-20*pjt);
-			*/
 		}
 	}
 
