@@ -401,7 +401,6 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		
 		// setup content changed listener functions
 		snapshotsExt.changed = function(){
-			console.log('snapshots changed');
 			svgEditor.changed = true;
 			if(context.descriptionActive){
 				var activeId = snapshotsExt.open();
@@ -426,7 +425,6 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		};
 		
 		descriptionExt.changed = function(){
-			console.log('description changed');
 			svgEditor.changed = true;
 			context.description = descriptionExt.content();
 			if(context.snapshotsActive){
@@ -873,4 +871,4 @@ SVGDRAW.prototype.processTagMaps = function() {
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/draw/svg-edit/svgdraw.js');
-};
+}
