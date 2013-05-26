@@ -26,7 +26,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.updateActiveTagMapConstraints();
 		obj.renderStartNode();
 	} else if(type=='navigationLoadingCompleted'){
-		obj.renderStartNode();
+		//obj.renderStartNode();
 		obj.processStudentWork();
 	} else if(type=='renderNodeCompleted'){
 		if(args){
