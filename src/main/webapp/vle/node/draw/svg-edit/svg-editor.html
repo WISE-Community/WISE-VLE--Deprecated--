@@ -67,8 +67,6 @@
 <script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/lz77.js"></script>
 <script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/utils.js"></script>
 <script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/jquery.timers-1.2.js"></script>
-<!-- <script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/svgdraw.js"></script>
-<script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/svgdrawstate.js"></script> -->
 
 <!-- feeds -->
 <link rel="alternate" type="application/atom+xml" title="SVG-edit General Discussion" href="http://groups.google.com/group/svg-edit/feed/atom_v1_0_msgs.xml" />
@@ -96,7 +94,7 @@
     var svgdraw; // global variable so it can be accessed by other functions
     
     function loadContentAfterScriptsLoad(node){
-		//svgdraw = new SVGDRAW(node);
+		svgdraw = new SVGDRAW(node);
     };
 
 	function loadContent(node){
@@ -123,6 +121,14 @@
 		showRulers: false
 	});
 </script>
+
+<!--[if gte IE 9]>
+  <style type="text/css">
+    .gradient {
+       filter: none;
+    }
+  </style>
+<![endif]-->
 
 </head>
 <body>
@@ -848,6 +854,14 @@
 	<li><a href="#merge_down">Merge Down</a></li>
 	<li><a href="#merge_all">Merge All</a></li>
 </ul>
+
+<div id="loading_overlay">
+	<div id="overlay_content">
+		<div>Loading WISE Draw</div>
+		<img src='/vlewrapper/vle/images/loading.gif' alt='Loading graphic' />
+		<!-- <div class='info'>(If drawing tool does not load within a minute or two, please click 'Home' at the top of your screen and then click 'Run Project' to reload.</div>  -->
+	</div>
+</div>
 
 </body>
 </html>

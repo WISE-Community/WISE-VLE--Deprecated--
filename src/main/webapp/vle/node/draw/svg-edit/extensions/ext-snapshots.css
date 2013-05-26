@@ -65,10 +65,6 @@
 }
 
 #svg_editor #snapshots div.snap_delete {
-	-moz-border-radius-bottomleft:4px;
-	-webkit-border-radius-bottomleft:4px;
-	-o-border-radius-bottomleft:4px;
-	border-radius-bottomleft:4px;
 	background:#999999;
 	width:7px;
 	float:right;
@@ -76,18 +72,9 @@
 	margin-top:-118px;
 	padding:2px 5px 2px 6px;
 	color:#FFFFFF;
-	-webkit-transition: all .25s ease;
-	-moz-transition: all .25s ease;
-	-ms-transition: all .25s ease;
-	-o-transition: all .25s ease;
-	transition: all .25s ease;
 }
 
 #svg_editor #snapshots div.snap_num {
-	-moz-border-radius-topright:4px;
-	-webkit-border-radius-top-right:4px;
-	-o-border-radius-bottomleft:4px;
-	border-radius-bottomleft:4px;
 	background:#999999;
 	color:#FFFFFF;
 	float:left;
@@ -95,6 +82,14 @@
 	margin-left:-2px;
 	margin-top:-20px;
 	padding:2px 6px 2px 4px;
+}
+
+#svg_editor #snapshots div.snap_num, #svg_editor #snapshots div.snap_delete {
+	-webkit-transition: background-color .25s;
+	-moz-transition: background-color .25s;
+	-ms-transition: background-color .25s;
+	-o-transition: background-color .25s;
+	transition: background-color .25s;
 }
 
 #svg_editor #snapshots div.hover div.snap_delete, #svg_editor #snapshots div.hover div.snap_num {
@@ -119,11 +114,11 @@
 	border:2px solid #999999;
 	cursor:pointer;
 	overflow:hidden;
-	-webkit-transition: all .25s;
-	-moz-transition: all .25s;
-	-ms-transition: all .25s;
-	-o-transition: all .25s;
-	transition: all .25s;
+	-webkit-transition: background-color .25s, border-color .25s;
+	-moz-transition: background-color .25s, border-color .25s;
+	-ms-transition: background-color .25s, border-color .25s;
+	-o-transition: background-color .25s, border-color .25s;
+	transition: background-color .25s, border-color .25s;
 }
 
 #svg_editor #snapshots div.hover {
@@ -159,7 +154,7 @@
 }
 
 #svg_editor #play_controls #play_speed {
-	width:63px;
+	width:60px;
 	float:right;
 	margin:3px 3px 0 5px;
 	cursor:pointer;
@@ -197,9 +192,6 @@
 	background-color:#DDDDDD;
 	padding:2px;
 	margin:auto auto 5px;
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
-	border-radius:4px;
 }
 
 #svg_editor #tool_snapshot {

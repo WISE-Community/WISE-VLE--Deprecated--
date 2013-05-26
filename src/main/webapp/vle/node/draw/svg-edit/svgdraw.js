@@ -1,4 +1,4 @@
-// TODO: Comment me more thoroughly!
+// TODO: add option to specify drawing canvas dimensions, add option to specify starting foreground (editable) student drawing
 
 /**
  * @constructor
@@ -18,12 +18,13 @@ function SVGDRAW(node) {
 	
 	this.svgCanvas = null;
 	this.teacherAnnotation = "";
-	this.defaultImage = ""; // svg string to hold starting (or background) svg image
+	this.defaultBackground = ""; // svg string to hold starting (or background) svg image
 	this.toolbarOptions = null; // object to hold tool visibility options
 	this.stamps  =  []; // array to hold stamp paths
 	this.snapshotsActive  =  false; // boolean to specify whether snapshots are active
 	this.descriptionActive =  false; // boolean to specify whether student annotations/descriptions are active
 	this.description  =  ""; // string to hold annotation/description text
+	this.snapDescriptions = {}; // Object to hold the snapshot descriptions
 	this.defaultDescription = ""; // string to hold starting description text
 	this.instructions = ""; // string to hold prompt/instructions text
 	this.active = -1; // var to hold last selected snapshot.id
@@ -38,6 +39,9 @@ function SVGDRAW(node) {
 			"snapTotal": 0,
 			"selected": null
 			};
+	
+	svgEditor.changed = false, // boolean to specify whether student data has changed and should be saved on exit
+	
 	this.init(node.getContent().getContentUrl());
 	
 	if(this.content.autoScoring != null) {
@@ -84,7 +88,7 @@ SVGDRAW.prototype.loadModules = function(jsonfilename, context) {
 	
 	var data = context.content;
 	
-	if(data.stamps.length > 0){
+	if(data.stamps && data.stamps.length > 0){
 		context.stamps = []; // clear out stamps array
 		for (var x=0; x<data.stamps.length; x++) {
 			context.stamps.push(data.stamps[x]);
@@ -110,6 +114,9 @@ SVGDRAW.prototype.loadModules = function(jsonfilename, context) {
 	}
 	if(data.toolbar_options){
 		context.toolbarOptions = data.toolbar_options;
+		if(!context.toolbarOptions.hasOwnProperty('importStudentAsset')){
+			context.toolbarOptions.importStudentAsset = false;
+		}
 	}
 	if(data.img_background && view.utils.isNonWSString(data.img_background)){
 		var bgUrl = data.img_background;
@@ -143,13 +150,13 @@ SVGDRAW.prototype.loadModules = function(jsonfilename, context) {
 			} else if(position=='center-bottom') {
 				xPos = centerX, yPos = bottomY;
 			} 
-			context.defaultImage = '<svg width="600" height="450" xmlns="http://www.w3.org/2000/svg" ' +
+			context.defaultBackground = '<svg width="600" height="450" xmlns="http://www.w3.org/2000/svg" ' +
 				'xmlns:xlink="http://www.w3.org/1999/xlink"><g><title>teacher</title>' +
 				'<image x="' + xPos + '" y="' + yPos + '" width="' + width + '" height="' + height + '" xlink:href="' + bgUrl + '" /></g></svg>';
 			context.load();   // load preview data, if any, or load default background
 		});
 	} else if(data.svg_background && view.utils.isNonWSString(data.svg_background)){
-		context.defaultImage = data.svg_background;
+		context.defaultBackground = data.svg_background;
 		context.load();   // load preview data, if any, or load default background
 	} else {
 		context.load();   // load preview data, if any, or load default background
@@ -173,89 +180,53 @@ SVGDRAW.prototype.loadCallback = function(studentWorkJSON, context) {
 		
 		// check for previous work and load it
 		var svgString;
-		svgEditor.initLoad = true;
 		if (studentWorkJSON){
-			try{
-				svgString = studentWorkJSON.svgString;
-			} catch(err) {
-				svgString = studentWorkJSON;
-			}
-			// handle legacy instances where student layer was not named "student" on creation
-			if(svgString.indexOf("<title>Layer 1</title>") != -1){
-				svgString = svgString.replace("<title>Layer 1</title>", "<title>student</title>");
-			}
-			context.enterState = svgString;
-			svgEditor.loadFromString(svgString);
-			
-			/*if(context.dataService.vle.getConfig().getConfigParam('mode') == 'run'){
-				//check if annotations were retrieved
-				if(context.dataService.vle.annotations != null) {
-					//see if there were any annotations for this step
-					var annotation = context.dataService.vle.annotations.getLatestAnnotationForNodeId(context.dataService.vle.getCurrentNode().id);
-					if (annotation != null) {
-						var annotationValue = annotation.value;
-						//annotationValue = '<g><title>teacher</title><text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" stroke-width="0" stroke="#000000" fill="#000000" id="svg_3" y="55.5" x="103">annotation</text></g>';
-						this.teacherAnnotation = annotationValue;
-						context.svgCanvas.setSvgString(svgString.replace("</svg>", this.teacherAnnotation + "</svg>"));
-						context.svgCanvas.setCurrentLayer('Layer 1');
-					}
+			if(studentWorkJSON.snapshots && studentWorkJSON.snapshots.length === 0){
+				try{
+					svgString = studentWorkJSON.svgString;
+				} catch(err) {
+					svgString = studentWorkJSON;
 				}
-	
-				var processGetDrawAnnotationResponse = function(responseText, responseXML) {
-					//parse the xml annotations object that contains all the annotations
-					var annotation = annotations.getLatestAnnotationForNodeId(context.dataService.vle.getCurrentNode().id);
-					vle.annotations;
-					var annotationValue = annotation.value;
-					//annotationValue = '<g><title>teacher</title><text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" stroke-width="0" stroke="#000000" fill="#000000" id="svg_3" y="55.5" x="103">annotation</text></g>';
-					context.svgCanvas.setSvgString(svgString.replace("</svg>", annotationValue + "</svg>"));
-					context.svgCanvas.setCurrentLayer('Layer 1');
-				};
-				//context.dataService.vle.connectionManager.request('GET', 3, 'http://localhost:8080/vlewrapper/vle/echo.html', {}, processGetDrawAnnotationResponse);
-				
-				var getAnnotationsParams = {
-												runId: context.dataService.vle.getConfig().getConfigParam('runId'),
-												toWorkgroup: context.dataService.vle.getUserAndClassInfo().getWorkgroupId(),
-												fromWorkgroup: context.dataService.vle.getUserAndClassInfo().getTeacherWorkgroupId(),
-												periodId: context.dataService.vle.getUserAndClassInfo().getPeriodId()
-										   };
-				
-				//get all the annotations (TODO: uncomment when using webapp/portal)
-				//context.dataService.vle.connectionManager.request('GET', 3, context.dataService.vle.getConfig().getConfigParam('getAnnotationsUrl'), getAnnotationsParams, processGetDrawAnnotationResponse);
-			}*/
-
-		} else if (context.defaultSnapshots){ // if no previous work, load author-specified default snapshots
-			var snapshots = context.defaultSnapshots;
-			svgEditor.loadSnapshots(snapshots);
-		} else if (context.defaultImage){ // if no previous work and no default snaps, load default background drawing
+				// handle legacy instances where student layer was not named "student" on creation
+				if(svgString.indexOf("<title>Layer 1</title>") != -1){
+					svgString = svgString.replace("<title>Layer 1</title>", "<title>student</title>");
+				}
+				svgEditor.loadFromString(svgString);
+			}
+		} else if (context.defaultBackground && !context.defaultSnapshots){ // if no previous work and no default snaps, load default background drawing
 			//TODO: Perhaps modify this to allow foreground (editable) starting drawings as well
-			var svgString = context.defaultImage.replace("</svg>", "<g><title>student</title></g></svg>"); // add blank student layer
+			svgString = context.defaultBackground.replace("</svg>", "<g><title>student</title></g></svg>"); // add blank student layer
 			svgEditor.loadFromString(svgString);
 		} else { // create blank student layer
 			svgEditor.loadFromString(defaultSvgString);
 		}
-		context.initDisplay(studentWorkJSON,context); // initiate stamps, description, snapshots
+		context.initDisplay(studentWorkJSON,context); // initiate stamps, description, snapshots, prompt
 };
 
 SVGDRAW.prototype.saveToVLE = function() {
-	//alert(svgEditor.changed);
-	//if(svgEditor.changed){
-		// strip out annotations
-		if (this.teacherAnnotation != "") {
+	if(svgEditor.changed){
+		// strip out annotations (TODO: remove; not used anymore)
+		if (this.teacherAnnotation !== "") {
 			svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
 		}
 		this.studentData.svgString = svgCanvas.getSvgString();
-		this.studentData.description = svgEditor.description;
-		this.studentData.snapshots = svgEditor.snapshots;
-		this.studentData.snapTotal = svgEditor.snapTotal;
-		if(svgEditor.selected == true){
-			this.studentData.selected = svgEditor.active;
-		} else {
-			this.studentData.selected = -1;
+		this.studentData.description = svgEditor.ext_description.content();
+		var snaps = svgEditor.ext_snapshots.content(),
+			snapDescriptions = this.snapDescriptions;
+		// add descriptions to each snapshot
+		for(var i=0; i<snaps.length; i++){
+			var description = '',
+				id = snaps[i].id;
+			if(snapDescriptions.hasOwnProperty(id)){
+				description = snapDescriptions[id];
+			}
+			snaps[i].description = description;
 		}
-		//var data = this.studentData;
-		//this.dataService.save(data);
+		this.studentData.snapshots = snaps;
+		this.studentData.snapTotal = svgEditor.ext_snapshots.total();
+		this.studentData.selected = svgEditor.ext_snapshots.open();
 		this.save();
-	//}
+	}
 };
 
 /**
@@ -265,7 +236,7 @@ SVGDRAW.prototype.save = function() {
 	var data = this.studentData;
 	
 	/* compress nodeState data */
-	var compressedData = "--lz77--" + this.lz77.compress($.stringify(data));
+	var compressedData = "--lz77--" + this.lz77.compress(JSON.stringify(data));
 	var autoScore = this.autoScore;
 	var autoFeedback = this.autoFeedback;
 	var autoFeedbackKey = this.autoFeedbackKey;
@@ -293,245 +264,119 @@ SVGDRAW.prototype.load = function() {
 	this.dataService.load(this, this.loadCallback);	
 };
 
-// set currently selected snapshot as active and open corresponding drawing
-SVGDRAW.prototype.setSelected = function(data){
-	if(data.selected > -1){
-		svgEditor.active = data.selected;
-		svgEditor.selected = true;
-		setTimeout(function(){
-			for(var i=0; i<svgEditor.snapshots.length; i++){
-				if(svgEditor.snapshots[i].id == svgEditor.active){
-					svgEditor.index = i;
-					svgEditor.warningStackSize = 0;
-					var resetUndoStack = svgCanvas.getPrivateMethods().resetUndoStack;
-					resetUndoStack();
-					$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
-					// scroll snap images panel depending on selected snapshot
-					var page = Math.floor(svgEditor.index/3);
-					$("#snap_images").attr({ scrollTop: page * 375 });
-					svgEditor.snapCheck();
-					break;
-				}
-				
-			}
-		},1000);
-		svgEditor.initSnap = false;
-	} else {
-		$("#snap_images").attr({ scrollTop: 0 });
-		svgEditor.warning = true;
-	}
-};
-
 // populate instructions, stamp images, description/annotation text, and snapshots (wise4)
 SVGDRAW.prototype.initDisplay = function(data,context) {
-	if(typeof(snapsLoaded) != 'undefined' && typeof(descriptionLoaded) != 'undefined' && typeof(promptLoaded) != 'undefined' && typeof(stampsLoaded) != 'undefined' &&
-		snapsLoaded && descriptionLoaded && promptLoaded && stampsLoaded){
+	if(svgEditor.ext_snapshots && svgEditor.ext_snapshots.isLoaded() && svgEditor.ext_prompt && svgEditor.ext_prompt.isLoaded() &&
+			svgEditor.ext_stamps && svgEditor.ext_stamps.isLoaded() && svgEditor.ext_description && svgEditor.ext_description.isLoaded()
+			&& svgEditor.ext_importstudentasset && svgEditor.ext_importstudentasset.isLoaded()){
+		
+		var promptExt = svgEditor.ext_prompt,
+			descriptionExt = svgEditor.ext_description,
+			stampsExt = svgEditor.ext_stamps,
+			snapshotsExt = svgEditor.ext_snapshots;
+		
 		// initiate prompt/instructions
-		if(context.instructions && context.instructions != ""){
-			$('#prompt_text').html(context.instructions);
-			
+		if(context.instructions && context.instructions !== ""){
+			promptExt.content(context.instructions); // set content
 			if(!data){
-				$('#prompt_dialog').dialog('open');
+				// if student hasn't saved any work, show prompt
+				promptExt.show();
 			}
 		} else {
+			// no prompt set, so remove prompt UI elements
 			$('#tool_prompt').remove();
 			$('#prompt_dialog').remove();
 		}
 		
 		//initiate snapshots
 		if(context.snapshotsActive){
-			svgEditor.setMaxSnaps(context.snapshots_max);
+			snapshotsExt.max(context.snapshots_max);
 			if(context.snapshots_max < 11){
-				svgEditor.maxDrawSize = 20480;
+				svgEditor.maxDrawSize = 40960;
 			} else {
-				svgEditor.maxDrawSize = 10240;
+				svgEditor.maxDrawSize = 20480;
 			}
 			if(data && data.snapshots && data.snapshots.length > 0){
-				svgEditor.initSnap = true;
-				svgEditor.snapTotal = data.snapTotal;
-				svgEditor.loadSnapshots(data.snapshots,context.setSelected(data));
-				svgEditor.initSnap = false;
+				// load existing snapshots
+				snapshotsExt.content(data.snapshots, data.selected, data.snapTotal, function(){
+					snapshotsExt.min(1).toggleDisplay(false);
+					if(context.descriptionActive){
+						$('#description').show();
+					}
+				});
+			} else {
+				snapshotsExt.content([], null, null, function(){
+					snapshotsExt.min(1).toggleDisplay(false);
+				});
 			}
 			
 		} else {
+			// snapshots are disabled, so remove UI elements
 			$('#tool_snapshot').remove();
 			$('#snapshotpanel').remove();
 		}
 		
 		//initiate stamps
 		if(context.stamps.length > 0){
-			svgEditor.setStampImages(context.stamps);
+			stampsExt.content(context.stamps);
 		} else {
 			$('#tools_stamps').remove();
 			$('#tool_stamp').remove();
 		}
 		
 		$('#tool_prompt').insertAfter('#tool_snapshot');
-		$('#tool_prompt').insertAfter('#tool_description');
 	
 		// initiate description/annotation
 		if(context.descriptionActive){
 			if (context.snapshotsActive) { // check whether snapshots are active
+				var i = 0;
 				if (data && data.selected > -1) { // check whether a snapshot is selected
-					for (var i=0; i<data.snapshots.length; i++) {
-						if (data.snapshots[i].id == data.selected) {
-							svgEditor.description = data.snapshots[i].description;
-							$('#description').show();
+					for (i; i<data.snapshots.length; i++) {
+						// set description content based on selected snapshot
+						if (data.snapshots[i].id === data.selected) {
+							descriptionExt.content(data.snapshots[i].description);
 							break;
 						}
 					}
-				} else {//if (context.defaultDescription!="")
-					//context.description = context.defaultDescription;
-					$('#description').hide();
-					//$('#workarea').css('bottom','36px');
+				} else {
+					if(snapshotsExt.open() < 0){
+						$('#description').hide();
+					}
 				}
 				
-				/// Save description text
-				// update description save action to accommodate snapshots
-				$('#description_content').unbind('keyup');
-				$('#description_content').keyup(function(){
-					var value = $('#description_content').val();
-					$('#description span.minimized').text(value);
-					$('#description span.minimized').attr('title',value);
-					for (var i=0; i<svgEditor.snapshots.length; i++) {
-						if (svgEditor.snapshots[i].id == svgEditor.active) {
-							svgEditor.snapshots[i].description = value;
-						}
+				// populate descriptions object
+				if (data){
+					i = 0;
+					for (i; i<data.snapshots.length; i++) {
+						var snap = data.snapshots[i];
+						context.snapDescriptions[snap.id] = snap.description;
 					}
-					svgEditor.changed = true;
-				});
+				}
 				
-				// update description input focus function to accommodate snapshots
-				$('#description_content').unbind('focus');
-				$('#description_content').focus(function(){
-					for (var i=0; i<svgEditor.snapshots.length; i++) { // TODO: this is just a double check (should be removed eventually)
-						if (svgEditor.snapshots[i].id == svgEditor.active) {
-							$('#description_content').val(svgEditor.snapshots[i].description);
-							$('#description span.minimized').text(svgEditor.snapshots[i].description);
-							$('#description span.minimized').attr('title',svgEditor.snapshots[i].description);
-						}
-					}
-					$('#description_collapse').show();
-					svgEditor.toggleDescription(false);
-				});
-				
-				$('#loop, #play').mouseup(function(){
+				// hide description display on playback
+				$('#snap_loop, #snap_play').on('mouseup', function(){
 					$('#description').hide();
 				});
-				
-				$('#pause').mouseup(function(){
+				// show description display when paused
+				$('#snap_pause').on('mouseup', function(){
 					$('#description').show();
 				});
-				
+				// update description header text
 				$('.description_header_text span.panel_title').text('Frame Description:');
+				// set header preview text position
+				var left = $('#description .panel_title').width() + 12;
+				var right = $('#description .description_buttons').width() + 15;
+				$('#description span.minimized').css({'left': left, 'right': right});
 				
-				$('#description_collapse').hide();
-				
-				// update snapCheck function to include description modifications
-				svgEditor.snapCheck = function(){
-					if(svgEditor.snapshots.length<1){
-						$('#description').hide();
-						//$('#workarea').css('bottom','36px');
-					} else {
-						//$('#workarea').css('bottom','88px');
-					//if(svgEditor.playback == "pause"){
-						//if(svgEditor.warningStackSize == svgCanvas.getUndoStackSize()){
-							for (var i=0; i<svgEditor.snapshots.length; i++){
-								if(svgEditor.snapshots[i].id == svgEditor.active){
-									svgEditor.index = i;
-									$('#description_content').val(svgEditor.snapshots[i].description);
-									$('#description span.minimized').text(svgEditor.snapshots[i].description);
-									$('#description span.minimized').attr('title',svgEditor.snapshots[i].description);
-									if(svgEditor.playback == "pause"){
-										$('#description').show();
-									}
-									svgEditor.selected = true;
-									break;
-								}
-								else {
-									svgEditor.index = -1;
-									svgEditor.selected = false;
-									$('#description').hide();
-								}
-							}
-							svgEditor.updateClass(svgEditor.index);
-						//} else {
-							//svgEditor.selected = false;
-							//$('#description').hide();
-							//$('#workarea').css('bottom','36px');
-							//svgEditor.updateClass(-1);
-							//$('#fit_to_canvas').mouseup();
-						//}
-						//svgEditor.toggleDescription();
-					//}
-					}
-					svgEditor.resizeCanvas();
-				};
-				
-				// update toggleSidePanel function to accommodate for description input
-				svgEditor.toggleSidePanel = function(close){
-					var SIDEPANEL_OPENWIDTH = 205;
-					var w = parseInt($('#sidepanels').css('width'));
-					var deltax = (w > 2 || close ? 2 : SIDEPANEL_OPENWIDTH) - w;
-					var sidepanels = $('#sidepanels');
-					var layerpanel = $('#layerpanel');
-					//$('#description').css('right', parseInt(workarea.css('right'))+deltax);
-					workarea.css('right', parseInt(workarea.css('right'))+deltax);
-					sidepanels.css('width', parseInt(sidepanels.css('width'))+deltax);
-					layerpanel.css('width', parseInt(layerpanel.css('width'))+deltax);
-					var descheader = $('#description span.minimized');
-					descheader.css('width', parseInt(descheader.css('width'))-deltax-20);
-					//if(svgEditor.playback != 'pause' && parseInt(sidepanels.css('width')) < 200){
-						//$('#workarea').css('bottom','36px');
-					//}
-					svgEditor.resizeCanvas();
-				};
-				
-				svgEditor.toggleDescription = function(close){
-					if(close){
-						if(svgEditor.selected==true){
-							$('#description').css('height','28px');
-							$('#description_content').hide();
-							$('description').show();
-							$('#description_edit').show();
-							$('#description_collapse').hide();
-							$('#description span.maximized').hide();
-							$('#description span.minimized').show();
-						} else {
-							$('description').hide();
-						}
-					} else {
-						if(svgEditor.selected==true){
-							$('#description').css('height','127px');
-							$('#description_content').css('height','75px');
-							$('#description_content').show();
-							$('description').show();
-							$('#description_edit').hide();
-							$('#description_collapse').show();
-							$('#description span.minimized').hide();
-							$('#description span.maximized').show();
-						} else {
-							$('description').hide();
-						}
-					}
-					svgEditor.resizeCanvas();
-				};
-				
+				//$('#description_collapse').hide();
 			} else {
 				if(data.description && data.description!=""){
-					svgEditor.description = data.description;
-					$('#description_content').html(data.description);
-					$('#description span.minimized').text(data.description);
-					$('#description span.minimized').attr('title',data.description);
+					descriptionExt.content(data.description);
 					
 				} else if (context.defaultDescription!="") {
-					svgEditor.description = context.defaultDescription;
-					$('#description_content').html(context.defaultDescription);
-					$('#description span.minimized').text(context.defaultDescription);
-					$('#description span.minimized').attr('title',context.defaultDescription);
+					descriptionExt.content(context.defaultDescription);
 				}
 			}
-			//$('#tool_prompt').insertAfter('#tool_description');
 		} else {
 			$('#description').remove();
 		}
@@ -540,7 +385,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		if(context.toolbarOptions){
 			for(var key in context.toolbarOptions){
 				if (context.toolbarOptions.hasOwnProperty(key)) {
-					if(context.toolbarOptions[key] == false){
+					if(context.toolbarOptions[key] === false){
 						context.hideTools(key);
 					}
 				}
@@ -551,31 +396,52 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			}
 		}
 		
-		setTimeout(function(){
-			if(context.snapshotsActive){
-				svgEditor.toggleSidePanel();
+		// setup content changed listener functions
+		snapshotsExt.changed = function(){
+			console.log('snapshots changed');
+			svgEditor.changed = true;
+			if(context.descriptionActive){
+				var activeId = snapshotsExt.open();
+				if(activeId > -1){
+					var snaps = snapshotsExt.content(),
+						snapDescriptions = context.snapDescriptions;
+					// add descriptions to each snapshot
+					var description  = '';
+					if(snapDescriptions.hasOwnProperty(activeId)){
+						description = snapDescriptions[activeId];
+					}
+					descriptionExt.content(description);
+					$('#description').show();
+					// set header preview text position
+					var left = $('#description .panel_title').width() + 12;
+					var right = $('#description .description_buttons').width() + 15;
+					$('#description span.minimized').css({'left': left, 'right': right});
+				} else {
+					$('#description').hide();
+				}
 			}
-			
-			$('#closepath_panel').insertAfter('#path_node_panel');
-			
-			// reset undo stack to prevent users from deleting stored starting image
-			var resetUndoStack = svgCanvas.getPrivateMethods().resetUndoStack;
-			resetUndoStack();
-			svgEditor.warningStackSize = 0;
-			$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
-			svgEditor.setIconSize('m');
-			
-			$('#loading_overlay').hide();
-			$('#overlay_content').dialog('close');
-			
-			if ($.browser.webkit) {
-				$(window).height($(window).height-1);
-			}
-			svgEditor.resizeCanvas();
-			
-		},500);
+		};
 		
-		svgEditor.initLoad = false;
+		descriptionExt.changed = function(){
+			console.log('description changed');
+			svgEditor.changed = true;
+			this.description = descriptionExt.content();
+			if(context.snapshotsActive){
+				var activeId = snapshotsExt.open();
+				if(activeId > -1){
+					context.snapDescriptions[activeId] = this.description;
+				}
+			}
+		};
+		
+		setTimeout(function(){
+			$('#closepath_panel').insertAfter('#path_node_panel');
+			svgCanvas.undoMgr.resetUndoStack(); // reset undo stack to prevent users from deleting stored starting image
+			$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
+			$('#fit_to_canvas').mouseup();
+			$('#loading_overlay').fadeOut();
+			//$('#overlay_content').dialog('close');
+		},500);
 	}
 	else {
 		setTimeout(function(){
@@ -588,21 +454,21 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 // hide specified set of drawing tools
 // TODO: should we remove the options from the DOM instead?
 SVGDRAW.prototype.hideTools = function(option){
-	if(option=='pencil'){
+	if(option==='pencil'){
 		$('#tool_fhpath').hide();
-	} else if(option=='line'){
+	} else if(option==='line'){
 		$('#tool_line').hide();
-	} else if(option=='connector'){
+	} else if(option==='connector'){
 		$('#mode_connect').hide();
-	} else if (option=='rectangle'){
+	} else if (option==='rectangle'){
 		$('#tools_rect_show').hide();
-	} else if(option=='ellipse'){
+	} else if(option==='ellipse'){
 		$('#tools_ellipse_show').hide();
-	} else if(option=='polygon'){
+	} else if(option==='polygon'){
 		$('#tool_path').hide();
-	} else if (option=='text'){
+	} else if (option==='text'){
 		$('#tool_text').hide();
-	} else if (option=='importStudentAsset'){
+	} else if (option==='importStudentAsset'){
 		$('#tool_import_student_asset').hide();
 	}
 };
@@ -857,17 +723,6 @@ SVGDRAW.prototype.getCheckWorkChancesUsed = function() {
 	
 	return checkWorkChancesUsed;
 };
-
-/*SVGDRAW.prototype.checkDrawSize = function(context){
-	var current = svgCanvas.getSvgString();
-	var compressed = context.lz77.compress(current);
-	//alert(current.length*2 + ' ' + compressed.length * 2);
-	// if compressed svg string is larger than 20k, alert user and undo latest change
-	if(compressed.length * 2 > 20480){
-		$('#drawlimit_dialog').dialog('open');
-		$('#tool_undo').click();
-	}
-};*/
 
 // VLE data service setup
 // This happens when the page is loaded

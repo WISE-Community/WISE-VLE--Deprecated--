@@ -3817,6 +3817,8 @@
 					if (!sidedragging) toggleSidePanel();
 					sidedrag = -1;
 					sidedragging = false;
+					
+					$('#fit_to_canvas').mouseup(); // wise4: resize canvas to fit workarea
 				});
 
 			$(window).mouseup(function() {
@@ -3837,6 +3839,8 @@
 				sidepanels.css('width', parseInt(sidepanels.css('width')) + deltax);
 				layerpanel.css('width', parseInt(layerpanel.css('width')) + deltax);
 				ruler_x.css('right', parseInt(ruler_x.css('right')) + deltax);
+				
+				$('#fit_to_canvas').mouseup(); // wise4: resize canvas to fit workarea
 			};
 
 			// this function highlights the layer passed in (by fading out the other layers)

@@ -33,8 +33,8 @@ svgEditor.addExtension("Description", function(S) {
 			if(!arguments.length){ return content; } // no arguments, so return content
 			
 			if(typeof val === 'string'){
+				loading = true;
 				setContent(val);
-				this.changed(); // call content changed listener
 			}
 			return this;
 		},
@@ -73,6 +73,7 @@ svgEditor.addExtension("Description", function(S) {
 	/* Private functions */
 	function setContent(value){
 		content = value;
+		$('#description_content').val(value);
 		if(value !== ''){
 			$('#description span.minimized').text(value);
 		} else {
@@ -84,6 +85,12 @@ svgEditor.addExtension("Description", function(S) {
 			loaded = true;
 			api.loadComplete();
 		}
+		
+		if(!loading){
+			api.changed(); // call content changed listener
+		}
+		
+		loading = false;
 	}
 	
 	function toggle(close){
@@ -121,8 +128,7 @@ svgEditor.addExtension("Description", function(S) {
 		// save current description text on keyup events in the description content input field
 		$('#description_content').on('keyup', function(event){
 			var value = $('#description_content').val();
-			api.content(value);
-			//svgEditor.changed = true;
+			setContent(value);
 		});
 		
 		// bind click events to toggle the description input display
@@ -138,7 +144,7 @@ svgEditor.addExtension("Description", function(S) {
 		var right = $('#description .description_buttons').width() + 15;
 		$('#description span.minimized').css({'left': left, 'right': right});
 		
-		setContent(content); // set initial description content
+		api.content(content); // set initial description content
 		toggle(true);
 	};
 	

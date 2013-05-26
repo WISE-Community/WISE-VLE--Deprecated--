@@ -32,10 +32,8 @@ svgEditor.addExtension("CLear Layer", function() {
 		    	click: function() {
 		    		// delete all elements in the student layer
 		    		// TODO: Eventually allow foreground (editable) starting drawings as well (WISE4)
-		    		if(svgCanvas.getSelectedElems()[0] !== undefined){
-		    			svgCanvas.selectAllInCurrentLayer();
-			    		svgCanvas.deleteSelectedElements();
-		    		}
+	    			svgCanvas.selectAllInCurrentLayer();
+		    		svgCanvas.deleteSelectedElements();
 		    		$(this).dialog('close');
 				}
 		    },

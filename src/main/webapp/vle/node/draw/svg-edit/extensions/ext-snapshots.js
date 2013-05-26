@@ -22,8 +22,7 @@
 svgEditor.addExtension("Snapshots", function(S) {
 	
 	/* Private variables and classes */
-	var getUndoStackSize = svgCanvas.undoMgr.getUndoStackSize,
-		resetUndoStack = svgCanvas.undoMgr.resetUndoStack,
+	var resetUndoStack = svgCanvas.undoMgr.resetUndoStack,
 		content = [], // Array (of Snapshot objects) to store the saved snapshots/frames
 		loaded = false, // Boolean to indicate whether extension has finished loading
 		loading = false, // Boolean to indicate whether extension is in the process of loading
@@ -57,10 +56,9 @@ svgEditor.addExtension("Snapshots", function(S) {
 		content: function(val, idToOpen, total, callback){
 			if(!arguments.length){ return content; } // no arguments, so return content
 			
-			if(typeof val === 'array'){
-				setContent(val, idToOpen, total, callback);
-				this.changed(); // call content changed listener
-			}
+			loading = true;
+			setContent(val, idToOpen, total, callback);
+			
 			return this;
 		},
 		/** 
@@ -131,10 +129,11 @@ svgEditor.addExtension("Snapshots", function(S) {
 		/**
 		 * Toggles the snapshots panel open or closed
 		 * 
+		 * @param close Boolean to indicate whether snapshots panel should be closed or not (optional)
 		 * @returns Object this
 		 */
-		toggleDisplay: function(){
-			toggleSidePanel();
+		toggleDisplay: function(close){
+			toggleSidePanel(close);
 			return this;
 		},
 		/**
@@ -154,63 +153,65 @@ svgEditor.addExtension("Snapshots", function(S) {
 	};
 	
 	/* Private functions */
+	function onComplete(callback){
+		if(!loaded){
+			// on first load, set extension loaded variable to true and call extension loaded listener
+			loaded = true;
+			api.loadComplete();
+		}
+		if(callback){
+			callback();
+		}
+	}
+	
 	function setContent(snapshots, idToOpen, totalSnaps, callback){
-		loading = true;
+		content = snapshots;
 		
 		// clear out any existing snapshots
 		$('.snap').remove();
 		var open = 0;
-		if(idToOpen){
+		selected = 0;
+		if(idToOpen && idToOpen > -1){
 			open = idToOpen;
 		}
-		if(totalSnaps){
+		if(totalSnaps && totalSnaps > -1){
 			total = totalSnaps;
 		} else {
 			total = snapshots.length;
 		}
+		
 		if(snapshots.length > 0){
 			// add new snapshots
 			var x = snapshots.length;
 			for (var i=0; i<snapshots.length; i++) {
 				var svg = snapshots[i].svg;
 				var id = snapshots[i].id;
+				if(open === id){ selected = i; }
 				addSnapshot(svg,i,id,false, function(){
 					--x;
 					if(x === 0){
-						var $toOpen = $('#snap' + id);
-						if(toOpen.length > 0){
-							open = $toOpen.parent().index();
+						openSnapshot(selected,false,onComplete(callback));
+					}
+				});
+			}
+		} else if(min > 0){
+			// 0 snapshots is not allowed, so we need to create minimum number of initial snapshots
+			var n = min;
+			for(var a=0; a<min; a++){
+				newSnapshot(false, function(){
+					--n;
+					if(n === 0){
+						if(open > min){
+							open = 0;
+							//console.log('request to open snapshot that does not exist);
 						}
-						openSnapshot(open,false);
-						if(callback){
-							callback();
-						}
+						openSnapshot(open,false,onComplete(callback));
 					}
 				});
 			}
 		} else {
-			if(min > 0){
-				// 0 snapshots is not allowed, so we need to create minimum number of initial snapshots
-				var n = min;
-				for(var a=0; a<min; a++){
-					newSnapshot(false, function(){
-						--n;
-						if(n === 0){
-							openSnapshot(open,false);
-						}
-						if(callback){
-							callback();
-						}
-					});
-				}
-			}
-		}
-		loading = false;
-		
-		if(!loaded){
-			// on first load, set extension loaded variable to true and call extension loaded listener
-			loaded = true;
-			api.loadComplete();
+			loading = false;
+			onComplete(callback);
 		}
 	}
 	
@@ -234,10 +235,12 @@ svgEditor.addExtension("Snapshots", function(S) {
 		
 		// if there are less snapshots than new minimum value, add new snapshots to match it
 		if(content.length < num){
+			loading = true;
 			var deficit = num - content.length;
 			for(var i=0; i<deficit; i++){
 				newSnapshot(true);
 			}
+			loading = false;
 		}
 	}
 	
@@ -287,6 +290,9 @@ svgEditor.addExtension("Snapshots", function(S) {
 		if(callback){
 			callback();
 		}
+		if(!loading){
+			api.changed();
+		}
 	}
 	
 	// create a new snapshot
@@ -302,10 +308,12 @@ svgEditor.addExtension("Snapshots", function(S) {
 		var num = content.length-1;
 		total = id*1 + 1;
 		opened = id;
-		addSnapshot(svg,num,id,pulse,callback);
-		setTimeout(function(){
+		addSnapshot(svg,num,id,pulse,function(){
 			snapCheck();
-		},100);
+			if(callback){
+				callback();
+			}
+		});
 	}
 	
 	function updateSnapshot(index){
@@ -329,7 +337,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 	}
 	
 	// Open a snapshot as current drawing
-	function openSnapshot(index,pulsate) {
+	function openSnapshot(index,pulsate,callback) {
 		$('#svgcanvas').stop(true,true); // stop and remove any currently running animations
 		var svg = content[index].svg;
 		svgCanvas.setSvgString(svg);
@@ -339,8 +347,6 @@ svgEditor.addExtension("Snapshots", function(S) {
 			scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop() - 5
 		}, 250);
 		$('#fit_to_canvas').mouseup(); // fit drawing canvas to workarea
-		resetUndoStack(); // reset the undo/redo stack
-		$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
 		if (pulsate){
 			$('#svgcanvas').effect("pulsate", {times: '0'}, 700); // pulsate new canvas
 		}
@@ -352,9 +358,17 @@ svgEditor.addExtension("Snapshots", function(S) {
 			snapCheck();
 		}
 		selecting = false;
-		if(!loading){
+		loading = false;
+		if(!loading && playback === 'pause'){
 			api.changed(); // call content changed listener
 		}
+		if(callback){
+			callback();
+		}
+		//resetUndoStack(); // reset the undo/redo stack - not sure why this isn't resetting correctly
+		svgCanvas.undoMgr.undoStack = [];
+		svgCanvas.undoMgr.undoStackPointer = 0;
+		$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
 	}
 	
 	function snapCheck(){
@@ -389,11 +403,13 @@ svgEditor.addExtension("Snapshots", function(S) {
 			$('#layerpanel').hide();
 			$('#sidepanel_handle').hide();
 			// scroll to currently selected snapshot
-			var container = $('#snap_images'),
-		    	scrollTo = $("div.snap:eq(" + selected + ")");
-			container.animate({
-				scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop() - 5
-			}, 250);
+			if(selected > -1){
+				var container = $('#snap_images'),
+			    	scrollTo = $("div.snap:eq(" + selected + ")");
+				container.animate({
+					scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop() - 5
+				}, 250);
+			}
 		}
 		
 		$('#fit_to_canvas').mouseup(); // wise4: resize canvas to fit workarea
@@ -485,6 +501,9 @@ svgEditor.addExtension("Snapshots", function(S) {
 				$('.snap').on('click', function(){ snapClick(this); }); // rebind snap click function
 				$('.snap_delete').on('click', function(){ deleteClick(this); }); // rebind delete click function
 				$('#snap_images').sortable('enable');
+				selected = $('.snap.active').index();
+				opened = $('.snap.active > .snap_wrapper').attr('id').replace('snap','');
+				api.changed();
 			}, 300);
 		}
 	}
@@ -508,33 +527,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		
 		$(item).children(".snap_delete").on('click', function(){deleteClick(this);});
 		
-		// TODO: Make this sortable binder initiate only once (after first snapshot has been saved)
-		$("#snap_images").sortable({
-			start: function(event, ui) {
-				active = $(".snap").index(ui.item);
-				ui.item.off("click"); // unbind click function
-				$("#svgcanvas").stopTime('play'); // stop snap playback
-				$('.snap').css('cursor','move');
-			},
-			stop: function(event, ui) {
-				setTimeout(function(){
-					ui.item.on('click', function(){snapClick(this);}); // rebind click function
-				}, 300);
-				$('.snap').css('cursor','pointer');
-			},
-			update: function(event, ui) {
-				var newIndex = $(".snap").index(ui.item);
-				// reorder snapshots array
-				var current = content.splice(active,1);
-				content.splice(newIndex,0,current[0]);
-				api.changed(); // call content changed listener
-				setTimeout(function(){
-					updateNumbers();  // reorder snapshot thumbnail labels
-				},400);
-			},
-			opacity: 0.6,
-			placeholder: 'placeholder'
-		});
+		$("#snap_images").sortable('refresh'); // update sortable list of snap images with new item
 	}
 
 	function deleteClick(item){
@@ -607,7 +600,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 			'<div id="new_snapshot"><img class="snapshot_new" src="extensions/camera.svg" alt="camera" title="Add New Frame" />' +
 			'<a class="label snapshot_new" title="Add a new frame">New Frame +</a><hr /></div></div><div id="snap_images"></div></div>';
 		
-		// add sidepanel to page
+		// add snapshots panel to page
 		$('#sidepanels').append(paneltxt);
 		
 		// setup snapshot panel toggle link
@@ -623,6 +616,34 @@ svgEditor.addExtension("Snapshots", function(S) {
 		// bind toggle links click action
 		$('#tool_snapshot, #close_snapshots').on('click', function(){
 			toggleSidePanel();
+		});
+		
+		// set snap image sorting events
+		$("#snap_images").sortable({
+			start: function(event, ui) {
+				active = $(".snap").index(ui.item);
+				ui.item.off("click"); // unbind click function
+				$("#svgcanvas").stopTime('play'); // stop snap playback
+				$('.snap').css('cursor','move');
+			},
+			stop: function(event, ui) {
+				setTimeout(function(){
+					ui.item.on('click', function(){snapClick(this);}); // rebind click function
+				}, 300);
+				$('.snap').css('cursor','pointer');
+			},
+			update: function(event, ui) {
+				var newIndex = $(".snap").index(ui.item);
+				// reorder snapshots array
+				var current = content.splice(active,1);
+				content.splice(newIndex,0,current[0]);
+				api.changed(); // call content changed listener
+				setTimeout(function(){
+					updateNumbers();  // reorder snapshot thumbnail labels
+				},400);
+			},
+			opacity: 0.6,
+			placeholder: 'placeholder'
 		});
 		
 		// setup dialogs elements
@@ -676,7 +697,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 							$(this).remove();
 							snapCheck();
 							updateNumbers();
-							if (min > 0 && selected < 0){
+							if (min > -1 && selected < 0 && content.length > 0){
 								if(content.length > 1){
 									var i = index > 0 ? index-1 : 0;
 									openSnapshot(i,false);
@@ -684,6 +705,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 									openSnapshot(0,false);
 								}
 							} else {
+								opened = -1;
 								api.changed(); // call content changed listener
 							}
 						});
@@ -726,7 +748,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 			checkMax();
 		});
 		
-		setContent(content); // set initial snapshots
+		api.content(content); // set initial snapshots
 	}
 	
 	return {

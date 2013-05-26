@@ -34,9 +34,7 @@ svgEditor.addExtension("Prompt", function(S) {
 			if(!arguments.length){ return content; } // no arguments, so return content
 			
 			if(typeof val === 'string'){
-				content = val;
 				setContent(val);
-				this.changed(); // call content changed listener
 			}
 			return this;
 		},
@@ -58,12 +56,6 @@ svgEditor.addExtension("Prompt", function(S) {
 			return this;
 		},
 		/**
-		 * Listener function that is called when the prompt content has been updated
-		 */
-		changed: function(){
-			// optional: override with custom actions
-		},
-		/**
 		 * Listener function that is called when the extension has fully loaded
 		 */
 		loadComplete: function(){
@@ -72,8 +64,9 @@ svgEditor.addExtension("Prompt", function(S) {
 	};
 	
 	/* Private functions */
-	function setContent(value){
-		$('#prompt_content').html(value);
+	function setContent(val){
+		content = val;
+		$('#prompt_content').html(val);
 		
 		if(!loaded){
 			// on first load, set extension loaded variable to true and call extension loaded listener

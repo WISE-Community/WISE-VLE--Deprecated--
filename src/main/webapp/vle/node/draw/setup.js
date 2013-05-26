@@ -21,9 +21,9 @@ var studentVLEScripts = [
 	'vle/node/draw/svg-edit/svgedit.compiled.js',
 	'vle/node/draw/svg-edit/lz77.js',
 	'vle/node/draw/svg-edit/utils.js',
-	'vle/node/draw/svg-edit/jquery.timers-1.2.js',
+	'vle/node/draw/svg-edit/jquery.timers-1.2.js',*/
 	'vle/node/draw/svg-edit/svgdraw.js',
-	'vle/node/draw/svg-edit/svgdrawstate.js',*/
+	'vle/node/draw/svg-edit/svgdrawstate.js'
 ];
 
 var authorScripts = [

@@ -54,11 +54,7 @@ svgEditor.addExtension("Stamps", function(S) {
 		content: function(val){
 			if(!arguments.length){ return content; } // no arguments, so return content
 			
-			if(typeof val === 'string'){
-				content = val;
-				setContent(val);
-				this.changed(); // call content changed listener
-			}
+			setContent(val);
 			return this;
 		},
 		/** 
@@ -156,7 +152,7 @@ svgEditor.addExtension("Stamps", function(S) {
 	
 	function setContent(stamps){
 		content = stamps;
-		$('#stamp_images').html(); // clear out existing stamps
+		$('#stamp_images').html(''); // clear out existing stamps
 		for (var i=0; i<stamps.length; i++){
 			var num = i*1 + 1;
 			// add stamp preview image to stamp selector
