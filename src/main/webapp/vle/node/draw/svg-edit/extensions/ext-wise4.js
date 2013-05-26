@@ -141,12 +141,7 @@ svgEditor.addExtension("WISE4", function(S) {
 			updateDisplay();
 		},
 		elementChanged: function(opts){
-			if(!svgEditor.initLoad && !svgEditor.initSnap) {
-				changeNum++;
-				checkDrawSize(); // if not opening a snapshot or loading initial drawing, check draw size
-			}
-			//alert(svgEditor.initLoad + ' ' + svgEditor.initSnap + ' ' + svgEditor.changed);
-			if (changeNum>0){ // check to see if this change is this initial drawing import
+			if(svgEditor.loadedWISE) { // check to see if this change is this initial drawing import
 				svgEditor.changed = true;
 			}
 		}

@@ -41,6 +41,7 @@ function SVGDRAW(node) {
 			};
 	
 	svgEditor.changed = false, // boolean to specify whether student data has changed and should be saved on exit
+	svgEditor.loadedWISE = false; // boolean to specify whether WISE components have finished loading
 	
 	this.init(node.getContent().getContentUrl());
 	
@@ -225,6 +226,7 @@ SVGDRAW.prototype.saveToVLE = function() {
 		this.studentData.snapshots = snaps;
 		this.studentData.snapTotal = svgEditor.ext_snapshots.total();
 		this.studentData.selected = svgEditor.ext_snapshots.open();
+		svgEditor.loadedWISE = false;
 		this.save();
 	}
 };
@@ -307,6 +309,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			} else {
 				snapshotsExt.content([], null, null, function(){
 					snapshotsExt.min(1).toggleDisplay(false);
+					svgEditor.loadedWISE = true;
 				});
 			}
 			
@@ -425,11 +428,11 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		descriptionExt.changed = function(){
 			console.log('description changed');
 			svgEditor.changed = true;
-			this.description = descriptionExt.content();
+			context.description = descriptionExt.content();
 			if(context.snapshotsActive){
 				var activeId = snapshotsExt.open();
 				if(activeId > -1){
-					context.snapDescriptions[activeId] = this.description;
+					context.snapDescriptions[activeId] = context.description;
 				}
 			}
 		};
@@ -440,7 +443,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
 			$('#fit_to_canvas').mouseup();
 			$('#loading_overlay').fadeOut();
-			//$('#overlay_content').dialog('close');
+			svgEditor.loadedWISE = true;
 		},500);
 	}
 	else {
@@ -551,14 +554,21 @@ SVGDRAW.prototype.autoGradeWork = function() {
 					svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
 				}
 				this.studentData.svgString = svgCanvas.getSvgString();
-				this.studentData.description = svgEditor.description;
-				this.studentData.snapshots = svgEditor.snapshots;
-				this.studentData.snapTotal = svgEditor.snapTotal;
-				if(svgEditor.selected == true){
-					this.studentData.selected = svgEditor.active;
-				} else {
-					this.studentData.selected = -1;
+				this.studentData.description = svgEditor.ext_description.content();
+				var snaps = svgEditor.ext_snapshots.content(),
+					snapDescriptions = this.snapDescriptions;
+				// add descriptions to each snapshot
+				for(var i=0; i<snaps.length; i++){
+					var description = '',
+						id = snaps[i].id;
+					if(snapDescriptions.hasOwnProperty(id)){
+						description = snapDescriptions[id];
+					}
+					snaps[i].description = description;
 				}
+				this.studentData.snapshots = snaps;
+				this.studentData.snapTotal = svgEditor.ext_snapshots.total();
+				this.studentData.selected = svgEditor.ext_snapshots.open();
 				
 				//score the drawing
 				scorer.scoreDrawing(this.studentData);
