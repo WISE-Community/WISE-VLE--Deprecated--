@@ -1307,7 +1307,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 				break;
 			}
 		}
-		//$('#idea' + id).draggable('disable');
+		$('#idea' + id).draggable({disabled:true});
 	} else {
 		for(var i=0; i<this.ideaBasket.deleted.length; i++){
 			if(this.ideaBasket.deleted[i].id == id){

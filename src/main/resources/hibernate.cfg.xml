@@ -32,8 +32,8 @@
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">false</property>
 
-        <!-- Drop and re-create the database schema on startup -->
-        <property name="hbm2ddl.auto">update</property>
+        <!-- Drop and re-create the database schema on startup. Not recommended on production. Instead, do manual sql updates -->
+        <!-- <property name="hbm2ddl.auto">update</property>  -->
                 
 <!--  not using hibernate-annotations
         <mapping resource="org/hibernate/tutorial/domain/Event.hbm.xml"/>

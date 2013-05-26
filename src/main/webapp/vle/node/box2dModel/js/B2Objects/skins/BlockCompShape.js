@@ -272,22 +272,17 @@
 					var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
 					for (k = 0; k < this.blockArray3d[i][j].length; k++)
 					{
-						if (this.blockArray3d[i][j][k] != "")
-						{
+						if (this.blockArray3d[i][j][k] != ""){
 							mass += GLOBAL_PARAMETERS.materials[this.blockArray3d[i][j][k]].density;
 						}
 
-						if (spaces3d[i][j][k] == "B")
-						{
+						if (spaces3d[i][j][k] == "B"){
 							materialSpaces++;
-						} else if (spaces3d[i][j][k] == "E")
-						{
+						} else if (spaces3d[i][j][k] == "E"){
 							exteriorSpaces++;
-						} else if (spaces3d[i][j][k] == "I")
-						{
+						} else if (spaces3d[i][j][k] == "I"){
 							interiorSpaces++;
-						} else if (spaces3d[i][j][k] == "P")
-						{
+						} else if (spaces3d[i][j][k] == "P"){
 							protectedSpaces++;
 						}
 					}
@@ -830,8 +825,8 @@
 
 							var percentSubmerged = typeof percentSubmerged2d == "undefined" ? 0 : percentSubmerged2d[i_shift][j_shift];
 							// draw liquid in front
-							if (percentSubmerged > 0 && percentSubmerged < 1 && (k != 0 || this.parent.body.soaked)){ 
-								var liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
+							if (percentSubmerged > 0 && percentSubmerged < 1 && (k != 0 || this.parent.body.soaked) && typeof this.parent.containedWithin.liquid !== "undefined"){ 
+								var liquid = this.parent.containedWithin.liquid;
 								var angle = rotation / 180 * Math.PI;
 								var pheightSubmerged;
 								if (angle % (Math.PI/2) != 0){

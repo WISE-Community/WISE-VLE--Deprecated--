@@ -24,6 +24,11 @@
 		this.width_px_right = skin.width_px_right;
 		this.height_px_above = skin.height_px_above;
 		this.height_px_below = skin.height_px_below;
+		this.height_units_below = this.skin.height_px_below / GLOBAL_PARAMETERS.SCALE;
+		this.height_units_above = this.skin.height_px_above / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_left = this.skin.width_px_left / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_right = this.skin.width_px_right / GLOBAL_PARAMETERS.SCALE;
+		
 
 		this.world = null;
 		this.body = null;
@@ -131,6 +136,16 @@
 				body.percentSubmerged2d[i][j] = 0;
 			}
 		}
+		
+		if (GLOBAL_PARAMETERS.DEBUG){
+			g = this.g = new createjs.Graphics();
+			this.shape = new createjs.Shape(g);	
+			g.beginFill("rgba(250,0,0,1.0)");
+			g.drawCircle(0, 5, 5);
+			g.endFill();
+			this.addChild(this.shape);
+		}
+		
 	}
 
 	

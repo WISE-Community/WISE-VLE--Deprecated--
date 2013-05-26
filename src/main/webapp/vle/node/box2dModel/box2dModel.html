@@ -77,7 +77,7 @@
 				 *
 		         * TODO: rename box2dModel variable
 		         */
-				if (box2dModel != "undefined") box2dModel.save();
+				if (typeof box2dModel !== "undefined") box2dModel.save();
 	        }
 		</script>
 	</head>
@@ -98,20 +98,21 @@
 		<script src="js/BuilderObjects/RectBlockShape.js"></script>
 		<script src="js/BuilderObjects/CylinderShape.js"></script>
 		<script src="js/B2Objects/Myb2BuoyancyController.js"></script>
-		<script src="js/B2Objects/Testingb2World.js"></script>
+		<script src="js/B2Objects/Labb2World.js"></script>
 		<script src="js/B2Objects/Beakerb2Actor.js"></script>
 		<script src="js/B2Objects/Scaleb2Actor.js"></script>
+		<script src="js/B2Objects/Balanceb2Actor.js"></script>
 		<script src="js/B2Objects/BlockCompb2Actor.js"></script>
 		<script src="js/B2Objects/Cylinderb2Actor.js"></script>
 		<script src="js/B2Objects/RectPrismb2Actor.js"></script>
-		<script src="js/TestingObjects/ObjectLibrary.js"></script>
-		<script src="js/TestingObjects/ObjectTestingPanel.js"></script>
+		<script src="js/B2Objects/skins/LabShape.js"></script>
 		<script src="js/B2Objects/skins/BlockCompShape.js"></script>
 		<script src="js/B2Objects/skins/CylinderCompShape.js"></script>
 		<script src="js/B2Objects/skins/RectPrismCompShape.js"></script>
 		<script src="js/B2Objects/skins/ContainerCompShape.js"></script>
 		<script src="js/B2Objects/skins/BeakerShape.js"></script>
 		<script src="js/B2Objects/skins/ScaleShape.js"></script>
+		<script src="js/B2Objects/skins/BalanceShape.js"></script>
 		<script src="js/FeedbackManager.js"></script>
 		<script src="js/box2dModelMain.js"></script>
 		
@@ -122,7 +123,8 @@
 		<div id="library-button-holder"></div>
 		<div id="beaker-button-holder"></div>
 		<div id="beaker-button-holder"></div>
-		<canvas width=750 height=500 id="canvas" ></canvas>
-		<canvas width=750 height=750 id="debugcanvas" ></canvas>
+		<div id="canvas-holder">
+		<canvas width=820 height=560 id="canvas" ></canvas>
+		</div>
 		</body>
 </html>

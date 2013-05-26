@@ -5,9 +5,9 @@
 	*   depthArray: an array of binary values indicating if a cube is in a space, back-to-front. example [1, 0, 0, 0, 1]
 	*	view_topAngle, view_sideAngle: the angle which the object is being viewed (radians).  0, 0, is front and center
 	*/
-	var BeakerShape = function(relativeParent, width_px, height_px, depth_px, init_liquid_volume_perc, spilloff_volume_perc, savedObject)
+	var BeakerShape = function(relativeParent, width_px, height_px, depth_px, init_liquid_volume_perc, spilloff_volume_perc, showRuler, savedObject)
 	{
-		this.initialize(relativeParent, width_px, height_px, depth_px, init_liquid_volume_perc, typeof spilloff_volume_perc === "undefined"? 0 : spilloff_volume_perc, savedObject);
+		this.initialize(relativeParent, width_px, height_px, depth_px, init_liquid_volume_perc, spilloff_volume_perc, showRuler, savedObject);
 	} 
 	var p = BeakerShape.prototype = new createjs.Container();
 	
@@ -21,9 +21,11 @@
 	p.WALL_THICKNESS = 2;
 	p.CACHING = false;
 
-	p.initialize = function(relativeParent, width_px, height_px, depth_px, init_liquid_volume_perc, spilloff_volume_perc, savedObject)
+	p.initialize = function(relativeParent, width_px, height_px, depth_px, init_liquid_volume_perc, spilloff_volume_perc, showRuler, savedObject)
 	{
 		this.relativeParent = relativeParent;
+		this.material = this.relativeParent.material;
+		this.liquid = this.relativeParent.liquid;
 		this.width_px = width_px;
 		this.height_px = height_px;
 		this.depth_px = depth_px;
@@ -39,10 +41,9 @@
 		this.volume_px = width_px * height_px * depth_px;
 		this.volume_units = this.volume_px / Math.pow(GLOBAL_PARAMETERS.SCALE, 3);
 		this.NUM_RULER_TICKS = Math.ceil(height_px / GLOBAL_PARAMETERS.SCALE);
-		
+		this.showRuler = showRuler;
 		this.savedObject = savedObject;
 
-		this.liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
 		this.liquid_color = this.liquid.fill_color; 
 		this.liquid_stroke_color = this.liquid.stroke_color;
 
@@ -67,11 +68,13 @@
 		this.frontShape = new createjs.Shape(this.frontGraphics);
 		this.spoutGraphics = new createjs.Graphics();
 		this.spoutShape = new createjs.Shape(this.spoutGraphics);
-		this.rulerGraphics = new createjs.Graphics();
-		this.rulerShape = new createjs.Shape(this.rulerGraphics);
-		this.pointerGraphics = new createjs.Graphics();
-		this.pointerShape = new createjs.Shape(this.pointerGraphics);
-		this.pointerText = new createjs.Text(Math.round(this.total_volume), "1.0em Bold Arial", "#222");
+		if (this.showRuler){
+			this.rulerGraphics = new createjs.Graphics();
+			this.rulerShape = new createjs.Shape(this.rulerGraphics);
+			this.pointerGraphics = new createjs.Graphics();
+			this.pointerShape = new createjs.Shape(this.pointerGraphics);
+			this.pointerText = new createjs.Text(Math.round(this.total_volume), "1.0em Bold Arial", "#222");
+		}
 		
 		// add to display
 		//this.addChild(this.backContainer); 
@@ -82,10 +85,13 @@
 		this.frontContainer.addChild(this.frontWaterShape);
 		this.frontContainer.addChild(this.frontShape);
 		this.frontContainer.addChild(this.spoutShape);
-		this.frontContainer.addChild(this.rulerTextContainer);
-		this.rulerTextContainer.addChild(this.rulerShape);
-		this.frontContainer.addChild(this.pointerShape);
-		this.frontContainer.addChild(this.pointerText);
+		if (this.showRuler){
+			this.frontContainer.addChild(this.rulerTextContainer);
+			this.rulerTextContainer.addChild(this.rulerShape);
+			this.frontContainer.addChild(this.pointerShape);
+			this.frontContainer.addChild(this.pointerText);
+		}
+		
 
 		//relative position to container
 		this.backShape.x = this.width_from_depth; 
@@ -95,9 +101,12 @@
 		this.backWaterLineShape.x = this.width_from_depth; 
 		this.spoutShape.x = this.width_px/2 + this.width_from_depth/2; 
 		this.spoutShape.y = -this.spout_height_px - this.height_from_depth/2;	
-		this.rulerTextContainer.x = -this.width_px/2;	
-		this.pointerShape.x = -this.width_px/2;
-		this.pointerText.x = this.pointerShape.x - 43;
+		if (this.showRuler){
+			this.rulerTextContainer.x = -this.width_px/2;	
+			this.pointerShape.x = -this.width_px/2;
+			this.pointerText.x = this.pointerShape.x - 43;
+		}
+		
 		
 		// draw liquid line
 		g = this.backWaterLineGraphics;
@@ -115,14 +124,14 @@
 		g.clear();
 		// back wall
 		g.setStrokeStyle(this.BEAKER_WALL_THICKNESS);
-		g.beginLinearGradientFill(["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.5)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2, 0, this.width_px/2, 0);
-		g.beginLinearGradientStroke(["rgba(127,127,127,0.5)", "rgba(150,150,150,0.5)","rgba(200,200,200,0.5)", "rgba(150,150,150,0.5)", "rgba(127,127,127,0.5)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2, 0, this.width_px/2, 0);
+		g.beginLinearGradientStroke(this.material.stroke_colors, this.material.stroke_ratios, -this.width_px/2, 0, this.width_px/2, 0);
+		g.beginLinearGradientFill(this.material.fill_colors, this.material.fill_ratios, -this.width_px/2, 0, this.width_px/2, 0);
 		g.drawRect(-this.width_px/2, -this.height_px, this.width_px, this.height_px);
 		g.endFill();
 
 		
 		// draw left side wall
-		g.beginLinearGradientFill(["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.5)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2-this.width_from_depth, 0, -this.width_px/2, 0);
+		g.beginLinearGradientFill(this.material.fill_colors, this.material.fill_ratios, -this.width_px/2-this.width_from_depth, 0, -this.width_px/2, 0);
 		g.moveTo(-this.width_px/2, -this.height_px);
 		g.lineTo(-this.width_px/2 - this.width_from_depth, -this.height_px+this.height_from_depth);
 		g.lineTo(-this.width_px/2 - this.width_from_depth, this.height_from_depth);
@@ -131,7 +140,7 @@
 		g.endFill();
 
 		// draw bottom
-		g.beginLinearGradientFill(["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.5)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2-this.width_from_depth, 0, this.width_px/2, 0);
+		g.beginLinearGradientFill(this.material.fill_colors, this.material.fill_ratios, -this.width_px/2-this.width_from_depth, 0, this.width_px/2, 0);
 		g.moveTo(-this.width_px/2 - this.width_from_depth, this.height_from_depth);
 		g.lineTo(this.width_px/2 - this.width_from_depth, this.height_from_depth);
 		g.lineTo(this.width_px/2, 0);
@@ -144,8 +153,6 @@
  
 		// draw liquid line, actually half the top suface
 		g = this.frontWaterLineGraphics;
-		//g.setStrokeStyle(1);
-		//g.beginLinearGradientFill(["rgba(100,100,255,0.6)", "rgba(150,150,255,0.6)","rgba(175,175,255,0.6)", "rgba(150,150,255,0.6)", "rgba(100,100,255,0.6)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2+this.width_from_depth*1/4, 0, this.width_px/2+this.width_from_depth*1/4, 0);
 		g.beginFill(this.liquid_stroke_color);
 		g.moveTo(-this.width_px/2, 0);
 		g.lineTo(this.width_px/2, 0);
@@ -159,12 +166,12 @@
 		g = this.frontGraphics;
 		// cylinder
 		g.setStrokeStyle(this.BEAKER_WALL_THICKNESS);
-		g.beginLinearGradientStroke(["rgba(127,127,127,0.5)", "rgba(150,150,150,0.5)","rgba(200,200,200,0.5)", "rgba(150,150,150,0.5)", "rgba(127,127,127,0.5)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2, 0, this.width_px/2, 0);
-		g.beginLinearGradientFill(["rgba(127,127,127,0.2)", "rgba(200,200,200,0.2)","rgba(225,225,255,0.3)", "rgba(200,200,200,0.2)", "rgba(127,127,127,0.2)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2, 0, this.width_px/2, 0);
+		g.beginLinearGradientStroke(this.material.stroke_colors, this.material.stroke_ratios, -this.width_px/2, 0, this.width_px/2, 0);
+		g.beginLinearGradientFill(this.material.fill_colors, this.material.fill_ratios, -this.width_px/2, 0, this.width_px/2, 0);
 		g.drawRect(-this.width_px/2, -this.height_px, this.width_px, this.height_px);
 		g.endFill();
 		// right side wall
-		g.beginLinearGradientFill(["rgba(127,127,127,0.2)", "rgba(200,200,200,0.2)","rgba(225,225,255,0.3)", "rgba(200,200,200,0.2)", "rgba(127,127,127,0.2)"], [0, 0.1, 0.5, 0.9, 1], this.width_px/2, 0, this.width_px/2 + this.width_from_depth, 0);
+		g.beginLinearGradientFill(this.material.fill_colors, this.material.fill_ratios, this.width_px/2, 0, this.width_px/2 + this.width_from_depth, 0);
 		g.moveTo(this.width_px/2, -this.height_px).lineTo(this.width_px/2 + this.width_from_depth, -this.height_px-this.height_from_depth).lineTo(this.width_px/2 + this.width_from_depth, -this.height_from_depth).lineTo(this.width_px/2, 0).lineTo(this.width_px/2, -this.height_px);
 		g.endFill();
 		g.endStroke();
@@ -205,34 +212,36 @@
 		}
 
  		// draw a ruler
-		g = this.rulerGraphics;
-		g.clear();
-		g.setStrokeStyle(1);
-		//g.beginLinearGradientStroke(["rgba(56,56,56,0.6)", "rgba(100,100,100,0.4)","rgba(127,127,127,0.2)", "rgba(100,100,100,0.4)", "rgba(56,56,56,0.6)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2, 0, this.width_px/2, 0);
-		g.beginStroke("rgba(50, 50, 50, 1.0)")
-		
-		for (var i=0; i <= this.NUM_RULER_TICKS; i++){
-			var ry = -this.height_px*i/this.NUM_RULER_TICKS;
-			var beaker_volume = this.width_px / GLOBAL_PARAMETERS.SCALE * this.height_px/ GLOBAL_PARAMETERS.SCALE * this.depth_px/ GLOBAL_PARAMETERS.SCALE;
-			var vstr = Math.round(beaker_volume*i/this.NUM_RULER_TICKS);
-			var text = new createjs.Text(vstr, "1.0em Bold Arial", "#4D4");
-			g.moveTo(0, ry);
-			g.lineTo(-10, ry);
-			text.x = -43;
-			text.y = ry - 10; 
-			this.rulerTextContainer.addChild(text);
-		}
-		
-		// draw pointer to liquid line
-		g = this.pointerGraphics;
-		g.setStrokeStyle(1);
-		g.beginStroke("rgba(100, 100, 100, 1)");
-		g.beginFill("rgba(255,255,255, 1.0)");
-		g.moveTo(0, 0).lineTo(-8, -10).lineTo(-46, -10).lineTo(-46, 10).lineTo(-8, 10).lineTo(0, 0);
-		g.endFill();
-		g.endStroke();		
+ 		if (this.showRuler){
 
-		//this.frontContainer.onPress = this.eventHandler.bind(this);		
+			g = this.rulerGraphics;
+			g.clear();
+			g.setStrokeStyle(1);
+			//g.beginLinearGradientStroke(["rgba(56,56,56,0.6)", "rgba(100,100,100,0.4)","rgba(127,127,127,0.2)", "rgba(100,100,100,0.4)", "rgba(56,56,56,0.6)"], [0, 0.1, 0.5, 0.9, 1], -this.width_px/2, 0, this.width_px/2, 0);
+			g.beginStroke("rgba(50, 50, 50, 1.0)")
+			
+			for (var i=0; i <= this.NUM_RULER_TICKS; i++){
+				var ry = -this.height_px*i/this.NUM_RULER_TICKS;
+				var beaker_volume = this.width_px / GLOBAL_PARAMETERS.SCALE * this.height_px/ GLOBAL_PARAMETERS.SCALE * this.depth_px/ GLOBAL_PARAMETERS.SCALE;
+				var vstr = Math.round(beaker_volume*i/this.NUM_RULER_TICKS);
+				var text = new createjs.Text(vstr, "1.0em Bold Arial", "#4D4");
+				g.moveTo(0, ry);
+				g.lineTo(-10, ry);
+				text.x = -43;
+				text.y = ry - 10; 
+				this.rulerTextContainer.addChild(text);
+			}
+			
+			// draw pointer to liquid line
+			g = this.pointerGraphics;
+			g.setStrokeStyle(1);
+			g.beginStroke("rgba(100, 100, 100, 1)");
+			g.beginFill("rgba(255,255,255, 1.0)");
+			g.moveTo(0, 0).lineTo(-8, -10).lineTo(-46, -10).lineTo(-46, 10).lineTo(-8, 10).lineTo(0, 0);
+			g.endFill();
+			g.endStroke();		
+		}
+
 	}
 
 	p.backOnPress = function (evt){
@@ -281,11 +290,12 @@
 			
 			this.frontWaterLineShape.y = -this.liquid_height_px;
 			this.backWaterLineShape.y = this.frontWaterLineShape.y - this.height_from_depth;
-			this.pointerShape.y = this.frontWaterLineShape.y;
-			this.pointerText.y = this.pointerShape.y - 10;
-			
-			//console.log(this.liquid_height_px);
-			this.pointerText.text = Math.round(10*this.liquid_height_px / this.height_px * this.volume_units)/10;
+
+			if (this.showRuler){
+				this.pointerShape.y = this.frontWaterLineShape.y;
+				this.pointerText.y = this.pointerShape.y - 10;
+				this.pointerText.text = Math.round(10*this.liquid_height_px / this.height_px * this.volume_units)/10;
+			}			
 		} 	
 	}
 
