@@ -80,9 +80,8 @@ FILLIN.prototype.generateInteractiveDivHtml = function(textInteractionEntryIndex
 	var textInteractionEntry = this.textEntryInteractions[parseInt(textInteractionEntryIndex)];
 	if(textInteractionEntry){
 		var responseId = textInteractionEntry.textInteraction.responseIdentifier;
-		var expectedLength = textInteractionEntry.textInteraction.expectedLength;
 		var humanIndex = parseInt(textInteractionEntryIndex)+1;
-		return "<b>Answer for blank #"+humanIndex+": </b><input maxLength=\""+expectedLength+"\" id=\"responseBox\" type=\"text\"></input>";
+		return "<b>Answer for blank #"+humanIndex+": </b><input id=\"responseBox\" type=\"text\"></input>";
 		this.html += "<script type=\"text/javascript\">document.getElementById(\"responseBox\").focus();</script>";
 	};
 };
@@ -306,6 +305,24 @@ FILLIN.prototype.processTagMaps = function() {
 	};
 	
 	return returnObject;
+};
+
+/**
+ * Check whether the student answer is correct for the given fillin blank index
+ * 
+ * @param textEntryInteractionIndex the fillin blank index
+ * @param studentAnswerText the answer the student entered for the fillin blank
+ * 
+ * @return whether the student answered this fillin blank correctly or not 
+ */
+FILLIN.prototype.checkSingleAnswer = function(textEntryInteractionIndex, studentAnswerText) {
+	//get the fillin object at the given index
+	var textEntryInteraction = this.textEntryInteractions[textEntryInteractionIndex];
+	
+	//get whether the student answered this fillin correctly
+	var isCorrect = textEntryInteraction.isCorrect(studentAnswerText);
+	
+	return isCorrect;
 };
 
 //used to notify scriptloader that this script has finished loading

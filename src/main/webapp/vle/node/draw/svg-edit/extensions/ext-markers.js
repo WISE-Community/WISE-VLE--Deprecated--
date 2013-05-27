@@ -99,8 +99,7 @@ svgEditor.addExtension("Markers", function(S) {
 		]
 	};
 
-	var urlBase = parent.location.href; // urlBase of step content iframe in wise4
-	
+
 	// duplicate shapes to support unfilled (open) marker types with an _o suffix
 	$.each(['leftarrow','rightarrow','box','star','mcircle','triangle'],function(i,v) {
 		marker_types[v+'_o'] = marker_types[v];
@@ -268,9 +267,7 @@ svgEditor.addExtension("Markers", function(S) {
 		// Set marker on element
 		var id = marker_prefix + pos + '_' + el.id;
 		addMarker(id, val);
-		// edited path to resolve wise4/firefox url() reference problems
-		//svgCanvas.changeSelectedAttribute(marker_name, "url(#" + id + ")");
-		svgCanvas.changeSelectedAttribute(marker_name, "url(" + urlBase + "#" + id + ")");
+		svgCanvas.changeSelectedAttribute(marker_name, "url(#" + id + ")");
 		if (el.tagName == "line" && pos=='mid') el=convertline(el);
 		S.call("changed", selElems);
 		setIcon(pos,val);
@@ -351,9 +348,7 @@ svgEditor.addExtension("Markers", function(S) {
 				if (el.id != linkid) {
 					var val = $('#'+pos+'_marker').attr('value');
 					addMarker(id, val);
-					// edited path to resolve wise4/firefox url() reference problems
-					//svgCanvas.changeSelectedAttribute(marker_name, "url(#" + id + ")");
-					svgCanvas.changeSelectedAttribute(marker_name, "url(" + urlBase + "#" + id + ")");
+					svgCanvas.changeSelectedAttribute(marker_name, "url(#" + id + ")");
 					if (el.tagName == "line" && pos=='mid') el=convertline(el);
 					S.call("changed", selElems);
 				}
@@ -480,7 +475,7 @@ svgEditor.addExtension("Markers", function(S) {
 
 	return {
 		name: "Markers",
-		svgicons: "/vlewrapper/vle/node/draw/svg-edit/extensions/markers-icons.xml", //edited to wise4 extensions path
+		svgicons: "extensions/markers-icons.xml",
 		buttons: buildButtonList(),
 		context_tools: [
 		   {

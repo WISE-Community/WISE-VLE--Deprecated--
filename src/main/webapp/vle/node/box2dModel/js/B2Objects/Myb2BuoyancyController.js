@@ -9,6 +9,7 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
       this.normal = new b2Vec2(0, (-1));
       this.offset = 0;
       this.initial_offset = this.offset;
+      this.y = 0;
       this.density = 0;
       this.velocity = new b2Vec2(0, 0);
       this.linearDrag = 3;
@@ -59,12 +60,13 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
          var mass = 0.0;
          for (var fixture = body.GetFixtureList(); fixture; fixture = fixture.GetNext()) {
             var sc = new b2Vec2();
-            var sarea = fixture.GetShape().ComputeSubmergedArea(this.normal, this.offset, body.GetTransform(), sc);
+            var sarea = fixture.GetShape().ComputeSubmergedArea(this.normal, -1*(this.y + this.offset), body.GetTransform(), sc);
+            //console.log(sarea, this.normal, -1*(this.y + this.offset), this.y, this.offset);
             if (sarea != fixture.percentSubmerged){
                body.percentSubmergedChangedFlag = true;
                fixture.percentSubmerged = sarea/fixture.area;
-               body.percentSubmerged2d[fixture.x_index][fixture.y_index] = fixture.percentSubmerged;
-             }
+               if (typeof body.percentSubmerged2d !== "undefined") body.percentSubmerged2d[fixture.x_index][fixture.y_index] = fixture.percentSubmerged;
+            }
            
             area += sarea;
             areac.x += sarea * sc.x;
@@ -74,14 +76,20 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
                shapeDensity = 1;
             }
             else {
-               shapeDensity = (fixture.materialSpaces + fixture.interiorSpaces + fixture.protectedSpaces) / fixture.area;
+               if (typeof fixture.materialSpaces !== "undefined" && typeof fixture.interiorSpaces !== "undefined" && typeof fixture.protectedSpaces !== "undefined" && typeof fixture.area !== "undefined"){
+                  shapeDensity = (fixture.materialSpaces + fixture.interiorSpaces + fixture.protectedSpaces) / fixture.area;
+               } else {
+                  // if we don't have the details about the fixtures try to calculate
+                  shapeDensity = Math.sqrt(this.surfaceArea);
+                  if (shapeDensity == 0) depth = 5;
+               }
             }
             mass += sarea * shapeDensity;
             massc.x += sarea * sc.x * shapeDensity;
             massc.y += sarea * sc.y * shapeDensity;
 
             // adjust offset based on the amount of object submerged
-            if (this.surfaceArea > 0) { offset += sarea * shapeDensity / this.surfaceArea;}
+            if (this.surfaceArea > 0) { offset -= sarea * shapeDensity / this.surfaceArea;}
          }
          
          areac.x /= area;
@@ -104,18 +112,6 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
          
    }
 
-   Myb2BuoyancyController.prototype.Draw = function (debugDraw) {
-      var r = 1000;
-      var p1 = new b2Vec2();
-      var p2 = new b2Vec2();
-      p1.x = this.normal.x * this.offset + this.normal.y * r;
-      p1.y = this.normal.y * this.offset - this.normal.x * r;
-      p2.x = this.normal.x * this.offset - this.normal.y * r;
-      p2.y = this.normal.y * this.offset + this.normal.x * r;
-      var color = new Box2D.Common.b2Color(0, 0, 1);
-      debugDraw.DrawSegment(p1, p2, color);
-   }
-
    Myb2BuoyancyController.prototype.SetInitialOffset = function(offset)
    {
       this.offset = offset;
@@ -123,8 +119,28 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
    }
 
    Myb2BuoyancyController.prototype.ChangeOffset = function(doffset)
-   {
-      
+   {   
       this.initial_offset += doffset;
       this.offset += doffset;
    }
+
+   Myb2BuoyancyController.prototype.SetY = function(y)
+   {   
+      this.y = y;
+   }
+
+   Myb2BuoyancyController.prototype.Draw = function (debugDraw) {
+      if (!isNaN(this.offset)){
+         var r = 1000;
+         var p1 = new b2Vec2();
+         var p2 = new b2Vec2();
+         p1.x = this.normal.x * this.offset + this.normal.y * r;
+         p1.y = -this.normal.y * (this.y + this.offset) - this.normal.x * r;
+         p2.x = this.normal.x * this.offset - this.normal.y * r;
+         p2.y = -this.normal.y * (this.y + this.offset) + this.normal.x * r;
+         var color = new Box2D.Common.b2Color(0, 0, 1);
+         debugDraw.DrawSegment(p1, p2, color);
+      }
+   }
+
+

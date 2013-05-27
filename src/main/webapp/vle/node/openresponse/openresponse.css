@@ -350,3 +350,9 @@ textarea:focus {
 	width: 33.3%;
 }
 
+.unselectable {
+    -moz-user-select: none; /* for FireFox */
+    -webkit-user-select: none; /* for Chrome and Safari */
+    -khtml-user-select: none; /* probably old webkit browsers, but new support it too */
+    user-select: none; /* for future CSS3 compliant browsers */
+}
