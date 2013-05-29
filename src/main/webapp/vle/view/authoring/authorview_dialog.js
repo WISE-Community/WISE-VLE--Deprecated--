@@ -460,7 +460,7 @@ View.prototype.initializeAssetUploaderDialog = function(){
 		$('#uploadAssetFile').val('');
 	};
 	
-	$('#assetUploaderDialog').dialog({autoOpen:false, draggable:false, modal:true, width:600, buttons: {'Submit':submit}, close: cancel});
+	$('#assetUploaderDialog').dialog({autoOpen:false, draggable:false, modal:true, width:620, buttons: {'Submit':submit}, close: cancel});
 };
 
 /**

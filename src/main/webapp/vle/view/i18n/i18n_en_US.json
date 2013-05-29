@@ -1175,6 +1175,18 @@
 		"value":"View Active",
 		"description":"Text for link to view the active content section of the project content authoring screen"
 	},
+	"authoring_project_content_activeHover":{
+		"value":"Click to Edit; Drag to Move",
+		"description":"Text to display when hovering over an element in the active content section of the project content authoring screen"
+	},
+	"authoring_project_content_inactiveHover":{
+		"value":"Click to Edit",
+		"description":"Text to display when hovering over an element in the inactive content section of the project content authoring screen"
+	},
+	"authoring_project_content_unusedHover":{
+		"value":"Click to View",
+		"description":"Text to display when hovering over the unused steps item in the inactive content section of the project content authoring screen"
+	},
 	"authoring_project_content_inactive": {
 		"value":"Inactive Content",
 		"description":"Header text for the inactive content section of the project content authoring screen"
@@ -1312,7 +1324,7 @@
 		"description":"Label text for the project metadata grade level selector in the authoring tool."
 	},
 	"authoring_meta_total_time_label":{
-		"value":"Total Time:",
+		"value":"Duration:",
 		"description":"Label text for the project metadata total time (duration) selector in the authoring tool."
 	},
 	"authoring_meta_comp_time_label":{

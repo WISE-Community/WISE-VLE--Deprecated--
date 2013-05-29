@@ -47,8 +47,9 @@
 #author_body header > .content, #author_body footer > .content, 
 #author_body #pageContent {
 	margin:0 auto;
-	max-width:1280px;
-	min-width:1024px;
+	/*max-width:1280px;
+	min-width:1024px;*/
+	min-width:800px;
 	position:relative;
 }
 
@@ -481,17 +482,13 @@ table.wisetable th, table.wisetable td {
 	height:75px;
 	width:75px;
 	border:1px solid #222;
-	-webkit-transition: opacity 200ms;
-	-moz-transition: opacity 200ms;
-	-o-transition: opacity 200ms;
-	-ms-transition: opacity 200ms;
-	transition: opacity 200ms;
-	-webkit-transition-delay: 400ms;
-	-moz-transition-delay: 400ms;
-	-o-transition-delay: 400ms;
-	-ms-transition-delay: 400ms;
-	transition-delay: 400ms;
-	background-color:rgba(255,255,255,.1);
+	-webkit-transition: opacity 250ms;
+	-moz-transition: opacity 250ms;
+	-o-transition: opacity 250ms;
+	-ms-transition: opacity 250ms;
+	transition: opacity 250ms;
+	background-color:rgb(0,0,0);
+	background-color:rgba(0,0,0,.25);
 	font-size:.75em;
 }
 
@@ -796,7 +793,7 @@ table.wisetable th, table.wisetable td {
 }
 
 #author_body .projectComponent > h3 .right, #author_body .projectComponent > h3 .left {
-	bottom: 0.5em;
+	bottom: 0.6em;
     color: #555555;
     font-size: 0.8em;
     line-height: 1.1em;
@@ -847,11 +844,11 @@ table.wisetable th, table.wisetable td {
     -webkit-box-shadow:0 0 2px #aaaaaa;
     -o-box-shadow:0 0 2px #aaaaaa;
     box-shadow:0 0 2px #aaaaaa;
-    -webkit-transition: height 250ms, width 250ms, border-color 250ms, background-color 250ms;
-	-moz-transition: height 250ms, width 250ms, border-color 250ms, background-color 250ms;
-	-o-transition: height 250ms, width 250ms, border-color 250ms, background-color 250ms;
-	-ms-transition: height 250ms, width 250ms, border-color 250ms, background-color 250ms;
-	transition: height 250ms, width 250ms, border-color 250ms, background-color 250ms;
+    -webkit-transition: height 250ms, width 250ms, box-shadow 250ms;
+	-moz-transition: height 250ms, width 250ms, box-shadow 250ms;
+	-o-transition: height 250ms, width 250ms, box-shadow 250ms;
+	-ms-transition: height 250ms, width 250ms, box-shadow 250ms;
+	transition: height 250ms, width 250ms, box-shadow 250ms;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -889,40 +886,59 @@ table.wisetable th, table.wisetable td {
 #author_body #dynamicProject .seq .sequenceTitle,
 #author_body #dynamicProject .seq .sequenceInfo {
 	padding:5px;
-	-webkit-transition: background-color 250ms, color 250ms;
-	-moz-transition: background-color 250ms, color 250ms;
-	-o-transition: background-color 250ms, color 250ms;
-	-ms-transition: background-color 250ms, color 250ms;
-	transition: background-color 250ms, color 250ms;
 }
 
 #author_body #dynamicProject .seq .sequenceTitle {
 	line-height:1.3em;
-	/*background:#373737;
-	color:#eeeeee;*/
 	color:#ffffff;
 	border:0 none;
-	border-bottom:1px solid #aaa;
 	margin:-6px -6px 5px;
 	padding:5px 7px;
-	-o-text-shadow: 1px 1px #007391;
-	-moz-text-shadow: 1px 1px #007391;
-	-webkit-text-shadow: 1px 1px #007391;
-	text-shadow: 1px 1px #007391;
+	-o-text-shadow: 0 0 1px #007391;
+	-moz-text-shadow: 0 0 1px #007391;
+	-webkit-text-shadow: 0 0 1px #007391;
+	text-shadow: 0 0 1px #007391;
 }
 
 #author_body #dynamicProject #activeContainer .seq .sequenceTitle {
-	cursor:move;
 	padding-left:5px;
+}
+
+#author_body #dynamicProject #activeContainer .seq .sequenceTitle .move {
+	cursor:move;
 }
 
 #author_body #dynamicProject #inactiveContainer .seq .sequenceTitle {
 	background: #666666;
-	text-shadow: 1px 1px #555555;
+	text-shadow: 0 0 1px #555555;
 }
 
 #author_body #dynamicProject #activeContainer .seq .sequenceTitle .title {
     margin-left: 12px;
+}
+
+#author_body #dynamicProject .seq .sequenceOverlay {
+	position:absolute;
+	left:-1px;
+	right:-1px;
+	background-color:#000000;
+	color:#bbbbbb;
+	font-family:Georgia,"Times New Roman",serif;
+	font-weight:300;
+	text-align:center;
+	padding-top:20px;
+	opacity:0;
+	filter:Alpha(Opacity=0);
+	-webkit-transition: opacity 250ms;
+	-moz-transition: opacity 250ms;
+	-o-transition: opacity 250ms;
+	-ms-transition: opacity 250ms;
+	transition: opacity 250ms;
+}
+
+#author_body #dynamicProject .seq:hover .sequenceOverlay {
+	opacity:.8;
+	filter:Alpha(Opacity=80);
 }
 
 #author_body #dynamicProject .seq .sequenceTitle .ui-icon {
@@ -963,6 +979,7 @@ table.wisetable th, table.wisetable td {
 #author_body #dynamicProject .seq .sequenceInfo .actions img.icon {
 	height: 20px;
     opacity: 0.65;
+    filter:Alpha(Opacity=65);
     padding-top: 2px;
     width: 20px;
     -webkit-transition: all 250ms;
@@ -974,6 +991,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #dynamicProject .seq .sequenceInfo .actions img.icon:hover {
 	opacity:1;
+	filter:Alpha(Opacity=1);
 }
 
 #author_body #dynamicProject .seq:hover .nodeCount {
@@ -1322,7 +1340,7 @@ table.wisetable th, table.wisetable td {
 }
 
 .featureSettings label {
-	font-weight:bold;
+	/*font-weight:bold;*/
 }
 
 .featureSettings input[type="checkbox"] {
@@ -1396,6 +1414,7 @@ table.wisetable th, table.wisetable td {
 .featureSettings a.delete {
 	padding:0 .1em;
 	color:#555;
+	font-weight:normal;
 }
 
 .featureSettings .move {
@@ -1434,7 +1453,7 @@ table.wisetable th, table.wisetable td {
 .featureSettings .settingLabel span {
 	text-decoration:underline;
 	color:#745A33;
-	font-size:1.05em;
+	font-size:1.15em;
 }
 
 .featureSettings span.details {
@@ -1690,7 +1709,6 @@ table#ideaAttributes {
 
 #ideaAttributes .attribute input[type='text'] {
 	background: none repeat scroll 0 0 #F5F5F5;
-    font-size:.95em;
 }
 
 #ideaAttributes .attribute input[type='text']:focus {
@@ -1751,7 +1769,7 @@ table#ideaAttributes {
 }
 
 #ideaAttributes .attribute .newLinks ul {
-	font-size: 0.9em;
+	font-size: 0.95em;
     margin: 0.25em 0;
     padding-left: 1.5em;
 }

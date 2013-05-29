@@ -775,15 +775,18 @@ View.prototype.initSequence = function(target){
 		stepTerm = view.getI18NString('step');
 	}
 	
-	// insert info element with number of steps/branches
+	// create info footer with number of steps/branches
 	var infoEl = $('<div class="sequenceInfo"><span class="nodeCount">'+ numNodes +' ' + stepTerm + ' +</span></div>');
 	
-	// insert delete and hide/show links
+	// create hover overlay
+	var hoverDiv = $('<div class="sequenceOverlay">' + view.getI18NString('authoring_project_content_activeHover') + '</div>');
+	
+	// create delete and hide/show links
 	if(seq.attr('id')!=='unusedNodes'){
 		var actionsEl = $('<div class="actions"></div>'),
 		toggleLink = '';
 		if(isActive){
-			toggleLink = $('<a class="tooltip" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/ alt="hide"></a>');
+			toggleLink = $('<a class="tooltip" data-tooltip-anchor="bottom" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/ alt="hide"></a>');
 			// bind hide click action
 			toggleLink.on('click',function(e){
 				e.stopPropagation();
@@ -796,7 +799,7 @@ View.prototype.initSequence = function(target){
 			});
 		} else {
 			// sequence is inactive, so add show link instead of hide link
-			toggleLink = $('<a class="tooltip" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/ alt="show"></a>');
+			toggleLink = $('<a class="tooltip" data-tooltip-anchor="bottom" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/ alt="show"></a>');
 
 			// bind show click action
 			toggleLink.on('click',function(e){
@@ -808,8 +811,9 @@ View.prototype.initSequence = function(target){
 					//view.showSelected();
 				});
 			});
+			hoverDiv.text(view.getI18NString('authoring_project_content_inactiveHover'));
 		}
-		var deleteLink = $('<a class="tooltip" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/trash.png" alt="delete"/></a>');
+		var deleteLink = $('<a class="tooltip" data-tooltip-anchor="bottom" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/trash.png" alt="delete"/></a>');
 		
 		// bind delete click action
 		deleteLink.on('click',function(e){
@@ -825,20 +829,35 @@ View.prototype.initSequence = function(target){
 		actionsEl.append(toggleLink).append(deleteLink);
 		infoEl.append(actionsEl);
 		
-		$('.seqWrap',seq).append(infoEl);
+		// insert info footer and hover overlay to activity element
+		$('.seqWrap',seq).append(infoEl).append(hoverDiv);
 		
 		// add tooltips
 		view.insertTranslations('main',view.insertTooltips(infoEl));
 	} else {
+		hoverDiv.text(view.getI18NString('authoring_project_content_unusedHover'));
 		seq.attr('data-absid','null');
 		$('li.node',seq).addClass('unused');
+		$('.seqWrap',seq).append(hoverDiv);
 	}
+	
+	// position activity hover overlay
+	view.positionActivityOverlays();
 	
 	// bind sequence click action
 	seq.on('click',function(){
 		if(!$(this).hasClass('ui-sortable-helper')){
 			view.editSequence(target);
 		}
+	});
+};
+
+View.prototype.positionActivityOverlays = function() {
+	$('.seqWrap').each(function(){
+		var seq = $(this),
+			top = ($('.sequenceTitle', seq).outerHeight()-1) + 'px',
+			bottom = ($('.sequenceInfo',seq).outerHeight()-1) + 'px';
+		$('.sequenceOverlay',seq).css({'top': top, 'bottom': bottom});
 	});
 };
 
@@ -1165,7 +1184,7 @@ View.prototype.editSequence = function(target){
 				// clear contents
 				contentEl.empty().attr('data-absid','');
 				// show activities
-				$('#dynamicProject').fadeIn();
+				$('#dynamicProject').fadeIn(function(){ view.positionActivityOverlays(); });
 			});
 		});
 		

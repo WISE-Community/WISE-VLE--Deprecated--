@@ -101,7 +101,7 @@ View.prototype.utils.resize = function(){
 	$('#projectTitle').width('auto').width($('#projectTitle').width() + 2);
 	
 	// set projectStructure to fit the remaining height of the projectContent
-	var psHeight = $('#projectContent').height() - $('#projectInfo').outerHeight(true) - parseInt($('#projectContent > .panelContent').css('padding-top')) - parseInt($('#projectContent > .panelContent').css('padding-bottom'));
+	var psHeight = $('#projectContent').height() - $('#projectInfo').outerHeight(true) - parseInt($('#projectContent > .panelContent').css('padding-top'),10) - parseInt($('#projectContent > .panelContent').css('padding-bottom'),10);
 	$('#projectStructure').height(psHeight);
 };
 

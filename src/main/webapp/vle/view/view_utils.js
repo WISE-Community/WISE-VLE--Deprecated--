@@ -1225,7 +1225,7 @@ View.prototype.getAnnotationsByType = function(annotationType) {
  * - tooltip-title: String (or inline HTML) to set as the tooltip's title (this will prepend an h3 element
  * to the tooltip content)
  * - tooltip-class: String to add to the tooltip element's css class (default is none)
- * - tooltip-offset: 'X' sets the offset of the tooltip element to X pixels (default is '0')
+ * - tooltip-offset: 'X' sets the offset of the tooltip element to X pixels (default is '2')
  * - tooltip-delay: 'X' sets the appearance delay of the tooltip element to X milliseconds (default is '200')
  * - tooltip-keep: String ('true' or 'false') to specify whether the tooltip should stay visible when mouse
  * moves away from the element (and hide when the mouse leaves the tooltip or the user clicks on another
