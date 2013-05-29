@@ -2483,6 +2483,16 @@ Node.prototype.populateNodeStatusDependencies = function() {
 	}
 };
 
+/*
+ * Takes in a state JSON object and returns a STATE object. This
+ * function should be overriden by child nodes.
+ * @param nodeStatesJSONObj a state JSON object
+ * @return a STATE object
+ */
+Node.prototype.parseDataJSONObj = function(nodeStateJSONObj) {
+	return null;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/Node.js');

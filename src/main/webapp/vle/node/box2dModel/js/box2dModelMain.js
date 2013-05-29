@@ -1,4 +1,4 @@
-var   b2Vec2 = Box2D.Common.Math.b2Vec2
+		var b2Vec2 = Box2D.Common.Math.b2Vec2
         , b2BodyDef = Box2D.Dynamics.b2BodyDef
         , b2Body = Box2D.Dynamics.b2Body
         , b2FixtureDef = Box2D.Dynamics.b2FixtureDef
@@ -21,7 +21,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
         var GLOBAL_PARAMETERS =
         {
        		"DEBUG" : true,
-	       	"INCLUDE_BUILDER": true,
+	       	"INCLUDE_BUILDER": false,
 	       	"INCLUDE_CYLINDER_BUILDER":false,
   			"INCLUDE_RECTPRISM_BUILDER":false,
   			"INCLUDE_LIBRARY":true,
@@ -37,14 +37,16 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 	        "view_sideAngle" : 10*Math.PI/180,
 			"view_topAngle" : 20*Math.PI/180,
 			"liquid_volume_perc" : 0.50,
-			"fill_spilloff_by_height": true,
-			"spilloff_volume_perc" : 0.50,
 			"total_objects_made" : 0,
 			"total_objects_made_in_world" : 0,
+			"total_beakers_made" : 0,
+			"total_scales_made" : 0,
+			"total_balances_made" : 0,
 			"materials_available":[],
 			"materials": {},
 			"premades_available":[],
 			"premades_in_world":[],
+			"beakers_in_world":[],
 			"premades":{},
 			"objectLibrary":[],
 			"MAX_OBJECTS_IN_LIBRARY":100,
@@ -86,50 +88,46 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		// GLOBAL OBJECTS			
 		var canvas;
 		var stage;
-		var builder;
-		var tester;
+		var builder = null;
+		var labWorld;
 		
-		function init(wiseData, makePremades, forceDensityValue)
-		{
+		function init(wiseData, makePremades, forceDensityValue){
 			var key;
-			if (typeof wiseData === "undefined")
-			{
-				// load parameters file to overwrite defaults
-				$(document).ready( function (){
-					$.getJSON('box2dModelTemplate.b2m', function(data) {
-						for (var key in data)
-						{
-							GLOBAL_PARAMETERS[key] = data[key];
-						}
-						if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
-						if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
-						GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").attr("width");
-						GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
-						GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
-						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
-						GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
-						GLOBAL_PARAMETERS.INCLUDE_LIBRARY = !GLOBAL_PARAMETERS.INCLUDE_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.INCLUDE_LIBRARY : true; 
-						if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
-							for (var key in GLOBAL_PARAMETERS.materials){
-								GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
-							}
-						}
-						start();
-					});     
-				});
-			} else
-			{
+			$(document).ready( function (){
+				GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").width();
+				GLOBAL_PARAMETERS.LAB_HEIGHT = $("#canvas").height();
 				// load from WISE
-				for (var key in wiseData)
-				{
-					GLOBAL_PARAMETERS[key] = wiseData[key];
+				if (typeof wiseData !== "undefined"){
+					for (var key in wiseData){ GLOBAL_PARAMETERS[key] = wiseData[key];}	
+				} else {
+					$.getJSON('box2dModelTemplate.b2m', function(data) {
+						for (var key in data) { GLOBAL_PARAMETERS[key] = data[key]; }
+					});
 				}
+				// can't manually change stage height, only lab height
+				GLOBAL_PARAMETERS.STAGE_HEIGHT = $("#canvas").height();
+				
+				if (GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
+					 GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 3 * 5;
+				} else {
+					 GLOBAL_PARAMETERS.BUILDER_HEIGHT = 0;
+				}
+				GLOBAL_PARAMETERS.STAGE_HEIGHT = GLOBAL_PARAMETERS.BUILDER_HEIGHT + GLOBAL_PARAMETERS.STAGE_HEIGHT;
+
+				// did we change size?
+				if (GLOBAL_PARAMETERS.STAGE_WIDTH != $("#canvas").width()) $("#canvas").attr('width',GLOBAL_PARAMETERS.STAGE_WIDTH);	
+				if (GLOBAL_PARAMETERS.STAGE_HEIGHT != $("#canvas").height()) $("#canvas").attr('height',GLOBAL_PARAMETERS.STAGE_HEIGHT);	
+				
+				// are wed debugging if so, append a debug canvase
+				if (GLOBAL_PARAMETERS.DEBUG){
+					$("#canvas-holder").append('<canvas width='+GLOBAL_PARAMETERS.STAGE_WIDTH+' height='+GLOBAL_PARAMETERS.STAGE_HEIGHT+' id="debugcanvas" ></canvas>');
+				}
+
 				if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
-				GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").attr("width");
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
-				GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
-				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
+				
+				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.STAGE_HEIGHT - GLOBAL_PARAMETERS.BUILDER_HEIGHT;
 				GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
 				GLOBAL_PARAMETERS.INCLUDE_LIBRARY = !GLOBAL_PARAMETERS.INCLUDE_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.INCLUDE_LIBRARY : true; 
 				if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
@@ -137,12 +135,47 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
 					}
 				}
-				start(typeof makePremades=="undefined"? true:makePremades);
-			}	
+				if(typeof GLOBAL_PARAMETERS.materials["Pyrex"] === "undefined"){
+					GLOBAL_PARAMETERS.materials["Pyrex"] = 
+					{
+						"display_name":"Pyrex",
+						"density":2.21,
+						"fill_colors":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
+						"fill_ratios":[0, 0.1, 0.4, 0.9, 1],
+						"fill_colors_shadow":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
+						"fill_ratios_shadow":[0, 0.1, 0.4, 0.9, 1],
+						"stroke_colors":["rgba(56,56,56,0.4)", "rgba(56,56,56,0.4)"],
+						"stroke_ratios":[0, 1],
+						"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0]],
+						"block_max":[10, 10, 10],
+						"block_count":[0, 0, 0],
+						"is_container":true,
+						"container_thickness":1				
+					};	
+				}
+				if (GLOBAL_PARAMETERS.beakers_in_world.length > 0 || GLOBAL_PARAMETERS.INCLUDE_BEAKER){
+					GLOBAL_PARAMETERS.INCLUDE_BEAKER = true;
+					if (GLOBAL_PARAMETERS.beakers_in_world.length == 0){
+						var beaker_in_world = {
+							"x":5,
+							"y":0,
+							"material":"Pyrex",
+							"liquid":"Water",
+							"width":5,
+							"height":8,
+							"depth":5,
+							"init_liquid_volume_perc":0.75,
+							"spilloff_volume_perc": 0,
+							"type": "dynamic"
+						};
+						GLOBAL_PARAMETERS.beakers_in_world.push(beaker_in_world);
+					}
+				}
+				start();
+			});
 		}
 
-		function start(makePremades)
-		{
+		function start(){
 			canvas = document.getElementById("canvas");
 			stage = new createjs.Stage(canvas);
 			stage.mouseEventsEnabled = true;
@@ -151,124 +184,79 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage.needs_to_update = true;
 				
 			// setup builder
-			var tester_y;
+			var labWorld_y;
+			var wall_width_units = 0.3;
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
-				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
-				stage.addChild(builder);
-				tester_y = builder.height_px + 20;	
+				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+				labWorld_y = builder.height_px;	
 			} else if (GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
-				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
-				stage.addChild(builder);
-				tester_y = builder.height_px + 20;	
+				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+				labWorld_y = builder.height_px;	
 			}else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
-				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
-				stage.addChild(builder);
-				tester_y = builder.height_px + 20;	
+				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+				labWorld_y = builder.height_px;	
 			} else
 			{
-				tester_y = GLOBAL_PARAMETERS.PADDING;	
+				labWorld_y = 0;	
 			}
-			tester = new ObjectTestingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.TESTER_HEIGHT);
-			stage.addChild(tester);
-			tester.y = tester_y;
+			var world_width_units = GLOBAL_PARAMETERS.STAGE_WIDTH / GLOBAL_PARAMETERS.SCALE;
+			var world_height_units = GLOBAL_PARAMETERS.TESTER_HEIGHT / GLOBAL_PARAMETERS.SCALE
+			var labWorld = this.labWorld = new Labb2World(world_width_units , world_height_units , 7, wall_width_units, 0, labWorld_y / GLOBAL_PARAMETERS.SCALE) ;
+			stage.addChild(labWorld);
+			labWorld.y = labWorld_y;
+			if (builder != null) stage.addChild(builder);
 
-			// make all objects given in parameters
-			if (makePremades){
-				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
-				{
-					var obj = GLOBAL_PARAMETERS.premades_available[i];
-					if (typeof obj == "object" && obj.length != "undefined" && obj.length > 0){
-						// is an array, pick one of array, replace original
-						GLOBAL_PARAMETERS.premades_available[i] = obj[Math.floor(Math.random()*obj.length)];
-						if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined"){
-							createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]], false, true);
-						}
-					} else if (typeof obj == "string" && typeof GLOBAL_PARAMETERS.premades[obj] != "undefined"){
-						createObject(GLOBAL_PARAMETERS.premades[obj], false, true);
-					}						
-				}
-			}
-			GLOBAL_PARAMETERS.num_initial_objects = GLOBAL_PARAMETERS.premades_available.length;
-			// get maximum number of library objects, create computational inputs for each
-			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library != null ? tester.library.MAX_OBJECTS_IN_LIBRARY : 0;
-
-			// make premades in world
-			for (i = 0; i < GLOBAL_PARAMETERS.premades_in_world.length; i++){
-				var premade = GLOBAL_PARAMETERS.premades_in_world[i];
-				obj = typeof premade.premade != "undefined" ? premade.premade : "";
+			// make scale or balance
+			if (GLOBAL_PARAMETERS.INCLUDE_SCALE) {
+				labWorld.createScaleInWorld(world_width_units * 2/3, 0, 5, "dynamic");
+			} else if (GLOBAL_PARAMETERS.INCLUDE_BALANCE) {
+				labWorld.createBalanceInWorld(world_width_units * 2/3, 0, 10, 5, "dynamic");
+			}	
+			// make beakers
+			for (var i = 0; i < GLOBAL_PARAMETERS.beakers_in_world.length; i++){
+				var premade = GLOBAL_PARAMETERS.beakers_in_world[i];
 				var px = typeof premade.x != "undefined" ? premade.x : 0;
 				var py = typeof premade.y != "undefined" ? premade.y : 0; 
-				var protation = typeof premade.rotation != "undefined" ? premade.rotation : 0; 
-				var pworld = typeof premade.world != "undefined" ? premade.world : "empty"; 
 				var ptype = typeof premade.type != "undefined" ? premade.type : "dynamic"; 
-				createObjectInWorld(GLOBAL_PARAMETERS.premades[obj], pworld, px, py, protation, ptype);
+				labWorld.createBeakerInWorld(premade, px, py, ptype);
+			}
+
+			// make premades in world
+			if (GLOBAL_PARAMETERS.premades_available.length > 0){
+				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++){
+					var premade_in_world = {};
+					premade_in_world.premade = GLOBAL_PARAMETERS.premades_available[i];
+					premade_in_world.x = 0;
+					premade_in_world.y = -1;
+					GLOBAL_PARAMETERS.premades_in_world.push(premade_in_world);
+				}		
+			}
+			
+			for (i = 0; i < GLOBAL_PARAMETERS.premades_in_world.length; i++){
+				var premade = GLOBAL_PARAMETERS.premades_in_world[i];
+				if(typeof premade.premade !== "undefined" && GLOBAL_PARAMETERS.premades[premade.premade] !== "undefined"){
+					var px = typeof premade.x !== "undefined" ? premade.x : 0;
+					var py = typeof premade.y !== "undefined" ? premade.y : -1; 
+					var protation = typeof premade.rotation !== "undefined" ? premade.rotation : 0; 
+					var ptype = typeof premade.type !== "undefined" ? premade.type : "dynamic"; 
+					labWorld.createObjectInWorld(GLOBAL_PARAMETERS.premades[premade.premade], px, py, protation, ptype);
+				} 
 			}
 
 			createjs.Ticker.setFPS(24);
 			createjs.Ticker.addListener(window);
 		}
 
-		function tick() 
-		{ 
 
-			if (tester != null) tester._tick();
+		function tick() { 
+
+			if (labWorld != null) labWorld._tick();
 			if (stage != null && stage.needs_to_update)
 			{
 				stage.update();
 			}
 		}
-
-		/** This will create an object that will go in the library */
-		function createObject(savedObject, already_in_globals, is_premade)
-		{
-			var compShape;
-			is_premade = typeof is_premade != "undefined" ? is_premade : false; 
-			if (typeof savedObject.blockArray3d != "undefined"){
-				if (savedObject.is_container){
-					compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
-				} else{
-					compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
-				} 
-			} else if (typeof savedObject.cylinderArrays != "undefined"){
-				compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
-			} else if (typeof savedObject.rectPrismArrays != "undefined"){
-				compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
-			}
-			
-			savedObject.id = GLOBAL_PARAMETERS.total_objects_made;
-			savedObject.is_deletable = typeof savedObject.is_deletable != "undefined"? savedObject.is_deletable : is_premade ? false: true;
-			savedObject.is_revisable = typeof savedObject.is_revisable != "undefined"? savedObject.is_revisable : is_premade ? false: GLOBAL_PARAMETERS.ALLOW_REVISION;
-			if (tester.createObjectForLibrary(compShape)){
-				GLOBAL_PARAMETERS.total_objects_made++;
-				if (typeof already_in_globals === "undefined" || !already_in_globals)
-					GLOBAL_PARAMETERS.objectLibrary.push(savedObject);	
-				eventManager.fire("make-model", [savedObject]);
-			} else {} // too mancy shapes already			
-		}
-
-		/** This will create an object that will go directly in the world. */
-		function createObjectInWorld(savedObject, world, x, y, rotation, type)
-		{
-			var compShape;
-			if (typeof savedObject.blockArray3d != "undefined"){
-				if (savedObject.is_container){
-					compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
-				} else{
-					compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
-				} 
-			} else if (typeof savedObject.cylinderArrays != "undefined"){
-				compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5,  savedObject);
-			} else if (typeof savedObject.rectPrismArrays != "undefined"){
-				compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
-			}
-			
-			savedObject.id = "w" + GLOBAL_PARAMETERS.total_objects_made_in_world;
-			if (tester.createObjectInWorld(compShape, world, x, y, rotation, type)){
-				GLOBAL_PARAMETERS.total_objects_made_in_world++;
-			} else {} // too mancy shapes already			
-		}
-
 
 
 

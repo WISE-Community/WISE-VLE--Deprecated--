@@ -271,11 +271,29 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				//set the cRaterItemId into the node state if this step is a CRater item
 				if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
 						&& this.content.cRater.cRaterItemId != '') {
+					
+					/*
+					 * lock the screen so the student doesn't move to another step before
+					 * they see the CRater feedback. display a waiting spinner and a message
+					 * to the student on the wait screen.
+					 */
+					var waitTime = 15;
+					var lockScreenObj = {};
+					lockScreenObj.shareType = 'TeacherMessage';
+					lockScreenObj.shareObject = '<p align="center"><img src="images/ajax-loader.gif" /> Please wait, we are checking your work. This waiting screen will disappear within ' + waitTime + ' seconds.</p>';
+					eventManager.fire('lockScreenAndShareWithClass', lockScreenObj);
+					
+					/*
+					 * create a timeout to unlock the screen in case it takes too long 
+					 * for the CRater request to respond
+					 */
+					setTimeout("eventManager.fire('unlockScreenEvent')", waitTime * 1000);
+					
 					/*
 					 * post the current node visit to the db immediately without waiting
 					 * for the student to exit the step.
 					 */
-					this.node.view.postCurrentNodeVisit();					
+					this.node.view.postCurrentNodeVisit();
 				}
 				
 				if((this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) || this.isLocked()) {

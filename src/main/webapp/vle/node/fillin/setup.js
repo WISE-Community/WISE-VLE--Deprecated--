@@ -22,6 +22,8 @@ var authorScripts = [
 ];
 
 var gradingScripts = [
+	'vle/node/fillin/fillin.js',
+	'vle/node/fillin/textentryinteraction.js',
 	'vle/node/fillin/fillinstate.js'
 ];
 
