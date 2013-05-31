@@ -152,7 +152,7 @@ NavigationPanel.prototype.constraintStatusUpdatedListener = function(type, args,
  */
 NavigationPanel.prototype.studentWorkUpdatedListener = function(type, args, obj) {
 	//update the step icon
-	obj.setStepIcon();
+	//obj.setStepIcon();
 };
 
 NavigationPanel.prototype.navigationPanelPrevButtonClickedListener = function() {
@@ -280,6 +280,13 @@ NavigationPanel.prototype.render = function(forceReRender) {
 
 	} else {
 		//the nav ui is empty so we need to build it
+		$('#navigation').append('<div id="activityControls">' +
+			'<a id="prevAct"><img src="/vlewrapper/vle/themes/starmap/navigation/map/images/arrow-left.png" alt="left"></a>' +
+			'<div id="currentAct"><span class="pos"></div>' +
+			'<a id="nextAct"><img src="/vlewrapper/vle/themes/starmap/navigation/map/images/arrow-right.png" alt="left"></a>' +
+			'</div>' +
+			'<a id="reset">Zoom Out</a>' +
+			'<!-- <a id="toggleView">Student View</a> -->');
 		
 		this.map = starmap() // create map instance
 			.height(528)

@@ -146,7 +146,12 @@ function starmap() {
 	  projectFull.children.forEach(function(o,i) {
 		  if(i<projectFull.children.length-1){
 			  var next = projectFull.children[i+1];
+			  o.next = next;
 			  links.push({source: o.index, target: next.index, type: 'sequence'});
+		  }
+		  if(i>0){
+			  var prev = projectFull.children[i-1];
+			  o.prev = prev;
 		  }
 		  o.children.forEach(function(n,a){
 			  if(a<o.children.length-1){
@@ -163,6 +168,7 @@ function starmap() {
 					  }
 				  });
 				  links.push({source: source, target: target, type: 'path', group: group});
+				  //links.push({source: o.index, target: target, type: 'seqToPath', group: group});
 			  }
 		  });
 	  });
@@ -171,33 +177,39 @@ function starmap() {
 	  force.links(links)
 	  	  .linkDistance(function(d) { 
 	  		  if(d.type === 'path'){
-	  			  return 24;
+	  			  return 30;
 	  		  } else if(d.type === 'sequence'){
 	  			  return 60;
+	  		  //} else if(d.type === 'seqToPath'){
+	  			 // return 50;
 	  		  } else {
 	  			  return 1;
 	  		  }
 	  	  })
-	  	  .charge(function(d) { return d.type === 'sequence' ? -500 : -300 });
+	  	  .charge(function(d) { return d.type === 'sequence' ? -500 : -500 });
 	  
 	  function sDragStart(d,i) {
 		  forceSeq.each(function(s) { s.fixed = true; }); // set all activities to fixed position
 	      force.stop() // stops the force auto positioning before you start dragging
 	  }
 	
-	  function sDragMove(d,i) {
-	      d.px += d3.event.dx;
-	      d.py += d3.event.dy;
-	      d.x += d3.event.dx;
-	      d.y += d3.event.dy;
-	      d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+	  function sDragMove(elem,i) {
+		  var group = elem.group;
+		  d3.selectAll('.item').each(function(d){ 
+			  if(d.group === group && (d.type === 'sequence' || !d3.select(this).classed('active'))){
+				  d.px += d3.event.dx;
+			      d.py += d3.event.dy;
+			      d.x += d3.event.dx;
+			      d.y += d3.event.dy;
+			      d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+			  }
+		  });
 	      force.tick(); // this is the key to make it work together with updating both px,py,x,y on d !
 	      force.resume();
 	  }
 	
 	  function sDragEnd(d,i) {
 	      d.fixed = true; // set the node to fixed so the force doesn't include the node in its auto positioning stuff
-	      //force.tick();
 	      force.stop();
 	  }
 	  
@@ -220,25 +232,24 @@ function starmap() {
 	      view.goToNodePosition(nodePosition);
 	  };
 	  
-	  function svgZoom(d){
+	  function svgZoom(elem, d){
 		  //console.log("here", d3.event.x, d3.event.y);
 		  forceSeq.each(function(s) { s.fixed = true; }); // set all activities to fixed position
 		  var x = 0,
 		      y = 0;
 		  
 		  //var group = d.dataset.group,
-		  var group = d.getAttribute('data-group');
+		  var group = elem.getAttribute('data-group');
 		  	  //current = {};
 		  
-		  d3.selectAll('.item, .link, .target, .hull')
+		  /*d3.selectAll('.item, .link, .target, .hull')
 	  	  	.classed('active',function(d){ return this.getAttribute('data-group') === group; });
   
 		  d3.selectAll('.item, .link, .hull')
-		  	  .classed('inactive',function(d){ return this.getAttribute('data-group') !== group; });
+		  	  .classed('inactive',function(d){ return this.getAttribute('data-group') !== group; });*/
 		  
-		  if(d.classList.contains('seq')){
-			  d3.select('#mapBgImg').classed('zoom',true);
-			  d3.selectAll('.node.active').each(function(n,i){
+		  if(elem.classList.contains('seq')){
+			  /*d3.selectAll('.node.active').each(function(n,i){
 				  if(i===0){
 					  n.current = true;
 				  }
@@ -246,13 +257,62 @@ function starmap() {
 					  x = n.x;
 					  y = n.y;
 				  }
+			  });*/
+			  
+			  x = d.x;
+			  y = d.y;
+			  
+			  d3.select(elem).each(function(n){
+				  $('#currentAct').html("<span class='pos'>#" + (n.position+1) + ":</span> " + n.title); 
 			  });
 			  
-			  d3.select(d).each(function(n){
-				  $('#currentAct').text("#" + (n.position+1) + ": " + n.title); 
-			  });
-			  
-			  $('#activityControls').show();
+			  // hide activity info displays
+			  d3.select("#" + elem.id + "_info")
+	    	  	  .transition()
+		    	  	  .duration(125)
+		    	  	  .style("opacity",0);
+	    	  d3.select("#" + elem.id + "_radial")
+	    	  	  .transition()
+		    		  .attr("width", 0)
+				  	  .attr("height", 0)
+				  	  .attr("x", 0)
+				      .attr("y", 0)
+		    		  .duration(100)
+		    		  .delay(200).
+		    		  each("end", function(){
+		    			  setTimeout(function(){
+		    				  d3.selectAll('.item, .link, .target, .hull')
+			    		  	  	.classed('active',function(d){ return this.getAttribute('data-group') === group; });
+			    	  
+			    			  d3.selectAll('.item, .link, .hull')
+			    			  	  .classed('inactive',function(d){ return this.getAttribute('data-group') !== group; });
+			    			  
+			    			  d3.select('#mapBgImg').classed('zoom',true);
+			    			  $('#activityControls').fadeIn(750);
+		    			  }, 200);
+		    		  });
+	    	  
+	    	  // set next and previous link actions
+	    	  // TODO: move html element creation inside starmap
+	    	  var prevAct = d.prev,
+	    	  	  nextAct = d.next;
+	    	  $('#prevAct, #nextAct').off('click');
+	    	  if(prevAct){
+	    		  $('#prevAct').on('click', function(){
+	    			  svgZoom(d3.select('#' + prevAct.identifier)[0][0], prevAct);
+	    		  });
+	    		  $('#prevAct').show();
+	    	  } else {
+	    		  $('#prevAct').hide();
+	    	  }
+	    	  if(nextAct){
+	    		  $('#nextAct').on('click', function(){
+	    			  svgZoom(d3.select('#' + nextAct.identifier)[0][0], nextAct);
+	    		  });
+	    		  $('#nextAct').show();
+	    	  } else {
+	    		  $('#nextAct').hide();
+	    	  }
 			  
 			  /*var bbox = d.getBBox();
 			  var centroid = [bbox.x + bbox.width/2.0, bbox.y + bbox.height/2.0];
@@ -265,7 +325,7 @@ function starmap() {
   	  	  	  	  .duration(1000)
   	  	  	  	  .attr("transform", "scale(" + k + ") translate(" + x + "," + y + ")");*/
 			  
-		  } else if(d.classList.contains('node')){
+		  /*} else if(d.classList.contains('node')){
 			  var circle = $(document.getElementById("anchor_" + d.id));
 			  //force.stop();
 			  target = d3.select('#' + group + '-target');
@@ -280,7 +340,7 @@ function starmap() {
 				  });
 			  //force.tick();
 			  //force.resume();
-			  //force.stop();
+			  //force.stop();*/
 			  
 			  /*x = -current.x + $(map).width()/(2*k) - 300/k;
 			  y = -current.y + $(map).height()/(2*k);
@@ -317,17 +377,18 @@ function starmap() {
 				  }
 			  });*/
 		  }
-		  x = -x + $(map).width()/(2*k) - 200/k;
-		  y = -y + $(map).height()/(2*k);
+		  x = -x + $(map).width()/(2*k) - 90/k;
+		  y = -y + $(map).height()/(2*k) - 50/k;
 		  g.transition()
-  	  	  	  .duration(400)
+  	  	  	  .duration(750)
+  	  	  	  .delay(600)
   	  	  	  .ease("cubic-out")
-  	  	  	  .attr("transform", "scale(" + k + ") translate(" + x + "," + y + ")")
-  	  	  	  .each("end", function(){
-		  	  	  if(d.classList.contains('node')){
+  	  	  	  .attr("transform", "scale(" + k + ") translate(" + x + "," + y + ")");
+  	  	  	  /*.each("end", function(){
+		  	  	  if(elem.classList.contains('node')){
 		  	  		  //$(document.getElementById("anchor_" + d.id)).powerTip('show');
 		  		  }
-  	  	  	  });
+  	  	  	  });*/
 	  };
 	  
 	  function zoom(d) {
@@ -398,11 +459,11 @@ function starmap() {
 			  forceCircle = forceNode.append("svg:image")
 			  	  .attr("id",function(d){ return "anchor_" + d.identifier; })
 			  	  .attr("xlink:xlink:href",getIcon)
-			  	  .attr("x", -8)
-			      .attr("y", -8)
-			      .attr("width", 16)
-			      .attr("height", 16);
-			  forceNode.append("svg:circle")
+			  	  .attr("x", -15)
+			      .attr("y", -15)
+			      .attr("width", 30)
+			      .attr("height", 30);
+			  /*forceNode.append("svg:circle")
 			  	  .attr("class","detail")
 		  	  	  .attr("r", 3.5)
 			  	  .attr("cx",5)
@@ -412,7 +473,7 @@ function starmap() {
 			  	  .attr("class","detail")
 			  	  .attr("text-anchor", "middle")
 			  	  .attr('x',5)
-			  	  .attr("y",7);
+			  	  .attr("y",7);*/
 			  
 			  // add neighboring nodes to each node
 			  /*links.filter(function(d){ return d.type === "path"; }).forEach(function(link) {
@@ -430,14 +491,14 @@ function starmap() {
 				  .attr("class", "item seq")
 				  .attr("transform", function(d) {
 					  // constrain sequences to map bounds
-					  d.x = Math.max(margin.left, Math.min(width - margin.left, d.x));
-					  d.y = Math.max(margin.top, Math.min(height - margin.top, d.y));
+					  d.x = Math.max(margin.left, Math.min(width - margin.left - 20, d.x));
+					  d.y = Math.max(margin.top, Math.min(height - margin.top - 20, d.y));
 					  return "translate(" + d.x + "," + d.y + ")";
 				   })
 				  .attr("data-group", function(d){ return d.group; })
 				  .attr('id', function(d){ return d.identifier })
-			      .on("click", function(){ svgZoom(this); })
-			  	  .on("touchstart", function(){ svgZoom(this); })
+			      .on("click", function(d){ svgZoom(this, d); })
+			  	  .on("touchstart", function(d){ svgZoom(this, d); })
 				  .call(sDrag);
 			  
 			  forceSeq.append("svg:image")
@@ -446,7 +507,8 @@ function starmap() {
 			  	  .attr("height", 0)
 			  	  .attr("x", 0)
 			      .attr("y", 0)
-			      .attr("id", function(d){ return d.identifier + "_radial"; });
+			      .attr("id", function(d){ return d.identifier + "_radial"; })
+			      .attr("class", "radial");
 			  
 			  forceSeq.append("svg:image")
 			  	  .attr("id",function(d){ return "anchor_" + d.identifier; })
@@ -457,18 +519,20 @@ function starmap() {
 			      .attr("height", 36)
 			      .on("mouseover", function(d){
 			    	  this.parentNode.parentNode.appendChild(this.parentNode);
-			    	  d3.select("#" + d.identifier + "_radial")
-			    	  	  .transition()
-			    		  .attr("width", 80)
-					  	  .attr("height", 80)
-					  	  .attr("x", -40)
-					      .attr("y", -40)
-			    		  .duration(125);
-			    	  d3.select("#" + d.identifier + "_info")
-			    	  	  .transition()
-			    	  	  .style("opacity",1)
-			    	  	  .duration(100)
-			    	  	  .delay(200);
+			    	  if(!d3.select("#" + d.identifier).classed("active")){
+			    		  d3.select("#" + d.identifier + "_radial")
+				    	  	  .transition()
+				    		  .attr("width", 80)
+						  	  .attr("height", 80)
+						  	  .attr("x", -40)
+						      .attr("y", -40)
+				    		  .duration(125);
+				    	  d3.select("#" + d.identifier + "_info")
+				    	  	  .transition()
+				    	  	  .style("opacity",1)
+				    	  	  .duration(100)
+				    	  	  .delay(200);
+			    	  }
 			      })
 			      .on("mouseout", function(d){
 			    	  d3.select("#" + d.identifier + "_info")
@@ -528,7 +592,7 @@ function starmap() {
 			      .style("stroke-dasharray", ("2, 2"));
 			  
 			  // update the hulls
-			  g.selectAll("path.hull")
+			  /*g.selectAll("path.hull")
 			    .data(groups)
 			      .attr("d", groupPath)
 			    .enter().insert("path",".node")
@@ -537,7 +601,7 @@ function starmap() {
 			      .attr('data-group', function(d){ return d.key })
 			      .style("stroke-linejoin", "round")
 			      .attr("d", groupPath)
-			      .attr('stroke-width',40);
+			      .attr('stroke-width',40);*/
 			  
 			  /*g.selectAll("path.target")
 			    .data(groups)
@@ -610,7 +674,7 @@ function starmap() {
 		  
 		  g.selectAll("path.link").attr("d",function(d){ return "M" + d.source.x + " " + d.source.y + " L" + d.target.x + " " + d.target.y; });
 		  
-		  g.selectAll("path.hull").attr("d", groupPath);
+		  //g.selectAll("path.hull").attr("d", groupPath);
 		  
 		  //g.selectAll("path.target").attr("d", groupPath);
 	  };
@@ -621,7 +685,6 @@ function starmap() {
 	  
 	  draw();
 	  
-	  // TODO: move outside starmap
 	  /*$('#toggleView').on('click',function(){
 		  if(canEdit){
 			  canEdit = false;
@@ -779,7 +842,7 @@ function starmap() {
   };
   
   chart.reset = function() {
-	  $('#activityControls').hide();
+	  $('#activityControls').fadeOut(750);
 	  d3.select('#mapBgImg').classed('zoom',false);
 	  g.transition()
   	  	  .duration(400)
