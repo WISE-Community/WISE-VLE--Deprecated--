@@ -152,7 +152,7 @@ NavigationPanel.prototype.constraintStatusUpdatedListener = function(type, args,
  */
 NavigationPanel.prototype.studentWorkUpdatedListener = function(type, args, obj) {
 	//update the step icon
-	//obj.setStepIcon();
+	obj.setStepIcon();
 };
 
 NavigationPanel.prototype.navigationPanelPrevButtonClickedListener = function() {
