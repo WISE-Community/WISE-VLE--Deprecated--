@@ -788,11 +788,12 @@ View.prototype.endCurrentNode = function(){
 		//remove the bubble and remove the highlight for the step the student is now visiting
 		eventManager.fire('removeMenuBubble', [nodeId]);
 		eventManager.fire('unhighlightStepInMenu', [nodeId]);
-		
-		currentNode.onExit();  
+
 		if(this.getState()) {
 			this.getState().endCurrentNodeVisit();  // set endtime, etc.	
 		}
+		
+		currentNode.onExit();
 	};
 	
 	//close the show all work popup
