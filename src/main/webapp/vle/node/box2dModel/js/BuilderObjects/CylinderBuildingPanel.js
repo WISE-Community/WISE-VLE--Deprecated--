@@ -2,9 +2,9 @@
 {
 	/** A space for displaying the names of materials, clickable/draggable materials
 	and a grid space for putting them together */
-	function CylinderBuildingPanel (width_px, height_px)
+	function CylinderBuildingPanel (width_px, height_px, wall_width_px)
 	{
-		this.initialize(width_px, height_px);
+		this.initialize(width_px, height_px, wall_width_px);
 	}
 	var p = CylinderBuildingPanel.prototype = new createjs.Container();
 	p.Container_initialize = CylinderBuildingPanel.prototype.initialize;
@@ -12,16 +12,16 @@
 	p.BACKGROUND_COLOR = "rgba(225,225,255,1.0)";
 	p.TEXT_COLOR = "rgba(0, 0, 200, 1.0)";
 	p.TITLE_COLOR = "rgba(40,40,40,1.0";
-	p.BORDER_WIDTH = 10;
 	p.TITLE_HEIGHT = 40;
-	p.EXPORT_HEIGHT = 20;
+	p.EXPORT_HEIGHT = 40;
 	
-	p.initialize = function(width_px, height_px)
+	p.initialize = function(width_px, height_px, wall_width_px)
 	{
 		
 		this.Container_initialize();
 		this.width_px = width_px;
 		this.height_px = height_px;
+		this.wall_width_px = wall_width_px;
 		this.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle;
 		this.view_topAngle = GLOBAL_PARAMETERS.view_topAngle;
 		
@@ -31,10 +31,10 @@
 		this.addChild(this.shape);
 		
 		// the list of material names
-		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.BORDER_WIDTH-this.TITLE_HEIGHT- this.EXPORT_HEIGHT-55);
+		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.wall_width_px-this.TITLE_HEIGHT- this.EXPORT_HEIGHT-55);
 		this.addChild(this.materialsMenu);
-		this.materialsMenu.x = this.BORDER_WIDTH+1;
-		this.materialsMenu.y = this.BORDER_WIDTH+this.TITLE_HEIGHT;
+		this.materialsMenu.x = this.wall_width_px+1;
+		this.materialsMenu.y = this.wall_width_px+this.TITLE_HEIGHT;
 
 		
 		this.vv = new CylinderViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
@@ -44,91 +44,93 @@
 		
 		this.dragging_object = null;
 
-		this.block_space_width = GLOBAL_PARAMETERS.SCALE * 5 * 4;
+		var export_offsetL = 250;
+		var export_offsetR = 0;
+		this.block_space_width = this.width_px - this.materialsMenu.width_px - export_offsetL - wall_width_px;
 		this.block_space_height = this.height_px; 
 
-		var export_offsetL = 250;
-		var export_offsetR = 50;
 		this.g.beginFill("rgba(225,225,255,1.0)");
 		this.g.drawRect(0, 0, this.width_px, this.height_px- this.EXPORT_HEIGHT);
-		this.g.drawRect(this.width_px-export_offsetL-this.BORDER_WIDTH, this.height_px- this.EXPORT_HEIGHT, export_offsetL-export_offsetR+this.BORDER_WIDTH, this.EXPORT_HEIGHT);
+		this.g.drawRect(this.width_px-export_offsetL-this.wall_width_px, this.height_px- this.EXPORT_HEIGHT, export_offsetL-export_offsetR+this.wall_width_px, this.EXPORT_HEIGHT);
 		this.g.endFill();
 		// draw border
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,this.BORDER_WIDTH,0);
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,this.wall_width_px,0);
 		this.g.moveTo(0,0);
-		this.g.lineTo(this.BORDER_WIDTH,this.BORDER_WIDTH);
-		this.g.lineTo(this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.wall_width_px,this.wall_width_px);
+		this.g.lineTo(this.wall_width_px,this.height_px - this.wall_width_px - this.EXPORT_HEIGHT);
 		this.g.lineTo(0, this.height_px- this.EXPORT_HEIGHT);
 		this.g.lineTo(0,0);
 		this.g.endFill();
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.BORDER_WIDTH);
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.wall_width_px);
 		this.g.moveTo(0,0);
 		this.g.lineTo(this.width_px,0);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
-		this.g.lineTo(this.BORDER_WIDTH, this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-this.wall_width_px,this.wall_width_px);
+		this.g.lineTo(this.wall_width_px, this.wall_width_px);
 		this.g.lineTo(0,0);
 		this.g.endFill();
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px,0,this.width_px-this.BORDER_WIDTH,0);
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px,0,this.width_px-this.wall_width_px,0);
 		this.g.moveTo(this.width_px,0);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH - this.EXPORT_HEIGHT);
-		this.g.lineTo(this.width_px, this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-this.wall_width_px,this.wall_width_px);
+		this.g.lineTo(this.width_px-this.wall_width_px,this.height_px);
+		this.g.lineTo(this.width_px, this.height_px);
 		this.g.lineTo(this.width_px,0);
 		this.g.endFill();
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px- this.EXPORT_HEIGHT,0,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px- this.EXPORT_HEIGHT,0,this.height_px-this.wall_width_px- this.EXPORT_HEIGHT);
 		this.g.moveTo(0,this.height_px- this.EXPORT_HEIGHT);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH-export_offsetL,this.height_px- this.EXPORT_HEIGHT);
-		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
-		this.g.lineTo(this.BORDER_WIDTH, this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-this.wall_width_px-export_offsetL,this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.wall_width_px - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.wall_width_px, this.height_px-this.wall_width_px - this.EXPORT_HEIGHT);
 		this.g.lineTo(0,this.height_px- this.EXPORT_HEIGHT);
 		this.g.endFill();
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetL-this.BORDER_WIDTH,0,this.width_px-export_offsetL,0);
-		this.g.moveTo(this.width_px-export_offsetL-this.BORDER_WIDTH,this.height_px- this.EXPORT_HEIGHT);
-		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
-		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.BORDER_WIDTH);
-		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,this.height_px);
-		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,this.height_px- this.EXPORT_HEIGHT);
+		
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetL-this.wall_width_px,0,this.width_px-export_offsetL,0);
+		this.g.moveTo(this.width_px-export_offsetL-this.wall_width_px,this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.wall_width_px - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.height_px);
+		this.g.lineTo(this.width_px-export_offsetL-this.wall_width_px,this.height_px);
+		this.g.lineTo(this.width_px-export_offsetL-this.wall_width_px,this.height_px- this.EXPORT_HEIGHT);
 		this.g.endFill();
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px- this.EXPORT_HEIGHT,0,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		/*
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px- this.EXPORT_HEIGHT,0,this.height_px-this.wall_width_px- this.EXPORT_HEIGHT);
 		this.g.moveTo(this.width_px-export_offsetR,this.height_px- this.EXPORT_HEIGHT);
 		this.g.lineTo(this.width_px,this.height_px- this.EXPORT_HEIGHT);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH-export_offsetR, this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-this.wall_width_px,this.height_px-this.wall_width_px - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-this.wall_width_px-export_offsetR, this.height_px-this.wall_width_px - this.EXPORT_HEIGHT);
 		this.g.lineTo(this.width_px-export_offsetR,this.height_px- this.EXPORT_HEIGHT);
 		this.g.endFill();
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetR-this.BORDER_WIDTH,0,this.width_px-export_offsetR,0);
-		this.g.moveTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetR-this.wall_width_px,0,this.width_px-export_offsetR,0);
+		this.g.moveTo(this.width_px-export_offsetR-this.wall_width_px,this.height_px-this.wall_width_px- this.EXPORT_HEIGHT);
 		this.g.lineTo(this.width_px-export_offsetR,this.height_px - this.EXPORT_HEIGHT);
 		this.g.lineTo(this.width_px-export_offsetR,this.height_px);
-		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH);
-		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR-this.wall_width_px,this.height_px-this.wall_width_px);
+		this.g.lineTo(this.width_px-export_offsetR-this.wall_width_px,this.height_px-this.wall_width_px- this.EXPORT_HEIGHT);
 		this.g.endFill();
-		
+		*/
 				
 		// titles
 		var ltitle  = new createjs.Text("Materials", "20px Arial", this.TITLE_COLOR);
 		this.addChild(ltitle);
 		ltitle.x = 20;
-		ltitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
+		ltitle.y = this.wall_width_px + GLOBAL_PARAMETERS.PADDING;
 
 		var mtitle  = new createjs.Text("Shape your blocks", "20px Arial", this.TITLE_COLOR);
 		this.addChild(mtitle);
 		mtitle.x = (this.width_px/2 + 40)/2;
-		mtitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
+		mtitle.y = this.wall_width_px + GLOBAL_PARAMETERS.PADDING;
 
 		var rtitle  = new TextContainer("Drop your blocks here", "20px Arial", this.TITLE_COLOR);
 		this.addChild(rtitle);
 		rtitle.x = this.width_px/2 + (this.width_px/2 - 120)/2;
-		rtitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
+		rtitle.y = this.wall_width_px + GLOBAL_PARAMETERS.PADDING;
 
 		// a single text to show how many of this block can be applied
 		var text = new TextContainer("Blocks remaining:", "20px Arial", this.BACKGROUND_COLOR, this.materialsMenu.width_px, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "left", "top", 4, 0);
 		text.x = this.materialsMenu.x;
-		text.y = this.height_px - text.height_px - this.BORDER_WIDTH- this.EXPORT_HEIGHT;
+		text.y = this.height_px - text.height_px - this.wall_width_px- this.EXPORT_HEIGHT;
 		this.addChild(text);
 		this.blockText = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "center", "center", -4, 0);
 		this.blockText.x = this.materialsMenu.x + this.materialsMenu.width_px;
-		this.blockText.y = this.height_px - text.height_px - this.BORDER_WIDTH- this.EXPORT_HEIGHT;
+		this.blockText.y = this.height_px - text.height_px - this.wall_width_px- this.EXPORT_HEIGHT;
 		this.addChild(this.blockText);
 
 		this.displayed_block = null;
@@ -218,12 +220,12 @@
 			// setup buttons for volume viewer	
 			var element = new createjs.DOMElement($("#make-object")[0]);
 			this.addChild(element);
-			element.x = this.width_px - export_offsetL + 10;
-			element.y = this.height_px - this.EXPORT_HEIGHT - 60;
+			element.x = this.width_px - export_offsetL/2 - $("#make-object").width()*3/4;
+			element.y = this.height_px - this.EXPORT_HEIGHT;
 			element = new createjs.DOMElement($("#slider-diameter")[0]);
 			this.addChild(element);
 			element.x = this.materialsMenu.width_px + this.width_px/3 - 100;
-			element.y = this.BORDER_WIDTH + this.TITLE_HEIGHT + 2 * GLOBAL_PARAMETERS.SCALE * 5;
+			element.y = this.materialsMenu.y + this.materialsMenu.height_px - $("#slider-diameter").height() - 20;
 			element = new createjs.DOMElement($("#slider-height")[0]);
 			this.addChild(element);
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
@@ -231,10 +233,10 @@
 			element = new createjs.DOMElement($("#slider-sideAngle")[0]);
 			this.addChild(element);
 			element.x = this.width_px - 200;
-			element.y = this.BORDER_WIDTH + this.TITLE_HEIGHT + 2 * GLOBAL_PARAMETERS.SCALE * 5;								
+			element.y = this.materialsMenu.y + this.materialsMenu.height_px - $("#slider-sideAngle").height() - 20;						
 			element = new createjs.DOMElement($("#slider-topAngle")[0]);
 			this.addChild(element);
-			element.x = this.width_px - this.BORDER_WIDTH - 50;
+			element.x = this.width_px - this.wall_width_px - 30;
 			element.y = 80;
 			$("#make-object").show();
 			$("#slider-diameter").show();
@@ -254,7 +256,7 @@
 			
 			// save to global parameters
 			if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
-			createObject(savedObject);
+			labWorld.createObjectInWorld(savedObject, 0, -1, 0, "dynamic");
 		} else 
 		{
 			console.log("no object to make");
@@ -570,6 +572,9 @@
 		savedObject.liquid_mass = 0;
 		savedObject.liquid_volume = 0;
 		savedObject.liquid_perc_volume = 0;
+		savedObject.is_deletable = true;
+		savedObject.is_revisable = true;
+		
 
 		this.resetMaterials();
 		return savedObject;

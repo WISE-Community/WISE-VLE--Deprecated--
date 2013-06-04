@@ -24,6 +24,11 @@
 		this.width_px_right = skin.width_px_right;
 		this.height_px_above = skin.height_px_above;
 		this.height_px_below = skin.height_px_below;
+		this.height_units_below = this.skin.height_px_below / GLOBAL_PARAMETERS.SCALE;
+		this.height_units_above = this.skin.height_px_above / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_left = this.skin.width_px_left / GLOBAL_PARAMETERS.SCALE;
+		this.width_units_right = this.skin.width_px_right / GLOBAL_PARAMETERS.SCALE;
+		
 
 		this.world = null;
 		this.body = null;
@@ -40,6 +45,7 @@
 		this.viewing_rotation = 0;
 
 		this.constructFixtures();
+		this.update_flag = false;
 		
 	}
 	p.constructFixtures = function ()
@@ -76,20 +82,91 @@
 			}	
 		}
 	}
+
+	p.setupInWorld = function (position_x, position_y, b2world){
+		var bodyDef = this.bodyDef;
+		bodyDef.position.x = position_x;
+		bodyDef.position.y = position_y;
+		this.b2world = b2world;
+
+		if (typeof this.body !== "undefined" && this.body != null) b2world.DestroyBody(this.body);
+		var body = this.body = this.b2world.CreateBody(bodyDef);
+		
+		var area = 0;
+		var volume = 0;
+		for (var i = 0; i < this.fixDefs.length; i++)
+		{
+			var fixDef = this.fixDefs[i];
+			var f = body.CreateFixture(fixDef);
+			f.x_index = fixDef.x_index;
+			f.y_index = fixDef.y_index;
+			f.materialDensity = fixDef.materialDensity;
+			f.totalSpaces = fixDef.totalSpaces;
+			f.materialSpaces = fixDef.materialSpaces;
+			f.exteriorSpaces = fixDef.exteriorSpaces;
+			f.percentSubmerged = 0;
+			if (typeof(fixDef.interiorSpaces) != "undefined"){f.interiorSpaces = fixDef.interiorSpaces;}else{f.interiorSpaces = 0;}
+			if (typeof(fixDef.protectedSpaces) != "undefined"){f.protectedSpaces = fixDef.protectedSpaces;}else{f.protectedSpaces = 0;}
+			// set density for the length of the entire depth
+			f.area = fixDef.area;
+			//f.SetDensity((f.materialDensity * f.materialSpaces)/f.area);
+
+			volume += f.materialSpaces + f.protectedSpaces + f.interiorSpaces;
+
+			var lowerBound = f.GetAABB().lowerBound;
+			var upperBound = f.GetAABB().upperBound;
+			area += f.area;
+			if (typeof(f.emptySpaces) != "undefined") body.emptySpaces += f.emptySpaces;
+
+		}
+		// put aabb, i.e. upper and lower limit onto the body and area
+		body.local_width_right = this.width_px_right / GLOBAL_PARAMETERS.SCALE;
+		body.local_height_below = this.height_px_below / GLOBAL_PARAMETERS.SCALE;
+		body.area = area;
+		body.volume = volume;
+		body.fullySubmerged = false;
+		body.fullyEmerged = true;
+		body.percentSubmerged2d = bodyDef.percentSubmerged2d;
+		body.percentSubmergedChangedFlag = false;
+		body.soaked = false;
+		body.is_container = this.is_container;
+		body.percentSubmerged2d = [];
+		for (i = 0; i < this.skin.array2d.length; i++) {
+			body.percentSubmerged2d[i] = [];
+			for (j = 0; j < this.skin.array2d[0].length; j++){
+				body.percentSubmerged2d[i][j] = 0;
+			}
+		}
+		if (GLOBAL_PARAMETERS.DEBUG){
+			g = this.g = new createjs.Graphics();
+			this.shape = new createjs.Shape(g);	
+			g.beginFill("rgba(250,0,0,1.0)");
+			g.drawCircle(0, 5, 5);
+			g.endFill();
+			this.addChild(this.shape);
+		}
+	}
 	
+
 	/** Update skin to reflect position of b2 body on screen */
 	p.update = function ()
 	{
 		if (this.body != null && typeof(this.body) != "undefined" && typeof(this.parent) != "undefined" && this.parent != null)
 		{
-			this.x = (this.body.GetPosition().x) * GLOBAL_PARAMETERS.SCALE - this.parent.x;
-			this.y = (this.body.GetPosition().y) * GLOBAL_PARAMETERS.SCALE - this.parent.y;
+			if (this.parent.parent == null){
+				this.x = (this.body.GetPosition().x) * GLOBAL_PARAMETERS.SCALE - this.parent.x;
+				this.y = (this.body.GetPosition().y) * GLOBAL_PARAMETERS.SCALE - this.parent.y;
+			} else {
+				this.x = (this.body.GetPosition().x) * GLOBAL_PARAMETERS.SCALE - this.parent.x - this.parent.parent.x;
+				this.y = (this.body.GetPosition().y) * GLOBAL_PARAMETERS.SCALE - this.parent.y - this.parent.parent.y;
+			}
 			this.rotation = this.body.GetAngle() * (180 / Math.PI);
 
-			if (Math.abs (this.viewing_rotation - this.rotation) > 10 || (typeof this.body.percentSubmergedChangedFlag != "undefined" && this.body.percentSubmergedChangedFlag))
+			if (this.update_flag || Math.abs (this.viewing_rotation - this.rotation) > 10 || (typeof this.body.percentSubmergedChangedFlag != "undefined" && this.body.percentSubmergedChangedFlag))
 			{
 				this.viewing_rotation = Math.round(this.rotation/10) * 10;
 				this.skin.redraw(this.viewing_rotation, this.body.percentSubmerged2d);
+				this.update_flag = false;
 			}
 		} else
 		{

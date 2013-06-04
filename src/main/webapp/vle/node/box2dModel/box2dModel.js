@@ -265,7 +265,7 @@ Box2dModel.prototype.getLatestState = function() {
  * @return 
  */
 Box2dModel.prototype.interpretEvent = function(type, args, obj) {
-	evt = {};
+	var evt = {};
 	evt.type = type;
 	evt.args = args;
 	var d = new Date();
@@ -282,22 +282,27 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 
 	var mass_on_left, mass_on_right, mass_diff;
 	// for the following types there is a central object, set its properties
-	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance-world" || evt.type == "add-balance" || evt.type == "add-scale" || evt.type == "add-scale-world" || evt.type == "remove-scale" ||
-		evt.type == "remove-balance"  || evt.type == "add-beaker-world" || evt.type == "add-beaker" || evt.type == "test-scale-1" || evt.type == "test-add-beaker" || evt.type == "remove-beaker" || evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
-		evt.ObjectProperties.id = evt.args[0].id;
-		evt.ObjectProperties.mass = evt.args[0].mass;
-		evt.ObjectProperties.volume = evt.args[0].volume;
-		evt.ObjectProperties.density = evt.args[0].mass/ evt.args[0].volume;
+	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance" || evt.type == "add-scale" ||  evt.type == "remove-scale" ||
+		evt.type == "remove-balance"  || evt.type == "add-beaker" || evt.type == "test-scale-1" || evt.type == "test-add-beaker" || evt.type == "remove-beaker" || evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
+		if (typeof evt.args[0].id !== "undefined") evt.ObjectProperties.id = evt.args[0].id;
+		if (typeof evt.args[0].mass !== "undefined") evt.ObjectProperties.mass = evt.args[0].mass;
+		if (typeof evt.args[0].volume !== "undefined") evt.ObjectProperties.volume = evt.args[0].volume;
+		if (typeof evt.args[0].mass !== "undefined" && typeof evt.args[0].volume !== "undefined") evt.ObjectProperties.density = evt.args[0].mass/ evt.args[0].volume;
 		evt.ObjectProperties.is_container = typeof evt.args[0].is_container != "undefined"? evt.args[0].is_container : false;
 		if (evt.ObjectProperties.is_container){
-			evt.ObjectProperties.liquid_perc_volume = evt.args[0].liquid_perc_volume;
-			evt.ObjectProperties.liquid_mass = evt.args[0].liquid_mass;
-			evt.ObjectProperties.liquid_volume = evt.args[0].liquid_volume;
+			if (typeof evt.args[0].liquid_perc_volume !== "undefined") evt.ObjectProperties.liquid_perc_volume = evt.args[0].liquid_perc_volume;
+			if (typeof evt.args[0].liquid_mass !== "undefined") evt.ObjectProperties.liquid_mass = evt.args[0].liquid_mass;
+			if (typeof evt.args[0].liquid_volume !== "undefined") evt.ObjectProperties.liquid_volume = evt.args[0].liquid_volume;
 		} else {
-			evt.ObjectProperties.liquid_perc_volume = 0;
-			evt.ObjectProperties.liquid_mass = 0;
-			evt.ObjectProperties.liquid_volume = 0;
+			if (typeof evt.args[0].liquid_perc_volume !== "undefined") evt.ObjectProperties.liquid_perc_volume = 0;
+			if (typeof evt.args[0].liquid_mass !== "undefined") evt.ObjectProperties.liquid_mass = 0;
+			if (typeof evt.args[0].liquid_volume !== "undefined") evt.ObjectProperties.liquid_volume = 0;
 		}
+	}
+
+	// adding or removing a beaker
+	if (evt.type == "add-beaker-world" || evt.type == "remove-beaker-world" || evt.type == "add-balance-world" || evt.type == "remove-balance-world" || evt.type == "add-scale-world" || evt.type == "remove-scale-world"){
+
 	}
 
 	// when saved from a higher level function (i.e., not making use of event type, save objects in library)

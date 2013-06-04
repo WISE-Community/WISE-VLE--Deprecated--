@@ -81,11 +81,15 @@ NODE_VISIT.prototype.parseDataJSONObj = function(nodeVisitJSONObj, view, nodeObj
 			var stateJSONObj = nodeVisitJSONObj.nodeStates[x];
 			
 			if(stateJSONObj != null) {
-				//tell the nodeObj to create a state object
-				var stateObj = nodeObj.parseDataJSONObj(stateJSONObj);
-				
-				//add the state object to the array
-				nodeStatesArrayObj.push(stateObj);
+				if(nodeObj.parseDataJSONObj != null) {
+					//tell the nodeObj to create a state object
+					var stateObj = nodeObj.parseDataJSONObj(stateJSONObj);
+					
+					if(stateObj != null) {
+						//add the state object to the array
+						nodeStatesArrayObj.push(stateObj);						
+					}
+				}
 			}
 		}
 	}

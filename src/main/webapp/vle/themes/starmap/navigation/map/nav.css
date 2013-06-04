@@ -184,19 +184,22 @@ svg#chart {
 	position:absolute;
 }
 
-#mapBgImg.zoom {
-	opacity:0;
-	-webkit-transition: opactiy .4s;
-    -moz-transition: opactiy .4s;
-    -o-transition: opactiy .4s;
-    transition: opactiy .4s;
+#mapBgImg {
+	-webkit-transition: opacity .75s ease;
+    -moz-transition: opacity .75s ease;
+    -o-transition: opacity .75s ease;
+    transition: opacity .75s ease;
 }
 
-.item circle, .item image, .seq, .link, .hull {
-	-webkit-transition: all .4s ease;
-    -moz-transition: all .4s ease;
-    -o-transition: all .4s ease;
-    transition: all .4s ease;
+#mapBgImg.zoom {
+	opacity:0;
+}
+
+.item circle, .item image, .item, .seq, .link, .target, .hull {
+	-webkit-transition: all .75s ease;
+    -moz-transition: all .75s ease;
+    -o-transition: all .75s ease;
+    transition: all .75s ease;
 }
 
 .node {
@@ -317,6 +320,36 @@ svg#chart {
 	fill: #d1ffef;
 }
 
+#activityControls {
+	position:absolute;
+	right:50px;
+	top:50px;
+	display:none;
+}
+
+#activityControls #currentAct {
+	display: inline-block;
+	color: #cfff4a;
+	font-family: 'Yanone Kaffeesatz', sans-serif;
+	font-weight: 200;
+	font-size: 1.15em;
+	margin: 0 .75em;
+	background: transparent url('images/menu-header-blank.png') left center no-repeat;
+	width: 254px;
+	height: 48px;
+	line-height: 47px;
+}
+
+#activityControls #currentAct .pos {
+	color:#d1ffef;
+	padding-left:16px;
+}
+
+#activityControls a img {
+	height: 22px;
+	width: 20px;
+}
+
 /*.seq text.outline {
 	stroke: #ffc000;
 	fill:none;
@@ -324,7 +357,7 @@ svg#chart {
 }*/
 
 .seq.active {
-	display:none;
+	/*display:none;*/
 }
 
 .seq.active text {
@@ -402,19 +435,6 @@ path.target:hover {
 
 path.target.active {
 	display:none;
-}
-
-#activityControls {
-	position:absolute;
-	right:50px;
-	bottom:50px;
-}
-
-#activityControls #currentAct {
-	color:#fff;
-	font-weight:bold;
-	font-size:1.5em;
-	margin:0 2em;
 }
 
 #reset {

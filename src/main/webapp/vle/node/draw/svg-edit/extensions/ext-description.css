@@ -1,22 +1,95 @@
+#svg_editor #description {
+	position:absolute;
+	bottom:0px;
+	right:0;
+	left:0;
+	height:68px;
+	line-height:100%;
+}
+
+#svg_editor #description a {
+	color:#FFFFFF;
+	cursor:pointer;
+	text-decoration:underline;
+	margin-right:2px;
+}
+
+#svg_editor #description span {
+	display:inline-block;
+}
+
+#svg_editor #description span.panel_title {
+	font-weight:bold;
+}
+
+#svg_editor #description span.maximized {
+	color: #DDDDDD;
+}
+
+#svg_editor #description span.minimized {
+	color: #DDDDDD;
+    height: 30px;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+	-icab-text-overflow: ellipsis;
+	-khtml-text-overflow: ellipsis;
+	-moz-text-overflow: ellipsis;
+	-webkit-text-overflow: ellipsis;
+}
+
+#svg_editor #description #description_wrapper {
+	background: rgb(20, 20, 20);
+	background: rgba(20, 20, 20, 0.85);
+	padding:0 6px;
+	margin:0 auto;
+	text-align:center;
+}
+
+#svg_editor #description .description_header {
+	font-weight:bold;
+	padding:0;
+	font-size:1em;
+	height: 30px;
+    line-height: 30px;
+    margin: 0;
+	color:#FFFFFF;
+	text-align:left;
+}
+
+#svg_editor .description_header_text {
+	float:left;
+	margin-left:2px;
+}
+
+#svg_editor .description_header_text span {
+	font-weight:normal;
+	font-size:1em;
+	vertical-align: top;
+}
+
 #svg_editor .description_buttons {
 	padding:0;
-	margin-left:1em;
-	float:right;
+	position:absolute;
+	top: 0;
+	right: 6px;
 }
 
 #svg_editor .description_buttons button {
-	cursor: pointer;
+	display: none;
 	line-height: 1.4em;
 	width:auto;
-	background:url("../jquery-ui/images/ui-bg_highlight-hard_30_1E69FF_1x100.png") repeat-x scroll 50% 50% #1E69FF; /*corrected path for wise4*/
-	border:1px solid #1747C0;
-	color:#FFFFFF;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	margin:0;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-o-border-radius: 2px;
+	border-radius: 2px;
+	margin-top: 0;
 	overflow:visible;
-	padding:0.1em 0.2em 0.1em;
+	padding:0.2em 0.4em;
 }
 
 #svg_editor .description_buttons button:hover {
@@ -29,88 +102,14 @@
 	border-color:#AAAAAA;
 }
 
-#svg_editor #description {
-	position:absolute;
-	bottom:0px;
-	right:0;
-	left:0;
-	height:68px;
-	padding:0 5px;
-	line-height:100%;
-}
-
-#svg_editor #description a {
-	color:#FFFFFF;
-	cursor:pointer;
-	text-decoration:underline;
-}
-
-#svg_editor #description span {
-	display:inline-block;
-}
-
-#svg_editor #description span.panel_title {
-	font-weight:bold;
-	margin-right:.5em;
-}
-
-#svg_editor #description span.maximized {
-
-}
-
-#svg_editor #description span.minimized {
-	width: 500px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	-o-text-overflow: ellipsis;
-	-icab-text-overflow: ellipsis;
-	-khtml-text-overflow: ellipsis;
-	-moz-text-overflow: ellipsis;
-	-webkit-text-overflow: ellipsis;
-}
-
-#svg_editor #description #description_wrapper {
-	box-shadow:0 0 3px #000000;
-	-moz-box-shadow:0 0 3px #000000;
-	-webkit-box-shadow:0 0 3px #000000;
-	background: rgb(20, 20, 20);
-	background: rgba(20, 20, 20, 0.85);
-	padding:2px 5px;
-	border-radius:5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	margin:0 auto;
-	text-align:center;
-}
-
-#svg_editor #description .description_header {
-	font-weight:bold;
-	margin:0 2px;
-	padding:0;
-	font-size:1em;
-	height:22px;
-	line-height:22px;
-	color:#FFFFFF;
-	text-align:left;
-}
-
-#svg_editor .description_header_text {
-	float:left;
-}
-
-#svg_editor .description_header_text span {
-	font-weight:normal;
-	font-size:1em;
-	vertical-align: top;
-}
-
-/* wise4 */
 #svg_editor #description_content {
-	background-color:#FFFFFF;
+	background-color: rgb(255, 255, 255);
+	background-color: rgba(255, 255, 255, 0.9);
+    font-family: Arial,sans-serif;
 	font-size:1.2em;
 	height:75px;
 	line-height:1.3em;
-	margin: 5px 0;
+	margin-bottom: 7px;
 	padding:5px;
 	width:98%;
 }

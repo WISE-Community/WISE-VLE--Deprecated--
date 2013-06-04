@@ -1,7 +1,7 @@
 /*
  * ext-arrows.js
  *
- * Licensed under the Apache License, Version 2
+ * Licensed under the MIT License
  *
  * Copyright(c) 2010 Alexis Deveria
  *
@@ -15,8 +15,8 @@ svgEditor.addExtension("Arrows", function(S) {
 			randomize_ids = S.randomize_ids,
 			selElems;
 
-		svgCanvas.bind('setarrownonce', setArrowNonce);
-		svgCanvas.bind('unsetsetarrownonce', unsetArrowNonce);
+		svgCanvas.bind('setnonce', setArrowNonce);
+		svgCanvas.bind('unsetnonce', unsetArrowNonce);
 			
 		var lang_list = {
 			"en":[
@@ -26,6 +26,9 @@ svgEditor.addExtension("Arrows", function(S) {
 				{"id": "arrow_none", "textContent": "Sans flèche" }
 			]
 		};
+		
+		var urlBase = parent.location.href; // retrieves url base for the WISE4 step content iframe
+		urlBase = urlBase.replace(/(.*)#$/,'$1');
 		
 		var prefix = 'se_arrow_';
 		if (randomize_ids) {
@@ -56,11 +59,6 @@ svgEditor.addExtension("Arrows", function(S) {
 		function getLinked(elem, attr) {
 			var str = elem.getAttribute(attr);
 			if(!str) return null;
-			// strip out any wise4 base urls
-			var strippedStr = str.match(/url\(http.*(#.*)\)/i);
-			if (strippedStr){
-				str = "(" + strippedStr[1] + ")";
-			}
 			var m = str.match(/\(\#(.*)\)/);
 			if(!m || m.length !== 2) {
 				return null;
@@ -151,8 +149,6 @@ svgEditor.addExtension("Arrows", function(S) {
 		function setArrow() {
 			var type = this.value;
 			resetMarker();
-			
-			var urlBase = parent.location.href; // retrieves wise4 main content iframe url base
 		
 			if(type == "none") {
 				return;
@@ -166,7 +162,7 @@ svgEditor.addExtension("Arrows", function(S) {
 			} else if(type == "both") {
 				addMarker("bk", type);
 				//svgCanvas.changeSelectedAttribute("marker-start", "url(#" + pathdata.bk.id + ")");
-				svgCanvas.changeSelectedAttribute("marker-start", "url(" + urlBase + "#" + pathdata.bk.id + ")"); // edited path to resolve wise4/firefox url() reference problems
+				svgCanvas.changeSelectedAttribute("marker-start", "url(" + urlBase + "#" + pathdata.bk.id + ")"); // fix for WISE4 url() reference problems - need to include absolute path
 				type = "end";
 				dir = "fw";
 			} else if (type == "start") {
@@ -175,14 +171,12 @@ svgEditor.addExtension("Arrows", function(S) {
 			
 			addMarker(dir, type);
 			//svgCanvas.changeSelectedAttribute("marker-"+type, "url(#" + pathdata[dir].id + ")");
-			svgCanvas.changeSelectedAttribute("marker-"+type, "url(" + urlBase + "#" + pathdata[dir].id + ")"); // edited path to resolve wise4/firefox url() reference problems
+			svgCanvas.changeSelectedAttribute("marker-"+type, "url(" + urlBase + "#" + pathdata[dir].id + ")"); // fix for WISE4 url() reference problems - need to include absolute path
 			S.call("changed", selElems);
 		}
 		
 		function colorChanged(elem) {
 			var color = elem.getAttribute('stroke');
-			
-			var urlBase = parent.location.href; // retrieves wise4 main content iframe url base
 			
 			var mtypes = ['start','mid','end'];
 			var defs = S.findDefs();
@@ -217,7 +211,7 @@ svgEditor.addExtension("Arrows", function(S) {
 				}
 				
 				//$(elem).attr('marker-'+type, "url(#" + new_marker.id + ")");
-				$(elem).attr('marker-'+type, "url(" + urlBase + "#" + new_marker.id + ")"); // edited path to resolve wise4/firefox url() reference problems
+				$(elem).attr('marker-'+type, "url(" + urlBase + "#" + new_marker.id + ")"); // fix for WISE4 url() reference problems - need to include absolute path
 				
 				// Check if last marker can be removed
 				var remove = true;
@@ -225,7 +219,7 @@ svgEditor.addExtension("Arrows", function(S) {
 					var elem = this;
 					$.each(mtypes, function(j, mtype) {
 						//if($(elem).attr('marker-' + mtype) === "url(#" + marker.id + ")") {
-						if($(elem).attr('marker-' + mtype) === "url(" + urlBase + "#" + marker.id + ")") { // edited path to resolve wise4/firefox url() reference problems
+						if($(elem).attr('marker-' + mtype) === "url(#" + marker.id + ")" || $(elem).attr('marker-' + mtype) === "url(" + urlBase + "#" + marker.id + ")") { // fix for WISE4 url() reference problems - need to include absolute path
 							return remove = false;
 						}
 					});
@@ -265,10 +259,6 @@ svgEditor.addExtension("Arrows", function(S) {
 				$('#arrow_panel').hide();
 				// Set ID so it can be translated in locale file
 				$('#arrow_list option')[0].id = 'connector_no_arrow';
-				
-				$('#arrow_panel').insertAfter('#path_node_panel'); // wise4 - order tool panels correctly
-				$('#arrow_panel > label').prepend('<span>Add arrows: </span>'); // add label to arrow selector (wise4)
-				$('#arrow_panel').css('line-height','34px'); // vertically center arrow panel (wise4)
 			},
 			addLangData: function(lang) {
 				return {
@@ -285,7 +275,7 @@ svgEditor.addExtension("Arrows", function(S) {
 				
 				while(i--) {
 					var elem = selElems[i];
-					if(elem && $.inArray(elem.tagName, marker_elems) != -1 && !elem.hasAttribute("polygon") /*don't show arrow panel if path is a polygon*/) {
+					if(elem && $.inArray(elem.tagName, marker_elems) != -1) {
 						if(opts.selectedElement && !opts.multiselected) {
 							showPanel(true);
 						} else {

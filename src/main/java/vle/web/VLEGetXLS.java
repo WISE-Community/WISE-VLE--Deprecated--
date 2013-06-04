@@ -3326,8 +3326,19 @@ public class VLEGetXLS extends VLEServlet {
 								}
 							} else if(nodeType.equals("Netlogo")) {
 								if(lastState != null) {
-									//just return the JSON as a string
-									stepWorkResponse = (String) lastState.get("data");
+									
+									if(lastState.has("data")) {
+										try {
+											JSONObject netLogoData = (JSONObject) lastState.getJSONObject("data");
+											
+											if(netLogoData != null) {
+												//just return the JSON as a string
+												stepWorkResponse = netLogoData.toString();
+											}											
+										} catch (JSONException e) {
+
+										}
+									}
 								}
 							} else if(lastState.has("response")) {
 								//obtain the response

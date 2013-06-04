@@ -1,7 +1,7 @@
 /*
  * ext-closepath.js
  *
- * Licensed under the Apache License, Version 2
+ * Licensed under the MIT License
  *
  * Copyright(c) 2010 Jeff Schiller
  *
@@ -45,7 +45,7 @@ svgEditor.addExtension("ClosePath", function(S) {
 		
 		return {
 			name: "ClosePath",
-			svgicons: "/vlewrapper/vle/node/draw/svg-edit/extensions/closepath_icons.svg", //updated icon path for wise4
+			svgicons: "extensions/closepath_icons.svg",
 			buttons: [{
 				id: "tool_openpath",
 				type: "context",

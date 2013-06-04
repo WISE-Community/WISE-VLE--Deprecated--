@@ -1,71 +1,123 @@
 /*
  * ext-prompt.js
  *
- * Licensed under the Apache License, Version 2
+ * Licensed under the MIT License
  *
- * Copyright(c) 2010 Jonathan Breitbart
+ * Copyright(c) 2013 Jonathan Lim-Breitbart
  *
- * Adds a prompt/instructions tool to svg-edit
- * JQuery UI with dialogs plus accompanying css also required
- * TODO: Perhaps add a prompt setter function
+ * Adds a dialog to svg-edit that displays a prompt or instructions
  * 
+ * Dependencies:
+ * - Accompanying css file ('ext-prompt.css' should be included svg-editor.html <head>)
+ * - jQuery UI with dialogs plus accompanying css
+ * - Icon for link to open prompt (prompt.png)
+ * 
+ * TODO: i18n; fix link placement
  */
-var promptLoaded = false; // wise4 var to indicate when extension has finished loading
  
 svgEditor.addExtension("Prompt", function(S) {
 	
-	var prompt = 'This is a prompt.'; // initiate prompt text
+	/* Private variables */
+	var content = 'This is a prompt.', // String to store the prompt html content
+		loaded = false; // Boolean to indicate whether extension has finished loading
 	
-	function addLink(){
-		var linktext = '<div id="tool_prompt" class="extension_link">' +
-			'<a class="label tool_prompt" title="Review Instructions">Review Instructions</a>' +
-			'<img class="tool_prompt" src="/vlewrapper/vle/node/draw/svg-edit/extensions/prompt.png" ' + // image path edited for wise4
-			'title="Review Instructions" alt="icon" />' +
-			'</div>';
-	
-		$('#tools_top').append(linktext);
-		
-		setupDialog();
+	/* Public API (accessible via svgEditor object) */
+	var api = svgEditor.ext_prompt = {
+		/** 
+		 * Gets or sets the stored prompt text and updates the UI display
+		 * 
+		 * @param value String prompt content
+		 * @returns String prompt content
+		 * @returns Object this
+		 */
+		content: function(val){
+			if(!arguments.length){ return content; } // no arguments, so return content
+			
+			if(typeof val === 'string'){
+				setContent(val);
+			}
+			return this;
+		},
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		},
+		/**
+		 * Opens this prompt dialog
+		 * 
+		 * @returns Object this
+		 */
+		show: function(){
+			$('#prompt_dialog').dialog('open');
+			return this;
+		},
+		/**
+		 * Listener function that is called when the extension has fully loaded
+		 */
+		loadComplete: function(){
+			// optional: override with custom actions
+		}
 	};
 	
-	function setupDialog(){
-		var dialogtxt = '<div id="prompt_dialog" title="Instructions" style="display:none;">' +
-			'<div id="prompt_text" class="ui-dialog-content-content">' + prompt + '</div></div>';
+	/* Private functions */
+	function setContent(val){
+		content = val;
+		$('#prompt_content').html(val);
 		
+		if(!loaded){
+			// on first load, set extension loaded variable to true and call extension loaded listener
+			loaded = true;
+			api.loadComplete();
+		}
+	}
+	
+	function setupDisplay(){
+		// setup extension UI components
+		var linktext = '<div id="tool_prompt" class="extension_link">' +
+			'<a class="label tool_prompt" title="Review Instructions">Instructions</a>' +
+			'<img class="tool_prompt" src="extensions/prompt.png" ' + // TODO: create svg icon
+			'title="Review Instructions" alt="icon" />' +
+			'</div>';
+		var dialogtxt = '<div id="prompt_dialog" style="display:none;">' +
+			'<div id="prompt_content"></div></div>';
+		
+		// add extension UI components to page
+		$('#tools_top').append(linktext);
 		$('#svg_editor').append(dialogtxt);
 		
+		// setup jQuery UI dialog to view prompt content
 		$('#prompt_dialog').dialog({
-			bgiframe: true,
+			title: 'Instructions',
 			resizable: false,
 			modal: true,
 			autoOpen:false,
-			width:650,
-			buttons: {
-				'OK': function() {
-					$(this).dialog('close');
-				}
-			}
+			width:600,
+			buttons: [
+				{
+			    	text: 'OK',
+			    	click: function() {
+			    		$(this).dialog('close');
+					}
+			    }
+			]
 		});
 		
-		$('.tool_prompt').click(function(){
+		// bind link click event to open prompt dialog
+		$('.tool_prompt').on('click', function(){
 			$('#prompt_dialog').dialog('open');
 		});
 		
-		promptLoaded = true;
-	};
+		setContent(content); // set initial prompt content
+	}
 	
 	return {
 		name: "Prompt",
 		callback: function() {
-			//add extension css
-			var csspath = '/vlewrapper/vle/node/draw/svg-edit/extensions/ext-prompt.css'; // corrected path for wise4
-			var fileref=document.createElement("link");
-			fileref.setAttribute("rel", "stylesheet");
-			fileref.setAttribute("type", "text/css");
-			fileref.setAttribute("href", csspath);
-			document.getElementsByTagName("head")[0].appendChild(fileref);
-			
-			addLink();
+			setupDisplay(); // setup extension UI components and events
 		}
 	};
 });

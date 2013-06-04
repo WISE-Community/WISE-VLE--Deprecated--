@@ -64,13 +64,8 @@ FillinNode.prototype.getHTMLContentTemplate = function() {
  * requires additional processing
  */
 FillinNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
-	/*
-	 * Get the latest student state object for this step
-	 * TODO: rename templateState to reflect your new step type
-	 * 
-	 * e.g. if you are creating a quiz step you would change it to quizState
-	 */
-	var templateState = nodeVisit.getLatestWork();
+	//create a FILLIN object so we can check the student answers
+	var fillin = new FILLIN(this);
 	
 	/*
 	 * get the step work id from the node visit in case we need to use it in
@@ -79,12 +74,51 @@ FillinNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVis
 	 * how one might use it.
 	 */
 	var stepWorkId = nodeVisit.id;
+
+	var studentWork = "";
 	
-	/*
-	 * TODO: rename templateState to match the variable name you
-	 * changed in the previous line above
-	 */
-	var studentWork = templateState.response;
+	if(nodeVisit != null) {
+		//get the node states for the node visit
+		var nodeStates = nodeVisit.nodeStates;
+		
+		if(nodeStates != null) {
+			
+			//loop through all the node states
+			for(var x=0; x<nodeStates.length; x++) {
+				//get a node state
+				var nodeState = nodeStates[x];
+				
+				if(nodeState != null) {
+					var textEntryInteractionIndex = nodeState.textEntryInteractionIndex;
+					
+					//get the fillin index. the textEntryInteractionIndex is 0 indexed so we will increment it by 1.
+					var fillinIndex = nodeState.textEntryInteractionIndex + 1;
+					
+					//get the text the student typed for that index
+					var studentAnswerText = nodeState.response;
+
+					//check if the student answer is correct;
+					var isCorrect = fillin.checkSingleAnswer(textEntryInteractionIndex, studentAnswerText);
+					
+					if(studentWork != "") {
+						//add a new line between the responses
+						studentWork += "<br>";
+					}
+					
+					var isCorrectText = '';
+					
+					if(isCorrect) {
+						isCorrectText = 'correct';
+					} else {
+						isCorrectText = 'incorrect';
+					}
+					
+					//display the index, student work, and whether the student answer was correct
+					studentWork += "#" + fillinIndex + ": " + studentAnswerText + " [" + isCorrectText + "]";
+				}
+			}
+		}
+	}
 	
 	//put the student work into the div
 	displayStudentWorkDiv.html(studentWork);
@@ -118,6 +152,119 @@ FillinNode.prototype.isCompleted = function(nodeVisits) {
 		}
 	}
 	return false;
+};
+
+/**
+ * Get the prompt for this step
+ */
+FillinNode.prototype.getPrompt = function() {
+	var prompt = "";
+	
+	//get the content
+	var content = this.content.getContentJSON();
+	
+	if(content != null && content.assessmentItem != null && content.assessmentItem.interaction != null) {
+		var interaction = content.assessmentItem.interaction;
+		
+		//counter for the fillin blanks
+		var fillinBlankCount = 1;
+		
+		//loop through all the interactions
+		for(var x=0; x<interaction.length; x++) {
+			var interactionObject = interaction[x];
+			
+			if(interactionObject != null) {
+				//get whether the interaction is text or a fillin blank
+				var type = interactionObject.type;
+				
+				if(type == 'htmltext') {
+					//the interaction is text
+					var text = interactionObject.text;
+
+					prompt += text;
+				} else if(type == 'textEntryInteraction') {
+					//the interaction is a fillin blank
+					
+					//get the identifier
+					var responseIdentifier = interactionObject.responseIdentifier;
+					
+					//get the correct answer
+					var correctAnswer = this.getCorrectAnswer(responseIdentifier);
+					
+					//display the fillin blank number and correct answer
+					prompt += '[#' + fillinBlankCount + ':' + this.getCorrectAnswer(responseIdentifier) + ']';
+					
+					fillinBlankCount++;
+				}
+			}
+		}
+	}
+	
+	return prompt;
+};
+
+/**
+ * Get the correct answer for the identifier
+ * 
+ * @param identifier the identifier to get the correct answer for
+ * 
+ * @return the correct answer text
+ */
+FillinNode.prototype.getCorrectAnswer = function(identifier) {
+	var correctAnswer = null;
+	
+	//get the step content
+	var content = this.content.getContentJSON();
+	
+	if(content != null && content.assessmentItem != null && content.assessmentItem.responseDeclarations != null) {
+		//get all the response declarations
+		var responseDeclarations = content.assessmentItem.responseDeclarations;
+		
+		if(responseDeclarations != null) {
+			
+			//loop through all the response declarations
+			for(var x=0; x<responseDeclarations.length; x++) {
+				var responseDeclaration = responseDeclarations[x];
+				
+				if(responseDeclaration != null) {
+					//get the identifier for the response declaration
+					var tempIdentifier = responseDeclaration.identifier;
+					
+					if(identifier == tempIdentifier) {
+						//we have found the response declaration we want
+						
+						//get all the correct responses for this response declaration
+						var correctResponses = responseDeclaration.correctResponses;
+						
+						//loop through all the correct responses
+						for(var y=0; y<correctResponses.length; y++) {
+							//get a correct response
+							var tempCorrectResponse = correctResponses[y];
+							
+							//get the correct response text
+							var tempCorrectResponseText = tempCorrectResponse.response;
+							
+							if(correctAnswer == null) {
+								correctAnswer = '';
+							} 
+							
+							if(correctAnswer != "") {
+								//separate multiple correct responses with a /
+								correctAnswer += "/";
+							}
+							
+							//append the correct response text
+							correctAnswer += tempCorrectResponseText;
+						}
+						
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	return correctAnswer;
 };
 
 NodeFactory.addNode('FillinNode', FillinNode);
