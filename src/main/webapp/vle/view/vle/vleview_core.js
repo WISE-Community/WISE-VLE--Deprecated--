@@ -19,6 +19,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		}
 	} else if(type=='processLoadViewStateResponseCompleted'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
+		eventManager.fire('startVLECompleted');
 	} else if(type=='navigationLoadingCompleted'){
 		obj.populateNodeDependencies();
 		obj.setStatuses();
@@ -26,7 +27,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.updateActiveTagMapConstraints();
 		obj.updateSequenceStatuses();
 		obj.processStudentWork();
-		eventManager.fire('startVLECompleted');
 	} else if(type=='renderNodeCompleted'){
 		if(args){
 			obj.renderNodeCompletedListener(args[0]);
