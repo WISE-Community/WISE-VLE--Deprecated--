@@ -503,7 +503,8 @@ Node.prototype.nodeJSON = function(contentBase){
 				view:this.getView(),
 				tags:this.tags,
 				tagMaps:this.tagMaps,
-				refs:[]
+				refs:[],
+				icons:this.icons
 		};
 
 		/* add children ids to refs */
@@ -1905,7 +1906,8 @@ Node.prototype.getFeedback = function() {
  * to display. if this parameter is not passed in, we will use the
  * statuses from the node.
  * 
- * @return the icon path for the given statuses
+ * @return the icon path for the given statuses. it will return the first
+ * icon that matches.
  */
 Node.prototype.getIconPathForStatuses = function(icons, statuses) {
 	var iconPath = null;

@@ -577,6 +577,9 @@ function starmap() {
 		      
 		      // remove loading message
 		      svgLoading.remove();
+		      
+		      //we are done loading the navigation panel for the first time
+		      eventManager.fire('navigationLoadingCompleted');
 		  }, 10);
 	  }
 	  

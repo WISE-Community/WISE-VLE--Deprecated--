@@ -840,7 +840,7 @@ Epigame.prototype.processTagMaps = function() {
 	var perfScore = 0;
 	var explScore = 0;
 	var warpScore = 0;
-	var result;
+	var result = null;
 	
 	var tagMaps = this.node.tagMaps;
 	if (tagMaps) {
@@ -868,16 +868,18 @@ Epigame.prototype.processTagMaps = function() {
 					result = this.getTotalAdaptive(tagName, funcArgs);
 				}
 				
-				if (result.pass == false)
-					enableStep = false;
-				if (result.message != "")
-					messages.push(result.message);
-				if (result.highScore_performance)
-					perfScore = result.highScore_performance;
-				if (result.highScore_explanation)
-					explScore = result.highScore_explanation;
-				if (result.finalScore)
-					warpScore = result.finalScore;
+				if(result != null) {
+					if (result.pass == false)
+						enableStep = false;
+					if (result.message != "")
+						messages.push(result.message);
+					if (result.highScore_performance)
+						perfScore = result.highScore_performance;
+					if (result.highScore_explanation)
+						explScore = result.highScore_explanation;
+					if (result.finalScore)
+						warpScore = result.finalScore;
+				}
 			}
 		}
 	}

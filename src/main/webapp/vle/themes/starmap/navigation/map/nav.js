@@ -152,7 +152,7 @@ NavigationPanel.prototype.constraintStatusUpdatedListener = function(type, args,
  */
 NavigationPanel.prototype.studentWorkUpdatedListener = function(type, args, obj) {
 	//update the step icon
-	obj.setStepIcon();
+	//obj.setStepIcon();
 };
 
 NavigationPanel.prototype.navigationPanelPrevButtonClickedListener = function() {
@@ -165,6 +165,7 @@ NavigationPanel.prototype.navigationPanelNextButtonClickedListener = function() 
 
 NavigationPanel.prototype.navigationPanelToggleVisibilityButtonClickedListener = function() {
 	this.toggleVisibility();
+	view.endCurrentNode();
 };
 
 /**
@@ -336,9 +337,6 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		
 		//set this flag so that we do not perform this initialization again for subsequent NavigationPanel.render() calls
 		this.navigationPanelLoaded = true;
-		
-		//we are done loading the navigation panel for the first time
-		eventManager.fire('navigationLoadingCompleted');
 	}
 };
 

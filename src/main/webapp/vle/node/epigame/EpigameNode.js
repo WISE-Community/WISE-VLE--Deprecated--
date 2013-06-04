@@ -26,6 +26,18 @@ EpigameNode.tagMapFunctions = [
 	{functionName:"getTotalAdaptive", functionArgs:["Score to Unlock (optional)"]}
 ];
 
+//The statuses that this step can return
+EpigameNode.availableStatuses = [
+	{statusType:'epigameMedal', possibleStatusValues:['bronze', 'silver', 'gold']}
+];
+
+//The special statuses that can be satisfied by any of the statuses in the group
+EpigameNode.specialStatusValues = [
+	{statusType:'epigameMedal', statusValue:'atLeastBronze', possibleStatusValues:['bronze', 'silver', 'gold']},
+	{statusType:'epigameMedal', statusValue:'atLeastSilver', possibleStatusValues:['silver', 'gold']},
+	{statusType:'epigameMedal', statusValue:'atLeastGold', possibleStatusValues:['gold']}
+];
+
 EpigameNode.prototype.getQuizData = function(customURL) {
 	var content = null;
 	
@@ -170,50 +182,86 @@ EpigameNode.prototype.getHTMLContentTemplate = function() {
 };
 
 /**
+ * Determine whether the student has completed the step or not
+ * @param nodeVisits an array of node visits for the step
+ * @return whether the student has completed the step or not
+ */
+EpigameNode.prototype.isCompleted = function(nodeVisits) {
+	var result = false;
+
+	var latestNodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+	
+	if(latestNodeState != null) {
+		result = true;
+	}
+
+	return result;
+};
+
+/**
  * Process the student work to see if we need to display a colored
  * star next to the step in the nav menu
  * @param studentWork the student's epigame state
  */
 EpigameNode.prototype.processStudentWork = function(nodeVisits) {
-	//Disabled for now...
-	/*
-	if(studentWork != null) {
-		if(studentWork.response != null && studentWork.response != "") {
-			//var className = "";
-			var imgPath = '';
-			var tooltip = '';
-			
-			//get the top score
-			var topScore = studentWork.response.topScore;
-			var scoreAbsolute = studentWork.response.scoreAbsolute;
-			
-			var best;
-			
-			if(topScore > scoreAbsolute || topScore == scoreAbsolute){
-				best = topScore;
-			} else {
-				best = scoreAbsolute;
-			}
-			
-			if(best == 10) {
-				//className = "bronzeStar";
-				imgPath = '/vlewrapper/vle/node/epigame/images/bronzeStar.png';
-				tooltip = "You have earned a bronze medal";
-			} else if(best == 20) {
-				//className = "silverStar";
-				imgPath = '/vlewrapper/vle/node/epigame/images/silverStar.png';
-				tooltip = "You have earned a silver medal";
-			} else if(best == 30) {
-				//className = "goldStar";
-				imgPath = '/vlewrapper/vle/node/epigame/images/goldStar.png';
-				tooltip = "You have earned a gold medal";
-			}
-			
-			//display the star next to the step in the nav menu
-			eventManager.fire('updateStepStatusIcon', [this.id, imgPath, tooltip]);
+	if(nodeVisits != null) {
+		if(nodeVisits.length > 0) {
+			//the student has visited this step
+			this.setStatus('isVisited', true);
 		}
 	}
-	*/
+	
+	if(nodeVisits != null) {
+		//get the latest node state
+		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+		
+		if(nodeState != null) {
+			//the student has completed this step
+			this.setStatus('isCompleted', true);
+			
+			var response = nodeState.response;
+			
+			if(response != null && response != "") {
+				var highScore_explanation = nodeState.response.highScore_explanation;
+				var highScore_performance = nodeState.response.highScore_performance;
+				
+				var highScore_average = (highScore_explanation + highScore_explanation) / 2;
+				
+				if(highScore_average == 100) {
+					statusValue = 'gold';
+				} else if(highScore_average >= 90) {
+					statusValue = 'silver';
+				} else {
+					statusValue = 'bronze';
+				}
+
+				//set the status value
+				this.setStatus('epigameMedal', statusValue);
+			}
+		}
+	}
+};
+
+/**
+ * Check if the status value satisfies the requirement
+ * 
+ * @param statusValue the status value of the node
+ * @param statusValueToSatisfy the status requirement
+ * 
+ * @return whether the status value satisfies the requirement
+ */
+EpigameNode.prototype.isStatusValueSatisfied = function(statusType, statusValue, statusValueToSatisfy) {
+	var result = false;
+	var specialStatusValues = EpigameNode.specialStatusValues;
+	
+	if(statusValue + '' == statusValueToSatisfy + '') {
+		//the status matches the required value
+		result = true;
+	} else if(this.matchesSpecialStatusValue(statusType, statusValue, statusValueToSatisfy, specialStatusValues)) {
+		result = true;
+	}
+	
+	return result;
 };
 
 /**
