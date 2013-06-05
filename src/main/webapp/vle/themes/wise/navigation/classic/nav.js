@@ -1488,6 +1488,34 @@ NavigationPanel.prototype.navigationLoadingCompletedListener = function(type, ar
 };
 
 /**
+ * Get the full node name
+ * @param nodeId the node id
+ * @return the node type, vle position, and node title
+ * e.g.
+ * 'Step 1.1: Introduction'
+ * or
+ * 'Activity 1: Begin'
+ */
+NavigationPanel.prototype.getFullNodeName = function(nodeId) {
+	//get the step number and title
+	var fullStepName = view.getProject().getStepNumberAndTitle(nodeId);
+	
+	var nodeType = '';
+	var node = this.view.getProject().getNodeById(nodeId);
+	
+	//get whether the node is an activity or step
+	if(node.type == 'sequence') {
+		nodeType = 'Activity';
+	} else {
+		nodeType = 'Step';
+	}
+	
+	fullStepName = nodeType + ' ' + fullStepName;
+	
+	return fullStepName;
+};
+
+/**
  * Dispatches events that are specific to the menu.
  */
 View.prototype.navigationDispatcher = function(type,args,obj){

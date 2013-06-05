@@ -229,38 +229,45 @@ XMustHaveStatusYConstraint.prototype.getConstraintMessage = function(nodesFailed
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
 	} else {
-		var stepsNumberAndTitlesFailed = '';
+		var fullNodeNamesFailed = '';
 		
 		if(nodesFailed != null) {
 			for(var x=0; x<nodesFailed.length; x++) {
 				var nodeIdFailed = nodesFailed[x];
 				
-				//get the step number and title for the failed step
-				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeIdFailed);
+				//get the full node name
+				var fullNodeName = this.view.getFullNodeName(nodeIdFailed);
 				
-				if(stepsNumberAndTitlesFailed != '') {
-					stepsNumberAndTitlesFailed += '\n';
+				if(fullNodeNamesFailed != '') {
+					//separate multiple nodes with a new line
+					fullNodeNamesFailed += '\n';
 				}
 				
-				var nodeType = '';
-				var node = this.view.getProject().getNodeById(nodeIdFailed);
-				
-				if(node.type == 'sequence') {
-					nodeType = 'Activity';
-				} else {
-					nodeType = 'Step';
-				}
-				
-				stepsNumberAndTitlesFailed += nodeType + ' ' + stepNumberAndTitle;
+				//append the full node name
+				fullNodeNamesFailed += fullNodeName;
 			}		
 		}
 		
 		if(nodesFailed.length == 1) {
 			//there is only one node that has not been satisfied
-			message = stepsNumberAndTitlesFailed + " must have '" + statusType + "' set to '" + statusValue + "' before you can work on this step";
+			
+			if(statusType == 'isCompleted' && statusValue == 'true') {
+				//the constraint requires a step to be completed so we will display a more informative message
+				message = "You must complete the step below before you can work on this step\n\n" + fullNodeNamesFailed;
+			} else {
+				//use a generic message to handle all other constraints
+				message = "The step below must have '" + statusType + "' set to '" + statusValue + "' before you can work on this step\n\n" + fullNodeNamesFailed;
+			}
 		} else if(nodesFailed.length > 1) {
 			//there are multiple nodes that have not been satisfied
-			message = "These steps must have '" + statusType + "' set to '" + statusValue + "' before you can work on this step\n\n" + stepsNumberAndTitlesFailed;
+			
+			if(statusType == 'isCompleted' && statusValue == 'true') {
+				//the constraint requires steps to be completed so we will display a more informative message
+				message = "You must complete the steps below before you can work on this step\n\n" + fullNodeNamesFailed;
+			} else {
+				//use a generic message to handle all other constraints
+				message = "The steps below must have '" + statusType + "' set to '" + statusValue + "' before you can work on this step\n\n" + fullNodeNamesFailed;
+			}
 		}
 	}
 	

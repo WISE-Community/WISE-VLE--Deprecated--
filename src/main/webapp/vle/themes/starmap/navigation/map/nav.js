@@ -665,6 +665,28 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
 };
 
 /**
+ * Get the full node name
+ * @param nodeId the node id
+ * @return the titles of all the nodes in the hierarchy including
+ * the highest sequence number
+ * e.g.
+ * if activity 1 is called 'First Galaxy' and the second step in
+ * that activity is called 'Silver', we would return
+ * '#1: First Galaxy: Silver'
+ */
+NavigationPanel.prototype.getFullNodeName = function(nodeId) {
+	var fullStepName = view.getProject().getNodeTitles(nodeId);
+	
+	//get the highest sequence number in the hierarchy
+	var highestSequenceNumberInHierarchy = view.getHighestSequenceNumberInHierarchy(nodeId);
+	
+	fullStepName = '#' + highestSequenceNumberInHierarchy + ': ' + fullStepName; 
+	
+	return fullStepName;
+};
+
+
+/**
 * The navMode dispatcher catches events specific to this project
 * navigation mode and delegates them to the appropriate functions for
 * this view.

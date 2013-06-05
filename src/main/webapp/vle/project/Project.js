@@ -1771,6 +1771,57 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		};
 		
 		/**
+		 * Get the node titles for the step including the titles of parent nodes.
+		 * This is a recursive function that calls itself with each successive
+		 * parent node.
+		 * @param id the node id of a step or activity
+		 * @return the titles of all the nodes in the hierarchy separated by ': '
+		 * e.g.
+		 * If the node is for a step we will return the step title along with
+		 * all of its parent node titles. If the step title is 'How to use WISE'
+		 * and the activity the step is in is titled 'Introduction Activity' we
+		 * will return
+		 * 'Introduction Activity: How to use WISE'
+		 */
+		var getNodeTitles = function(id) {
+			var result = '';
+
+			/*
+			 * check if we are on the master node. we will not display
+			 * anything for the master node.
+			 */
+			if(id != 'master') {
+				//get the node
+				var node = getNodeById(id);
+
+				if(node != null) {
+					//get the title of the node
+					var nodeTitle = node.title;
+					
+					//get the parent of the node
+					var parent = node.parent;
+					var parentId = parent.id;
+					
+					//get the title of the parent nodes
+					var parentResult = getNodeTitles(parentId);
+					
+					if(parentResult == '') {
+						/*
+						 * parent was master so it returned '' so our result will
+						 * just be this node title
+						 */
+						result = nodeTitle;
+					} else {
+						//prepend the parent result
+						result = parentResult + ': ' + nodeTitle;
+					}
+				}
+			}
+			
+			return result;
+		};
+		
+		/**
 		 * Recursively obtain all the leaf nodeIds that have the given tag
 		 * @param tagName the tag we are looking for
 		 * @return an array containing all the leaf nodes that contain the given tag
@@ -2460,7 +2511,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* determine if the node id is in the sequence */
 			isNodeIdInSequence:function(nodeId, sequenceId) {return isNodeIdInSequence(nodeId, sequenceId);},
 			/* get the node id of the parent sequence of the step */
-			getParentNodeId:function(nodeId) {return getParentNodeId(nodeId);}
+			getParentNodeId:function(nodeId) {return getParentNodeId(nodeId);},
+			/* get the activity number, activity title, and step title*/
+			getNodeTitles:function(nodeId) {return getNodeTitles(nodeId);}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

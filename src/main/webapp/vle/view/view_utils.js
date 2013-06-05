@@ -1916,6 +1916,62 @@ View.prototype.getIconPathFromNodeTypeNodeClass = function(nodeType, nodeClass) 
 	return iconPath;
 };
 
+/**
+ * Get the full node name
+ * @param node id
+ * @return the full step name depending on the navigation used
+ * classic will return something like 'Step 1.1: Introduction'
+ * starmap will return something like '#1: First Galaxy: Bronze'
+ */
+View.prototype.getFullNodeName = function(nodeId) {
+	//get the full step name
+	var fullStepName = this.navigationPanel.getFullNodeName(nodeId);
+
+	return fullStepName;
+};
+
+/**
+ * Get the sequence number of the highest sequence in the hierarchy
+ * not counting the master sequence. This is a recursive function that
+ * calls itself with the parent id.
+ * @param nodeId the node id
+ * @return the sequence number of the highest sequence in the hierarchy
+ * not counting the master sequence.
+ */
+View.prototype.getHighestSequenceNumberInHierarchy = function(nodeId) {
+	var sequenceNumber = '';
+	
+	//check if the 
+	if(nodeId != 'master') {
+		//get the node
+		var node = this.getProject().getNodeById(nodeId);
+		
+		if(node != null) {
+			var parent = node.parent;
+			
+			if(parent != null) {
+				var parentId = parent.id;
+				
+				if(parentId == 'master') {
+					/*
+					 * the parent is the master so we have found the highest sequence
+					 * in the hierarchy
+					 */
+					sequenceNumber = this.getProject().getVLEPositionById(nodeId);
+				} else {
+					/*
+					 * the parent is not the master so we will recursively call this
+					 * function with the parent id
+					 */
+					sequenceNumber = this.getHighestSequenceNumberInHierarchy(parentId);
+				}
+			}
+		}		
+	}
+	
+	return sequenceNumber;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');
