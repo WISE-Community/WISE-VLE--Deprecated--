@@ -34,7 +34,7 @@ public class VLEStatistics extends PersistableDomain {
 	@Column(name="timestamp")
 	private Timestamp timestamp;
 	
-	@Column(name="data", columnDefinition="TEXT")
+	@Column(name="data", length=5000)
 	private String data;
 	
 	public Long getId() {

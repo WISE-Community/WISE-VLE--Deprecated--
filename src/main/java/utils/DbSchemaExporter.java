@@ -32,14 +32,15 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
  */
 public class DbSchemaExporter {
 	
-	static String outputFilename = "src/main/resources/vle-createtables.sql";
-    /**
+	static String outputFilenameMysql = "src/main/resources/vle-createtables-mysql.sql";
+
+	/**
      * @param args
      */
     public static void main(String[] args) {
         try {
           
-            exportSchemaToFile(outputFilename);
+            exportSchemaToFile();
         } catch (Exception all) {
             System.err.println(all.getLocalizedMessage());
             all.printStackTrace(System.out);
@@ -53,27 +54,23 @@ public class DbSchemaExporter {
      * @throws ClassNotFoundException
      * @throws FileNotFoundException
      */
-    public static void exportSchemaToFile(
-            String filename) throws ClassNotFoundException,
+    public static void exportSchemaToFile() throws ClassNotFoundException,
             FileNotFoundException {
         try {
 
             // Create the SessionFactory from hibernate.cfg.xml and from vle.properties
             AnnotationConfiguration cfg = new AnnotationConfiguration().configure();  // reads from hibernate.cfg.xml
             
-        	Properties extraProperties = new Properties();
-        	extraProperties.load(DbSchemaExporter.class.getClassLoader().getResourceAsStream("vle.properties"));
-            cfg.addProperties(extraProperties);  // add extra property overrides (like url,username,password) in vle.properties
-
+            String outFilename = outputFilenameMysql;
             
             final boolean printScriptToConsole = false, exportScriptToDb = false, justDrop = false, justCreate = true;
             final SchemaExport schemaExport = new SchemaExport(cfg)
                     .setDelimiter(";").setFormat(true).setHaltOnError(true)
-                    .setOutputFile(filename);
+                    .setOutputFile(outFilename);
             schemaExport.execute(printScriptToConsole, exportScriptToDb,
                     justDrop, justCreate);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
