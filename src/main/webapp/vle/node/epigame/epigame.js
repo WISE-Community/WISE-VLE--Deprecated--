@@ -725,6 +725,7 @@ Epigame.prototype.serializeCampaignSettings = function(settings) {
 		+ (settings.showWarpScore ? "|@1" : "|@0")
 		+ (settings.showQuestions ? "|@1" : "|@0")
 		+ (settings.showNoQuestions ? "|@1" : "|@0")
+		+ (settings.spatialInterface ? "|@1" : "|@0")		
 		+ (settings.noTime ? "|@1" : "|@0")
 		+ (settings.testTime ? "|@1" : "|@0")
 		+ (settings.questionTime ? "|@1" : "|@0")

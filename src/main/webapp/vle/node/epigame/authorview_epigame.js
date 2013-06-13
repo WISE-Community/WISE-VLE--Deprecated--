@@ -135,12 +135,11 @@ View.prototype.EpigameNode.generatePage = function(view){
 	var settingsQuestionsToggle = createElement(document, "input", {id:'questionsToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
 	var settingsQuestionsLabel = $(createElement(document, 'label', {id:'questionsLabel', "for":"questionsToggle"})).text('Show Questions instead of Tips (recommended if using Explanation Score; does not affect Warp Questions)');
 	
-//	var settingsNoQuestionToggle = createElement(document, "select", {id:'questionNoToggle', onclick:"eventManager.fire('epigameChangeSettings')"});	
-//	var settingsNoQuestionOption1 = $(createElement(document, "option", {id:'questionNoOption1'})).text('something');	
-//	var settingsNoQuestionLabel = $(createElement(document, 'label', {id:'questionNoLabel', "for":"questionNoToggle"})).text('No Tip For You');	
-
 	var settingsNoQuestionToggle = createElement(document, "input", {id:'noQuestionsToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
 	var settingsNoQuestionLabel = $(createElement(document, 'label', {id:'noQuestionsLabel', "for":"questionNoToggle"})).text('Disable Tips and Questions');
+	
+	var settingsSpatialToggle = createElement(document, "input", {id: 'spatialToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
+	var settingsSpatialLabel = $(createElement(document, 'label', {id:'spatialLabel', "for":"spatialToggle"})).text('Use Spatial Interface');
 
 	//get document mode
 	var levelString = "";
@@ -168,7 +167,8 @@ View.prototype.EpigameNode.generatePage = function(view){
 	.append(settingsWarpScoreToggle).append(settingsWarpScoreLabel).append(createBreak()).append(createBreak())
 	.append(settingsScoreReqsToggle).append(settingsScoreReqsLabel).append(createBreak()).append(createBreak())
 	.append(settingsQuestionsToggle).append(settingsQuestionsLabel).append(createBreak()).append(createBreak())
-	.append(settingsNoQuestionToggle).append(settingsNoQuestionLabel);
+	.append(settingsNoQuestionToggle).append(settingsNoQuestionLabel).append(createBreak()).append(createBreak())
+	.append(settingsSpatialToggle).append(settingsSpatialLabel);
 	
 	settingsDiv.append(createBreak()).append(createBreak()).append(questionSpan).append(createBreak()).append(noTimeToggle).append(noTimeLabel).append(createBreak());
 	settingsDiv.append(testTimeToggle).append(testTimeLabel).append(testTimeBox).append(createBreak());
@@ -417,6 +417,7 @@ View.prototype.EpigameNode.updateSettings = function() {
 			showWarpScore: Boolean($("#warpScoreToggle").prop("checked")),
 			showQuestions: Boolean($("#questionsToggle").prop("checked")),
 			showNoQuestions: Boolean($("#noQuestionsToggle").prop("checked")),
+			spatialInterface: Boolean($("#spatialToggle").prop("checked")),
 			globalizeReqs: Boolean($("#scoreReqsToggle").prop("checked")),
 			noTime: Boolean($("#noTimeToggle").prop("checked")),
 			testTime: Boolean($("#testTimeToggle").prop("checked")),
@@ -437,6 +438,7 @@ View.prototype.EpigameNode.updateSettingsDisplay = function() {
 		$("#scoreReqsToggle").prop("checked", Boolean(this.content.settings.globalizeReqs));
 		$("#questionsToggle").prop("checked", Boolean(this.content.settings.showQuestions));
 		$("#noQuestionsToggle").prop("checked", Boolean(this.content.settings.showNoQuestions));
+		$("#spatialToggle").prop("checked", Boolean(this.content.settings.spatialInterface));		
 		$("#noTimeToggle").prop("checked", Boolean(this.content.settings.noTime));
 		$("#testTimeToggle").prop("checked", Boolean(this.content.settings.testTime));
 		$("#questionTimeToggle").prop("checked", Boolean(this.content.settings.questionTime));
@@ -446,7 +448,7 @@ View.prototype.EpigameNode.updateSettingsDisplay = function() {
 		//Settings enabled, so check the checkbox and show UI
 		$("#settingsToggle").prop("checked", true);
 		$("#settingsDiv").show();
-	} else {
+	} else { 
 		//Settings disabled, so uncheck the checkbox and hide UI
 		$("#settingsToggle").prop("checked", false);
 		$("#settingsDiv").hide();
@@ -461,7 +463,8 @@ View.prototype.EpigameNode.toggleSettings = function() {
 			showExplScore: false,
 			showWarpScore: false,
 			showQuestions: false,
-			showNoQuestions: false,			
+			showNoQuestions: false,
+			spatialInterface: false,
 			globalizeReqs: false,
 			noTime: true,
 			testTime: false,
@@ -476,6 +479,7 @@ View.prototype.EpigameNode.toggleSettings = function() {
 		$("#scoreReqsToggle").prop("checked", this.content.settings.globalizeReqs);
 		$("#questionsToggle").prop("checked", this.content.settings.showQuestions);
 		$("#noQuestionsToggle").prop("checked", this.content.settings.showNoQuestions);
+		$("#spatialToggle").prop("checked", this.content.settings.spatialToggle);		
 		$("#noTimeToggle").prop("checked", this.content.settings.noTime);
 		$("#testTimeToggle").prop("checked", this.content.settings.testTime);
 		$("#questionTimeToggle").prop("checked", this.content.settings.questionTime);
