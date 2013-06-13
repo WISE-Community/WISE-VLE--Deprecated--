@@ -26,7 +26,7 @@
 }
 
 .settings, .settingLabel {
-	font-family: Helvetica,sans-serif;
+	font-family: "Source Sans Pro", sans-serif;
     font-weight: 300;
 }
 
@@ -405,7 +405,7 @@ img.tooltip {
 	/*border-bottom: 1px solid #D8C6B3;*/
 	border-bottom: 1px solid #cccccc;
 	color: #745A33;
-	font-family: Trebuchet MS;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
 	font-size: 1.3em;
 	font-weight: bold;
 	/*margin: 0 0.75em;*/

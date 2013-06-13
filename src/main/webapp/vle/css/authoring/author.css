@@ -65,11 +65,11 @@
 
 .sticky {
     position: fixed !important;
-    border:4px solid #FFFFFF;
-	-moz-box-shadow:0 0 3px #444444;
-	-webkit-box-shadow:0 0 3px #444444;
-	-o-box-shadow:0 0 3px #444444;
-	box-shadow:0 0 3px #444444;
+    border:1px solid #aaaaaa;
+	-moz-box-shadow:0 0 2px 0 #aaaaaa;
+	-webkit-box-shadow:0 0 2px 0 #aaaaaa;
+	-o-box-shadow:0 0 2px 0 #aaaaaa;
+	box-shadow:0 0 2px 0 #aaaaaa;
 	z-index:1;
 }
 
@@ -134,7 +134,7 @@ label.error {
 #author_body .panelContent {
 	margin:0 auto;
 	padding:.75em;
-	display:relative;
+	position:relative;
 }
 
 #author_body .panelContent a {
@@ -196,7 +196,7 @@ table.wisetable th, table.wisetable td {
 	font-size: 0.7em;
 	color:#666666;
 	margin-left:.5em;
-	font-family:Arial,Helvetica,Tahoma,sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 #author_body #projectWelcome #recent h3 {
@@ -357,7 +357,6 @@ table.wisetable th, table.wisetable td {
     left:0;
     text-align: center;
     display:none;
-    /*font-family:Arial,Helvetica,Tahoma,sans-serif;*/
     font-weight:bold;
     text-shadow: 0 0 2px #222222;
 }
@@ -396,8 +395,6 @@ table.wisetable th, table.wisetable td {
 	font-size:.85em;
 	/*color:#cccccc;*/
 	margin:.5em 0 0;
-	height:1.7em;
-	line-height:1.7em;
 	position:relative;
 }
 
@@ -440,9 +437,8 @@ table.wisetable th, table.wisetable td {
     border: 1px solid #aaa;
     color: #444;
     font-size:100%;
-    padding: 0 .4em .1em;
+    padding:.25em .4em;
     margin-right: 0.5em;
-    height:1.6em;
     -o-box-shadow: 0 0 2px #cccccc inset;
     -moz-box-shadow: 0 0 2px #cccccc inset;
     -webkit-box-shadow: 0 0 2px #cccccc inset;
@@ -545,7 +541,7 @@ table.wisetable th, table.wisetable td {
 #author_body #projectInfo #projectId {
     color:#FF563F;
     font-size:.9em;
-    font-family:Arial,Helvetica,Tahoma,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-weight:bold;
 }
 
@@ -620,7 +616,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #author_messages {
 	position:absolute;
-	top:-.5em;
+	top:-1em;
 	text-align:center;
 	left:.5em;
 	right:.5em;
@@ -667,12 +663,10 @@ table.wisetable th, table.wisetable td {
 #author_body .projectPanel .panelHeader {
 	border-bottom: 1px solid #CCCCCC;
     color: #555555;
-    font-family: Helvetica,sans-serif;
-    /*font-family: Arial,Helvetica,Tahoma,sans-serif;*/
-    font-size: 1.1em;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.2em;
     margin: 0 0.25em 0.5em;
     padding: .25em 0;
-    font-weight:300;
 }
 
 #author_body .projectPanel section {
@@ -713,9 +707,9 @@ table.wisetable th, table.wisetable td {
 #author_body #sequenceEditor .sequenceContents .close {
 	position:absolute;
 	right:.85em;
-	top:.85em;
-	font-size:1em;
-	font-family:Helvetica,sans-serif;
+	top:.65em;
+	font-size:1.2em;
+	font-family:'Source Sans Pro', sans-serif;
 	font-weight:300;
 	color:#555555;
 }
@@ -723,8 +717,7 @@ table.wisetable th, table.wisetable td {
 #author_body #sequenceEditor .sequenceContents .panelHeader {
 	color: #1C8CA8;
 	border-color: #ACD6E0;
-    font-size: 1.1em;
-    margin: 0 0.35em 0.5em;
+    margin: 0 0.35em 0.35em;
     padding: 0.25em 0;
 }
 
@@ -735,8 +728,9 @@ table.wisetable th, table.wisetable td {
 
 #author_body #sequenceEditor .nodeTitle a {
 	text-decoration:none;
-	color: #888888;
+	color: #555555;
     font-size: 0.8em;
+    font-weight:300;
     margin-left: 0.5em;
 	-webkit-transition: all 250ms;
 	-moz-transition: all 250ms;
@@ -745,8 +739,8 @@ table.wisetable th, table.wisetable td {
 	transition: all 250ms;
 }
 
-#author_body #sequenceEditor .nodeTitle:hover a {
-	color:#555555;
+#author_body #sequenceEditor .nodeTitle a:hover {
+	color:#000000;
 }
 
 #author_body #sequenceEditor .seqTitleInput, #author_body #sequenceEditor .stepTitleInput {
@@ -754,14 +748,15 @@ table.wisetable th, table.wisetable td {
 }
 
 #author_body #sequenceEditor .seqTitleInput {
-	font-family: Helvetica, sans-serif;
-    font-size: 1em;
+	font-family: 'Source Sans Pro', sans-serif;;
+    font-size: .9em;
     font-weight: 300;
     line-height: 1.1em;
-    margin: -0.25em 0;
+    margin: -0.25em 0 0;
     padding: 0.2em 0.2em 0.1em;
     border-color:#999999;
     background-color: #F5F5F5;
+    color:#000000;
 	-o-box-shadow: 0 0 2px #cccccc inset;
     -moz-box-shadow: 0 0 2px #cccccc inset;
     -webkit-box-shadow: 0 0 2px #cccccc inset;
@@ -902,9 +897,6 @@ table.wisetable th, table.wisetable td {
 
 #author_body #dynamicProject #activeContainer .seq .sequenceTitle {
 	padding-left:5px;
-}
-
-#author_body #dynamicProject #activeContainer .seq .sequenceTitle .move {
 	cursor:move;
 }
 
@@ -923,8 +915,6 @@ table.wisetable th, table.wisetable td {
 	right:-1px;
 	background-color:#000000;
 	color:#bbbbbb;
-	font-family:Georgia,"Times New Roman",serif;
-	font-weight:300;
 	text-align:center;
 	padding-top:20px;
 	opacity:0;
@@ -1036,26 +1026,44 @@ table.wisetable th, table.wisetable td {
 #author_body #sequenceContent > div {
 	margin: 0.5em;
     padding: 0.25em 0;
-	font-size:.9em;
 	position:relative;
 	color:#666666;
 }
 
 #author_body #sequenceContent > div label {
 	vertical-align:middle; /* TODO: not sure why this is necessary */
+	font-size:1.1em;
 }
 
 #author_body #sequenceControls {
-	margin-bottom:0 !important;
-	line-height:22px;
+	margin:.5em 0 0 !important;
 	background-color:#FFFFFF;
 }
 
+#author_body #stepTools {
+    position: absolute;
+    right: .5em;
+    top: 2px;
+}
+
+#author_body #sequenceControls.sticky {
+	padding:7px 0;
+}
+
+#author_body #sequenceControls.sticky #stepTools {
+	top:5px;
+}
+
 #author_body #stepSelect {
-	padding:2px;
+	display:inline-block;
+	padding:0 3px;
 	border:1px solid #cccccc;
 	background-color:#f5f5f5;
 	margin:0 0.25em 0 0.5em;
+}
+
+#author_body .sticky #stepSelect {
+	padding: 0 3px 1px 2px;
 }
 
 #author_body .sequenceContents ul.sequence {
@@ -1183,7 +1191,6 @@ table.wisetable th, table.wisetable td {
 	-webkit-text-shadow:1px 1px #eeeeee;
 	text-shadow:1px 1px #eeeeee;
 	border:1px solid #bbbbbb;
-	line-height:24px;
 	display: inline-block;
 	background: #f9f9f9; /* Old browsers */
 	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -1206,10 +1213,9 @@ table.wisetable th, table.wisetable td {
     color: #000000;
     display: inline-block;
     font-weight: bold;
-    line-height: 16px;
-    margin: 4px 3px 0 2px;
+    margin: 4px 3px 4px 2px;
     padding: 0 2px 0 8px;
-    font-family:Arial,Helvetica,Tahoma,sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     opacity:.8;
     filter:Alpha(Opacity=80);
 }
@@ -1251,12 +1257,6 @@ table.wisetable th, table.wisetable td {
 #author_body #globalTools a:hover {
 	/*color:#DDEFE1;*/
 	color:#e5e5e5;
-}
-
-#author_body #stepTools {
-    position: absolute;
-    right: .25em;
-    top: 1px;
 }
 
 
@@ -1453,11 +1453,11 @@ table.wisetable th, table.wisetable td {
 .featureSettings .settingLabel span {
 	text-decoration:underline;
 	color:#745A33;
-	font-size:1.15em;
+	font-size:1.2em;
 }
 
 .featureSettings span.details {
-	font-size:.95em;
+	font-size:1em;
 	margin-left:.25em;
 	font-weight:normal;
 	text-decoration:none !important;

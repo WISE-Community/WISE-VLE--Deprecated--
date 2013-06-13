@@ -483,9 +483,10 @@ View.prototype.generateAuthoring = function(){
 		view.editSequence($('#' + target).get(0));
 	}
 	
-	$(window).resize(function() {
+	// fire resize event listener whenever window is resized; TODO: figure out why jQuery .resize() isn't working
+    window.onresize = function() {
 		eventManager.fire('browserResize');
-	});
+	};
 	eventManager.fire('browserResize');
 
 	// check for out of order review sequences
@@ -1209,10 +1210,10 @@ View.prototype.editSequence = function(target){
 				//var elWidth = controls.width(),
 				var top = $('#authoringContainer').offset().top;
 				if (controlPos.baseTop-top>controlPos.gap) {
-					var elWidth = seqHead.width(),
-					left = seqHead.offset().left;
+					var elWidth = controls.width(),
+					left = controls.offset().left;
 					controls.addClass('sticky');
-					left = left-parseInt(controls.css('margin-left'),10)/2-parseInt(controls.css('margin-right'),10)/2-parseInt(controls.css('border-left-width'),10)/2-parseInt(controls.css('border-right-width'),10)/2;
+					//left = left-parseInt(controls.css('margin-left'),10)/2-parseInt(controls.css('margin-right'),10)/2-parseInt(controls.css('border-left-width'),10)/2-parseInt(controls.css('border-right-width'),10)/2;
 					controls.css({'top':controlPos.baseTop, 'left':left, 'width':elWidth});
 				} else {
 					controls.removeClass('sticky');

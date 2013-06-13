@@ -431,7 +431,7 @@ View.prototype.bindGeneralEvents = function(){
 	/* project structure authoring elements */
 	
 	// scrolling for active and inactive links
-	$("#dynamicProject .scroll").click(function(event){		
+	$("#dynamicProject .scroll").on('click', function(event){		
 		event.preventDefault();
 		$('#projectStructure > .contentWrapper').animate({scrollTop:$(this.hash).position().top-6}, 500, 'easeOutQuint');
 	});

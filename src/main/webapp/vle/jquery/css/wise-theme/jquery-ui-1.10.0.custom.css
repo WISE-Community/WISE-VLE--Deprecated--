@@ -1364,10 +1364,10 @@ body .ui-tooltip {
     padding: 0.5em;
 }
 .ui-dialog .ui-dialog-title { 
-	font-family: Helvetica,sans-serif;
+	font-family: "Source Sans Pro", sans-serif;
 	font-weight: 300;
-	font-size:.9em;
-	margin: 2px 16px -1px 2px;
+	font-size:1em;
+	margin: 0 0 0 2px;
 }  
 .ui-dialog .ui-dialog-titlebar-close { 
 	margin: -10px 0 0 0;
@@ -1607,7 +1607,7 @@ body .ui-tooltip {
 
 .ui-dialog.alert .ui-dialog-title {
 	color: #745A33;
-    font-size: 1em;
+    font-size: 1.2em;
     text-shadow: 0 0 1px #EEEEEE;
 }
 
@@ -1694,7 +1694,7 @@ body .ui-tooltip {
 }
 
 .dialog h3 {
-	font-family:Trebuchet MS;
+	font-family:"Trebuchet MS", Helvetica, sans-serif;
 	font-size: 1.25em;
     margin: 0.5em 0;
     color: #795C3A;

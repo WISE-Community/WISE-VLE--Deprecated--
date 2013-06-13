@@ -1200,7 +1200,7 @@
 		"description":"Text for link to view the inactive content section of the project content authoring screen"
 	},
 	"authoring_project_content_inactive_steps":{
-		"value":"Inactive Steps",
+		"value":"Unused Steps",
 		"description":"Text for the header of the inactive steps container in the project content authoring screen"
 	},
 	"authoring_project_content_unused_steps":{
