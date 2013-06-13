@@ -332,7 +332,7 @@ var scriptloader = function(){
     		      jqueryUISrc,
     		      'vle/util/modernizr.custom.js',
   		          'vle/jquery/js/jquery.ui.touch-punch.min.js',
-  		          'vle/jquery/js/jquery-migrate-1.0.0.min.js', // TODO: remove when all instances of jQuery.browser are removed from VLE
+  		          'vle/jquery/js/jquery-migrate-1.2.1.min.js', // TODO: remove when all instances of jQuery.browser are removed from VLE
   		          'vle/view/view.js',
                   'vle/node/nodefactory.js',
                   'vle/environment/environment.js',
@@ -580,7 +580,7 @@ var scriptloader = function(){
         'vle/jquery/jquery-dataTables/media/js/jquery.dataTables.min.js':[jquerySrc],
         'vle/jquery/jquery-dataTables/media/js/dataTables.util.js':['vle/jquery/jquery-dataTables/media/js/jquery.dataTables.min.js'],
         'vle/jquery/jquery-dataTables/extras/FixedHeader/js/FixedHeader.min.js':['vle/jquery/jquery-dataTables/media/js/jquery.dataTables.min.js'],
-        'vle/jquery/js/jquery-migrate-1.0.0.min.js':[jquerySrc],
+        'vle/jquery/js/jquery-migrate-1.2.1.min.js':[jquerySrc],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
