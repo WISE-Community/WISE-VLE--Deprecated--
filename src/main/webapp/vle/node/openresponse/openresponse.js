@@ -1212,7 +1212,7 @@ OPENRESPONSE.prototype.retrieveOtherStudentWork = function() {
 	var openNumberTrigger = this.openNumberTrigger;
 	var openLogicTrigger = this.openLogicTrigger;
 	var peerReviewAction = "annotate";
-	var classmateWorkgroupIds = this.view.getUserAndClassInfo().getWorkgroupIdsInClass().toString();
+	var classmateWorkgroupIds = this.view.getUserAndClassInfo().getClassmateIdsByPeriodId(periodId).split(':').toString();
 	
 	//compile the parameters into an object for cleanliness
 	var getPeerReviewUrlArgs = {
