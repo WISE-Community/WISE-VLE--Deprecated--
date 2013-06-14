@@ -1436,8 +1436,6 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 		options.title = this.getDropDownTitleSelected();
 	}
 	
-	options.colors = ['red', 'green'];
-	
 	return options;
 };
 
