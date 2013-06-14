@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 
 public class MySystemExporter {
 
+
 	private String basedir;
 	private File zipFolder;
 	Vector<String> filesToCopy;
@@ -22,7 +23,7 @@ public class MySystemExporter {
 	}
 	
 	private void addDir(String path) {
-		directoriesToCopy.add(path);
+		directoriesToCopy.add(basedir + path);
 	}
 	
 	private void addFile(String path) {
@@ -30,9 +31,14 @@ public class MySystemExporter {
 	}
 	
 	private void copyFileToZipDir(String sourcePath) {
+		copyFileToZipDir(sourcePath, "");
+	}
+	
+	private void copyFileToZipDir(String sourcePath, String relativeDest) {
 		File sourceFile = new File(sourcePath);
+		File destDir = new File(zipFolder.getPath() + relativeDest);
 		try {
-			FileUtils.copyFileToDirectory(sourceFile,zipFolder);
+			FileUtils.copyFileToDirectory(sourceFile, destDir);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -57,7 +63,7 @@ public class MySystemExporter {
 		addFile("/vle/node/mysystem2/authoring/js/libs/lz77.js");
 		addFile("/vle/node/mysystem2/viewStudentWork.html");
 //		addFile("/vle/node/mysystem2/viewStudentWork.css");
-//		addFile("/vle/node/mysystem2/viewStudentWork.js");
+		addFile("/vle/node/mysystem2/viewStudentWork.js");
 		addDir( "/vle/node/mysystem2/css");
 		addDir( "/vle/node/mysystem2/js");
 		addDir( "/vle/node/mysystem2/images");
@@ -71,6 +77,7 @@ public class MySystemExporter {
 		for(int dirIndex=0; dirIndex < directoriesToCopy.size(); dirIndex++) {
 			copyDirToZipDir(directoriesToCopy.get(dirIndex));
 		}
+		copyFileToZipDir(basedir + "/vle/node/mysystem2/mysystem2.html", "/mysystem2");
 	}
 
 }
