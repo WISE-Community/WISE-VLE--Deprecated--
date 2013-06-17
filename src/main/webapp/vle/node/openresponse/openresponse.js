@@ -945,6 +945,14 @@ OPENRESPONSE.prototype.displayRegular = function() {
 		var loc = window.location.toString();
 		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
 		
+		//set the text editor to be editable by default
+		var readOnly = 0;
+		
+		if(this.locked) {
+			//the text editor should be locked so we will make it read only
+			readOnly = 1;
+		}
+		
 		$('#responseBox').tinymce({
 			// Location of TinyMCE script
 			script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
@@ -952,6 +960,7 @@ OPENRESPONSE.prototype.displayRegular = function() {
 			// General options
 			theme : "advanced",
 			plugins : "emotions",
+			readonly:readOnly,
 			
 			// Theme options
 			theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,emotions,|,forecolor,backcolor,|,formatselect,fontselect,fontsizeselect',
@@ -1212,7 +1221,7 @@ OPENRESPONSE.prototype.retrieveOtherStudentWork = function() {
 	var openNumberTrigger = this.openNumberTrigger;
 	var openLogicTrigger = this.openLogicTrigger;
 	var peerReviewAction = "annotate";
-	var classmateWorkgroupIds = this.view.getUserAndClassInfo().getWorkgroupIdsInClass().toString();
+	var classmateWorkgroupIds = this.view.getUserAndClassInfo().getClassmateIdsByPeriodId(periodId).split(':').toString();
 	
 	//compile the parameters into an object for cleanliness
 	var getPeerReviewUrlArgs = {
@@ -1589,7 +1598,13 @@ OPENRESPONSE.prototype.getPeerReviewOtherStudentWork = function(otherStudentWork
  * Disables the response box
  */
 OPENRESPONSE.prototype.lockResponseBox = function() {
-	document.getElementById('responseBox').disabled = true;	
+	document.getElementById('responseBox').disabled = true;
+
+	//check if this step uses the tinymce editor
+	if(tinymce != null && tinymce.activeEditor != null && tinymce.activeEditor.getBody() != null) {
+		//make the tinymce editor uneditable
+		tinymce.activeEditor.getBody().setAttribute('contenteditable', false);		
+	}
 };
 
 /**

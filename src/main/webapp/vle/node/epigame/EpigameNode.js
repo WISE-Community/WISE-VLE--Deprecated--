@@ -328,7 +328,6 @@ EpigameNode.prototype.navHelper = function() {
 		toggleNav: function() {
 //			eventManager.fire('toggleNavigationVisibility');
 			eventManager.fire('navigationPanelToggleVisibilityButtonClicked'); //4.7 switch
-			
 		},
 		executeNode: function(sequenceIndex, stepIndex) {
 			var pos = String(sequenceIndex) + "." + String(stepIndex);			

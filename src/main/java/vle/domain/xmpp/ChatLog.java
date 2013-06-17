@@ -54,7 +54,7 @@ public class ChatLog extends PersistableDomain {
 	//the id of the chatroom,
 	//e.g. "node_14.bs" (for specific nodeId) or "general" (for general classroom chat)
 	//or "privateMsg"
-	@Column(name="chatRoomId", columnDefinition="TEXT")
+	@Column(name="chatRoomId",length=255)
 	private String chatRoomId = null;
 
 	//what type of chat is this
@@ -73,7 +73,7 @@ public class ChatLog extends PersistableDomain {
 	private String dataType = null;
 
 	//the data of the chat
-	@Column(name="data", columnDefinition="TEXT")
+	@Column(name="data", length=4096)
 	private String data = null;
 	
 	//the time the chat was sent

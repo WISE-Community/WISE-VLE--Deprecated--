@@ -73,7 +73,7 @@ public class Annotation extends PersistableDomain {
 	@Column(name="type")
 	private String type = null;
 	
-	@Column(name="data", columnDefinition="MEDIUMTEXT")
+	@Column(name="data", length=512000)
 	private String data = null;
 
 	public Long getId() {

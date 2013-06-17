@@ -2,7 +2,7 @@
     create table annotation (
         id bigint not null auto_increment,
         annotateTime datetime,
-        data MEDIUMTEXT,
+        data longtext,
         postTime datetime,
         runId bigint,
         type varchar(255),
@@ -15,8 +15,8 @@
     create table chatlog (
         id bigint not null auto_increment,
         chatEventType varchar(255) not null,
-        chatRoomId TEXT,
-        data TEXT,
+        chatRoomId varchar(255),
+        data varchar(4096),
         dataType varchar(255),
         fromWorkgroupId bigint not null,
         fromWorkgroupName varchar(255),
@@ -32,7 +32,7 @@
         id bigint not null auto_increment,
         cRaterItemId varchar(255) not null,
         cRaterItemType varchar(255),
-        cRaterResponse TEXT,
+        cRaterResponse varchar(2048),
         failCount integer,
         nodeStateId bigint not null,
         runId bigint not null,
@@ -46,7 +46,7 @@
         id bigint not null auto_increment,
         action varchar(255),
         actionPerformer bigint,
-        data TEXT,
+        data longtext,
         ideaId bigint,
         ideaWorkgroupId bigint,
         isPublic bit,
@@ -96,7 +96,7 @@
 
     create table stepwork (
         id bigint not null auto_increment,
-        data MEDIUMTEXT,
+        data longtext,
         duplicateId varchar(255),
         endTime datetime,
         postTime datetime,
@@ -123,7 +123,7 @@
 
     create table vle_statistics (
         id bigint not null auto_increment,
-        data TEXT,
+        data varchar(5000),
         timestamp datetime,
         primary key (id)
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
