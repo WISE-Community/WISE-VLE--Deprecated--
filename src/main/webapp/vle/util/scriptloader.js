@@ -331,7 +331,7 @@ var scriptloader = function(){
                   'vle/view/view.js',
                   'vle/node/nodefactory.js',
                   'vle/environment/environment.js',
-  		          'vle/jquery/js/jquery-migrate-1.0.0.min.js', // TODO: remove when all instances of jQuery.browser are removed from VLE
+  		          'vle/jquery/js/jquery-migrate-1.2.1.min.js', // TODO: remove when all instances of jQuery.browser are removed from VLE
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
@@ -549,7 +549,7 @@ var scriptloader = function(){
         'vle/jquery/jquery-validation/jquery.validate.min.js':[jquerySrc],
         'vle/jquery/miniTip/jquery.miniTip.min.js':[jquerySrc],
         'vle/jquery/js/jquery.editinplace.js':[jquerySrc],
-        'vle/jquery/js/jquery-migrate-1.0.0.min.js':[jquerySrc],
+        'vle/jquery/js/jquery-migrate-1.2.1.min.js':[jquerySrc],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
