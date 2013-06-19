@@ -363,7 +363,7 @@ View.prototype.loadTheme = function(themeName){
 		var currentTheme = [themeName.toLowerCase()]; // TODO: remove toLowerCase()
 		
 		// get navMode
-		var navMode = context.getProjectMetadata().navMode;
+		var navMode = view.navMode = context.getProjectMetadata().navMode;
 		if(navMode && context.themeNavModes[themeName].indexOf(navMode)>-1) {
 			// navMode is set and is in active navModes list for specified theme, so add to currentTheme
 			currentTheme.push(navMode);

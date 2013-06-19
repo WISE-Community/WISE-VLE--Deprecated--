@@ -11,11 +11,12 @@ function starmap() {
   	  backgroundImg = '', // optional background image path
   	  backgroundCss = '', // optional background CSS
   	  view = {}, // object to hold WISE view object (provides access to WISE project and its nodes)
-      complete = function(){}; // optional callback function
+      complete = function(){}; // optional callback function to execute once map has finished loading
   
   // private variables
   var start,
-  	  g;
+  	  g,
+  	  nodeAttributes = {};
 
   function chart(selection) {
     selection.each(function(data) {
@@ -31,18 +32,39 @@ function starmap() {
       
       // get the activities and steps
       var seqs = data.sequences,
-      	  nodes = data.nodes;
+      	  steps = data.nodes;
+      
+      // get the project metadata
+      var projectMeta = view.getProjectMetadata(),
+      	  theme = view.theme,
+      	  navMode = view.navMode;
+      
+      // create map of node ids and node settings (position, etc.) if settings exist
+      if(projectMeta.settings && projectMeta.settings.navSettings) {
+    	  var navSettings = projectMeta.settings.navSettings;
+    	  if(navSettings){
+    		  for(var i=navSettings.length; i>0; --i){
+    			  if(navSettings.activeTheme === theme && navSettings.activeNavMode === navMode && navSettings.nodeSettings){
+    				  var nodeSettings = navSettings.nodeSettings;
+    				  for(var a=nodeSettings.length; a>0; --a){
+    					  var current = nodeSettings[a];
+    					  nodeAttributes[current.nodeId] = current.settings;
+    				  }
+    			  }
+    		  }
+    	  }
+      }
       
       // iterate through sequences (starting with master sequence) and create hierarchy object
       var master;
       $.each(seqs, function(i,d){
     	 if(d.identifier === start){
     		 master = d;
-    	 } 
+    	 }
       });
 	  
 	  // iterate through nodes in the master sequence to build full hierarchy
-	  projectFull = getItem(master.identifier, seqs, nodes, true);
+	  projectFull = getItem(master.identifier, seqs, steps, true);
 	  
 	  var fullNodes = flatten(projectFull);
 	  // remove root node
@@ -119,15 +141,16 @@ function starmap() {
       };
       
       var getIcon = function(d) {
-    	  var project = view.getProject();
+    	  var project = view.getProject(),
+    	  	  metadata = view.getProjectMetadata();
     	  var node = project.getNodeById(d.identifier),
     	  	  isValid = false,
     	  	  nodeClass = '';
     	  var nodeIconPath = '';
-    	  if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
+    	  if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
 			nodeClass = node.getNodeClass();
 			for(var a=0;a<view.nodeClasses[node.type].length;a++){
-				if(view.nodeClasses[node.type][a].nodeClass == nodeClass){
+				if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
 					isValid = true;
 					nodeIconPath = view.nodeClasses[node.type][a].icon;
 					break;
@@ -743,44 +766,57 @@ function starmap() {
     return nodes;
   };
   
-  function getChildren(d,seqs,nodes,full){
+  function getChildren(d,seqs,steps,full){
 	  if(d.hasOwnProperty('refs')){
 		  d.children = [];
 		  var refs = d.refs;
 		  for(var i=0;i<refs.length;i++){
 			  var id = refs[i];
-			  var item = getItem(id,seqs,nodes,full);
+			  var item = getItem(id,seqs,steps,full);
 			  d.children.push(item);
 		  }
 	  }
 	  return d;
   };
   
-  function getItem(id,seqs,nodes,full){
-	  var item = '';
+  function getItem(id,seqs,steps,full){
+	  var item;
 	  $.each(seqs, function(i,d){
 		  if(d.identifier === id){
 			  if(id === start){
-				  item = getChildren(d,seqs,nodes);
+				  item = getChildren(d,seqs,steps);
 			  }
 			  // item is a sequence, get children and return seq object
 			  if(full){
-				  item = getChildren(d,seqs,nodes,full);
+				  item = getChildren(d,seqs,steps,full);
 			  } else {
 				  item = d;  
 			  }
 		  }
 	  });
-	  $.each(nodes, function(i,d){
+	  $.each(steps, function(i,d){
 		  if(d.identifier === id){
 			  if(d.position===0){
 				  d.current = true;
 			  }
-			  // item is a node, return node object
+			  // item is a step, return step object
 			  item = d;
-			  //item.value = 1;
 		  }
 	  });
+	  
+	  // add any stored node attribute values
+	  if(nodeAttributes.hasOwnProperty(id)){
+		  var attrs = nodeAttributes[id];
+		  for(var i=attrs.length; i>0; --i){
+			  var attr = attrs[i];
+			  for(var key in attr) {
+			        if (attr.hasOwnProperty(key)) {
+			            item[key] = attr[key];
+			        }
+			    }
+		  }
+	  }
+	  
 	  return item;
   };
 
