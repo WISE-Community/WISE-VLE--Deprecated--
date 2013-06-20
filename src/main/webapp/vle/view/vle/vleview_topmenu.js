@@ -1370,7 +1370,7 @@ View.prototype.makeIdeaPublic = function(basket, ideaId) {
 	idea.isPublishedToPublic = true;
 	
 	//get the idea as a string
-	var ideaString = $.stringify(idea);
+	var ideaString = encodeURIComponent($.stringify(idea));
 	
 	//create the params for the request
 	var ideaBasketParams = {
