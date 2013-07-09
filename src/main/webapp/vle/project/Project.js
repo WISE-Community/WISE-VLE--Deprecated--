@@ -1822,6 +1822,46 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		};
 		
 		/**
+		 * Get all node ids and their titles in an array
+		 */
+		var getAllNodeIdsAndNodeTitles = function() {
+			//the array to hold all the objects that contain the node information
+			var nodeObjects = [];
+			
+			//get all the node ids
+			var allNodeIds = getNodeIds(null, true);
+			
+			//loop through all the node ids
+			for(var x=0; x<allNodeIds.length; x++) {
+				//get a node id
+				var nodeId = allNodeIds[x];
+				
+				//skip the master node
+				if(nodeId != null && nodeId != 'master') {
+					//get the node
+					var node = getNodeById(nodeId);
+					
+					if(node != null) {
+						//get the node title
+						var title = node.title;
+						
+						if(title != null) {
+							//create the object that will contain the node information
+							var nodeObject = {};
+							nodeObject.nodeId = nodeId;
+							nodeObject.title = title;
+							
+							//add the object to the array we will return
+							nodeObjects.push(nodeObject);
+						}
+					}
+				}
+			}
+			
+			return nodeObjects;
+		};
+		
+		/**
 		 * Recursively obtain all the leaf nodeIds that have the given tag
 		 * @param tagName the tag we are looking for
 		 * @return an array containing all the leaf nodes that contain the given tag
@@ -2513,7 +2553,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* get the node id of the parent sequence of the step */
 			getParentNodeId:function(nodeId) {return getParentNodeId(nodeId);},
 			/* get the activity number, activity title, and step title*/
-			getNodeTitles:function(nodeId) {return getNodeTitles(nodeId);}
+			getNodeTitles:function(nodeId) {return getNodeTitles(nodeId);},
+			/* get all the node ids and node titles as an array */
+			getAllNodeIdsAndNodeTitles:function() {return getAllNodeIdsAndNodeTitles();}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

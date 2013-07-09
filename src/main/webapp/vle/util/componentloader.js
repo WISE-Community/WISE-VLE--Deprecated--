@@ -406,6 +406,7 @@ var componentloader = function(em, sl){
 				'openStepTypeDescriptions':[null,null],
 				'displayTagView':[null,null],
 				'displayImportView':[null,null],
+				'displayIconsView':[null,null],
 				'populateAddTagSelect':[null,null],
 				'populateAddTagMapSelect':[null,null],
 				'addTag':[null,null],
@@ -554,6 +555,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('browserResize', view.authorDispatcher, view);
 					view.eventManager.subscribe('displayTagView', view.authorDispatcher, view);
 					view.eventManager.subscribe('displayImportView', view.authorDispatcher, view);
+					view.eventManager.subscribe('displayIconsView', view.authorDispatcher, view);
 					view.eventManager.subscribe('populateAddTagSelect', view.authorDispatcher, view);
 					view.eventManager.subscribe('populateAddTagMapSelect', view.authorDispatcher, view);
 					view.eventManager.subscribe('addTag', view.authorDispatcher, view);
@@ -597,6 +599,7 @@ var componentloader = function(em, sl){
 					view.initializeStepTypeDescriptionsDialog();
 					view.initializeTagViewDialog();
 					view.initializeImportViewDialog();
+					view.initializeIconsViewDialog();
 					view.initializeAnalyzeProjectDialog();
 										
 					window.onunload = env.onWindowUnload;

@@ -293,6 +293,75 @@ EpigameNode.prototype.getTagMapFunctionByName = function(functionName) {
 	return fun;
 };
 
+/**
+ * Get the available statuses for this step type
+ * @param includeSpecialStatusValues (optional) whether to include the special status
+ * values
+ */
+EpigameNode.prototype.getAvailableStatuses = function(includeSpecialStatusValues) {
+	var availableStatuses = [];
+	
+	if(includeSpecialStatusValues) {
+		//include the special status values
+		availableStatuses = this.getAvailableStatusesIncludingSpecialStatusValues();
+	} else {
+		//do not include the special status values
+		availableStatuses = Node.availableStatuses.concat(EpigameNode.availableStatuses);		
+	}
+	
+	return availableStatuses;
+};
+
+/**
+ * Get all the available statuses including the special status values
+ */
+EpigameNode.prototype.getAvailableStatusesIncludingSpecialStatusValues = function() {
+	//get all the available statuses
+	var availableStatuses = JSON.parse(JSON.stringify(Node.availableStatuses.concat(EpigameNode.availableStatuses)));
+	
+	//get the special status values
+	var specialStatusValues = EpigameNode.specialStatusValues;
+	
+	if(specialStatusValues != null) {
+		//loop through all the special status values
+		for(var x=0; x<specialStatusValues.length; x++) {
+			//get a special status value
+			var specialStatusValue = specialStatusValues[x];
+			
+			if(specialStatusValue != null) {
+				//get the status type and status value
+				var specialStatusType = specialStatusValue.statusType;
+				var specialStatusValue = specialStatusValue.statusValue;
+				
+				/*
+				 * loop through all the available statuses so we can add the 
+				 * special status value
+				 */
+				for(var y=0; y<availableStatuses.length; y++) {
+					//get an available status
+					var availableStatus = availableStatuses[y];
+					
+					if(availableStatus != null) {
+						//get the status type
+						var availableStatusType = availableStatus.statusType;
+						
+						/*
+						 * check if this status type matches the one we want to add
+						 * the special status value to
+						 */
+						if(specialStatusType == availableStatusType) {
+							//we have found the status type to add the special status value to
+							availableStatus.possibleStatusValues.push(specialStatusValue);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return availableStatuses;
+};
+
 EpigameNode.prototype.navHelper = function() {
 	var interpretNode = function(node) {
 		var result = {

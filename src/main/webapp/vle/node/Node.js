@@ -2073,13 +2073,30 @@ Node.prototype.matchesSpecialStatusValue = function(statusType, statusValue, sta
 
 /**
  * Get the available statuses for all nodes 
+ * @param includeSpecialStatusValues (optional) whether to include the special status
+ * values
  */
-Node.prototype.getAvailableStatuses = function() {
+Node.prototype.getAvailableStatuses = function(includeSpecialStatusValues) {
 	var availableStatuses = [];
 	
-	availableStatuses = Node.availableStatuses;
+	if(includeSpecialStatusValues) {
+		//include the special status values
+		availableStatuses = this.getAvailableStatusesIncludingSpecialStatusValues();
+	} else {
+		//do not include the special status values
+		availableStatuses = Node.availableStatuses;		
+	}
 	
-	return statuses;
+	return availableStatuses;
+};
+
+/**
+ * Get the available statuses including special status values
+ */
+Node.prototype.getAvailableStatusesIncludingSpecialStatusValues = function() {
+	var availableStatuses = JSON.parse(JSON.stringify(Node.availableStatuses));
+	
+	return availableStatuses;
 };
 
 /**
