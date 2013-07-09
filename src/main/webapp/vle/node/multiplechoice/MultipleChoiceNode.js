@@ -253,125 +253,163 @@ MultipleChoiceNode.prototype.isCompleted = function(nodeState) {
 };
 
 /**
- * Display graph (bar graph) for a particular step in step filter mode, like bar graph in MC node filter
+ * Display graph for a particular step in step filter mode, like bar graph in MC node filter
  * 
  * @param nodeId ID of step that is filtered and should show the bar graph.
  * @param dom dom to render the summary into
  * @param workgroupIdToWork the id of the workgroup to work mapping
  * @param graphType bar|pie|barpie
  */
-MultipleChoiceNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphType) {
-
-	function translateChoiceTextToColorHex(choiceText, choiceIndex) {
-		if (choiceText == "red") {
-			return "FF0000";
-		} else if (choiceText == "green") {
-			return "00FF00";
-		} else if (choiceText == "blue") {
-			return "0000FF";
-		} else if (choiceText == "yellow") {
-			return "FFFF00";
-		} else if (choiceText == "black") {
-			return "FFFFFF";
-		} else if (choiceText == "purple") {
-			return "7D26CD";
-		} else if (choiceText == "orange") {
-			return "FFA500";
-		}
-		return ["b01717","0323cb","896161","ecb0b0","fbd685","b4bec3","cf33e1","37c855","7D26CD","FFFFFF"][choiceIndex];  // return default colors based on choice index to avoid collision
-	};
+MultipleChoiceNode.prototype.displayStepGraph = function(nodeId, dom, workgroupIdToWork, graphType) {
 	
-	var choiceToCount = {};
-	if (workgroupIdToWork === null) {
-		workgroupIdToWork = nodeIdToWork[nodeId];
-	}
-	var workgroupIdsInClass = this.view.userAndClassInfo.getWorkgroupIdsInClass();
-	var mcChoices = [];
-	var mcChoiceColors = [];  // display color for each choice.
-	var node = this.view.getProject().getNodeById(nodeId);
-	var mcContent = node.content.getContentJSON();
-	/* add each choice object from the content to the choices array */
-	for(var a=0;a<mcContent.assessmentItem.interaction.choices.length;a++){
-		var mcChoiceText = mcContent.assessmentItem.interaction.choices[a].text;
-		mcChoices.push(mcChoiceText);
-		mcChoiceColors.push(translateChoiceTextToColorHex(mcChoiceText, a));
-	}
-
-	//loop through all the students in the class
-	for (var i=0; i<workgroupIdsInClass.length; i++) {
-		var workgroupIdInClass = workgroupIdsInClass[i];
-
-		//get the choice the student answered
-		var workByWorkgroup = null
-
-		if(workgroupIdToWork[workgroupIdInClass] != null) {
-			workByWorkgroup = workgroupIdToWork[workgroupIdInClass].response;
+	if(workgroupIdToWork != null) {
+		//get the period
+		var periodId = this.view.userAndClassInfo.getPeriodId();
+		
+		//get all the workgroup ids in this period
+		var workgroupIdsInPeriod = this.view.userAndClassInfo.getClassmateIdsByPeriodId(periodId);
+		
+		if(workgroupIdsInPeriod != null) {
+			//get the workgroup ids as an array
+			var workgroupIdsInPeriodSplit = workgroupIdsInPeriod.split(":");
 			
-			if(workByWorkgroup != null) {
-				if (choiceToCount[workByWorkgroup] == null) {
-					choiceToCount[workByWorkgroup] = 0;
+			if(workgroupIdsInPeriodSplit != null) {
+				
+				//the object to store choice to count mappings
+				var choiceToCount = {};
+				
+				//get this student's workgroup id
+				var workgroupId = this.view.userAndClassInfo.getWorkgroupId();
+				
+				/*
+				 * add this student's workgroup id to the array since the logged in student 
+				 * is not included in the returned array from getClassmateIdsByPeriodId()
+				 */
+				workgroupIdsInPeriodSplit.push(workgroupId);
+				
+				//loop through the workgroup ids
+				for(var x=0; x<workgroupIdsInPeriodSplit.length; x++) {
+					//get a workgroup id
+					var classmateWorkgroupId = workgroupIdsInPeriodSplit[x];
+					classmateWorkgroupId = parseInt(classmateWorkgroupId);
+					
+					//get the work for the workgroup id
+					var work = workgroupIdToWork[classmateWorkgroupId];
+					
+					if(work != null) {
+						//get the response
+						var response = work.response;
+						
+						if(response != null) {
+							if(response instanceof Array) {
+								/*
+								 * the response is stored in an array so we will extract
+								 * it from the array
+								 */
+								response = response[0];
+							}
+							
+							if(choiceToCount[response] == null) {
+								//initialize this choice to count mapping
+								choiceToCount[response] = 0;
+							}
+							
+							//increment the count for the choice
+							choiceToCount[response] += 1;
+						}
+					}
 				}
+				
+				//array used to hold the available choices
+				var mcChoices = [];
+				
+				//get the step content so we can gather the choices
+				var node = this.view.getProject().getNodeById(nodeId);
+				var stepContent = node.content.getContentJSON();
 
-				//increment the choice
-				choiceToCount[workByWorkgroup] += 1;
+				//loop through all the choices
+				for(var y=0; y<stepContent.assessmentItem.interaction.choices.length; y++){
+					//get the choice text
+					var mcChoiceText = stepContent.assessmentItem.interaction.choices[y].text;
+					
+					//add the choice text to our array of choices
+					mcChoices.push(mcChoiceText);
+				}
+				
+				//the array to contain the data rows
+				var dataRows = [];
+				
+				//loop through all the possible choices
+				for(var z=0; z<mcChoices.length; z++) {
+					//get the choice text
+					var choiceText = mcChoices[z];
+					
+					//get the count for the choice
+					var count = choiceToCount[choiceText];
+					
+					if(count == null) {
+						count = 0;
+					}
+					
+					//parse int in case count is a string
+					count = parseInt(count);
+
+					/*
+					 * create an array that contains the choice and the count
+					 * because google expects it in this format
+					 */
+					var row = [choiceText, count];
+					
+					//add the row to the array of rows
+					dataRows.push(row);
+				}
+				
+				//create the google data object that will be used to graph the data
+				var data = new google.visualization.DataTable();
+				
+				//add the two columns
+				data.addColumn('string', 'Choice');
+		        data.addColumn('number', 'Count');
+		        
+		        //add the rows
+		        data.addRows(dataRows);
+		        
+		        //create the chart div where we will render the graph
+		        var chartDivId = 'chartDiv';
+		        var chartDiv = $("<div id='" + chartDivId + "'></div>");
+		        
+		        //add the chart div to the dom element
+		        dom.append(chartDiv);
+		        
+		        //get the chart div as an element
+		        var chartDivElement = chartDiv.get(0);
+		        
+		        var chart = null;
+		        
+		        //create the chart
+		        if(graphType == null) {
+		        	//default to a vertical bar graph
+		        	chart = new google.visualization.ColumnChart(chartDivElement);
+		        } else if(graphType == 'bar') {
+		        	//create a vertical bar graph
+		        	chart = new google.visualization.ColumnChart(chartDivElement);
+		        } else if(graphType == 'pie') {
+		        	//create a pie chart
+		        	chart = new google.visualization.PieChart(chartDivElement);
+		        }
+		        
+		        if(chart != null) {
+			        //draw the chart
+			        chart.draw(data);		        	
+		        }
+		        
+		        //make the dom element visible
+		        $(dom).show();
 			}
 		}
 	}
-	var choicesCountArray = [];
-	var maxChoiceCountSoFar = 0;  // keep track of maximum count here
-	// now loop thru mcChoices and tally up 
-	for (var k=0; k<mcChoices.length; k++) {
-		var mcChoiceText = mcChoices[k];
-
-		//get the total count for this choice
-		var finalCount = choiceToCount[mcChoiceText];
-		if (typeof finalCount == "undefined") {
-			finalCount = 0;
-		}
-
-		/*
-		 * add the count for this choice so that the graphing utility
-		 * knows how many students chose this choice
-		 */
-		choicesCountArray.push(finalCount);
-
-		if (finalCount > maxChoiceCountSoFar) {
-			/*
-			 * update the highest count for any choice to determine the
-			 * max y value
-			 */
-			maxChoiceCountSoFar = finalCount;
-		}
-	}
-
-	var xLabelStr = "|"+mcChoices.join("|");
-	var xLabelStr2 = mcChoices.join("|");
-	var colorStr = mcChoiceColors.join("|");
-	var tallyStr = choicesCountArray.join(",");
-
-	/*
-	 * construct googlecharts url and set realTimeMonitorGraphImg src.
-	 * e.g.
-	 * http://chart.apis.google.com/chart?chxl=0:|Oscar|Monkey|Oski|Dodo&chxr=1,0,5&chxt=x,y&chbh=a&chs=300x225&cht=bvg&chco=A2C180&chd=t:1,5,0,0&chds=0,5&chp=0&chma=|2&chtt=Student+Responses
-	 */
-
-	var realTimeMonitorGraphImgSrc = "http://chart.apis.google.com/chart?chxl=0:"+xLabelStr+"&chxr=1,0,"+(maxChoiceCountSoFar+1)+"&chxt=x,y&chbh=a&chs=300x225&cht=bvg&chco=A2C180&chd=t:"+tallyStr+"&chds=0,"+(maxChoiceCountSoFar+1)+"&chco="+colorStr+"&chp=0&chma=|2&chtt=Student+Responses";
-	var realTimeMonitorGraphImgSrc2 = "http://chart.apis.google.com/chart?cht=p&chs=250x100&chd=t:"+tallyStr+"&chl="+xLabelStr2+"&chco="+colorStr;
-	//display the appropriated graph type(s) in the dom
-	if (graphType == "bar") {
-		$(dom).append('<img id="realTimeMonitorGraphImg" src="'+realTimeMonitorGraphImgSrc+'" width="300" height="225" alt="Student Responses"></img>');
-	} else if (graphType == "pie") {
-		$(dom).append('<img id="realTimeMonitorGraphImg2" src="'+realTimeMonitorGraphImgSrc2+'" width="500" height="200" alt="Student Responses"></img>');
-	} else if (graphType == "barpie") {
-		$(dom).append('<img id="realTimeMonitorGraphImg" src="'+realTimeMonitorGraphImgSrc+'" width="300" height="225" alt="Student Responses"></img>');
-		$(dom).append('<img id="realTimeMonitorGraphImg2" src="'+realTimeMonitorGraphImgSrc2+'" width="500" height="200" alt="Student Responses"></img>');
-	} else {
-		$(dom).append('<img id="realTimeMonitorGraphImg" src="'+realTimeMonitorGraphImgSrc+'" width="300" height="225" alt="Student Responses"></img>');
-		$(dom).append('<img id="realTimeMonitorGraphImg2" src="'+realTimeMonitorGraphImgSrc2+'" width="500" height="200" alt="Student Responses"></img>');
-	}
-
-	$(dom).show();
 };
+
 
 /**
  * Returns the criteria value for this node based on student response.

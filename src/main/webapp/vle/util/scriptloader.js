@@ -336,8 +336,9 @@ var scriptloader = function(){
   		          'vle/view/view.js',
                   'vle/node/nodefactory.js',
                   'vle/environment/environment.js',
+                  'vle/jquery/js/jquery-migrate-1.2.1.min.js', // TODO: remove when all instances of jQuery.browser are removed from VLE
                   'vle/jquery/js/jsonplugin.js',
-  		          'vle/jquery/js/jqueryhelper.js',
+                  'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
  			      'vle/node/DuplicateNode.js', 
   		          'vle/node/setupNodes.js',
