@@ -66,6 +66,9 @@
 <script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/utils.js"></script>
 <script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/jquery.timers-1.2.js"></script>
 
+<script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/autograde/drawScorer.js"></script>
+<script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit/autograde/loadxmldoc.js"></script>
+
 <!-- feeds -->
 <link rel="alternate" type="application/atom+xml" title="SVG-edit General Discussion" href="http://groups.google.com/group/svg-edit/feed/atom_v1_0_msgs.xml" />
 <link rel="alternate" type="application/atom+xml" title="SVG-edit Updates (Issues/Fixes/Commits)" href="http://code.google.com/feeds/p/svg-edit/updates/basic" />
@@ -623,6 +626,7 @@
 	<div id="tools_bottom_3">
 		<div id="palette_holder"><div id="palette" title="Click to change fill color, shift-click to change stroke color"></div></div>
 	</div>
+	<div id="autoGradeWorkButtonDiv" style="display:none;text-align:center"><input id="autoGradeWorkButton" type="button" value="Submit" onclick="autoGradeWork()"></input></div>
 	<!-- <div id="copyright"><span id="copyrightLabel">Powered by</span> <a href="http://svg-edit.googlecode.com/" target="_blank">SVG-edit v2.6-beta</a></div> -->
 </div>
 
