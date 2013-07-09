@@ -96,8 +96,8 @@ with the following items:
 	project; authoring tool will show or hide activity icons selectors depending on this option (Boolean)
 7. "activityIconPath" - The default image file to use for activity icons (default step icons are
 	specified by each step type) (File path relative to theme root; optional)
-7. "css" - Extra CSS files required by the navigation mode (Array of file paths relative to theme root)
-8. "js" - Extra Javascript files required by the navigation mode (Array of file paths relative to theme root)
+8. "css" - Extra CSS files required by the navigation mode (Array of file paths relative to theme root)
+9. "js" - Extra Javascript files required by the navigation mode (Array of file paths relative to theme root)
 
 *Every WISE VLE theme MUST include at least 1 (one) navigation mode.*
 
