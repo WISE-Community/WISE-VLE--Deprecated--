@@ -5,7 +5,7 @@
 	"version" : "1.1",
 	"author" : "Dan Troon (Filament Games); Jonathan Lim-Breitbart (WISE)",
 	"date" : "Mon, 1 Apr 2013",
-	"screenshot" : "images/screenshot-wise.png",
+	"screenshot" : "images/screenshot-starmap.png",
 	"thumb" : "images/thumb-starmap.png",
 	"logo" : "images/logo.png",
 	"css" : [
@@ -18,13 +18,18 @@
 			"id" : "standard",
 			"name" : "Standard",
 			"description" : "Map access via button at the top of the window",
-			"screenshot" : "navigation/map/images/screenshot-classic.png"
+			"screenshot" : "navigation/map/images/screenshot-starmap-standard.png",
+			"stepIcons": true,
+			"activityIcons": false
 		},
 		{
 			"id" : "map",
 			"name" : "Map",
 			"description" : "Full screen navigation map and maximized step content",
-			"screenshot" : "navigation/map/images/screenshot-map.png",
+			"screenshot" : "navigation/map/images/screenshot-starmap-map.png",
+			"stepIcons": true,
+			"activityIcons": false,
+			"activityIconPath":"/navigation/map/images/star-bronze.png",
 			"css": [],
 			"js": [
 				"navigation/map/js/starmap.js",

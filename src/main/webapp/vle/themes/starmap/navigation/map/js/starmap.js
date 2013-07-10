@@ -16,7 +16,8 @@ function starmap() {
   // private variables
   var start,
   	  g,
-  	  nodeAttributes = {};
+  	  nodeAttributes = {},
+  	  layoutIsSet = true;
 
   function chart(selection) {
     selection.each(function(data) {
@@ -42,17 +43,16 @@ function starmap() {
       // create map of node ids and node settings (position, etc.) if settings exist
       if(projectMeta.settings && projectMeta.settings.navSettings) {
     	  var navSettings = projectMeta.settings.navSettings;
-    	  if(navSettings){
-    		  for(var i=navSettings.length; i>0; --i){
-    			  if(navSettings.activeTheme === theme && navSettings.activeNavMode === navMode && navSettings.nodeSettings){
-    				  var nodeSettings = navSettings.nodeSettings;
-    				  for(var a=nodeSettings.length; a>0; --a){
-    					  var current = nodeSettings[a];
-    					  nodeAttributes[current.nodeId] = current.settings;
-    				  }
-    			  }
-    		  }
-    	  }
+		  for(var i=navSettings.length; i>0; --i){
+			  if(navSettings.themeName === theme && navSettings.navMode === navMode && navSettings[i].nodeSettings){
+				  var nodeSettings = navSettings[i].nodeSettings;
+				  for(var a=nodeSettings.length; a>0; --a){
+					  var current = nodeSettings[a];
+					  nodeAttributes[current.nodeId] = current.items;
+				  }
+				  break;
+			  }
+		  }
       }
       
       // iterate through sequences (starting with master sequence) and create hierarchy object
@@ -67,10 +67,26 @@ function starmap() {
 	  projectFull = getItem(master.identifier, seqs, steps, true);
 	  
 	  var fullNodes = flatten(projectFull);
-	  // remove root node
+	  // remove root node and add position information to each node
 	  fullNodes.forEach(function(o,i){
 		 if(o.identifier === start){
 			 fullNodes.splice(i,1);
+		 } else {
+			 var id = o.id;
+			 if(nodeAttributes[id]){
+				 if(nodeAttributes[id].x){
+					 node.x = nodeAttributes[id].x;
+				 } else {
+					 layoutIsSet = false;
+				 }
+				 if(nodeAttributes[id].y){
+					 node.y = nodeAttributes[id].y;
+				 } else {
+					 layoutIsSet = false;
+				 }
+			 } else {
+				 layoutIsSet = false;
+			 }
 		 }
 	  });
 	  
@@ -442,10 +458,12 @@ function starmap() {
 		      // Run the layout a fixed number of times.
 		      // The ideal number of times scales with graph complexity.
 		      // Of course, don't run too longÑyou'll hang the page!
-		      force.start();
-		      var n = 20;
-		      for (var i = n * n; i > 0; --i) force.tick();
-		      force.stop();
+			  if(!layoutIsSet){
+				  force.start();
+			      var n = 20;
+			      for (var i = n * n; i > 0; --i) force.tick();
+			      force.stop();
+			  }
 		  
 			  // Update the step items
 			  forceNode = g.selectAll("g.item")
@@ -535,7 +553,7 @@ function starmap() {
 			  
 			  forceSeq.append("svg:image")
 			  	  .attr("id",function(d){ return "anchor_" + d.identifier; })
-			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/star-bronze.png")
+			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/star-bronze.png") // TODO: replace with placeholder for default icon as specified in theme config
 			  	  .attr("x", -18)
 			      .attr("y", -18)
 			      .attr("width", 36)
@@ -640,22 +658,14 @@ function starmap() {
 			  	  .on("touchstart", function(){ zoom(this); });*/
 			  
 			  // run layout a fixed number of times again to finish convergence
-		      force.start();
-		      n = 5;
-		      for (var i = n * n; i > 0; --i) force.tick();
-		      //force.stop();
-		      
-		      // add info tooltips to each step node
-		      forceCircle.each(function(d,i){
-		    	  //$(this).powerTip({
-		    		  //popupId: "powerTipStarmap",
-		    		  //mouseOnToPopup: true,
-		    		  //placement: 'e',
-		    		  //manual:true
-		    	  //});
-		      });
-		      
-		      force.stop();
+			  force.start();
+			  if(!layoutIsSet){
+			      n = 5;
+			      for (var i = n * n; i > 0; --i) force.tick();
+			  } else {
+				  force.tick();
+			  }
+			  force.stop();
 			  g.selectAll('.node, .seq').each(function(d){
 				 d.fixed = true; 
 			  });
