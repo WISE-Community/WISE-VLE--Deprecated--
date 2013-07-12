@@ -758,7 +758,7 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 //	}
 		
 	//if we didn't finish the last warp attempt, go back
-	if(this.states != null) {
+	if(this.states != null && this.states.length > 0) {
 		console.log("looking for last mission: ");			
 		if(this.states[this.states.length - 1].response) {
 			var lastWarpIndex = this.states[this.states.length - 1].response.warpIndex;
