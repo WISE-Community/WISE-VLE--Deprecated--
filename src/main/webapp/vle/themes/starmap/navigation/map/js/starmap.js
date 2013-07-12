@@ -11,11 +11,13 @@ function starmap() {
   	  backgroundImg = '', // optional background image path
   	  backgroundCss = '', // optional background CSS
   	  view = {}, // object to hold WISE view object (provides access to WISE project and its nodes)
-      complete = function(){}; // optional callback function
+      complete = function(){}; // optional callback function to execute once map has finished loading
   
   // private variables
   var start,
-  	  g;
+  	  g,
+  	  nodeAttributes = {},
+  	  layoutIsSet = true;
 
   function chart(selection) {
     selection.each(function(data) {
@@ -31,24 +33,60 @@ function starmap() {
       
       // get the activities and steps
       var seqs = data.sequences,
-      	  nodes = data.nodes;
+      	  steps = data.nodes;
+      
+      // get the project metadata
+      var projectMeta = view.getProjectMetadata(),
+      	  theme = view.theme,
+      	  navMode = view.navMode;
+      
+      // create map of node ids and node settings (position, etc.) if settings exist
+      if(projectMeta.settings && projectMeta.settings.navSettings) {
+    	  var navSettings = projectMeta.settings.navSettings;
+		  for(var i=navSettings.length; i>0; --i){
+			  if(navSettings.themeName === theme && navSettings.navMode === navMode && navSettings[i].nodeSettings){
+				  var nodeSettings = navSettings[i].nodeSettings;
+				  for(var a=nodeSettings.length; a>0; --a){
+					  var current = nodeSettings[a];
+					  nodeAttributes[current.nodeId] = current.items;
+				  }
+				  break;
+			  }
+		  }
+      }
       
       // iterate through sequences (starting with master sequence) and create hierarchy object
       var master;
       $.each(seqs, function(i,d){
     	 if(d.identifier === start){
     		 master = d;
-    	 } 
+    	 }
       });
 	  
 	  // iterate through nodes in the master sequence to build full hierarchy
-	  projectFull = getItem(master.identifier, seqs, nodes, true);
+	  projectFull = getItem(master.identifier, seqs, steps, true);
 	  
 	  var fullNodes = flatten(projectFull);
-	  // remove root node
+	  // remove root node and add position information to each node
 	  fullNodes.forEach(function(o,i){
 		 if(o.identifier === start){
 			 fullNodes.splice(i,1);
+		 } else {
+			 var id = o.id;
+			 if(nodeAttributes[id]){
+				 if(nodeAttributes[id].x){
+					 node.x = nodeAttributes[id].x;
+				 } else {
+					 layoutIsSet = false;
+				 }
+				 if(nodeAttributes[id].y){
+					 node.y = nodeAttributes[id].y;
+				 } else {
+					 layoutIsSet = false;
+				 }
+			 } else {
+				 layoutIsSet = false;
+			 }
 		 }
 	  });
 	  
@@ -119,15 +157,16 @@ function starmap() {
       };
       
       var getIcon = function(d) {
-    	  var project = view.getProject();
+    	  var project = view.getProject(),
+    	  	  metadata = view.getProjectMetadata();
     	  var node = project.getNodeById(d.identifier),
     	  	  isValid = false,
     	  	  nodeClass = '';
     	  var nodeIconPath = '';
-    	  if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
+    	  if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
 			nodeClass = node.getNodeClass();
 			for(var a=0;a<view.nodeClasses[node.type].length;a++){
-				if(view.nodeClasses[node.type][a].nodeClass == nodeClass){
+				if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
 					isValid = true;
 					nodeIconPath = view.nodeClasses[node.type][a].icon;
 					break;
@@ -419,10 +458,12 @@ function starmap() {
 		      // Run the layout a fixed number of times.
 		      // The ideal number of times scales with graph complexity.
 		      // Of course, don't run too longÑyou'll hang the page!
-		      force.start();
-		      var n = 20;
-		      for (var i = n * n; i > 0; --i) force.tick();
-		      force.stop();
+			  if(!layoutIsSet){
+				  force.start();
+			      var n = 20;
+			      for (var i = n * n; i > 0; --i) force.tick();
+			      force.stop();
+			  }
 		  
 			  // Update the step items
 			  forceNode = g.selectAll("g.item")
@@ -512,7 +553,7 @@ function starmap() {
 			  
 			  forceSeq.append("svg:image")
 			  	  .attr("id",function(d){ return "anchor_" + d.identifier; })
-			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/star-bronze.png")
+			  	  .attr("xlink:xlink:href","themes/starmap/navigation/map/images/star-bronze.png") // TODO: replace with placeholder for default icon as specified in theme config
 			  	  .attr("x", -18)
 			      .attr("y", -18)
 			      .attr("width", 36)
@@ -617,22 +658,14 @@ function starmap() {
 			  	  .on("touchstart", function(){ zoom(this); });*/
 			  
 			  // run layout a fixed number of times again to finish convergence
-		      force.start();
-		      n = 5;
-		      for (var i = n * n; i > 0; --i) force.tick();
-		      //force.stop();
-		      
-		      // add info tooltips to each step node
-		      forceCircle.each(function(d,i){
-		    	  //$(this).powerTip({
-		    		  //popupId: "powerTipStarmap",
-		    		  //mouseOnToPopup: true,
-		    		  //placement: 'e',
-		    		  //manual:true
-		    	  //});
-		      });
-		      
-		      force.stop();
+			  force.start();
+			  if(!layoutIsSet){
+			      n = 5;
+			      for (var i = n * n; i > 0; --i) force.tick();
+			  } else {
+				  force.tick();
+			  }
+			  force.stop();
 			  g.selectAll('.node, .seq').each(function(d){
 				 d.fixed = true; 
 			  });
@@ -743,44 +776,57 @@ function starmap() {
     return nodes;
   };
   
-  function getChildren(d,seqs,nodes,full){
+  function getChildren(d,seqs,steps,full){
 	  if(d.hasOwnProperty('refs')){
 		  d.children = [];
 		  var refs = d.refs;
 		  for(var i=0;i<refs.length;i++){
 			  var id = refs[i];
-			  var item = getItem(id,seqs,nodes,full);
+			  var item = getItem(id,seqs,steps,full);
 			  d.children.push(item);
 		  }
 	  }
 	  return d;
   };
   
-  function getItem(id,seqs,nodes,full){
-	  var item = '';
+  function getItem(id,seqs,steps,full){
+	  var item;
 	  $.each(seqs, function(i,d){
 		  if(d.identifier === id){
 			  if(id === start){
-				  item = getChildren(d,seqs,nodes);
+				  item = getChildren(d,seqs,steps);
 			  }
 			  // item is a sequence, get children and return seq object
 			  if(full){
-				  item = getChildren(d,seqs,nodes,full);
+				  item = getChildren(d,seqs,steps,full);
 			  } else {
 				  item = d;  
 			  }
 		  }
 	  });
-	  $.each(nodes, function(i,d){
+	  $.each(steps, function(i,d){
 		  if(d.identifier === id){
 			  if(d.position===0){
 				  d.current = true;
 			  }
-			  // item is a node, return node object
+			  // item is a step, return step object
 			  item = d;
-			  //item.value = 1;
 		  }
 	  });
+	  
+	  // add any stored node attribute values
+	  if(nodeAttributes.hasOwnProperty(id)){
+		  var attrs = nodeAttributes[id];
+		  for(var i=attrs.length; i>0; --i){
+			  var attr = attrs[i];
+			  for(var key in attr) {
+			        if (attr.hasOwnProperty(key)) {
+			            item[key] = attr[key];
+			        }
+			    }
+		  }
+	  }
+	  
 	  return item;
   };
 

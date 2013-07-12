@@ -64,7 +64,7 @@ protected static String fromQuery = "from CRaterRequest";
 	@Column(name="failCount")
 	private int failCount = 0;  // number of unsuccessful cRater requests
 	
-	@Column(name="cRaterResponse", columnDefinition="TEXT")
+	@Column(name="cRaterResponse", length=2048)
 	private String cRaterResponse = null;
 	
 	/**

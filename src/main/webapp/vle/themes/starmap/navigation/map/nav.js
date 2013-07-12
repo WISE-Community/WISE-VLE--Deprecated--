@@ -310,11 +310,6 @@ NavigationPanel.prototype.render = function(forceReRender) {
 
 		//set the nav html into the div
 		document.getElementById("my_menu").innerHTML = navHtml;
-
-		//loop through the nodes and child nodes and create the html
-		//for (var i = 0; i < this.rootNode.children.length; i++) {
-			//navHtml += this.getNavigationHtml(this.rootNode.children[i], 0, i);
-		//};
 		
 		var project = view.getProject(),
 			navPanel = this,

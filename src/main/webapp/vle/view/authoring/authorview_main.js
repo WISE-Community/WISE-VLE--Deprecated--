@@ -783,7 +783,7 @@ View.prototype.submitUpload = function() {
  */
 View.prototype.exportProject = function(params){
 	if(this.getProject() && this.portalProjectId){
-		window.open("/webapp/author/project/exportproject.html?projectId=" + this.portalProjectId);
+		window.open("/webapp/project/exportproject.html?projectId=" + this.portalProjectId);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to export.", 3);
 	}

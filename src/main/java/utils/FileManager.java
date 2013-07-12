@@ -1594,7 +1594,7 @@ public class FileManager extends HttpServlet implements Servlet{
 		 * group(1)=./
 		 * group(2)=myPicture.jpg
 		 */
-		Pattern p = Pattern.compile("\\\\?[\\\"'](\\./)?assets/([^\\\"'\\\\]*)\\\\?[\\\"']");
+		Pattern p = Pattern.compile("\\\\?[\\\"'](\\./)?assets/([^\\\"'\\\\]+)\\\\?[\\\"']");
 		
 		//run the matcher
 		Matcher m = p.matcher(content);
@@ -1604,76 +1604,79 @@ public class FileManager extends HttpServlet implements Servlet{
 			if(m.groupCount() == 2) {
 				//the file name e.g. myPicture.jpg
 				String fromAssetFileName = m.group(2);
-				
-				if(fromAssetFileName.contains("?")) {
-					/*
-					 * the file name contains GET params e.g. sunlight.jpg?w=12&h=12
-					 * so we will remove everything after the ?
-					 */
-					fromAssetFileName = fromAssetFileName.substring(0, fromAssetFileName.indexOf("?"));
-				}
-				
-				//create the file handle for the "from" file
-				File fromAsset = new File(fromProjectAssetsFolder, fromAssetFileName);
-				
-				//make sure the file exists in the "from" project
-				if(fromAsset.exists()) {
-					//create the file handle for the "to" file
-					String toAssetFileName = fromAssetFileName;
-					File toAsset = new File(toProjectAssetsFolder, toAssetFileName);
-					
-					boolean assetCompleted = false;
-					int counter = 1;
-					
-					/*
-					 * this while loop will check if the file already exists.
-					 * 
-					 * if the file already exists, we will check if the content in the "from" file is the same as in the "to" file.
-					 *    if the content is the same, we do not need to do anything.
-					 *    if the content is different, we will look for another file name to use.
-					 * if the file does not exist, we will make it.
-					 */
-					while(!assetCompleted) {
-						if(toAsset.exists()) {
-							//file already exists
-							
-							try {
-								if(FileUtils.contentEquals(fromAsset, toAsset)) {
-									//files are the same so we do not need to do anything
-									assetCompleted = true;
-								} else {
-									//files are not the same so we need to try a different file name
-									
-									//get new file name e.g. myPicture-1.jpg
-									toAssetFileName = createNewFileName(fromAssetFileName, counter);
 
-									//create the handle for the next file we will try to use
-									toAsset = new File(toProjectAssetsFolder, toAssetFileName);
-									
-									counter++;
+				if(fromAssetFileName != null && !fromAssetFileName.isEmpty()) {
+					if(fromAssetFileName.contains("?")) {
+						/*
+						 * the file name contains GET params e.g. sunlight.jpg?w=12&h=12
+						 * so we will remove everything after the ?
+						 */
+						fromAssetFileName = fromAssetFileName.substring(0, fromAssetFileName.indexOf("?"));
+					}
+					
+					//create the file handle for the "from" file
+					File fromAsset = new File(fromProjectAssetsFolder, fromAssetFileName);
+					
+					//make sure the file exists in the "from" project
+					if(fromAsset.exists()) {
+						//create the file handle for the "to" file
+						String toAssetFileName = fromAssetFileName;
+						File toAsset = new File(toProjectAssetsFolder, toAssetFileName);
+						
+						boolean assetCompleted = false;
+						int counter = 1;
+						
+						/*
+						 * this while loop will check if the file already exists.
+						 * 
+						 * if the file already exists, we will check if the content in the "from" file is the same as in the "to" file.
+						 *    if the content is the same, we do not need to do anything.
+						 *    if the content is different, we will look for another file name to use.
+						 * if the file does not exist, we will make it.
+						 */
+						while(!assetCompleted) {
+							if(toAsset.exists()) {
+								//file already exists
+								
+								try {
+									if(FileUtils.contentEquals(fromAsset, toAsset)) {
+										//files are the same so we do not need to do anything
+										assetCompleted = true;
+									} else {
+										//files are not the same so we need to try a different file name
+										
+										//get new file name e.g. myPicture-1.jpg
+										toAssetFileName = createNewFileName(fromAssetFileName, counter);
+
+										//create the handle for the next file we will try to use
+										toAsset = new File(toProjectAssetsFolder, toAssetFileName);
+										
+										counter++;
+									}
+								} catch (IOException e) {
+									e.printStackTrace();
+									break;
 								}
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						} else {
-							//file does not exist so we will copy the file to the "to" assets folder
-							
-							try {
-								//copy the file into our new asset file
-								FileUtils.copyFile(fromAsset, toAsset);
-								assetCompleted = true;
-							} catch (IOException e) {
-								e.printStackTrace();
-								break;
+							} else {
+								//file does not exist so we will copy the file to the "to" assets folder
+								
+								try {
+									//copy the file into our new asset file
+									FileUtils.copyFile(fromAsset, toAsset);
+									assetCompleted = true;
+								} catch (IOException e) {
+									e.printStackTrace();
+									break;
+								}
 							}
 						}
-					}
 
-					//replace references to the file name in the content if we changed the file name
-					if(fromAssetFileName != null && toAssetFileName != null &&
-							!fromAssetFileName.equals(toAssetFileName)) {
-						content = content.replaceAll(fromAssetFileName, toAssetFileName);					
-					}					
+						//replace references to the file name in the content if we changed the file name
+						if(fromAssetFileName != null && toAssetFileName != null &&
+								!fromAssetFileName.equals(toAssetFileName)) {
+							content = content.replaceAll(fromAssetFileName, toAssetFileName);					
+						}					
+					}
 				}
 			}
 		}
