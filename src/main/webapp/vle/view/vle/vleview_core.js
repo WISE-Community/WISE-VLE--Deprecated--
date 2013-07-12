@@ -15,7 +15,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='getUserAndClassInfoCompleted'){
 		// start the xmpp if xmpp is enabled
 		if (obj.isXMPPEnabled) {
-			obj.startXMPP();
+			//obj.startXMPP();
+			obj.startWebSocketConnection();
 		}
 	} else if(type=='processLoadViewStateResponseCompleted'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
@@ -217,7 +218,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 	}
 	
 	if (runInfo.isXMPPEnabled != null && runInfo.isXMPPEnabled && 
-			runInfo.isChatRoomEnabled != null && runInfo.isChatRoomEnabled) {
+			runInfo.isChatRoomEnabled != null && runInfo.isChatRoomEnabled && false) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
@@ -298,7 +299,7 @@ View.prototype.showToolsBasedOnConfigs = function(metadata, runInfo) {
 		}
 	}
 	
-	if (isXMPPEnabled && isChatRoomEnabled) {
+	if (isXMPPEnabled && isChatRoomEnabled && false) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
@@ -484,6 +485,16 @@ View.prototype.setStatuses = function() {
 				sequenceNode.populateSequenceStatuses(this.getState());
 			}
 		}
+	}
+	
+	//set this flag to show that the node statuses have been set
+	this.statusesSet = true;
+	
+	if(this.isXMPPEnabled) {
+		//we will send the student status to the teacher
+		var currentNodeId = this.currentNode.id;
+		var previousNodeVisit = this.getState().getLatestCompletedVisit();
+		this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);
 	}
 };
 
@@ -829,7 +840,7 @@ View.prototype.renderNodeCompletedListener = function(position){
     }
     
 	/* get project completion and send to teacher, if xmpp is enabled */
-	if (this.xmpp && this.isXMPPEnabled) {
+	if (this.xmpp && this.isXMPPEnabled && false) {
 		var workgroupId = this.userAndClassInfo.getWorkgroupId();
 		var projectCompletionPercentage = this.getTeamProjectCompletionPercentage();
 		var nodeId = this.currentNode.id;
@@ -846,6 +857,16 @@ View.prototype.renderNodeCompletedListener = function(position){
 			stepNumberAndTitle:stepNumberAndTitle, 
 			type:type,
 			status:this.studentStatus});	
+	}
+	
+	if(this.isXMPPEnabled) {
+		//check if the vle has set the statuses for all the nodes yet
+		if(this.statusesSet) {
+			//the node statuses have been set so we will send the student status to the teacher
+			var currentNodeId = this.currentNode.id;
+			var previousNodeVisit = this.getState().getLatestCompletedVisit();
+			this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);		
+		}
 	}
 	
 	this.displayHint();  // display hint for the current step, if any

@@ -84,6 +84,29 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			return allStudentsArray;
 		};
 		
+		/**
+		 * Get all the classmate workgroup ids. This will not include the
+		 * workgroup id of the signed in user.
+		 */
+		var getClassmateWorkgroupIds = function() {
+			var classmateWorkgroupIds = [];
+			
+			//loop through all the classmates
+			for (var x=0; x<classmateUserInfos.length; x++) {
+				//get a classmate
+				var classmateUserInfo = classmateUserInfos[x];
+				
+				if(classmateUserInfo != null) {
+					//get the workgroup id for the classmate
+					var workgroupId = classmateUserInfo.workgroupId;
+					
+					//add the workgroup id to our array that we will return
+					classmateWorkgroupIds.push(workgroupId);
+				}
+			}
+			return classmateWorkgroupIds;
+		};
+		
 		var getWorkgroupIdsInClass = function() {
 			var usersInClass = getUsersInClass();
 			var workgroupIdsInClass = [];
@@ -272,6 +295,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			},
 			getUserLoginName:function() {
 				return getUserLoginName();
+			},
+			getClassmateWorkgroupIds:function() {
+				return getClassmateWorkgroupIds();
 			}
 		};
 	}(myUserInfo, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);

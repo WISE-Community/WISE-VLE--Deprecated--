@@ -95,6 +95,14 @@ HtmlNode.prototype.isCompleted = function(nodeVisits) {
 	return result;
 };
 
+/**
+ * This is called when a node is exited
+ */
+HtmlNode.prototype.onExit = function() {
+	//set this node as completed
+	this.setStatus('isCompleted', true);
+};
+
 NodeFactory.addNode('HtmlNode', HtmlNode);
 
 //used to notify scriptloader that this script has finished loading

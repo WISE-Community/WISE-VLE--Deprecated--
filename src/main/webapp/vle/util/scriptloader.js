@@ -435,6 +435,10 @@ var scriptloader = function(){
 	              'vle/jquery/js/jquery.editinplace.js',
 	              'vle/view/grading/gradingview_model.js',
 	              'vle/swfobject/swfobject.js'],
+	    studentWebSocket: ['vle/webSocket/studentWebSocket.js'],
+	    teacherWebSocket: ['vle/webSocket/teacherWebSocket.js',
+	                       'vle/view/classroomMonitor/classroomMonitorView_model.js',
+	                       'vle/view/classroomMonitor/classroomMonitorView_main.js'],
 	    grading_min: ['vle/minified/grading_min.js'],
 	    user: ['vle/user/userandclassinfo.js'],	    
 	    config: ['vle/config/config.js'],
@@ -739,7 +743,9 @@ var scriptloader = function(){
 		 * passed into this function can be found in setupNodes.js
 		 */
 		insertSetupPaths:function(setupFiles) {
-			if(document.location.pathname.indexOf('vle.html') != -1 || document.location.pathname.indexOf('gradework.html') != -1) {
+			if(document.location.pathname.indexOf('vle.html') != -1 || 
+					document.location.pathname.indexOf('gradework.html') != -1 ||
+					document.location.pathname.indexOf('classroomMonitor.html') != -1) {
 				/*
 				 * we are loading the vle or grading tool so we only need to
 				 * load certain step types. we will try to obtain the project.json

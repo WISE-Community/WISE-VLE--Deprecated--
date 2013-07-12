@@ -12,11 +12,12 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset', 'studentWebSocket'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
-		summary: ['core']
+		summary: ['core'],
+		classroomMonitor: ['setup', 'core', 'config', 'user', 'session', 'maxscores', 'teacherWebSocket']
 	};
 	
 	//components are comprised of variables, events, methods, and initialization.
@@ -845,6 +846,21 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('cRaterMaxCheckAnswersChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('enableCRater', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('stepIconUpdated', view.stepIconsManager.dispatcher, view);
+				}
+			}
+		},
+		studentWebSocket:{},
+		teacherWebSocket:{
+			variables:{},
+			events:{
+				'classroomMonitorConfigUrlReceived': [null, null],
+				'loadingProjectComplete': [null, null]
+			},
+			methods:{},
+			initialize:{
+				init:function(view){
+					eventManager.subscribe("classroomMonitorConfigUrlReceived", view.classroomMonitorDispatcher, view);
+					eventManager.subscribe("loadingProjectCompleted", view.classroomMonitorDispatcher, view);
 				}
 			}
 		}
