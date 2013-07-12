@@ -19,6 +19,8 @@
 			"name" : "Inquiry Map (Left)",
 			"description" : "The classic WISE navigation menu (left sidebar)",
 			"screenshot" : "navigation/classic/images/screenshot-classic.png",
+			"stepIcons": true,
+			"activityIcons": false,
 			"css": [],
 			"js": []
 		},
@@ -27,6 +29,8 @@
 			"name" : "Inquiry Map (Right)",
 			"description" : "The classic WISE navigation menu (right sidebar)",
 			"screenshot" : "navigation/class_right/images/screenshot-classic-right.png",
+			"stepIcons": true,
+			"activityIcons": false,
 			"css": [],
 			"js": []
 		}
