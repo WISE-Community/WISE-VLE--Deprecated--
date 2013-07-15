@@ -276,6 +276,16 @@ View.prototype.displayResearcherToolsPage = function() {
 	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['special'])\"></input></td>";
 	getResearcherToolsHtml += "</tr>";
 	
+	/*
+	//create row for export flash work
+	getResearcherToolsHtml += "<tr>";
+	getResearcherToolsHtml += "<td>"+"Export Flash Work"+"</td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='XLS' onClick=\"eventManager.fire('exportButtonClicked', ['flashStudentWork', 'xls'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='CSV' onClick=\"eventManager.fire('exportButtonClicked', ['flashStudentWork', 'csv'])\"></input></td>";
+	getResearcherToolsHtml += "<td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('exportExplanationButtonClicked', ['latestStudentWork'])\"></input></td>"
+	getResearcherToolsHtml += "</tr>";
+	*/
+	
 	getResearcherToolsHtml += "</table>";
 	getResearcherToolsHtml += "</div></div>";	
 	
