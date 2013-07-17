@@ -4249,7 +4249,11 @@ public class VLEGetXLS extends VLEServlet {
 	    	//remember the previous response so we can determine what has changed
 	    	JSONObject previousResponse = null;
 	    	
-	    	int revisionNumber = 1;
+	    	//stores the revision number for the node ids for the current workgroup
+	    	HashMap<String, Long> nodeIdToRevisionNumber = new HashMap<String, Long>();
+	    	
+	    	//stores the previous response for a node id
+	    	HashMap<String, JSONObject> nodeIdToPreviousResponse = new HashMap<String, JSONObject>();
 	    	
 	    	//loop through all the work
 	    	for(int z=0; z<stepWorks.size(); z++) {
@@ -4265,7 +4269,7 @@ public class VLEGetXLS extends VLEServlet {
 		    		String nodeType = node.getNodeType();
 		    		String nodeId = node.getNodeId();
 		    		
-		    		if(nodeType != null && nodeType.equals("FlashNode") && nodeId != null && nodeId.equals("node_55.fl")) {
+		    		if(nodeType != null && nodeType.equals("FlashNode") && nodeId != null) {
 		    			//the work is for a flash step
 		    			
 		    			//get the step type e.g. "Flash"
@@ -4294,6 +4298,17 @@ public class VLEGetXLS extends VLEServlet {
 									//get the human readable custom grading
 									String customGrading = response.getString("customGrading");
 									
+									//get the current revision number to use
+							    	Long revisionNumber = nodeIdToRevisionNumber.get(nodeId);
+							    	
+							    	if(revisionNumber == null) {
+							    		//initialize the value if this is the first revision
+							    		revisionNumber = 1L;
+							    	}
+							    	
+							    	//get the previous response
+							    	previousResponse = nodeIdToPreviousResponse.get(nodeId);
+							    	
 									//loop through all the items
 									for(int i=0; i<dataArray.length(); i++) {
 										//get an item
@@ -4345,17 +4360,17 @@ public class VLEGetXLS extends VLEServlet {
 								    	}
 								    	
 								    	//set the workgroup values into the row
-								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, workgroupId);
-								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, wiseId1);
-								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, wiseId2);
-								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, wiseId3);
+								    	columnCounter = setCellValueConvertStringToLong(itemRow, itemRowVector, columnCounter, workgroupId);
+								    	columnCounter = setCellValueConvertStringToLong(itemRow, itemRowVector, columnCounter, wiseId1);
+								    	columnCounter = setCellValueConvertStringToLong(itemRow, itemRowVector, columnCounter, wiseId2);
+								    	columnCounter = setCellValueConvertStringToLong(itemRow, itemRowVector, columnCounter, wiseId3);
 								    	
 								    	//set the project run values into the row
 								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, teacherLogin);
-								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, projectId);
-								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, parentProjectId);
+								    	columnCounter = setCellValueConvertStringToLong(itemRow, itemRowVector, columnCounter, projectId);
+								    	columnCounter = setCellValueConvertStringToLong(itemRow, itemRowVector, columnCounter, parentProjectId);
 								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, projectName);
-								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, runId);
+								    	columnCounter = setCellValueConvertStringToLong(itemRow, itemRowVector, columnCounter, runId);
 								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, runName);
 								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, startTime);
 								    	columnCounter = setCellValue(itemRow, itemRowVector, columnCounter, endTime);
@@ -4413,7 +4428,13 @@ public class VLEGetXLS extends VLEServlet {
 									
 									if(dataArray.length() > 0) {
 										previousResponse = response;
-										revisionNumber++;										
+										
+										//remember the previous response
+										nodeIdToPreviousResponse.put(nodeId, previousResponse);
+										
+										//update the revision number counter
+										revisionNumber++;
+										nodeIdToRevisionNumber.put(nodeId, revisionNumber);
 									}
 								}
 							}
@@ -4452,6 +4473,14 @@ public class VLEGetXLS extends VLEServlet {
 							} catch (JSONException e1) {
 								e1.printStackTrace();
 							}
+		    			}
+		    			
+		    			/*
+		    			 * there is a bug that saves SVGDraw step data in IdeaBasket steps so we will
+		    			 * not display any student data for IdeaBasket steps 
+		    			 */
+		    			if(nodeType.equals("IdeaBasketNode")) {
+		    				stepWorkResponse = "";
 		    			}
 		    			
 						//create a row for this idea
@@ -6883,7 +6912,7 @@ public class VLEGetXLS extends VLEServlet {
 				row.createCell(columnCounter).setCellValue(Long.parseLong(value));				
 			}
 		} catch(NumberFormatException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			
 			if(rowVector != null) {
 				rowVector.add(value);				
