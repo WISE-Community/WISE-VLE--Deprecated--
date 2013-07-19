@@ -7,6 +7,11 @@ MultipleChoiceNode.prototype.constructor = MultipleChoiceNode;
 MultipleChoiceNode.prototype.parent = Node.prototype;
 MultipleChoiceNode.authoringToolName = "Multiple Choice";
 MultipleChoiceNode.authoringToolDescription = "Students answer a multiple choice question";
+MultipleChoiceNode.prototype.i18nEnabled = true;
+MultipleChoiceNode.prototype.i18nPath = "/vlewrapper/vle/node/multiplechoice/i18n/";
+MultipleChoiceNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 MultipleChoiceNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},

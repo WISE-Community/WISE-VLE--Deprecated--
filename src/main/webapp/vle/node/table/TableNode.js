@@ -17,6 +17,11 @@
 TableNode.prototype = new Node(); //TODO: rename TemplateNode
 TableNode.prototype.constructor = TableNode; //TODO: rename both occurrences of TableNode
 TableNode.prototype.parentNode = Node.prototype; //TODO: rename TemplateNode
+TableNode.prototype.i18nEnabled = true;
+TableNode.prototype.i18nPath = "/vlewrapper/vle/node/table/i18n/";
+TableNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 /*
  * the name that displays in the authoring tool when the author creates a new step

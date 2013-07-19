@@ -1,0 +1,114 @@
+{
+	"reset_table": {
+		"value":"Reset Table",
+		"description":""
+	},
+	"add_row": {
+		"value":"Add Row",
+		"description":""
+	},
+	"delete_row": {
+		"value":"Delete Row",
+		"description":""
+	},
+	"add_column": {
+		"value":"Add Column",
+		"description":""
+	},
+	"delete_column": {
+		"value":"Delete Column",
+		"description":""
+	},
+	"make_graph": {
+		"value":"Make Graph",
+		"description":""
+	},
+	"show_starter_sentence": {
+		"value":"Show Starter Sentence",
+		"description":""
+	},
+	"save": {
+		"value":"Save",
+		"description":""
+	},
+	"click_make_graph": {
+		"value":"Click \"Make Graph\" to graph the data",
+		"description":""
+	},
+	"are_you_sure_you_want_reset": {
+		"value":"Are you sure you want to reset the table?",
+		"description":""
+	},
+	"table_has_changed_click_make_graph": {
+		"value":"Table has changed, click \"Make Graph\" to graph the new data",
+		"description":""
+	},
+	"x_axis": {
+		"value":"X Axis",
+		"description":""
+	},
+	"y_axis": {
+		"value":"Y Axis",
+		"description":""
+	},
+	"x_min": {
+		"value":"X Min",
+		"description":""
+	},
+	"x_max": {
+		"value":"X Max",
+		"description":""
+	},
+	"y_min": {
+		"value":"Y Min",
+		"description":""
+	},
+	"y_max": {
+		"value":"Y Max",
+		"description":""
+	},
+	"error_data_in_table_invalid": {
+		"value":"Error: Data in table is invalid, please fix and try again",
+		"description":""
+	},
+	"error_unable_to_draw_chart": {
+		"value":"Error: Unable to draw chart",
+		"description":""
+	},
+	"invalid_x_min": {
+		"value":"Invalid X Min value",
+		"description":""
+	},
+	"invalid_x_max": {
+		"value":"Invalid X Max value",
+		"description":""
+	},
+	"invalid_y_min": {
+		"value":"Invalid Y Min value",
+		"description":""
+	},
+	"invalid_y_max": {
+		"value":"Invalid Y Max value",
+		"description":""
+	},
+	"error_you_must_fix": {
+		"value":"Error: you must fix the problems below before we can make the graph",
+		"description":""
+	},
+	"are_you_sure_delete_column": {
+		"value":"Are you sure you want to delete the column on the right?",
+		"description":""
+	},
+	"error_may_not_delete_original_columns": {
+		"value":"Error: you may not delete any of the original columns",
+		"description":""
+	},
+	"are_you_sure_delete_row": {
+		"value":"Are you sure you want to delete the bottom row?",
+		"description":""
+	},
+	"error_may_not_delete_original_rows": {
+		"value":"Error: you may not delete any of the original rows",
+		"description":""
+	}
+}

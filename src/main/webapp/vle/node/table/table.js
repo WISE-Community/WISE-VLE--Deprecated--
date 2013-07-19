@@ -344,11 +344,14 @@ Table.prototype.render = function() {
 			 */
 			this.graphRendered = false;
 		} else {
+			//the message to tell the student to click the make graph button
+			var click_make_graph = this.view.getI18NString('click_make_graph', 'TableNode');
+			
 			/*
 			 * the graph was not previously rendered so we will suggest
 			 * the student to click "Make Graph"
 			 */
-			this.displayGraphMessage(' <font color="red">Click "Make Graph" to graph the data</font>');
+			this.displayGraphMessage(' <font color="red">' + click_make_graph + '</font>');
 		}
 	} else {
 		//graphing is not enabled
@@ -398,6 +401,8 @@ Table.prototype.render = function() {
 		$('#addRowButton').hide();
 		$('#deleteRowButton').hide();
 	}
+	
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**
@@ -684,8 +689,11 @@ Table.prototype.getStudentTableData = function() {
  * Reset the table back to the original value in the content
  */
 Table.prototype.reset = function() {
+	//the message that asks the student if they are sure they want to reset the table
+	var are_you_sure_you_want_reset = this.view.getI18NString('are_you_sure_you_want_reset', 'TableNode');
+	
 	//ask the student if they are sure they want to reset
-	var answer = confirm('Are you sure you want to reset the table?');
+	var answer = confirm(are_you_sure_you_want_reset);
 	
 	if(answer) {
 		//the student is sure they want to reset
@@ -750,12 +758,15 @@ Table.prototype.studentTableChanged = function() {
 	this.graphRendered = false;
 	
 	if(this.isGraphingEnabled()) {
+		//tell the student that the table has changed so they should click the make graph button
+		var table_has_changed_click_make_graph = this.view.getI18NString('table_has_changed_click_make_graph', 'TableNode');
+		
 		/*
 		 * display the message to tell the student to click the
 		 * 'Make Graph' button to make the graph with the new
 		 * table data
 		 */
-		this.displayGraphMessage(' <font color="red">Table has changed, click "Make Graph" to graph the new data</font>');
+		this.displayGraphMessage(' <font color="red">' + table_has_changed_click_make_graph + '</font>');
 	}
 };
 
@@ -782,12 +793,15 @@ Table.prototype.studentGraphOptionsChanged = function() {
 	this.graphRendered = false;
 	
 	if(this.isGraphingEnabled()) {
+		//tell the student the table has changed so they should click the make graph button
+		var table_has_changed_click_make_graph = this.view.getI18NString('table_has_changed_click_make_graph', 'TableNode');
+		
 		/*
 		 * display the message to tell the student to click the
 		 * 'Make Graph' button to make the graph with the new
 		 * table data
 		 */
-		this.displayGraphMessage(' <font color="red">Table has changed, click "Make Graph" to graph the new data</font>');
+		this.displayGraphMessage(' <font color="red">' + table_has_changed_click_make_graph + '</font>');
 	}
 };
 
@@ -890,11 +904,14 @@ Table.prototype.displayGraphOptions = function() {
 			selectYAxis.append($('<option>').attr('value', z).text(columnHeader));
 		}
 		
+		var x_axis = this.view.getI18NString('x_axis', 'TableNode');
+		var y_axis = this.view.getI18NString('y_axis', 'TableNode');
+		
 		//add the labels and drop downs for the x and y axis
-		$('#graphOptionsDiv').append('X Axis: ');
+		$('#graphOptionsDiv').append(x_axis + ': ');
 		$('#graphOptionsDiv').append(selectXAxis);
 		$('#graphOptionsDiv').append('<br>');
-		$('#graphOptionsDiv').append('Y Axis: ');
+		$('#graphOptionsDiv').append(y_axis + ': ');
 		$('#graphOptionsDiv').append(selectYAxis);
 		
 		//populate the axis drop downs
@@ -978,18 +995,23 @@ Table.prototype.displayGraphOptions = function() {
 				//there is already some content in the graphOptionsDiv so we will add a new line
 				$('#graphOptionsDiv').append('<br>');
 			}
+
+			var x_min = this.view.getI18NString('x_min', 'TableNode');
+			var x_max = this.view.getI18NString('x_max', 'TableNode');
+			var y_min = this.view.getI18NString('y_min', 'TableNode');
+			var y_max = this.view.getI18NString('y_max', 'TableNode');
 			
 			//insert the input elements into the div
-			$('#graphOptionsDiv').append('X Min: ');
+			$('#graphOptionsDiv').append(x_min + ': ');
 			$('#graphOptionsDiv').append(xMinInput);
 			$('#graphOptionsDiv').append('<br>');
-			$('#graphOptionsDiv').append('X Max: ');
+			$('#graphOptionsDiv').append(x_max + ': ');
 			$('#graphOptionsDiv').append(xMaxInput);
 			$('#graphOptionsDiv').append('<br>');
-			$('#graphOptionsDiv').append('Y Min: ');
+			$('#graphOptionsDiv').append(y_min + ': ');
 			$('#graphOptionsDiv').append(yMinInput);
 			$('#graphOptionsDiv').append('<br>');
-			$('#graphOptionsDiv').append('Y Max: ');
+			$('#graphOptionsDiv').append(y_max + ': ');
 			$('#graphOptionsDiv').append(yMaxInput);
 			$('#graphOptionsDiv').append('<br>');
 			
@@ -1148,8 +1170,14 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		//create the data
 		data = google.visualization.arrayToDataTable(dataInGoogleFormat);
 	} catch(e) {
+		/*
+		 * the message that says there was an error making the graph because
+		 * the data in the table is invalid
+		 */
+		var error_data_in_table_invalid = this.view.getI18NString('error_data_in_table_invalid', 'TableNode');
+		
 		//inform the student that the data in the table is invalid
-		this.displayGraphMessage(' <font color="red">Error: Data in table is invalid, please fix and try again</font>');
+		this.displayGraphMessage(' <font color="red">' + error_data_in_table_invalid + '</font>');
 	}
 	
 	if((mode == null || mode == 'run') && !isRenderGradingView && this.content.graphOptions != null && this.content.graphOptions.graphWhoSetAxesLimitsType == 'studentSelect') {
@@ -1161,8 +1189,11 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		var studentEnteredValidAxesLimits = this.checkStudentEnteredAxesLimits();
 		
 		if(!studentEnteredValidAxesLimits) {
+			//the message that says there was an error so we were unable to draw the chart
+			var error_unable_to_draw_chart = this.view.getI18NString('error_unable_to_draw_chart', 'TableNode');
+			
 			//inform the student that we were unable to draw the chart
-			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
+			this.displayGraphMessage(' <font color="red">' + error_unable_to_draw_chart + '</font>');
 			
 			return;
 		}
@@ -1202,8 +1233,11 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 			this.graphRendered = true;
 			this.clearGraphMessage();
 		} catch(e) {
+			//the message that says there was an error so we were unable to draw the chart
+			var error_unable_to_draw_chart = this.view.getI18NString('error_unable_to_draw_chart', 'TableNode');
+			
 			//inform the student that we were unable to draw the chart
-			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
+			this.displayGraphMessage(' <font color="red">' + error_unable_to_draw_chart + '</font>');
 		}
 	}
 };
@@ -1454,36 +1488,47 @@ Table.prototype.checkStudentEnteredAxesLimits = function() {
 	var xMinInputVal = $('#studentGraphXMinInput').val();
 	
 	if(xMinInputVal == null || isNaN(parseFloat(xMinInputVal))) {
+		var invalid_x_min = this.view.getI18NString('invalid_x_min', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid X Min value';
+		message += '\n' + invalid_x_min;
 	}
 	
 	//get the x max value the student entered
 	var xMaxInputVal = $('#studentGraphXMaxInput').val();
 	
 	if(xMaxInputVal == null || isNaN(parseFloat(xMaxInputVal))) {
+		var invalid_x_max = this.view.getI18NString('invalid_x_max', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid X Max value';
+		message += '\n' + invalid_x_max;
 	}
 	
 	//get the y min value the student entered
 	var yMinInputVal = $('#studentGraphYMinInput').val();
 	
 	if(yMinInputVal == null || isNaN(parseFloat(yMinInputVal))) {
+		var invalid_y_min = this.view.getI18NString('invalid_y_min', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid Y Min value';
+		message += '\n' + invalid_y_min;
 	}
 	
 	//get the y max value the student entered
 	var yMaxInputVal = $('#studentGraphYMaxInput').val();
 	
 	if(yMaxInputVal == null || isNaN(parseFloat(yMaxInputVal))) {
+		var invalid_y_max = this.view.getI18NString('invalid_y_max', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid Y Max value';
+		message += '\n' + invalid_y_max;
 	}
 	
 	if(message != '') {
-		message = 'Error: you must fix the problems below before we can make the graph\n' + message;
+		//the message that says there were errors that need to be fixed
+		var error_you_must_fix = this.view.getI18NString('error_you_must_fix', 'TableNode');
+		
+		message = error_you_must_fix + '\n' + message;
 		alert(message);
 	}
 	
@@ -1967,8 +2012,11 @@ Table.prototype.studentDeleteColumn = function() {
 	 * that were originally authored in the step
 	 */
 	if(this.numColumns > this.content.numColumns) {
+		//the message that asks if they are sure they want to delete the column
+		var are_you_sure_delete_column = this.view.getI18NString('are_you_sure_delete_column', 'TableNode');
+		
 		//ask the student if they are sure they want to delete the column on the right
-		var answer = confirm('Are you sure you want to delete the column on the right?');
+		var answer = confirm(are_you_sure_delete_column);
 		
 		if(answer) {
 			//decrement the number of columns
@@ -1984,8 +2032,11 @@ Table.prototype.studentDeleteColumn = function() {
 			this.render();			
 		}
 	} else {
+		//the message that says they may not delete an original column that was authored
+		var error_may_not_delete_original_columns = this.view.getI18NString('error_may_not_delete_original_columns', 'TableNode');
+		
 		//they are trying to delete a column that was originally authored
-		alert('Error: you may not delete any of the original columns');
+		alert(error_may_not_delete_original_columns);
 	}
 };
 
@@ -2028,8 +2079,11 @@ Table.prototype.studentDeleteRow = function() {
 	 * that were originally authored in the step
 	 */
 	if(this.numRows > this.content.numRows) {
+		//the message that asks if they are sure they want to delete the row
+		var are_you_sure_delete_row = this.view.getI18NString('are_you_sure_delete_row', 'TableNode');
+		
 		//ask the student if they are sure they want to delete the bottom row
-		var answer = confirm('Are you sure you want to delete the bottom row?');
+		var answer = confirm(are_you_sure_delete_row);
 		
 		if(answer) {
 			//decrement the number of rows
@@ -2045,8 +2099,11 @@ Table.prototype.studentDeleteRow = function() {
 			this.render();			
 		}
 	} else {
+		//the message that says they are not allowed to delete an original row that was authored
+		var error_may_not_delete_original_rows = this.view.getI18NString('error_may_not_delete_original_rows', 'TableNode');
+		
 		//they are trying to delete a row that was originally authored
-		alert('Error: you may not delete any of the original rows');
+		alert(error_may_not_delete_original_rows);
 	}
 };
 

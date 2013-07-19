@@ -130,8 +130,12 @@ MC.prototype.render = function() {
 		workToImport = tagMapResults.workToImport;
 	}
 	
+	//the label for the step type
+	var multiple_choice = this.view.getI18NString('multiple_choice', 'MultipleChoiceNode');
+	var challenge_question = this.view.getI18NString('challenge_question', 'MultipleChoiceNode');
+	
 	/* set the question type title */
-	$('#questionType').html((this.node.getType()=='ChallengeNode') ? 'Challenge Question' : 'Multiple Choice');
+	$('#questionType').html((this.node.getType()=='ChallengeNode') ? challenge_question : multiple_choice);
 	
 	//get the latest state
 	var latestState = this.getLatestState();
@@ -154,8 +158,11 @@ MC.prototype.render = function() {
 			$('#questionLabelDiv').hide();
 			$('#answersLabelDiv').hide();
 			
+			//the message that says they have completed the step
+			var you_have_completed_this_step = this.view.getI18NString('you_have_completed_this_step', 'MultipleChoiceNode');
+			
 			//display the message to the student
-			$('#promptDiv').html('You have completed this step.');
+			$('#promptDiv').html(you_have_completed_this_step);
 			
 			//we are done rendering the step
 			this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
@@ -211,10 +218,19 @@ MC.prototype.render = function() {
 		// if there is no correct answer to this question (ie, when they're filling out a form),
 		// change button to say "save answer" and "edit answer" instead of "check answer" and "try again"
 		// and don't show the number of attempts.
-		document.getElementById("checkAnswerButton").innerHTML = "Save Answer";
-		document.getElementById("tryAgainButton").innerHTML = "Edit Answer";
+		
+		//the text for the save answer and edit answer buttons
+		var save_answer = this.view.getI18NString('save_answer', 'MultipleChoiceNode');
+		var edit_answer = this.view.getI18NString('edit_answer', 'MultipleChoiceNode');
+		
+		document.getElementById("checkAnswerButton").innerHTML = save_answer;
+		document.getElementById("tryAgainButton").innerHTML = edit_answer;
 	} else {
-		displayNumberAttempts("This is your", "attempt", this.attempts);
+		//the text that shows this is your x attempt
+		var this_is_your = this.view.getI18NString('this_is_your', 'MultipleChoiceNode');
+		var attempt = this.view.getI18NString('attempt', 'MultipleChoiceNode');
+		
+		displayNumberAttempts(this_is_your, attempt, this.attempts);
 	};
 	
 	if(latestState != null && latestState.isCorrect) {
@@ -225,9 +241,13 @@ MC.prototype.render = function() {
 		
 		//check if scoring is enabled
 		if(this.isChallengeScoringEnabled()) {
+			//the text that shows you received x points
+			var you_received = this.view.getI18NString('you_received', 'MultipleChoiceNode');
+			var points = this.view.getI18NString('points', 'MultipleChoiceNode');
+			
 			//display the score they received
 			var score = this.getScore(this.attempts.length);
-			resultMessage += " You received " + score + " point(s).";
+			resultMessage += " " + you_received + " " + score + " " + points;
 		}
 		
 		$('#resultMessageDiv').html(resultMessage);
@@ -503,8 +523,12 @@ MC.prototype.checkAnswer = function() {
 				/* add the score to the state */
 				mcState.score = score;
 				
+				//the message that says you received x points
+				var you_received = this.view.getI18NString('you_received', 'MultipleChoiceNode');
+				var points = this.view.getI18NString('points', 'MultipleChoiceNode');
+				
 				//display the score they received
-				resultMessage += " You received " + score + " point(s).";
+				resultMessage += " " + you_received + " " + score + " " + points;
 			} else {
 				//student answered incorrectly
 				mcState.score = 0;
@@ -581,11 +605,19 @@ MC.prototype.enforceMaxChoices = function(inputs){
 			};
 		};
 		
+		//the message that says you have selected too many choices
+		var you_have_selected_too_many_please_select = this.view.getI18NString('you_have_selected_too_many_please_select', 'MultipleChoiceNode');
+		
+		//the message that says you have selected too few choices
+		var you_have_not_selected_enough_please_select = this.view.getI18NString('you_have_not_selected_enough_please_select', 'MultipleChoiceNode');
+		
+		var choices = this.view.getI18NString('choices', 'MultipleChoiceNode');
+		
 		if(countChecked>maxChoices){
-			this.node.view.notificationManager.notify('You have selected too many. Please select only ' + maxChoices + ' choices.',3);
+			this.node.view.notificationManager.notify(you_have_selected_too_many_please_select + ' ' + maxChoices + ' ' + choices,3);
 			return false;
 		} else if(countChecked<maxChoices){
-			this.node.view.notificationManager.notify('You have not selected enough. Please select ' + maxChoices + ' choices.',3);
+			this.node.view.notificationManager.notify(you_have_not_selected_enough_please_select + ' ' + maxChoices + ' ' + choices,3);
 			return false;
 		};
 	};
@@ -629,23 +661,33 @@ MC.prototype.getResultMessage = function(isCorrect){
 	
 	/* if this attempt is correct, then we only need to return a msg */
 	if(isCorrect){
-		message = "You have successfully completed this question!";
+		//the message that says you have completed this question
+		var you_have_completed_this_question = this.view.getI18NString('you_have_completed_this_question', 'MultipleChoiceNode');
+		message = you_have_completed_this_question;
 	} else {
 		/* this is not correct, so we need to set up a linkTo and constraint
 		 * and return a message with the linkTo if a step has been specified
 		 * to navigate to otherwise, we need to return an empty string */
 		if(attempt.navigateTo && attempt.navigateTo != ''){
-			var msg = 'Please review ';
+			//the beginning of the message that says the student should review a previous step
+			var please_review = this.view.getI18NString('please_review', 'MultipleChoiceNode');
+			
+			var msg = please_review + ' ';
 			var position = this.node.view.getProject().getPositionById(attempt.navigateTo);
 			
 			if(position != null) {
+				//the message that says the student must visit a previous step before trying again
+				var step = this.view.getI18NString('step', 'MultipleChoiceNode');
+				var before_trying_again = this.view.getI18NString('before_trying_again', 'MultipleChoiceNode');
+				var you_must_visit = this.view.getI18NString('you_must_visit', 'MultipleChoiceNode');
+				
 				var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(attempt.navigateTo);
 
 				// create the link to the revisit step
-				msg += "<a style='color:blue;text-decoration:underline;font-weight:bold;cursor:pointer' onclick='eventManager.fire(\"nodeLinkClicked\", \"" + position + "\")'>Step " + stepNumberAndTitle + "</a> before trying again.";
+				msg += "<a style='color:blue;text-decoration:underline;font-weight:bold;cursor:pointer' onclick='eventManager.fire(\"nodeLinkClicked\", \"" + position + "\")'>" + step + " " + stepNumberAndTitle + "</a> " + before_trying_again;
 
 				//create the message that will display in the alert
-				var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
+				var optsMsg = you_must_visit + ' "' + step + ' ' + stepNumberAndTitle + '" ' + before_trying_again;
 				
 				//create the args to pass to the tag map constraint
 				var additionalFunctionArgs = {
