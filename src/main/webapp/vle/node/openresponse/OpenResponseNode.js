@@ -32,7 +32,7 @@ function OpenResponseNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
-	this.importableFromNodes = new Array("NoteNode","OpenResponseNode");	
+	this.importableFromNodes = new Array("NoteNode","OpenResponseNode", "ExplanationBuilderNode");	
 	this.importableFileExtensions = new Array(
 			"jpg", "png");
 	
@@ -92,6 +92,9 @@ OpenResponseNode.prototype.importWork = function(importFromNode) {
 	if (this.canImportWork(importFromNode)) {
 		var studentWorkState = this.view.getState().getLatestWorkByNodeId(importFromNode.id);
 		if (studentWorkState != null) {
+			if(true) {
+				
+			}
 			var studentWork = studentWorkState.response;
 
 			if(studentWork != null && studentWork.constructor.toString().indexOf("Array") != -1) {
@@ -305,15 +308,20 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 			if(annotationRevision == null) {
 				//there was no CRater annotation for this node state
 				
+				var save_answer = this.view.getI18NString('save_answer', 'OpenResponseNode');
+				
 				//display the save answer for the node visit
-				htmlForNodeState += 'Save Answer';
+				htmlForNodeState += save_answer;
 				htmlForNodeState += '<br>';
 				htmlForNodeState += studentWork;
 			} else {
 				//there was a CRater annotation for this node state
 				
+				var check_answer = this.view.getI18NString('check_answer', 'OpenResponseNode');
+				var auto_score = this.view.getI18NString('auto_score', 'OpenResponseNode');
+				
 				//display the check answer number for the node visit
-				htmlForNodeState += 'Check Answer #' + checkAnswerCounter;
+				htmlForNodeState += check_answer + ' #' + checkAnswerCounter;
 				checkAnswerCounter++;
 				
 				htmlForNodeState += '<br>';
@@ -321,7 +329,7 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 				htmlForNodeState += '<br>';
 				
 				//display the CRater score
-				htmlForNodeState += 'Auto-Score: ' + annotationRevision.score;
+				htmlForNodeState += auto_score + ': ' + annotationRevision.score;
 				
 				/*
 				 * get the CRater feedback the student received, if any.
@@ -333,8 +341,10 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 				if(feedbackText != null) {
 					htmlForNodeState += '<br>';
 
+					var auto_feedback = this.view.getI18NString('auto_feedback', 'OpenResponseNode');
+					
 					//display the feedback
-					htmlForNodeState += 'Auto-Feedback: ' + feedbackText;					
+					htmlForNodeState += auto_feedback + ': ' + feedbackText;					
 				}
 			}
 

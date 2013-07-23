@@ -37,7 +37,7 @@
 	},
 	"to_start_this_step_you_must": {
 		"value":"To start this step you must first submit a response in step",
-		"description":""
+		"description":"The message to tell the student they must submit a response in another step before they can work on this step"
 	},
 	"link": {
 		"value":"link",

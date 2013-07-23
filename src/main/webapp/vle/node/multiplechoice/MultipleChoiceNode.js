@@ -195,8 +195,10 @@ MultipleChoiceNode.prototype.renderGradingView = function(displayStudentWorkDiv,
 			//get the max score
 			var maxScore = multipleChoice.getMaxPossibleScore();
 			
+			var auto_graded_score = this.view.getI18NString('auto_graded_score', 'MultipleChoiceNode');
+			
 			studentWork += "<br><br>";
-			studentWork += "Auto-Graded Score: " + state.score + "/" + maxScore;
+			studentWork += auto_graded_score + ": " + state.score + "/" + maxScore;
 		}
 	}
 	
