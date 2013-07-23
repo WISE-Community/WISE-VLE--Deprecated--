@@ -657,54 +657,54 @@
 	},
 	"teacher_flagged_work": {
 		"value":"Teacher Flagged Work",
-		"description":""
+		"description":"The title for the flagged work window in the student vle"
 	},
 	"there_are_no_flagged_items": {
 		"value":"There are no flagged items.",
-		"description":""
+		"description":"The message that says there are no flagged items"
 	},
 	"choose_a_step": {
 		"value":"Choose a step",
-		"description":""
+		"description":"The label that tells the student to choose a step to view flagged work for in the flagged work window"
 	},
 	"question_instructions": {
 		"value":"Question/Instructions",
-		"description":""
+		"description":"The label for the step prompt when displaying flagged work for a step"
 	},
 	"sample_responses": {
 		"value":"Sample Responses",
-		"description":""
+		"description":"The label for the student work that has been flagged for a step"
 	},
 	"team": {
 		"value":"Team",
-		"description":""
+		"description":"The label for the team"
 	},
 	"anonymous": {
 		"value":"Anonymous",
-		"description":""
+		"description":"The label to specify that the team is anonymous"
 	},
 	"you_got_a_score_of": {
 		"value":"You got a score of",
-		"description":""
+		"description":"The text to display the score in the feedback popup"
 	},
 	"out_of": {
 		"value":"out of",
-		"description":""
+		"description":"The text to display the score in the feedback popup"
 	},
 	"comments": {
 		"value":"Comments",
-		"description":""
+		"description":"The text to display the comments in the feedback popup"
 	},
 	"you_can_always_view": {
 		"value":"You can always view this feedback by clicking on the \"Feedback\" icon in the top right corner.",
-		"description":""
+		"description":"The message at the bottom of the feedback popup to tell the student they can always bring the popup back up"
 	},
 	"you_must_view_all": {
 		"value":"You must view all",
-		"description":""
+		"description":"The beginning of the message in the hints popup that says the student must view all hints before closing the hints popup"
 	},
 	"before_closing": {
 		"value":"before closing",
-		"description":""
+		"description":"The end of the message in the hints popup that says the student must view all hints before closing the hints popup"
 	}
 }
