@@ -854,12 +854,15 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			
 			var newFeedback = "";
 			
-			// TODO: i18n
 			if(showAllWorkHtml.newFeedback != "") {
-				newFeedback = "<div class='panelHeader'>New Feedback</div><div class='dialogSection'>" + showAllWorkHtml.newFeedback + "</div>";
+				var new_feedback = view.getI18NString('new_feedback');
+				
+				newFeedback = "<div class='panelHeader'>" + new_feedback + "</div><div class='dialogSection'>" + showAllWorkHtml.newFeedback + "</div>";
 			}
 			
-			var allFeedback = "<div class='panelHeader'>My Work</div><div class='dialogSecton'>" + showAllWorkHtml.allFeedback + "</div>";
+			var my_work = view.getI18NString('my_work');
+			
+			var allFeedback = "<div class='panelHeader'>" + my_work + "</div><div class='dialogSecton'>" + showAllWorkHtml.allFeedback + "</div>";
 			
 			return newFeedback + allFeedback;
 		};
@@ -903,6 +906,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					// TODO: exclude all nodes that return null for grading html
 					
 					var nodeId = node.id;
+					
+					var nodeVisits = view.getState().getNodeVisitsByNodeId(nodeId);
+					
+					//get all the node visits that have work
+					var nodeVisitsWithWork = view.getState().getNodeVisitsWithWorkByNodeId(nodeId);
 					
 					var vlePosition = getVLEPositionById(nodeId);
 					
@@ -973,8 +981,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						var annotationScore = view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'score');
 						
 						if(annotationScore && annotationScore.value != '') {
+							var teacher_score = view.getI18NString('teacher_score');
+							
 							//the p that displays the score
-							var scoreP = "<p style='display: inline'>Teacher Score: " + annotationScore.value + maxScoreForStep + "</p>";
+							var scoreP = "<p style='display: inline'>" + teacher_score + ": " + annotationScore.value + maxScoreForStep + "</p>";
 							var newP = "";
 
 							//get the post time of the annotation
@@ -982,8 +992,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							
 							//check if the annotation is new for the student
 							if(annotationScorePostTime > lastTimeVisited) {
+								var new_text = view.getI18NString('new_text');
+								
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p class='newAnnotation'> [New]</p>";
+								newP = "<p class='newAnnotation'> [" + new_text + "]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -1002,8 +1014,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						var annotationComment = view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'comment');
 						
 						if(annotationComment && annotationComment.value != '') {
+							var teacher_feedback = view.getI18NString('teacher_feedback');
+							
 							//create the p that displays the comment
-							var commentP = "<p style='display: inline'>Teacher Feedback: " + annotationComment.value + "</p>";
+							var commentP = "<p style='display: inline'>" + teacher_feedback + ": " + annotationComment.value + "</p>";
 							var newP = "";
 							
 							//get the post time of the annotation
@@ -1011,8 +1025,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							
 							//check if the annotation is new for the student
 							if(annotationCommentPostTime > lastTimeVisited) {
+								var new_text = view.getI18NString('new_text');
+								
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p class='newAnnotation'> [New]</p>";
+								newP = "<p class='newAnnotation'> [" + new_text + "]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -1027,9 +1043,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							annotationHtml += annotationCommentHtml;							
 						}
 						
-						if(annotationHtml == "") {
+						if(nodeVisitsWithWork.length > 0 && annotationHtml == "") {
+							//the student has submitted work for the step but the teacher has not given feedback
+							var your_teacher_hasnt_graded = view.getI18NString('your_teacher_hasnt_graded');
+							
 							//there were no annotations
-							annotationHtml += "<tr><td class='teachermsg3'>" + "Grading: Your Teacher hasn't graded this step yet." + "<td></tr>";
+							annotationHtml += "<tr><td class='teachermsg3'>" + your_teacher_hasnt_graded + "<td></tr>";
 						}
 						
 						commonFeedback += annotationHtml;
