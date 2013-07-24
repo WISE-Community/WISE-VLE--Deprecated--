@@ -162,7 +162,7 @@
 
 	/** Place an interactive beaker in the testing world */
 	p.createBeakerInWorld = function (b, x, y, type){
-		var beaker = new Beakerb2Actor(GLOBAL_PARAMETERS.materials[b.material], GLOBAL_PARAMETERS.liquids[b.liquid], b.width, b.height, b.depth, b.init_liquid_volume_perc, b.spilloff_volume_perc, b.showRuler);
+		var beaker = new Beakerb2Actor(GLOBAL_PARAMETERS.materials[b.material_name], GLOBAL_PARAMETERS.liquids[b.liquid_name], b.width_units, b.height_units, b.depth_units, b.init_liquid_volume_perc, b.spilloff_volume_perc, b.showRuler);
 		if (y < 0) y = this.height_units;
 		this.addBeaker(beaker, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		beaker.orig_parent = this;
@@ -715,11 +715,6 @@
 			} 
 			this.actors[i].update();
 		}
-		// are we pouring? if not clear pouring graphics
-		if (!this.pouring){
-			this.skin.drawPour();
-		}
-		this.pouring = false;
 
 		for (i = 0; i < this.scales.length; i++){
 			if (this.scales[i].base.IsAwake()){
@@ -739,9 +734,11 @@
 			this.balances[i].update();
 		}
 
-		for (i = 0; i < this.balances.length; i++){
-			this.balances[i].update();
+		// are we pouring? if not clear pouring graphics
+		if (!this.pouring){
+			this.skin.drawPour();
 		}
+		this.pouring = false;
 
 		this.b2world.Step(1/createjs.Ticker.getFPS(), 10, 10);
 		if (GLOBAL_PARAMETERS.DEBUG) this.b2world.DrawDebugData();

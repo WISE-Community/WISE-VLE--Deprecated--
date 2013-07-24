@@ -9,9 +9,11 @@
 	var p = RectPrismBuildingPanel.prototype = new createjs.Container();
 	p.Container_initialize = RectPrismBuildingPanel.prototype.initialize;
 	p.Container_tick = p._tick;
-	p.BACKGROUND_COLOR = "rgba(225,225,255,1.0)";
+	p.BACKGROUND_COLORS = ["rgba(250,250,250,1.0)","rgba(230,210,220,1.0)","rgba(245,230,240,1.0)", "rgba(240,225,235,1.0)"];
+	p.BACKGROUND_RATIOS = [0, 0.5, 0.8, 1.0];	
 	p.TEXT_COLOR = "rgba(0, 0, 200, 1.0)";
 	p.TITLE_COLOR = "rgba(40,40,40,1.0";
+	p.BLOCK_COUNT_COLOR = "rgba(255, 255, 255, 1.0)"
 	p.TITLE_HEIGHT = 40;
 	p.EXPORT_HEIGHT = 40;
 	
@@ -30,7 +32,7 @@
 		this.addChild(this.shape);
 
 		// the list of material names
-		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.wall_width_px-this.TITLE_HEIGHT- this.EXPORT_HEIGHT-55);
+		this.materialsMenu = new MaterialsMenu(GLOBAL_PARAMETERS.materials_available, this.width_px/8, this.height_px-2*this.wall_width_px-this.TITLE_HEIGHT- this.EXPORT_HEIGHT-55);
 		this.addChild(this.materialsMenu);
 		this.materialsMenu.x = this.wall_width_px+1;
 		this.materialsMenu.y = this.wall_width_px+this.TITLE_HEIGHT;
@@ -48,7 +50,7 @@
 		this.block_space_width = this.width_px - this.materialsMenu.width_px - export_offsetL - wall_width_px;
 		this.block_space_height = this.height_px; 
 
-		this.g.beginFill("rgba(225,225,255,1.0)");
+		this.g.beginLinearGradientFill(this.BACKGROUND_COLORS,this.BACKGROUND_RATIOS,0, 0, this.width_px, this.height_px);
 		this.g.drawRect(0, 0, this.width_px, this.height_px- this.EXPORT_HEIGHT);
 		this.g.drawRect(this.width_px-export_offsetL-this.wall_width_px, this.height_px- this.EXPORT_HEIGHT, export_offsetL-export_offsetR+this.wall_width_px, this.EXPORT_HEIGHT);
 		this.g.endFill();
@@ -123,12 +125,12 @@
 		rtitle.y = this.wall_width_px + GLOBAL_PARAMETERS.PADDING;
 
 		// a single text to show how many of this block can be applied
-		var text = new TextContainer("Blocks remaining:", "20px Arial", this.BACKGROUND_COLOR, this.materialsMenu.width_px, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "left", "top", 4, 0);
+		var text = new TextContainer("Blocks remaining:", "20px Arial", this.BLOCK_COUNT_COLOR, this.materialsMenu.width_px, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "left", "top", 4, 0);
 		text.x = this.materialsMenu.x;
 		text.y = this.height_px - text.height_px - this.wall_width_px- this.EXPORT_HEIGHT;
 		this.addChild(text);
 		
-		this.blockText = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "center", "center", -4, 0);
+		this.blockText = new TextContainer("0", "20px Arial", this.BLOCK_COUNT_COLOR, this.block_space_width, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "center", "center", -4, 0);
 		this.blockText.x = this.materialsMenu.x + this.materialsMenu.width_px;
 		this.blockText.y = this.height_px - text.height_px - this.wall_width_px- this.EXPORT_HEIGHT;
 		this.addChild(this.blockText);
@@ -154,10 +156,10 @@
 			    .slider({
                    orientation: "horizontal",
                    range: "max",
-                   min: 0.0,
-                   max: 4.9,
-                   value: 4,
-                   step: 0.1,
+                   min: 0,
+                   max: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
+                   value: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - 1,
+                   step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
                        builder.update_width(5-ui.value);
@@ -171,10 +173,10 @@
 			    .slider({
                    orientation: "vertical",
                    range: "max",
-                   min: 0.0,
-                   max: 4.9,
-                   value: 4,
-                   step: 0.1,
+                   min: 0,
+                   max: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
+                   value: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1,
+                   step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
                        builder.update_height(5-ui.value);
@@ -188,10 +190,10 @@
 			    .slider({
                    orientation: "vertical",
                    range: "max",
-                   min: 0.0,
-                   max: 4.9,
-                   value: 4,
-                   step: 0.1,
+                   min: 0,
+                   max: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
+                   value: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-1,
+                   step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
                        builder.update_depth(5-ui.value);
@@ -236,21 +238,45 @@
 			// setup buttons for volume viewer	
 			var element = new createjs.DOMElement($("#make-object")[0]);
 			this.addChild(element);
-			element.x = this.width_px - export_offsetL + 10;
-			element.y = this.height_px - this.EXPORT_HEIGHT - 80;
+			element.x = this.width_px - export_offsetL/2 - $("#make-object").width()*3/4;
+			element.y = this.height_px - this.EXPORT_HEIGHT - 2*$("#make-object").height();
 			element = new createjs.DOMElement($("#slider-width")[0]);
 			this.addChild(element);
 			element.x = this.materialsMenu.width_px + this.width_px/3 - 100;
-			element.y = this.materialsMenu.y + this.materialsMenu.height_px - $("#slider-width").height() - 20;		
+			element.y = this.materialsMenu.y + this.materialsMenu.height_px - 4 * $("#slider-width").height();		
+			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+				this.widthText = new createjs.Text("Width: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.widthText.x = element.x + 50;
+				this.widthText.y = element.y + $("#slider-width").height() + 10;
+				this.widthText.lineWidth = 60;
+				this.widthText.textAlign = "center";
+				this.addChild(this.widthText);
+			}
 			element = new createjs.DOMElement($("#slider-height")[0]);
 			this.addChild(element);
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
-			element.y = this.TITLE_HEIGHT*2;
+			element.y = this.TITLE_HEIGHT*1.5;
+			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+				this.heightText = new createjs.Text("Height: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.heightText.x = element.x + 10;
+				this.heightText.y = element.y + $("#slider-height").height() + 10;
+				this.heightText.lineWidth = 60;
+				this.heightText.textAlign = "center";
+				this.addChild(this.heightText);
+			}
 			element = new createjs.DOMElement($("#slider-depth")[0]);
 			this.addChild(element);
 			//element.rotation = GLOBAL_PARAMETERS.view_sideAngle*180/Math.PI;
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + 50;
-			element.y = this.TITLE_HEIGHT*2;
+			element.y = this.TITLE_HEIGHT*1.5;
+			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+				this.depthText = new createjs.Text("Depth: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.depthText.x = element.x + 10;
+				this.depthText.y = element.y + $("#slider-depth").height() + 10;
+				this.depthText.lineWidth = 60;
+				this.depthText.textAlign = "center";
+				this.addChild(this.depthText);
+			}
 			element = new createjs.DOMElement($("#slider-sideAngle")[0]);
 			this.addChild(element);
 			element.x = this.width_px - 200 ;
@@ -259,6 +285,7 @@
 			this.addChild(element);
 			element.x = this.width_px - this.wall_width_px - 30;
 			element.y = 80;
+
 			$("#make-object").show();
 			$("#slider-width").show();
 			$("#slider-height").show();
@@ -355,13 +382,28 @@
 
 	////////////////////// CLASS SPECIFIC ////////////////////
 	p.update_width = function (units){
-		if (this.displayed_block != null) this.displayed_block.set_width_units(units);
+		if (this.displayed_block != null){
+			this.displayed_block.set_width_units(units);
+			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+				this.widthText.text = "Width: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+			}
+		}				
 	}
 	p.update_height = function (units){
-		if (this.displayed_block != null) this.displayed_block.set_height_units(units);
+		if (this.displayed_block != null){
+			this.displayed_block.set_height_units(units);
+			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+				this.heightText.text = "Height: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+			}
+		}
 	}
 	p.update_depth = function (units){
-		if (this.displayed_block != null) this.displayed_block.set_depth_units(units);
+		if (this.displayed_block != null){
+			this.displayed_block.set_depth_units(units);
+			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+				this.depthText.text = "Depth: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+			}
+		}
 	}
 
 	p.update_view_sideAngle = function (degrees)

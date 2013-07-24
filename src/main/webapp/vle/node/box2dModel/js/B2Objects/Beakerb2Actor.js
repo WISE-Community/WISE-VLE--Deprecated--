@@ -219,37 +219,47 @@
 			// add only if within confines of beaker
 			//console.log(actor.y + actor.height_px_below, this.y + this.controller.offset * GLOBAL_PARAMETERS.SCALE, actor.x - actor.width_px_left, this.x - this.width_px_left,actor.x + actor.width_px_right , this.x + this.width_px_right);
 			if (actor.skin.width_px <= this.skin.width_px && actor.y + actor.height_px_below >= this.y - this.height_units * GLOBAL_PARAMETERS.SCALE && actor.y + actor.height_px_below <= this.y && actor.x - actor.width_px_left/2 >= this.x - this.width_px_left && actor.x + actor.width_px_right/2 <= this.x + this.width_px_right){
-				eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
-				if (actor instanceof Scaleb2Actor){
-					this.contents_volume += actor.base.volume;
-					this.controller.MyAddBody(actor.base);
-					this.contents_volume += actor.pan.volume;
-					this.controller.MyAddBody(actor.pan);	
-				} else if (actor instanceof Scaleb2Actor){
-					this.contents_volume += actor.base.volume;
-					this.controller.MyAddBody(actor.base);
-					this.contents_volume += actor.beam.volume;
-					this.controller.MyAddBody(actor.beam);
-					this.contents_volume += actor.leftPan.volume;
-					this.controller.MyAddBody(actor.leftPan);	
-					this.contents_volume += actor.rightPan.volume;
-					this.controller.MyAddBody(actor.rightPan);	
-				}else {
-					this.contents_volume += actor.body.volume;
-					this.controller.MyAddBody(actor.body);	
-				}
+				var body = typeof actor.body !== "undefined"? actor.body : actor.base;
+				var f = body.GetFixtureList();
+				var p1 = new b2Vec2(this.beakerLeftWallFixture.GetAABB().upperBound.x, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
+				var p2 = new b2Vec2(this.beakerRightWallFixture.GetAABB().lowerBound.x, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
+				var ray_in = new Box2D.Collision.b2RayCastInput(p1, p2, 1);
+				var ray_out = new Box2D.Collision.b2RayCastOutput();
+				f.RayCast(ray_out, ray_in);
+				if (ray_out.fraction >= 0 && ray_out.fraction <= 1){
+					eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
+					if (actor instanceof Scaleb2Actor){
+						this.contents_volume += actor.base.volume;
+						this.controller.MyAddBody(actor.base);
+						this.contents_volume += actor.pan.volume;
+						this.controller.MyAddBody(actor.pan);	
+					} else if (actor instanceof Scaleb2Actor){
+						this.contents_volume += actor.base.volume;
+						this.controller.MyAddBody(actor.base);
+						this.contents_volume += actor.beam.volume;
+						this.controller.MyAddBody(actor.beam);
+						this.contents_volume += actor.leftPan.volume;
+						this.controller.MyAddBody(actor.leftPan);	
+						this.contents_volume += actor.rightPan.volume;
+						this.controller.MyAddBody(actor.rightPan);	
+					}else {
+						this.contents_volume += actor.body.volume;
+						this.controller.MyAddBody(actor.body);	
+					}
 
-				// set a reference so we can look for initial contact with this object
-				this.justAddedBodyToBuoyancy = actor.body;
-				actor.controlledByBuoyancy = true;
-				actor.containedWithin = this;
-				this.addChildAt(actor, 1 + this.actors.length);
-				this.actors.push(actor);
-				actor.x = actor.x - this.x;
-				actor.y = actor.y - this.y;
-				this.drawReleaseButton();		
-				this.sortActorsDisplayDepth();	
-			
+					// set a reference so we can look for initial contact with this object
+					this.justAddedBodyToBuoyancy = actor.body;
+					actor.controlledByBuoyancy = true;
+					actor.containedWithin = this;
+					this.addChildAt(actor, 1 + this.actors.length);
+					this.actors.push(actor);
+					actor.x = actor.x - this.x;
+					actor.y = actor.y - this.y;
+					this.drawReleaseButton();		
+					this.sortActorsDisplayDepth();	
+				} else {
+					actor.controlledByBuoyancy = false;
+				}
 			} else {
 				actor.controlledByBuoyancy = false;
 			}
@@ -299,8 +309,8 @@
 	/** Called from world */
 	p.BeginContact = function (bodyA, bodyB){
 		if (bodyA == this.justAddedBodyToBuoyancy || bodyB == this.justAddedBodyToBuoyancy){
-			bodyA.SetAwake();
-			bodyB.SetAwake();
+			bodyA.SetAwake(true);
+			bodyB.SetAwake(true);
 		}
 	}
 	p.EndContact = function (bodyA, bodyB){

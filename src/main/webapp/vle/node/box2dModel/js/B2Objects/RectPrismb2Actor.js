@@ -137,7 +137,7 @@
 			}
 		}
 		
-		if (GLOBAL_PARAMETERS.DEBUG){
+		if (GLOBAL_PARAMETERS.DEBUG_DEEP){
 			g = this.g = new createjs.Graphics();
 			this.shape = new createjs.Shape(g);	
 			g.beginFill("rgba(250,0,0,1.0)");

@@ -9,9 +9,11 @@
 	var p = BlockCompBuildingPanel.prototype = new createjs.Container();
 	p.Container_initialize = BlockCompBuildingPanel.prototype.initialize;
 	p.Container_tick = p._tick;
-	p.BACKGROUND_COLOR = "rgba(225,225,255,1.0)";
+	p.BACKGROUND_COLORS = ["rgba(250,250,250,1.0)","rgba(230,210,220,1.0)","rgba(245,230,240,1.0)", "rgba(240,225,235,1.0)"];
+	p.BACKGROUND_RATIOS = [0, 0.5, 0.8, 1.0];	
 	p.TEXT_COLOR = "rgba(0, 0, 200, 1.0)";
 	p.TITLE_COLOR = "rgba(40,40,40,1.0";
+	p.BLOCK_COUNT_COLOR = "rgba(255, 255, 255, 1.0)"
 	p.TITLE_HEIGHT = 40;
 	p.EXPORT_HEIGHT = 40;
 	
@@ -30,7 +32,7 @@
 		this.addChild(this.shape);
 
 		// the list of material names
-		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.wall_width_px-this.TITLE_HEIGHT- this.EXPORT_HEIGHT-55);
+		this.materialsMenu = new MaterialsMenu(GLOBAL_PARAMETERS.materials_available, this.width_px/8, this.height_px-2*this.wall_width_px-this.TITLE_HEIGHT- this.EXPORT_HEIGHT-55);
 		this.addChild(this.materialsMenu);
 		this.materialsMenu.x = this.wall_width_px+1;
 		this.materialsMenu.y = this.wall_width_px+this.TITLE_HEIGHT;
@@ -47,7 +49,7 @@
 		this.block_space_width = this.width_px - this.materialsMenu.width_px - export_offsetL - wall_width_px;
 		this.block_space_height = this.height_px; 
 
-		this.g.beginFill("rgba(225,225,255,1.0)");
+		this.g.beginLinearGradientFill(this.BACKGROUND_COLORS,this.BACKGROUND_RATIOS,0, 0, this.width_px, this.height_px);
 		this.g.drawRect(0, 0, this.width_px, this.height_px- this.EXPORT_HEIGHT);
 		this.g.drawRect(this.width_px-export_offsetL-this.wall_width_px, this.height_px- this.EXPORT_HEIGHT, export_offsetL-export_offsetR+this.wall_width_px, this.EXPORT_HEIGHT);
 		this.g.endFill();
@@ -124,13 +126,13 @@
 		// a set of text to display the number of blocks that can be used
 		this.blockTexts = [];
 		var current_material_block_count = GLOBAL_PARAMETERS.materials[this.materialsMenu.current_material_name].block_max.length;	
-		var text = new TextContainer("Blocks remaining:", "20px Arial", this.BACKGROUND_COLOR, this.materialsMenu.width_px, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "left", "top", 4, 0);
+		var text = new TextContainer("Blocks remaining:", "20px Arial", this.BLOCK_COUNT_COLOR, this.materialsMenu.width_px, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "left", "top", 4, 0);
 		text.x = this.materialsMenu.x;
 		text.y = this.height_px - text.height_px - this.wall_width_px- this.EXPORT_HEIGHT;
 		this.addChild(text);
 		for (i = 0; i < current_material_block_count; i++)
 		{
-			text = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width / current_material_block_count, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "center", "center", -4, 0);
+			text = new TextContainer("0", "20px Arial", this.BLOCK_COUNT_COLOR, this.block_space_width / current_material_block_count, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "center", "center", -4, 0);
 			text.x = this.materialsMenu.x + this.materialsMenu.width_px + i * this.block_space_width / current_material_block_count;
 			text.y = this.height_px - text.height_px - this.wall_width_px- this.EXPORT_HEIGHT;
 			this.addChild(text);
@@ -189,7 +191,7 @@
 			var element = new createjs.DOMElement($("#make-object")[0]);
 			this.addChild(element);
 			element.x = this.width_px - export_offsetL/2 - $("#make-object").width()*3/4;
-			element.y = this.height_px - this.EXPORT_HEIGHT;
+			element.y = this.height_px - this.EXPORT_HEIGHT - 2*$("#make-object").height();
 			element = new createjs.DOMElement($("#slider-sideAngle")[0]);
 			this.addChild(element);
 			element.x = this.width_px - 200;

@@ -46,7 +46,7 @@
 		
 		this.savedObject.pan_width_units = pan_width_units;
 		
-		this.skin = new BalanceShape(this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.pan_height_units * GLOBAL_PARAMETERS.SCALE, this.pan_dy_units * GLOBAL_PARAMETERS.SCALE, this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.base_height_units * GLOBAL_PARAMETERS.SCALE, this.base_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.stem_width_units * GLOBAL_PARAMETERS.SCALE, this.stem_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_x_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_y_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.savedObject);
+		this.skin = new BalanceShape(this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.pan_height_units * GLOBAL_PARAMETERS.SCALE, this.pan_dy_units * GLOBAL_PARAMETERS.SCALE, this.pan_width_units * GLOBAL_PARAMETERS.SCALE, 0.2 * GLOBAL_PARAMETERS.SCALE, 0.2 * GLOBAL_PARAMETERS.SCALE, this.stem_width_units * GLOBAL_PARAMETERS.SCALE, this.stem_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_x_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_y_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.savedObject);
 		this.addChild(this.skin);
 		this.height_px_below = this.skin.height_px_below;
 		this.height_px_above = this.skin.height_px_above;
@@ -484,7 +484,7 @@
 				//console.log(lrF, rrF, rrF-lrF, lrF-rrF, rrF - lrF > 0.01, lrF - rrF > 0.01);
 				this.beamAngle = this.beam.GetAngle(); 
 				if (true){
-					console.log(this.massOnLeftPan, this.massOnRightPan);
+					//console.log(this.massOnLeftPan, this.massOnRightPan);
 					if (this.massOnRightPan - this.massOnLeftPan > 0.3){
 						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,"#CC9999", "#99CC99");
 					} else if (this.massOnLeftPan - this.massOnRightPan > 0.3){

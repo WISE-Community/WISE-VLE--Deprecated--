@@ -21,18 +21,26 @@
         var GLOBAL_PARAMETERS =
         {
        		"DEBUG" : true,
+       		"DEBUG_DEEP": false,
 	       	"INCLUDE_BUILDER": false,
 	       	"INCLUDE_CYLINDER_BUILDER":false,
   			"INCLUDE_RECTPRISM_BUILDER":false,
+  			"INCLUDE_BEAKER_BUILDER":false,
   			"INCLUDE_LIBRARY":true,
   			"ALLOW_REVISION":true,
-  			"SHOW_VALUES_SLIDER_BUILDER":true,
-			"INCREMENT_UNITS_SLIDER_BUILDER":true,
+  			"BUILDER_SHOW_SLIDER_VALUES":true,
+			"BUILDER_SLIDER_INCREMENTS": 1.0,	
+			"BUILDER_SHOW_SPOUT":false,
   			"INCLUDE_EMPTY": false,
 			"INCLUDE_BALANCE": false,
 			"INCLUDE_SCALE": true,
 			"INCLUDE_BEAKER": true,
-			"SCALE" : 25,
+			"SCALE" : 30,
+			"LENGTH_UNITS":"cm",
+			"VOLUME_UNITS":"ml",
+	        "MAX_WIDTH_UNITS":5,
+	        "MAX_HEIGHT_UNITS":5,
+	        "MAX_DEPTH_UNITS":5,
 	        "PADDING" : 10,
 	        "view_sideAngle" : 10*Math.PI/180,
 			"view_topAngle" : 20*Math.PI/180,
@@ -43,6 +51,8 @@
 			"total_scales_made" : 0,
 			"total_balances_made" : 0,
 			"materials_available":[],
+			"liquids_available":["Water"],
+			"beaker_materials_available":["Pyrex"],
 			"materials": {},
 			"premades_available":[],
 			"premades_in_world":[],
@@ -107,7 +117,7 @@
 				// can't manually change stage height, only lab height
 				GLOBAL_PARAMETERS.STAGE_HEIGHT = $("#canvas").height();
 				
-				if (GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
+				if (GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_BEAKER_BUILDER){
 					 GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 3 * 5;
 				} else {
 					 GLOBAL_PARAMETERS.BUILDER_HEIGHT = 0;
@@ -153,17 +163,28 @@
 						"container_thickness":1				
 					};	
 				}
+				if (typeof GLOBAL_PARAMETERS.liquids["Water"] === "undefined"){
+					GLOBAL_PARAMETERS.liquids["Water"] =
+					{
+						"display_name":"Water",
+						"density":1.0,
+						"fill_color":"rgba(180,180,255,0.4)",
+						"stroke_color": "rgba(160,160,255,0.8)",
+						"fill_color_container":"rgba(100,160,255,1.0)",
+						"stroke_color_container":"rgba(50,80,255,1.0)"
+					}
+				}
 				if (GLOBAL_PARAMETERS.beakers_in_world.length > 0 || GLOBAL_PARAMETERS.INCLUDE_BEAKER){
 					GLOBAL_PARAMETERS.INCLUDE_BEAKER = true;
 					if (GLOBAL_PARAMETERS.beakers_in_world.length == 0){
 						var beaker_in_world = {
 							"x":5,
 							"y":0,
-							"material":"Pyrex",
-							"liquid":"Water",
-							"width":5,
-							"height":8,
-							"depth":5,
+							"material_name":"Pyrex",
+							"liquid_name":"Water",
+							"width_units":5,
+							"height_units":8,
+							"depth_units":5,
 							"init_liquid_volume_perc":0.75,
 							"spilloff_volume_perc": 0,
 							"type": "dynamic"
@@ -196,8 +217,10 @@
 			}else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
 				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
 				labWorld_y = builder.height_px;	
-			} else
-			{
+			} else if (GLOBAL_PARAMETERS.INCLUDE_BEAKER_BUILDER){
+				builder = new BeakerBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+				labWorld_y = builder.height_px;	
+			} else {
 				labWorld_y = 0;	
 			}
 			var world_width_units = GLOBAL_PARAMETERS.STAGE_WIDTH / GLOBAL_PARAMETERS.SCALE;
@@ -216,9 +239,15 @@
 			// make beakers
 			for (var i = 0; i < GLOBAL_PARAMETERS.beakers_in_world.length; i++){
 				var premade = GLOBAL_PARAMETERS.beakers_in_world[i];
-				var px = typeof premade.x != "undefined" ? premade.x : 0;
-				var py = typeof premade.y != "undefined" ? premade.y : 0; 
-				var ptype = typeof premade.type != "undefined" ? premade.type : "dynamic"; 
+				var px = typeof premade.x !== "undefined" ? premade.x : 0;
+				var py = typeof premade.y !== "undefined" ? premade.y : 0; 
+				var ptype = typeof premade.type !== "undefined" ? premade.type : "dynamic"; 
+				// rename some old variables
+				if (typeof premade.width_units === "undefined" && typeof premade.width !== "undefined") premade.width_units = premade.width;
+				if (typeof premade.height_units === "undefined" && typeof premade.height !== "undefined") premade.height_units = premade.height;
+				if (typeof premade.depth_units === "undefined" && typeof premade.depth !== "undefined") premade.depth_units = premade.depth;
+				if (typeof premade.material_name === "undefined" && typeof premade.material !== "undefined") premade.material_name = premade.material;
+				if (typeof premade.liquid_name === "undefined" && typeof premade.liquid !== "undefined") premade.liquid_name = premade.liquid;
 				labWorld.createBeakerInWorld(premade, px, py, ptype);
 			}
 

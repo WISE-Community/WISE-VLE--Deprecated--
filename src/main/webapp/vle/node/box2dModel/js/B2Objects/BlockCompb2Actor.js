@@ -140,7 +140,7 @@
 				body.percentSubmerged2d[i][j] = 0;
 			}
 		}
-		if (GLOBAL_PARAMETERS.DEBUG){
+		if (GLOBAL_PARAMETERS.DEBUG_DEEP){
 			g = this.g = new createjs.Graphics();
 			this.shape = new createjs.Shape(g);	
 			g.beginFill("rgba(250,0,0,1.0)");
@@ -152,9 +152,7 @@
 
 	
 	/** Update skin to reflect position of b2 body on screen */
-	p.update = function ()
-	{
-
+	p.update = function (){
 		if (this.body != null && typeof(this.body) != "undefined" && typeof(this.parent) != "undefined" && this.parent != null)
 		{
 			if (this.parent.parent == null){

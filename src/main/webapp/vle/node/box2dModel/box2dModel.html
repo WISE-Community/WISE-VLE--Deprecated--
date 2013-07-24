@@ -86,6 +86,7 @@
 		<script src="libs/easel.js"></script>
 		<script src="libs/Box2dWeb-2.1.a.3.min.js"></script>
 		<script src="libs/jquery.ui.touch-punch.min.js"></script>
+		<script src="libs/jquery.ui.selectmenu.js"></script>
 		<script src="js/GeneralObjects/Point3D.js"></script>
 		<script src="js/GeneralObjects/TextContainer.js"></script>		
 		<script src="js/BuilderObjects/MaterialsMenu.js"></script>
@@ -94,7 +95,8 @@
 		<script src="js/BuilderObjects/CylinderViewer.js"></script>
 		<script src="js/BuilderObjects/BlockCompBuildingPanel.js"></script>		
 		<script src="js/BuilderObjects/RectPrismBuildingPanel.js"></script>		
-		<script src="js/BuilderObjects/CylinderBuildingPanel.js"></script>		
+		<script src="js/BuilderObjects/CylinderBuildingPanel.js"></script>
+		<script src="js/BuilderObjects/BeakerBuildingPanel.js"></script>		
 		<script src="js/BuilderObjects/RectBlockShape.js"></script>
 		<script src="js/BuilderObjects/CylinderShape.js"></script>
 		<script src="js/B2Objects/Myb2BuoyancyController.js"></script>
@@ -119,12 +121,10 @@
 		<!-- TODO create the html UI that the student will see when they visit the step -->
 		<div id='messageDiv'></div>
 		<div id='promptDiv'></div>
-		<div id="builder-button-holder" style="position: absolute;"></div>
-		<div id="library-button-holder"></div>
-		<div id="beaker-button-holder"></div>
+		<div id="builder-button-holder"></div>
 		<div id="beaker-button-holder"></div>
 		<div id="canvas-holder">
-		<canvas width=820 height=560 id="canvas" ></canvas>
+			<canvas width=820 height=560 id="canvas" ></canvas>
 		</div>
 		</body>
 </html>

@@ -283,7 +283,7 @@
 			if (this.prev_rF != rF){
 				var displayrF;
 				// acount for liqiud if necessary
-				if (true){
+				if (false){
 					displayrF = this.massOnPan;
 				} else {
 					if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
