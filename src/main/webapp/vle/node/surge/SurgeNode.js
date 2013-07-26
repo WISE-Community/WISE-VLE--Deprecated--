@@ -226,9 +226,9 @@ SurgeNode.prototype.getAvailableStatuses = function() {
 	 * get the statuses from the parent and combine it 
 	 * with the statuses from this step
 	 */
-	availableStatuses = Node.statuses.concat(SurgeNode.availableStatuses);
+	availableStatuses = Node.availableStatuses.concat(SurgeNode.availableStatuses);
 	
-	return statuses;
+	return availableStatuses;
 };
 
 /**
