@@ -46,7 +46,8 @@ View.prototype.startClassroomMonitor = function() {
  */
 View.prototype.createClassroomMonitorDisplays = function() {
 	this.createClassroomMonitorButtons();
-	this.createPauseAllScreensDisplay();
+	this.createClassroomMonitorPeriods();
+	this.createPauseScreensDisplay();
 	this.createStudentProgressDisplay();
 	this.createStepProgressDisplay();
 };
@@ -55,11 +56,11 @@ View.prototype.createClassroomMonitorDisplays = function() {
 /**
  * Show the pause all screens display
  */
-View.prototype.showPauseAllScreensDisplay = function() {
+View.prototype.showPauseScreensDisplay = function() {
 	//hide the other display divs and show the pause all screens div
 	$('#studentProgressDisplay').hide();
 	$('#stepProgressDisplay').hide();
-	$('#pauseAllScreensDisplay').show();
+	$('#pauseScreensDisplay').show();
 	
 	//fix the height so scrollbars display correctly
 	this.fixClassroomMonitorDisplayHeight();
@@ -71,7 +72,7 @@ View.prototype.showPauseAllScreensDisplay = function() {
  */
 View.prototype.showStudentProgressDisplay = function() {
 	//hide the other display divs and show the student progress div
-	$('#pauseAllScreensDisplay').hide();
+	$('#pauseScreensDisplay').hide();
 	$('#stepProgressDisplay').hide();
 	$('#studentProgressDisplay').show();
 	
@@ -85,7 +86,7 @@ View.prototype.showStudentProgressDisplay = function() {
  */
 View.prototype.showStepProgressDisplay = function() {
 	//hide the other display divs and show the step progress div
-	$('#pauseAllScreensDisplay').hide();
+	$('#pauseScreensDisplay').hide();
 	$('#studentProgressDisplay').hide();
 	$('#stepProgressDisplay').show();
 	
@@ -99,7 +100,7 @@ View.prototype.showStepProgressDisplay = function() {
  */
 View.prototype.createClassroomMonitorButtons = function() {
 	//create the pause all screens tool button
-	var pauseAllScreensToolButton = $('<input/>').attr({id:'pauseAllScreensButton', type:'button', name:'pauseAllScreensButton', value:'Pause All Screens Tool'});
+	var pauseScreensToolButton = $('<input/>').attr({id:'pauseScreensButton', type:'button', name:'pauseScreensButton', value:'Pause Screens Tool'});
 	
 	//create the student progress button
 	var studentProgressButton = $('<input/>').attr({id:'studentProgressButton', type:'button', name:'studentProgressButton', value:'Student Progress'});
@@ -108,11 +109,11 @@ View.prototype.createClassroomMonitorButtons = function() {
 	var stepProgressButton = $('<input/>').attr({id:'stepProgressButton', type:'button', name:'stepProgressButton', value:'Step Progress'});
 	
 	//set the click event for the pause all screens tool button
-	pauseAllScreensToolButton.click({thisView:this}, function(event) {
+	pauseScreensToolButton.click({thisView:this}, function(event) {
 		var thisView = event.data.thisView;
 		
 		//show the pause all screens display
-		thisView.showPauseAllScreensDisplay();
+		thisView.showPauseScreensDisplay();
 	});
 	
 	//set the click event for the student progress button
@@ -132,12 +133,132 @@ View.prototype.createClassroomMonitorButtons = function() {
 	});
 	
 	//add all the buttons to the button div
-	$('#classroomMonitorButtonDiv').append(pauseAllScreensToolButton);
+	$('#classroomMonitorButtonDiv').append(pauseScreensToolButton);
 	$('#classroomMonitorButtonDiv').append(studentProgressButton);
 	$('#classroomMonitorButtonDiv').append(stepProgressButton);
 	
 	//fix the height so scrollbars display correctly
 	this.fixClassroomMonitorDisplayHeight();
+};
+
+/**
+ * Create the period buttons for the teacher to filter by period
+ */
+View.prototype.createClassroomMonitorPeriods = function() {
+	//get all the periods
+	var periodObjects = this.getUserAndClassInfo().getAllPeriodObjects();
+	
+	//create a button for all the periods
+	var allPeriodsButton = $('<input/>').attr({id:'periodButton_all', type:'button', name:'periodButton_all', value:'All'});
+	
+	//add the all periods button to the UI
+	$('#classroomMonitorPeriodsDiv').append(allPeriodsButton);
+	
+	//set the click event for the all periods button
+	allPeriodsButton.click({thisView:this}, function(event) {
+		var thisView = event.data.thisView;
+		
+		//get the id of the button
+		var buttonId = this.id;
+		
+		//get the period id
+		var periodId = buttonId.replace('periodButton_', '');
+		
+		/*
+		 * a period button has been clicked so we will perform 
+		 * any necessary changes to the UI
+		 */
+		thisView.periodButtonClicked(periodId);
+	});
+	
+	if(periodObjects != null) {
+		//loop through all the periods
+		for(var x=0; x<periodObjects.length; x++) {
+			//get a period
+			var periodObject = periodObjects[x];
+			var periodId = periodObject.periodId;
+			var periodName = periodObject.periodName;
+			
+			//make the id of the button
+			var buttonId = 'periodButton_' + periodId;
+			
+			//make the label for the button
+			var buttonLabel = 'Period ' + periodName;
+			
+			//create the button
+			var periodButton = $('<input/>').attr({id:buttonId, type:'button', name:buttonId, value:buttonLabel});
+			
+			//add the button to the UI
+			$('#classroomMonitorPeriodsDiv').append(periodButton);
+			
+			//set the click event for the period button
+			periodButton.click({thisView:this}, function(event) {
+				var thisView = event.data.thisView;
+				
+				//get the id of the button
+				var buttonId = this.id;
+				
+				//get the period id
+				var periodId = buttonId.replace('periodButton_', '');
+				
+				/*
+				 * a period button has been clicked so we will perform 
+				 * any necessary changes to the UI
+				 */
+				thisView.periodButtonClicked(periodId);
+			});
+		}
+	}
+	
+	//when the classroom monitor first starts up it will be set to all periods
+	this.classroomMonitorPeriodIdSelected = 'all';
+};
+
+/**
+ * A period button was clicked so we will perform any necessary
+ * changes to the UI such as filtering only for that period
+ * @param periodId the period id
+ */
+View.prototype.periodButtonClicked = function(periodId) {
+	if(periodId == null) {
+		//if no period id was provided we will set the selected period to all
+		this.classroomMonitorPeriodIdSelected = 'all';
+	} else {
+		//remember the period id that was selected
+		this.classroomMonitorPeriodIdSelected = periodId;
+	}
+	
+	//show the pause screens information for the period
+	this.showPeriodInPauseScreensDisplay(this.classroomMonitorPeriodIdSelected);
+};
+
+/**
+ * Show the pause screens information for a period
+ * @param periodId the period id
+ */
+View.prototype.showPeriodInPauseScreensDisplay = function(periodId) {
+	//get whether the period is paused or not
+	var isPaused  = this.isPeriodPaused(periodId);
+	
+	//update the status text to show the teacher whether the period is paused or not
+	this.setPauseScreenStatus(isPaused);
+};
+
+/**
+ * Filter all the students to only show students in the period
+ * @param periodId the period id
+ */
+View.prototype.showPeriodInStudentProgressDisplay = function(periodId) {
+	//TODO
+};
+
+/**
+ * Filter the step progress information to only show information
+ * in a period
+ * @param periodId the period id
+ */
+View.prototype.showPeriodInStepProgressDisplay = function(periodId) {
+	//TODO
 };
 
 /**
@@ -158,24 +279,30 @@ View.prototype.fixClassroomMonitorDisplayHeight = function() {
 /**
  * Create the pause all screens display
  */
-View.prototype.createPauseAllScreensDisplay = function() {
+View.prototype.createPauseScreensDisplay = function() {
 	//create the pause all screens div
-	var pauseAllScreensDisplay = $('<div></div>').attr({id:'pauseAllScreensDisplay'});
+	var pauseScreensDisplay = $('<div></div>').attr({id:'pauseScreensDisplay'});
 	
 	//add the pause all screens div to the main div
-	$('#classroomMonitorMainDiv').append(pauseAllScreensDisplay);
+	$('#classroomMonitorMainDiv').append(pauseScreensDisplay);
 	
 	//hide the pause all screens div, we will show it later when necessary
-	pauseAllScreensDisplay.hide();
+	pauseScreensDisplay.hide();
 	
 	//create the span that will display the pause status
-	var pauseScreenStatus = $('<span>').attr({id:'pauseScreenStatus'}).text('Status: Un-Paused');
+	var pauseScreenStatus = $('<span>').attr({id:'pauseScreenStatus'});
 	
 	//add the pause status span
-	$('#pauseAllScreensDisplay').append(pauseScreenStatus);
+	$('#pauseScreensDisplay').append(pauseScreenStatus);
+	
+	//see if all periods have been paused
+	var isAllPeriodsPaused = this.isPeriodPaused();
+	
+	//set the text to display whether all periods have been paused or not
+	this.setPauseScreenStatus(isAllPeriodsPaused);
 	
 	//add a line break
-	$('#pauseAllScreensDisplay').append($('<br>'));
+	$('#pauseScreensDisplay').append($('<br>'));
 	
 	//create the pause button
 	var pauseButton = $('<input/>').attr({id:'pauseButton', type:'button', name:'pauseButton', value:'Pause'});
@@ -184,8 +311,11 @@ View.prototype.createPauseAllScreensDisplay = function() {
 	pauseButton.click({thisView:this}, function(event) {
 		var thisView = event.data.thisView;
 		
-		//pause the student screens
-		thisView.pauseAllScreens();
+		//get the period id that was selected
+		var classroomMonitorPeriodIdSelected = thisView.classroomMonitorPeriodIdSelected;
+		
+		//pause the student screens for the selected period
+		thisView.pauseScreens(classroomMonitorPeriodIdSelected);
 		
 		//set the pause screen status on the classroom monitor to 'Paused'
 		thisView.setPauseScreenStatus(true);
@@ -198,16 +328,19 @@ View.prototype.createPauseAllScreensDisplay = function() {
 	unPauseButton.click({thisView:this}, function(event) {
 		var thisView = event.data.thisView;
 		
-		//un-pause the student screens
-		thisView.unPauseAllScreens();
+		//get the period id that was selected
+		var classroomMonitorPeriodIdSelected = thisView.classroomMonitorPeriodIdSelected;
+		
+		//un-pause the student screens for the selected period
+		thisView.unPauseScreens(classroomMonitorPeriodIdSelected);
 		
 		//set the pause screen status on the classroom monitor to 'Un-Paused'
 		thisView.setPauseScreenStatus(false);
 	});
 	
 	//add the pause and un-pause buttons
-	$('#pauseAllScreensDisplay').append(pauseButton);
-	$('#pauseAllScreensDisplay').append(unPauseButton);
+	$('#pauseScreensDisplay').append(pauseButton);
+	$('#pauseScreensDisplay').append(unPauseButton);
 };
 
 /**
@@ -568,8 +701,8 @@ View.prototype.getStudentStatusesCallback = function(responseText, responseXML, 
 		//create the array to keep track of the students that are online
 		view.studentsOnline = [];
 		
-		//start the web socket connection
-		view.startWebSocketConnection();
+		//get the run status which will tell us which periods are paused
+		view.getRunStatus();
 	}
 };
 
@@ -579,6 +712,148 @@ View.prototype.getStudentStatusesCallback = function(responseText, responseXML, 
 View.prototype.getStudentStatusesFail = function(responseText, responseXML, view) {
 	
 };
+
+/**
+ * Get the run status from the server
+ */
+View.prototype.getRunStatus = function() {
+	//get the run status url we will use to make the request
+	var runStatusUrl = this.getConfig().getConfigParam('runStatusUrl');
+	
+	//get the run id
+	var runId = this.getConfig().getConfigParam('runId');
+	
+	//create the params for the request
+	var runStatusParams = {
+		runId:runId
+	}
+	
+	if(runStatusUrl != null) {
+		//make the request to the server for the student statuses
+		this.connectionManager.request('GET', 3, runStatusUrl, runStatusParams, this.getRunStatusCallback, this, this.getRunStatusFail, false, null);
+	}
+};
+
+/**
+ * Create a local run status object to keep track of the run status
+ */
+View.prototype.createRunStatus = function() {
+	var runStatus = {};
+	
+	//get the run id
+	runStatus.runId = this.getConfig().getConfigParam('runId');
+	
+	//set this to default to not paused
+	runStatus.allPeriodsPaused = false;
+	
+	//get all the periods objects
+	var periods = this.getUserAndClassInfo().getAllPeriodObjects();
+	
+	//loop through all the periods
+	for(var x=0; x<periods.length; x++) {
+		//get a period
+		var period = periods[x];
+		
+		//set this to default to not paused
+		period.paused = false;
+	}
+	
+	//set the periods into the run status
+	runStatus.periods = periods;
+	
+	//set the run status into the view so we can access it later
+	this.runStatus = runStatus;
+	
+	return this.runStatus;
+};
+
+/**
+ * Update our local run status with the new run status values
+ * @param newRunStatus the new run status to update our values to
+ */
+View.prototype.updateRunStatus = function(newRunStatus) {
+	//get our local copy of the run status
+	var runStatus = this.runStatus;
+	
+	//get our periods
+	var periods = runStatus.periods;
+	
+	if(newRunStatus != null) {
+		//see if the new run status has all periods paused
+		var newRunStatusAllPeriodsPaused = newRunStatus.allPeriodsPaused;
+		
+		if(newRunStatusAllPeriodsPaused != null) {
+			//update the all periods paused in our local run status
+			runStatus.allPeriodsPaused = newRunStatus.allPeriodsPaused;			
+		}
+		
+		//get the periods from the new run status
+		var newRunStatusPeriods = newRunStatus.periods;
+		
+		if(newRunStatusPeriods != null) {
+			/*
+			 * loop through all the periods from the new run status and
+			 * update our local periods
+			 */
+			for(var x=0; x<newRunStatusPeriods.length; x++) {
+				//get a period from the new run status
+				var newRunStatusPeriod = newRunStatusPeriods[x];
+				
+				//get the period id, period name, and whether the period is paused
+				var newRunStatusPeriodPeriodId = newRunStatusPeriod.periodId;
+				var newRunStatusPeriodPeriodName = newRunStatusPeriod.periodName;
+				var newRunStatusPeriodPaused = newRunStatusPeriod.paused;
+				
+				//loop through all of our periods in our local run status
+				for(var y=0; y<periods.length; y++) {
+					//get a period from our local run status
+					var period = periods[y];
+					
+					//get the period id
+					var periodId = period.periodId;
+					
+					//check if we have found the period that we need to update
+					if(periodId == newRunStatusPeriodPeriodId) {
+						//we have found the period we need to update
+						
+						//update the paused value
+						period.paused = newRunStatusPeriodPaused;
+					}
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Called when we have received the run status from the server
+ * @param responseText
+ * @param responseXML
+ * @param view
+ */
+View.prototype.getRunStatusCallback = function(responseText, responseXML, view) {
+	//get the run status from the server
+	var newRunStatus = JSON.parse(responseText);
+	
+	if(newRunStatus != null) {
+		//create a local run status object
+		view.createRunStatus();
+		
+		//update our local run status object with the values from the new run status
+		view.updateRunStatus(newRunStatus);
+	}
+	
+	//start the web socket connection
+	view.startWebSocketConnection();
+};
+
+/**
+ * The failure callback for getting the student statuses
+ */
+View.prototype.getRunStatusFail = function(responseText, responseXML, view) {
+	
+};
+
 
 /**
  * Get the student status object for a workgroup id
@@ -678,7 +953,7 @@ View.prototype.studentsOnlineListReceived = function(data) {
 	 * show the pause all screens display as the default screen to show
 	 * when the classroom monitor initially loads
 	 */
-	this.showPauseAllScreensDisplay();
+	this.showPauseScreensDisplay();
 	
 	if(studentsOnlineList != null) {
 		//loop through all the students online
@@ -1276,6 +1551,216 @@ View.prototype.isStudentOnline = function(workgroupId) {
 	}
 	
 	return result;
+};
+
+/**
+ * Send the run status back to the server to be saved in the db
+ */
+View.prototype.sendRunStatus = function() {
+	//get the run status url we will use to make the request
+	var runStatusUrl = this.getConfig().getConfigParam('runStatusUrl');
+	
+	//get the run id
+	var runId = this.getConfig().getConfigParam('runId');
+	
+	var runStatus = this.runStatus;
+	
+	//create the params for the request
+	var runStatusParams = {
+		runId:runId,
+		status:JSON.stringify(runStatus)
+	}
+	
+	if(runStatusUrl != null) {
+		//make the request to the server for the student statuses
+		this.connectionManager.request('POST', 3, runStatusUrl, runStatusParams, this.sendRunStatusCallback, this, this.sendRunStatusFail, false, null);
+	}
+};
+
+/**
+ * 
+ */
+View.prototype.sendRunStatusCallback = function(responseText, responseXML, view) {
+	
+};
+
+/**
+ * 
+ */
+View.prototype.sendRunStatusFail = function(responseText, responseXML, view) {
+	
+};
+
+/**
+ * Update the paused value for a period in our run status
+ * @param periodId the period id
+ * @param value whether the period is paused or not
+ */
+View.prototype.updatePausedRunStatusValue = function(periodId, value) {
+	//create the local run status object if necessary
+	if(this.runStatus == null) {
+		this.createRunStatus();
+	}
+	
+	//get the local run status object
+	var runStatus = this.runStatus;
+	
+	if(periodId == null || periodId == 'all') {
+		//we are updating the all periods value
+		runStatus.allPeriodsPaused = value;
+		
+		//set all the periods to the value as well
+		this.setAllPeriodsPaused(value);
+	} else {
+		//we are updating a specific period
+		
+		//get all the periods
+		var periods = runStatus.periods;
+		
+		if(periods != null) {
+			//loop through all the periods
+			for(var x=0; x<periods.length; x++) {
+				//get a period
+				var tempPeriod = periods[x];
+				
+				//get the period id
+				var tempPeriodId = tempPeriod.periodId;
+				
+				//check if the period id matches the one we need to update
+				if(periodId == tempPeriodId) {
+					//we have found the period we want to update
+					tempPeriod.paused = value;
+				}
+			}			
+		}
+	}
+};
+
+/**
+ * Set all the periods to be paused or not
+ * @param isPaused boolean value that specifies if the periods are paused or not
+ */
+View.prototype.setAllPeriodsPaused = function(isPaused) {
+	//create the local run status object if necessary
+	if(this.runStatus == null) {
+		this.createRunStatus();
+	}
+	
+	//get the local run status object
+	var runStatus = this.runStatus;
+	
+	//get all the periods
+	var periods = runStatus.periods;
+	
+	if(periods != null) {
+		//loop through all the peridos
+		for(var x=0; x<periods.length; x++) {
+			//get a period
+			var tempPeriod = periods[x];
+
+			//set the period to be paused or not
+			tempPeriod.paused = isPaused;
+		}			
+	}
+};
+
+/**
+ * Check if a period is paused
+ * @param periodId the period id
+ */
+View.prototype.isPeriodPaused = function(periodId) {
+	//we will default to not paused
+	var paused = false;
+	
+	//create the local run status object if necessary
+	if(this.runStatus == null) {
+		this.createRunStatus();
+	}
+	
+	//get the run status
+	var runStatus = this.runStatus;
+	
+	if(periodId == null || periodId == 'all') {
+		//we want to check if all periods are paused
+		
+		//check if our local run status object has the allPeriodsPaused value
+		if(runStatus.allPeriodsPaused != null) {
+			//get whether all periods are paused
+			paused = runStatus.allPeriodsPaused;
+		}
+	} else {
+		//we want to check if a specific period is paused
+		
+		//get all the periods
+		var periods = runStatus.periods;
+		
+		if(periods != null) {
+			//loop through all the periods
+			for(var x=0; x<periods.length; x++) {
+				//get the period
+				var tempPeriod = periods[x];
+				
+				//get the period id
+				var tempPeriodId = tempPeriod.periodId;
+				
+				//check if this is the period id we are looking for
+				if(periodId == tempPeriodId) {
+					/*
+					 * we have found the period we are looking for so we will get
+					 * whether it is paused or not
+					 */
+					paused = tempPeriod.paused;
+				}
+			}
+		}
+	}
+
+	return paused;
+};
+
+/**
+ * We have received a pause screen websocket message from another teacher
+ * so we will update our local run status object as well as our UI to
+ * reflect the period becoming paused or not
+ */
+View.prototype.pauseScreenReceived = function(data) {
+	if(data != null) {
+		//get a period id
+		var periodId = data.periodId;
+		
+		//if period id is null we will treat it as all periods
+		if(periodId == null) {
+			periodId = 'all';
+		}
+		
+		//get the message type
+		var messageType = data.messageType;
+		
+		if(messageType != null) {
+			
+			var isPaused = false;
+			
+			if(messageType == 'pauseScreen') {
+				//the message is to pause the student screen
+				isPaused = true;
+			} else if(messageType == 'unPauseScreen') {
+				//the message is to unpause the student screens
+				isPaused = false;
+			}
+			
+			//update the run status value for the period
+			this.updatePausedRunStatusValue(periodId, isPaused);
+			
+			if(this.classroomMonitorPeriodIdSelected == periodId) {
+				/*
+				 * if the period that the teacher has currently selected is
+				 * the period that is changing paused value we will update
+				 * the UI to reflect the new paused value
+				 */
+				this.setPauseScreenStatus(isPaused);				
+			}
+		}
+	}
 };
 
 /**

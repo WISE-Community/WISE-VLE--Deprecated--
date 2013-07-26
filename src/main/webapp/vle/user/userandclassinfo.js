@@ -63,6 +63,51 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			return myUserInfo.periodName;
 		};
 		
+		/**
+		 * Get an array of period objects. Each period object contains
+		 * the period id and period name.
+		 */
+		var getAllPeriodObjects = function() {
+			//the array to hold all the period objects
+			var periodObjects = [];
+			
+			/*
+			 * the array to hold the period ids that we have already added
+			 * to the periodObjects array
+			 */
+			var periodIds = [];
+			
+			//loop through all the classmates
+			for(var x=0; x<classmateUserInfos.length; x++) {
+				//get a classmate
+				var classmateUserInfo = classmateUserInfos[x];
+				
+				//get the period id
+				var periodId = classmateUserInfo.periodId;
+				
+				//get the period name
+				var periodName = classmateUserInfo.periodName;
+				
+				if(periodIds.indexOf(periodId) == -1) {
+					//we have not added this period id yet
+					
+					//create the period object
+					var periodObject = {
+						periodId:periodId,
+						periodName:periodName
+					}
+					
+					//add the period object
+					periodObjects.push(periodObject);
+					
+					//add the period id so we don't add it to the period objects array again later
+					periodIds.push(periodId);
+				}
+			}
+			
+			return periodObjects;
+		};
+		
 		var getClassmateUserInfos = function() {
 			return classmateUserInfos;
 		};
@@ -298,6 +343,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			},
 			getClassmateWorkgroupIds:function() {
 				return getClassmateWorkgroupIds();
+			},
+			getAllPeriodObjects:function() {
+				return getAllPeriodObjects();
 			}
 		};
 	}(myUserInfo, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);

@@ -62,6 +62,12 @@ View.prototype.startWebSocketConnection = function() {
 						} else if(messageType == 'studentStatus') {
 							//the message is a student updating their status
 							view.studentStatusReceived(data);
+						} else if(messageType == 'pauseScreen') {
+							//another teacher has paused the screen
+							view.pauseScreenReceived(data);
+						} else if(messageType == 'unPauseScreen') {
+							//another teacher has unpaused the screen
+							view.pauseScreenReceived(data);
 						}
 					}
 				}
@@ -86,32 +92,61 @@ View.prototype.sendTeacherWebSocketMessage = function(messageJSON) {
 /**
  * Send the web socket message to pause all the student screens
  */
-View.prototype.pauseAllScreens = function() {
+View.prototype.pauseScreens = function(periodId) {
 	if(this.socket != null) {
 		//create the message object with the necessary parameters
 		var messageJSON = {};
 		messageJSON.runId = parseInt(this.getConfig().getConfigParam('runId'));
-		messageJSON.messageParticipants = 'teacherToStudentsInRun';
+		
 		messageJSON.messageType = 'pauseScreen';
 		
-		//send the message
+		if(periodId == null || periodId == 'all') {
+			//we are going to pause all the students in a run
+			messageJSON.messageParticipants = 'teacherToStudentsInRun';
+		} else if(periodId != null) {
+			//we are going to pause the students in a period
+			messageJSON.periodId = periodId;
+			messageJSON.messageParticipants = 'teacherToStudentsInPeriod';
+		}
+		
+		//send the message to pause the screens
 		this.sendTeacherWebSocketMessage(messageJSON);
+		
+		//update our run status to reflect that the period is now paused
+		this.updatePausedRunStatusValue(periodId, true);
+		
+		//send the run status to the server to be saved in the db
+		this.sendRunStatus();
 	}
 };
 
 /**
  * Send the web socket message to un-pause all the student screens
  */
-View.prototype.unPauseAllScreens = function() {
+View.prototype.unPauseScreens = function(periodId) {
 	if(this.socket != null) {
 		//create the message object with the necessary parameters
 		var messageJSON = {};
 		messageJSON.runId = parseInt(this.getConfig().getConfigParam('runId'));
-		messageJSON.messageParticipants = 'teacherToStudentsInRun';
 		messageJSON.messageType = 'unPauseScreen';
+		
+		if(periodId == null || periodId == 'all') {
+			//we are going to pause all the students in a run
+			messageJSON.messageParticipants = 'teacherToStudentsInRun';
+		} else if(periodId != null) {
+			//we are going to pause the students in a period
+			messageJSON.periodId = periodId;
+			messageJSON.messageParticipants = 'teacherToStudentsInPeriod';
+		}
 		
 		//send the message
 		this.sendTeacherWebSocketMessage(messageJSON);
+		
+		//update our run status to reflect that the period is now not paused
+		this.updatePausedRunStatusValue(periodId, false);
+		
+		//send the run status to the server to be saved in the db
+		this.sendRunStatus();
 	}
 };
 

@@ -51,6 +51,7 @@
   		<mapping class="vle.domain.statistics.VLEStatistics" />
   		<mapping class="vle.domain.xmpp.ChatLog" />
   		<mapping class="vle.domain.status.StudentStatus" />
+  		<mapping class="vle.domain.status.RunStatus" />
  		
     </session-factory>
 

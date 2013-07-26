@@ -16,7 +16,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		// start the xmpp if xmpp is enabled
 		if (obj.isXMPPEnabled) {
 			//obj.startXMPP();
-			obj.startWebSocketConnection();
+			obj.getRunStatus();
 		}
 	} else if(type=='processLoadViewStateResponseCompleted'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();

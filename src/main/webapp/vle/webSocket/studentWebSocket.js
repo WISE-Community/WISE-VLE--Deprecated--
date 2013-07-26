@@ -1,5 +1,93 @@
 
 /**
+ * Get the run status so we can check if our period is paused or not
+ */
+View.prototype.getRunStatus = function() {
+	//get the run status url we will use to make the request
+	var runStatusUrl = this.getConfig().getConfigParam('runStatusUrl');
+	
+	//get the run id
+	var runId = this.getConfig().getConfigParam('runId');
+	
+	//create the params for the request
+	var runStatusParams = {
+		runId:runId
+	}
+	
+	if(runStatusUrl != null) {
+		//make the request to the server for the student statuses
+		this.connectionManager.request('GET', 3, runStatusUrl, runStatusParams, this.getRunStatusCallback, this, this.getRunStatusFail, false, null);
+	}	
+};
+
+/**
+ * Callback for getting the run status
+ * @param responseText
+ * @param responseXML
+ * @param view
+ */
+View.prototype.getRunStatusCallback = function(responseText, responseXML, view) {
+	//create the run status object
+	var runStatus = JSON.parse(responseText);
+	
+	if(runStatus != null) {
+		//get the period id this student is in
+		var periodId = view.userAndClassInfo.getPeriodId();
+		
+		//check if all periods are paused
+		var allPeriodsPaused = runStatus.allPeriodsPaused;
+		
+		if(allPeriodsPaused) {
+			//all periods are paused so we will lock the screen
+			view.lockScreen();
+		} else {
+			/*
+			 * all periods are not paused so we now need to check if our
+			 * period is paused
+			 */
+			
+			//get all the periods in the run status
+			var periods = runStatus.periods;
+			
+			if(periods != null) {
+				//loop through all the periods in the run status
+				for(var x=0; x<periods.length; x++) {
+					//get a period
+					var tempPeriod = periods[x];
+					
+					//get the period id
+					var tempPeriodId = tempPeriod.periodId;
+					
+					//get whether the period is paused or not
+					var isPaused = tempPeriod.paused;
+					
+					//check if this is the period we are in
+					if(periodId == tempPeriodId) {
+						//this is the period we are in
+						
+						//check if the period is paused
+						if(isPaused) {
+							//the period is paused so we will lock the screen
+							view.lockScreen();
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	//start the web socket connection
+	view.startWebSocketConnection();
+};
+
+/**
+ * The failure callback for getting the student statuses
+ */
+View.prototype.getRunStatusFail = function(responseText, responseXML, view) {
+	
+};
+
+/**
  * Start the web socket connection for the student
  */
 View.prototype.startWebSocketConnection = function() {
