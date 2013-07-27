@@ -300,6 +300,8 @@
 			this.savedObject.max_depth = Math.abs(this.getDeepestIndex()+1 - this.getShallowistIndex());
 			this.savedObject.mass = o_mass;
 			this.savedObject.volume = (o_materialSpaces + o_interiorSpaces + o_protectedSpaces) * this.unit_volume;
+			this.savedObject.total_volume = (o_materialSpaces + o_interiorSpaces + o_protectedSpaces) * this.unit_volume;
+			this.savedObject.enclosed_volume = (o_materialSpaces + o_protectedSpaces) * this.unit_volume
 			this.savedObject.density = this.savedObject.mass/ this.savedObject.volume;
 			this.savedObject.material_volume = (o_materialSpaces) * this.unit_volume;
 			this.savedObject.interior_volume = (o_interiorSpaces + o_protectedSpaces) * this.unit_volume;

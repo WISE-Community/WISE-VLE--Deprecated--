@@ -302,6 +302,7 @@ View.prototype.TableNode.generateGraphTypeRadioButtons = function() {
 	//a list of all the graph types we support
 	var graphTypes = [
 	                  'Scatter Plot',
+	                  'Scatter Plot by Series',
 	                  'Line Graph',
 	                  'Bar Graph',
 	                  'Pie Graph'

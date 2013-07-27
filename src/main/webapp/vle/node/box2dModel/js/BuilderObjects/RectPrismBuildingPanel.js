@@ -305,7 +305,7 @@
 			var savedObject = this.saveObject();
 			
 			// save to global parameters
-			if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
+			//if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
 			labWorld.createObjectInWorld(savedObject, 0, -1, 0, "dynamic");
 		} else 
 		{

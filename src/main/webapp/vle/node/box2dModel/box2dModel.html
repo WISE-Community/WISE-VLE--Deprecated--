@@ -87,6 +87,7 @@
 		<script src="libs/Box2dWeb-2.1.a.3.min.js"></script>
 		<script src="libs/jquery.ui.touch-punch.min.js"></script>
 		<script src="libs/jquery.ui.selectmenu.js"></script>
+		<script src="libs/canvas2image.js"></script>
 		<script src="js/GeneralObjects/Point3D.js"></script>
 		<script src="js/GeneralObjects/TextContainer.js"></script>		
 		<script src="js/BuilderObjects/MaterialsMenu.js"></script>
@@ -117,14 +118,14 @@
 		<script src="js/B2Objects/skins/BalanceShape.js"></script>
 		<script src="js/FeedbackManager.js"></script>
 		<script src="js/box2dModelMain.js"></script>
-		
 		<!-- TODO create the html UI that the student will see when they visit the step -->
 		<div id='messageDiv'></div>
 		<div id='promptDiv'></div>
 		<div id="builder-button-holder"></div>
 		<div id="beaker-button-holder"></div>
 		<div id="canvas-holder">
-			<canvas width=820 height=560 id="canvas" ></canvas>
+			<canvas width=820 height=560 id="b2canvas" ></canvas>
+			<canvas width=220 height=220 id="imgcanvas" ></canvas>
 		</div>
 		</body>
 </html>

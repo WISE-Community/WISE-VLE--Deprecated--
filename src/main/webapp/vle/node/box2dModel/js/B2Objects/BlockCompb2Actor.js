@@ -97,6 +97,7 @@
 		
 		var area = 0;
 		var volume = 0;
+		var volume_enclosed = 0;
 		for (var i = 0; i < this.fixDefs.length; i++)
 		{
 			var fixDef = this.fixDefs[i];
@@ -115,6 +116,7 @@
 			//f.SetDensity((f.materialDensity * f.materialSpaces)/f.area);
 
 			volume += f.materialSpaces + f.protectedSpaces + f.interiorSpaces;
+			volume_enclosed += f.materialSpaces + f.protectedSpaces;
 
 			var lowerBound = f.GetAABB().lowerBound;
 			var upperBound = f.GetAABB().upperBound;

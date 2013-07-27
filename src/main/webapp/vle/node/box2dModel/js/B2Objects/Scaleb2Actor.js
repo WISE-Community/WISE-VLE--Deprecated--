@@ -50,6 +50,7 @@
 		bodyDef.userData = {"actor":this}
 		
 		this.viewing_rotation = 0;
+		this.justAddedBody = null;
 		
 		this.constructFixtures();
 	}
@@ -204,12 +205,16 @@
 
 	p.BeginContact = function (bodyA, bodyB){
 		// is one body directly touching the pan?
+		var just_added = false;
 		if ((bodyA == this.pan) || (bodyB == this.pan)){
 			var obody = bodyA == this.pan ? bodyB : bodyA;
 			if (this.contactedBodies.indexOf(obody) == -1){
 				this.contactedBodies.push(obody);
 				this.massOnPan += obody.GetMass();
 				obody.contactLinkToScalePan = this.pan;
+				//console.log(obody)
+				this.justAddedBody = obody;
+				just_added = true;
 			}
 		} else {
 			// are either body touching a body that is in the contact list?
@@ -219,6 +224,8 @@
 						this.contactedBodies.push(bodyB);
 						this.massOnPan += bodyB.GetMass();
 						bodyB.contactLinkToScalePan = bodyA;
+						this.justAddedBody = bodyB;
+						just_added = true	
 					}
 					break;
 				} else if (this.contactedBodies[i] == bodyB){
@@ -226,10 +233,18 @@
 						this.contactedBodies.push(bodyA);
 						this.massOnPan += bodyA.GetMass();
 						bodyA.contactLinkToScalePan = bodyB;
+						this.justAddedBody = bodyA;
+						just_added = true;
 					} 
 					break;
 				}
 			}
+		}
+		if (just_added){
+			this.justAddedBody.bobbing = true;
+			this.justAddedBody.stationaryCount = 0;
+			this.justAddedBody.prevPosition = new b2Vec2(-10000, -10000);
+			eventManager.fire('add-to-scale',[this.justAddedBody.GetUserData()['actor'].skin.savedObject], box2dModel);
 		}
 	}
 	p.EndContact = function (bodyA, bodyB){
@@ -241,6 +256,8 @@
 				this.contactedBodies.splice(index, 1);
 				this.massOnPan -= obody.GetMass();
 				obody.contactLinkToScalePan = null;
+				if (obody == this.justAddedBody) this.justAddedBody = null;
+				eventManager.fire('remove-from-scale',[obody.GetUserData()['actor'].skin.savedObject], box2dModel);
 			}
 		} else {
 			// if both are on contact list then remove one
@@ -251,10 +268,14 @@
 					this.contactedBodies.splice(indexA, 1);
 					this.massOnPan -= bodyA.GetMass();
 					bodyA.contactLinkToScalePan = null;
+					if (bodyA == this.justAddedBody) this.justAddedBody = null;
+					eventManager.fire('remove-from-scale',[bodyA.GetUserData()['actor'].skin.savedObject], box2dModel);
 				} else if (bodyB.contactLinkToScalePan == bodyA){
 					this.contactedBodies.splice(indexB, 1);
 					this.massOnPan -= bodyB.GetMass();
 					bodyB.contactLinkToScalePan = null;
+					if (bodyB == this.justAddedBody) this.justAddedBody = null;
+					eventManager.fire('remove-from-scale',[bodyB.GetUserData()['actor'].skin.savedObject], box2dModel);
 				}				
 			}
 		}
@@ -297,6 +318,21 @@
 				this.skin.redraw(pan_y - this.y, displayrF);
 				this.prev_rF = rF;
 			} 
+
+			// is there a just added body which is bobbing?
+			if (this.justAddedBody != null && this.justAddedBody.bobbing){
+				// is it stationary-ish
+				//console.log("from (", this.justAddedBody.prevPosition.x,",",this.justAddedBody.prevPosition.y,") to (",this.justAddedBody.GetPosition().x,",",this.justAddedBody.GetPosition().y,"");
+				if (Math.abs(this.justAddedBody.prevPosition.x - this.justAddedBody.GetPosition().x) < 0.01 &&
+					Math.abs(this.justAddedBody.prevPosition.y - this.justAddedBody.GetPosition().y) < 0.01){
+					this.justAddedBody.stationaryCount++;
+					if (this.justAddedBody.stationaryCount > 5){
+						eventManager.fire('test-on-scale',[this.justAddedBody.GetUserData()['actor'].skin.savedObject, this.savedObject], box2dModel);
+						this.justAddedBody.bobbing = false;	
+					}			
+				}
+				this.justAddedBody.prevPosition = new b2Vec2(this.justAddedBody.GetPosition().x, this.justAddedBody.GetPosition().y);	
+			}
 		}
 	}
 

@@ -136,8 +136,26 @@
 		} else if (typeof savedObject.rectPrismArrays != "undefined"){
 			compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
 		}
-		
-		savedObject.id = "O" + GLOBAL_PARAMETERS.total_objects_made_in_world;
+
+
+		savedObject.id = "O-" + GLOBAL_PARAMETERS.objects_made.length;
+
+		// draw to imgstage
+		if (typeof compShape.shape !== "undefined" && compShape.shape != null){
+			//imgstage.drawQueue.push(compShape);
+			var s = new createjs.Shape(compShape.shape.graphics);
+			s.x = compShape.width_px_left;
+			s.y = 220 - compShape.height_px_below;
+			imgstage.addChild(s);
+			imgstage.update();
+			var png = Canvas2Image.convertToPNG($("#imgcanvas")[0], 110, 110);
+			png.setAttribute('id', savedObject.id);
+			// simplify object
+			var img = {"id":png.id, "src":png.src, "width":110, "height":110};
+			GLOBAL_PARAMETERS.images.push(img);
+			imgstage.removeChild(s);
+			imgstage.update();
+		}
 		
 		var actor;
 		if (compShape.is_blockComp){
@@ -150,12 +168,13 @@
 		
 		if (y < 0) y = this.height_units;
 		
+		eventManager.fire('make-model',[actor.skin.savedObject], box2dModel);
 		this.addActor(actor, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		actor.orig_parent = this;
 		if (type == "dynamic"){
 			actor.onPress = this.actorPressHandler.bind(this);
 		}
-		GLOBAL_PARAMETERS.total_objects_made_in_world++;
+		GLOBAL_PARAMETERS.objects_made.push(savedObject)
 
 		return true;
 	}	
@@ -164,6 +183,7 @@
 	p.createBeakerInWorld = function (b, x, y, type){
 		var beaker = new Beakerb2Actor(GLOBAL_PARAMETERS.materials[b.material_name], GLOBAL_PARAMETERS.liquids[b.liquid_name], b.width_units, b.height_units, b.depth_units, b.init_liquid_volume_perc, b.spilloff_volume_perc, b.showRuler);
 		if (y < 0) y = this.height_units;
+		eventManager.fire('make-beaker',[beaker.skin.savedObject], box2dModel);
 		this.addBeaker(beaker, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		beaker.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
@@ -176,6 +196,7 @@
 	p.createScaleInWorld = function (x, y, pan_width_units, type){
 		var scale = new Scaleb2Actor(pan_width_units, 0.1);
 		if (y < 0) y = this.height_units;
+		eventManager.fire('make-scale',[scale.skin.savedObject], box2dModel);
 		this.addScale (scale, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		scale.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
@@ -188,6 +209,7 @@
 	p.createBalanceInWorld = function (x, y, height_units, pan_width_units, type){
 		var balance = new Balanceb2Actor(height_units, pan_width_units, 0.1);
 		if (y < 0) y = this.height_units;
+		eventManager.fire('make-balance',[balance.skin.savedObject], box2dModel);
 		this.addBalance (balance, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		balance.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
@@ -198,7 +220,6 @@
 	}
 	
 	p.addActor = function (actor, x, y){
-		eventManager.fire('add-actor-world',[actor.skin.savedObject], box2dModel);
 		
 		this.addChild(actor);
 		if (y < this.shelf_height_units){
@@ -226,7 +247,6 @@
 	}
 
 	p.addBeaker = function (beaker, x, y){
-		eventManager.fire('add-beaker-world',[beaker.skin.savedObject], box2dModel);
 		this.addChild(beaker);
 		if (y < this.shelf_height_units){
 			var point = this.addActorToShelf(beaker, x, y);
@@ -246,7 +266,6 @@
 	}
 
 	p.addScale = function (scale, x, y){
-		eventManager.fire('add-scale-world',[scale.skin.savedObject], box2dModel);
 		this.addChild(scale);
 		if (y < this.shelf_height_units){
 			var point = this.addActorToShelf(scale, x,  y);
@@ -264,7 +283,6 @@
 	}
 
 	p.addBalance = function (balance, x, y){
-		eventManager.fire('add-balance-world',[balance.skin.savedObject], box2dModel);
 		this.addChild(balance);
 		if (y < this.shelf_height_units){
 			var point = this.addActorToShelf(balance, x, y);
@@ -317,7 +335,7 @@
 		this.justRemovedActor = actor;
 		this.justAddedActor = null;
 		
-		eventManager.fire('remove-actor-world',[actor.skin.savedObject], box2dModel);
+		eventManager.fire('delete-actor',[actor.skin.savedObject], box2dModel);
 		this.removeActorFromShelf(actor);
 		this.actors.splice(this.actors.indexOf(actor), 1);
 		
@@ -339,7 +357,7 @@
 		this.removeActorFromShelf(beaker);
 		this.beakers.splice(this.beakers.indexOf(beaker), 1);
 		
-		eventManager.fire('remove-beaker-world',[beaker.skin.savedObject], box2dModel);
+		eventManager.fire('delete-beaker',[beaker.skin.savedObject], box2dModel);
 		if (beaker.controlledByBuoyancy){
 			beaker.containedWithin.removeActor(beaker);	
 		}
@@ -352,7 +370,7 @@
 		this.removeActorFromShelf(scale);
 		this.scales.splice(this.scales.indexOf(scale), 1);
 		
-		eventManager.fire('remove-scale-world',[scale.skin.savedObject], box2dModel);
+		eventManager.fire('delete-scale',[scale.skin.savedObject], box2dModel);
 		if (scale.controlledByBuoyancy){
 			scale.containedWithin.removeActor(scale);	
 		}
@@ -364,7 +382,7 @@
 		this.removeActorFromShelf(balance);
 		this.balances.splice(this.balances.indexOf(balance), 1);
 		
-		eventManager.fire('remove-balance-world',[balance.skin.savedObject], box2dModel);
+		eventManager.fire('delete-balance',[balance.skin.savedObject], box2dModel);
 		if (balance.controlledByBuoyancy){
 			balance.containedWithin.removeActor(balance);	
 		}
@@ -656,7 +674,7 @@
 				width_px = puddle.width_px;
 				height_px = puddle.height_px;
 				// don't bother drawing if width is greater than screen
-				if (width_px < 2*$("#canvas").width()){
+				if (width_px < 2*$("#b2canvas").width()){
 					this.skin.updatePuddleShape(puddle.shape, beaker.liquid.fill_color, width_px, height_px);
 				}
 				return;

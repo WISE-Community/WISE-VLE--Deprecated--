@@ -57,13 +57,7 @@ function Box2dModelNode(nodeType, view) {
 	/////
 	////	THESE NEED TO BE PLACED IN box2dModelEvents as well;
 
-	this.customEventTypes = ['box2dInit','make-model', 'delete-model', 'add-balance-world', 'add-balance', 'remove-balance-world',
-		'remove-balance', 'add-beaker-world', 'add-scale-world', 'add-scale', 'remove-scale-world', 'remove-scale','add-beaker', 'add-beaker-spilloff', 'remove-beaker-world', 'remove-beaker', 
-		'remove-spilloff','press-refill-beaker', 'press-release-beaker','test-balance-1to1', 'test-balance-1toN', 'test-balance-Nto1',
-		'test-balance-NtoN', 'test-scale-1','test-scale-N','test-add-beaker','test-release-beaker', 'gave-feedback', 'revise-model'
-	];
-	
-	
+	this.customEventTypes = ['make-model', 'delete-model', 'make-beaker', 'delete-beaker', 'make-scale', 'delete-scale', 'make-beaker', 'delete-beaker', 'add-to-beaker', 'add-to-scale', 'add-to-balance', 'remove-from-beaker', 'remove-from-scale', 'remove-from-balance', 'test-in-beaker', 'test-on-scale', 'test-on-balance','gave-feedback'];	
 }
 
 /**
@@ -272,6 +266,25 @@ Box2dModelNode.prototype.getHTMLContentTemplate = function() {
 Box2dModelNode.prototype.hasGradingView = function() {
 	return true;
 };
+
+
+/**
+ * Get the html string representation of the student work
+ * @param work the student node state that we want to display
+ * @return an html string that will display the student work
+ */
+Box2dModelNode.prototype.getStudentWorkHtmlView = function(work) {
+	
+	var html = '<div id="image-holder">';
+	for (var i = 0; i < work.response.images.length; i++){
+		var img = work.response.images[i];
+		html = html + '<img id="'+img.id+'" src="'+img.src+'" width='+img.width+' height='+img.height+'/>';
+	}
+	html = html + '</div>';
+	console.log(html);
+	return html;
+};
+
 /**
  * Get the tag map functions that are available for this step type
  */

@@ -111,6 +111,8 @@
 			this.savedObject.max_depth = this.depth_units;
 			this.savedObject.mass = o_mass;
 			this.savedObject.volume = o_materialSpaces;
+			this.savedObject.total_volume = o_materialSpaces + o_protectedSpaces + o_interiorSpaces;
+			this.savedObject.enclosed_volume = o_materialSpaces + o_protectedSpaces;
 			this.savedObject.density = this.savedObject.mass/ this.savedObject.volume;
 			this.savedObject.material_volume = o_materialSpaces;
 			this.savedObject.interior_volume = o_interiorSpaces;
