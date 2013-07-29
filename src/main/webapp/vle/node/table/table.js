@@ -181,10 +181,11 @@ Table.prototype.render = function() {
 	//get the latest state
 	var latestState = this.getLatestState();
 	
-	if(latestState == null && workToImport != null && workToImport.length > 0) {
+	if((latestState == null || (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.overridePreviousWorkHere !== undefined && this.content.graphOptions.overridePreviousWorkHere)) && workToImport != null && workToImport.length > 0) {
 		/*
 		 * the student has not done any work on this step yet and there
 		 * is specified work to import so we will use the import work
+		 * OR, an override flag is set to true in graph options (in advanced mode - JV)
 		 */
 		latestState = workToImport[workToImport.length - 1];
 	}
@@ -273,7 +274,11 @@ Table.prototype.render = function() {
 			cellTextInput.id = 'tableCell_' + x + '-' + y;
 			cellTextInput.name = 'tableCell_' + x + '-' + y;
 			cellTextInput.value = cellText;
-			cellTextInput.size = cellSize;
+			if (y == 0 && typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.autoResizeColumnTitles !== undefined && this.content.graphOptions.autoResizeColumnTitles){
+				cellTextInput.size = Math.max(cellText.length, cellSize);
+			} else {
+				cellTextInput.size = cellSize;
+			}
 			cellTextInput.onchange = studentTableChanged;
 			
 			if(cellUneditable) {
@@ -1613,15 +1618,21 @@ Table.prototype.getGoogleDataTableForSeries = function(tableData, graphOptions) 
 		var cval = dataInGoogleFormat[i][2];
 		var cindex = clevels.indexOf(cval);
 		// construct row adding y value at cindex
-		var row = [dataInGoogleFormat[i][0]];
-		for (c = 0; c < clevels.length; c++){
-			if (c == cindex){
-				row.push(dataInGoogleFormat[i][1]);
-			} else {
-				row.push(null);
+		if (!isNaN(dataInGoogleFormat[i][0])){
+			var row = [dataInGoogleFormat[i][0]];
+			var found_value = false;
+			for (c = 0; c < clevels.length; c++){
+				if (c == cindex){
+					if (!isNaN(dataInGoogleFormat[i][1])){
+						row.push(dataInGoogleFormat[i][1]);
+						found_value = true;
+					}
+				} else {
+					row.push(null);
+				}
 			}
+			if (found_value) data.addRow(row);
 		}
-		data.addRow(row);
 	}
 	return data;
 }
@@ -2045,8 +2056,16 @@ Table.prototype.processTagMaps = function() {
 						}
 						// remove "tested in variables"
 						for (var i = tableData.length-1; i >= 0; i--){
-							if (tableData[i][0].text.substr(0,6) == "Tested"){// || tableData[i][0].text=="id"){
+							if (tableData[i][0].text.substr(0,6) == "Tested"){
 								tableData.splice(i,1);
+							}
+						}
+						// remove "id if we are not showing previous work"
+						if ($("#previousWorkDiv").children().length == 0){
+							for (var i = tableData.length-1; i >= 0; i--){
+								if (tableData[i][0].text=="id"){
+									tableData.splice(i,1);
+								}
 							}
 						}
 						// use spaces instead of underscores

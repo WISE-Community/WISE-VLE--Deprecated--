@@ -271,8 +271,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	evt.model = {};
 	var row = {};
 	row.id = args[0].id;
-	row.Total_Mass = args[0].mass;
+	row.Materials = typeof args[0].unique_materials !== "undefined" ? args[0].unique_materials.slice().sort().toString() : "";
 	row.Total_Volume = args[0].total_volume;
+	row.Total_Mass = args[0].mass;
 	row.Total_Density = row.Total_Mass / row.Total_Volume;
 	row.Enclosed_Mass = args[0].mass;
 	row.Enclosed_Volume = args[0].enclosed_volume;
@@ -291,6 +292,7 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		row["Percent_Submerged_in_"+liquid_name] = Math.min(1, row.Total_Density / liquid_density);
 		row["Percent_Above_"+liquid_name] = 1 - row["Percent_Submerged_in_"+liquid_name];
 		row["Volume_Displaced_in_"+liquid_name] = row.Total_Volume * row["Percent_Submerged_in_"+liquid_name];
+		row["Mass_Displaced_in_"+liquid_name] = liquid_density * row.Total_Volume * row["Percent_Submerged_in_"+liquid_name];
 		row["Tested_in_"+liquid_name] = 0;
 	}
 	if (evt.type == "add-to-beaker" || evt.type == "test-in-beaker" || evt.type == "remove-from-beaker"){
@@ -400,7 +402,7 @@ Box2dModel.prototype.save = function(evt) {
 			}
 		}
 	}
-	
+	// on test update the "Tested_in" or "Tested_on" column
 	if (evt.type.substr(0,4) == "test" || evt.type.substr(0,7) == "add-to-"){
 		// run through keys of model looking for positive tests, then update column in tableData
 		for (var key in evt.model){

@@ -308,14 +308,22 @@
 					displayrF = this.massOnPan;
 				} else {
 					if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
-						displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/1000;
+						displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/100;
 					} else {
-						displayrF = (rF - this.pan.GetMass()*10)/1000;
+						displayrF = (rF - this.pan.GetMass()*10)/100;
 					}
 				}
 				
 				//displayrF = (rF - this.pan.GetMass()*10)/1000;
-				this.skin.redraw(pan_y - this.y, displayrF);
+				var displayVal = displayrF;
+				if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("lb|lbs|p|Lb") != null){
+					displayVal = displayrF*0.2248;	
+				} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("k") != null){
+					displayVal = displayrF/10;	
+				} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("g|c") != null){
+					displayVal = displayrF*10;	
+				} 
+				this.skin.redraw(pan_y - this.y, displayVal);
 				this.prev_rF = rF;
 			} 
 

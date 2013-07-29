@@ -279,9 +279,10 @@ Box2dModelNode.prototype.getStudentWorkHtmlView = function(work) {
 	for (var i = 0; i < work.response.images.length; i++){
 		var img = work.response.images[i];
 		html = html + '<img id="'+img.id+'" src="'+img.src+'" width='+img.width+' height='+img.height+'/>';
+		html = html + '<span style="position:absolute; top:'+40+'px; left:'+(i+0.15)*img.width+'px">'+img.id+'</span>';
 	}
 	html = html + '</div>';
-	console.log(html);
+	//console.log(html);
 	return html;
 };
 

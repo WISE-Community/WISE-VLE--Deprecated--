@@ -518,34 +518,28 @@
 		var is_container = true;
 
 		var blockArray2d = this.vv.blockArray2d;
-		for (i = 0; i < blockArray2d.length; i++)
-		{
+		for (i = 0; i < blockArray2d.length; i++){
 			i_rev = blockArray2d.length - 1 - i;
 			blockArray3d[i_rev] = [];
-			for (j = 0; j < blockArray2d[i].length; j++)
-			{
-				if (blockArray2d[i][j] != null)
-				{
-					blockArray3d[i_rev][j] = new Array();
-					for (k = 0; k < blockArray2d[i][j].depth_array.length; k++)
-					{
-						if (blockArray2d[i][j].depth_array[k] == 1)
-						{
+			for (j = 0; j < blockArray2d[i].length; j++){
+				if (blockArray2d[i][j] != null){
+					blockArray3d[i_rev][j] = [];
+					for (k = 0; k < blockArray2d[i][j].depth_array.length; k++){
+						if (blockArray2d[i][j].depth_array[k] == 1)	{
 							blockArray3d[i_rev][j][k] = blockArray2d[i][j].material_name;
 							if (!GLOBAL_PARAMETERS.materials[blockArray2d[i][j].material_name].is_container) is_container = false;
-						} else 
-						{
+						} else 	{
 							blockArray3d[i_rev][j][k] = "";
 						}
 					}
 					block_count++;
-				} else
-				{
+				} else {
 					blockArray3d[i_rev][j] = ["", "", "", "", ""];
 				}
 			}
 		}
 		savedObject.blockArray3d = blockArray3d;
+		savedObject.unique_materials = [];
 		savedObject.is_container = is_container;
 		// some other parameters of the object we'll fill in later, when the object is put together
 		savedObject.max_height = 0;

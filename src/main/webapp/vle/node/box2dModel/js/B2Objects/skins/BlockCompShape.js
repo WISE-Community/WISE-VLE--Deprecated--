@@ -264,6 +264,7 @@
 			
 			// go through rows and columns adding up mass in depths
 			var i, j, k, d;
+			var unique_materials = [];
 			for (i = left_x; i <= right_x; i++)
 			{
 				array2d[i - left_x] = new Array();
@@ -273,7 +274,10 @@
 					for (k = 0; k < this.blockArray3d[i][j].length; k++)
 					{
 						if (this.blockArray3d[i][j][k] != ""){
-							mass += GLOBAL_PARAMETERS.materials[this.blockArray3d[i][j][k]].density;
+							var material = GLOBAL_PARAMETERS.materials[this.blockArray3d[i][j][k]];
+							mass += material.density;
+							var material_name = material.display_name;
+							if (unique_materials.indexOf(material_name) == -1) unique_materials.push(material_name);
 						}
 
 						if (spaces3d[i][j][k] == "B"){
@@ -295,6 +299,7 @@
 					array2d[i - left_x][j - top_y] = {"mass":mass, "totalSpaces":spaces3d[0][0].length, "materialSpaces":materialSpaces, "exteriorSpaces":exteriorSpaces, "interiorSpaces":interiorSpaces, "protectedSpaces":protectedSpaces};
 				}
 			} 
+			this.savedObject.unique_materials = unique_materials;
 			this.savedObject.max_height = Math.abs(this.getLowestRow()+1 - this.getHighestRow());
 			this.savedObject.max_width = Math.abs(this.getRightmostColumn()+1 - this.getLeftmostColumn());
 			this.savedObject.max_depth = Math.abs(this.getDeepestIndex()+1 - this.getShallowistIndex());

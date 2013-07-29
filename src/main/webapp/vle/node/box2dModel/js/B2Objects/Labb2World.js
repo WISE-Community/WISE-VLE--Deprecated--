@@ -124,6 +124,8 @@
 	/** Place an object directly in the world */
 	p.createObjectInWorld = function (savedObject, x, y, rotation, type)
 	{
+		if (GLOBAL_PARAMETERS.objects_made.length >= GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD) return false;
+
 		var compShape;
 		if (typeof savedObject.blockArray3d != "undefined"){
 			if (savedObject.is_container){
@@ -138,7 +140,7 @@
 		}
 
 
-		savedObject.id = "O-" + GLOBAL_PARAMETERS.objects_made.length;
+		savedObject.id = "Obj-" + GLOBAL_PARAMETERS.objects_made.length;
 
 		// draw to imgstage
 		if (typeof compShape.shape !== "undefined" && compShape.shape != null){
@@ -148,10 +150,10 @@
 			s.y = 220 - compShape.height_px_below;
 			imgstage.addChild(s);
 			imgstage.update();
-			var png = Canvas2Image.convertToPNG($("#imgcanvas")[0], 110, 110);
+			var png = Canvas2Image.convertToPNG($("#imgcanvas")[0], 220*GLOBAL_PARAMETERS.IMAGE_SCALE, 220*GLOBAL_PARAMETERS.IMAGE_SCALE);
 			png.setAttribute('id', savedObject.id);
 			// simplify object
-			var img = {"id":png.id, "src":png.src, "width":110, "height":110};
+			var img = {"id":png.id, "src":png.src, "width":220*GLOBAL_PARAMETERS.IMAGE_SCALE, "height":220*GLOBAL_PARAMETERS.IMAGE_SCALE};
 			GLOBAL_PARAMETERS.images.push(img);
 			imgstage.removeChild(s);
 			imgstage.update();
@@ -305,8 +307,9 @@
 		if (y < 0){
 			var running_left_x = 0;
 			var placed = false;
+			var o = null;
 			for (var i = 0; i < this.objects_on_shelf.length; i++){
-				var o = this.objects_on_shelf[i];
+				o = this.objects_on_shelf[i];
 				var right_x = o.x - o.width_px_left - GLOBAL_PARAMETERS.SCALE;
 				if (right_x - running_left_x > (actor.width_px_left + actor.width_px_right + GLOBAL_PARAMETERS.SCALE)){
 					x = running_left_x + GLOBAL_PARAMETERS.SCALE;
@@ -315,8 +318,17 @@
 					running_left_x = o.x + o.width_px_right + GLOBAL_PARAMETERS.SCALE;
 				}
 			}
-			if (!placed) x = running_left_x;
-			y = this.shelf_height_units - actor.height_units_below;
+			if (!placed){
+				x = running_left_x;
+				var height_above = 0;
+				if (x > this.width_px){
+					if (o != null && typeof o.height_units_above !== "undefined" && !isNaN(o.height_units_above)) height_above = o.height_units_above + o.height_units_below;
+					x = 0;
+				}
+				y = this.shelf_height_units - actor.height_units_below -  height_above;
+			} else {
+				y = this.shelf_height_units - actor.height_units_below;
+			}
 			actor.x = x;
 			x /= GLOBAL_PARAMETERS.SCALE; 
 		}

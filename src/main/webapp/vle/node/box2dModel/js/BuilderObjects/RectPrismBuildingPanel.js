@@ -633,6 +633,7 @@
 			if (!GLOBAL_PARAMETERS.materials[blockArray[i].material_name].is_container) is_container = false;
 		}
 		savedObject.rectPrismArrays = rectPrismArrays;
+		savedObject.unique_materials = [];
 		savedObject.is_container = is_container;
 		// some other parameters of the object we'll fill in later, when the object is put together
 		savedObject.max_height = 0;
