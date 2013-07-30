@@ -275,9 +275,12 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	row.Total_Volume = args[0].total_volume;
 	row.Total_Mass = args[0].mass;
 	row.Total_Density = row.Total_Mass / row.Total_Volume;
-	row.Enclosed_Mass = args[0].mass;
-	row.Enclosed_Volume = args[0].enclosed_volume;
-	row.Enclosed_Density = row.Enclosed_Mass / row.Enclosed_Volume;
+	row.Material_Mass = args[0].mass;
+	row.Material_Volume = args[0].material_volume;
+	row.Material_Density = row.Material_Mass / row.Material_Volume;
+	row.Open_Mass = 0;
+	row.Open_Volume = args[0].interior_volume;
+	row.Open_Density = 0;
 	row.Tested_on_Scale = 0;
 	row.Tested_on_Balance = 0;
 	// cycle through each liquid to gather data

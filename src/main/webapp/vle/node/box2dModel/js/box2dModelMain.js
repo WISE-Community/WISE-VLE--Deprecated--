@@ -73,9 +73,12 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 		[{"text":"Total_Mass", "uneditable":true}],
 		[{"text":"Total_Volume", "uneditable":true}],
 		[{"text":"Total_Density", "uneditable":true}],
-		[{"text":"Enclosed_Mass", "uneditable":true}],
-		[{"text":"Enclosed_Volume", "uneditable":true}],
-		[{"text":"Enclosed_Density", "uneditable":true}],
+		[{"text":"Material_Mass", "uneditable":true}],
+		[{"text":"Material_Volume", "uneditable":true}],
+		[{"text":"Material_Density", "uneditable":true}],
+		[{"text":"Open_Mass", "uneditable":true}],
+		[{"text":"Open_Volume", "uneditable":true}],
+		[{"text":"Open_Density", "uneditable":true}],
 		[{"text":"Tested_on_Scale", "uneditable":true}],
 		[{"text":"Tested_on_Balance", "uneditable":true}]];
 	GLOBAL_PARAMETERS["objects_made"] = [];		
