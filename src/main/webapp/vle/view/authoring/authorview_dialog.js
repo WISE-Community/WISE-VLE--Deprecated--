@@ -508,7 +508,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 	});
 	
 	var updateProjectMetadata = function(){
-		var imVersion = $('#enableIdeaManager').attr('version');
+		var imVersion = $('#enableIdeaManager').attr('data-version');
 		
 		view.projectMeta.title = $('#projectMetadataTitle').val();
 		view.projectMeta.author = $('#projectMetadataAuthor').val();
@@ -534,8 +534,8 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		view.projectMeta.keywords = $('#projectMetadataKeywords').val();
 		view.projectMeta.language = $('#projectMetadataLanguage').val();
 		
-		if(parseInt(imVersion) > 1){
-			if(typeof $('#enableIdeaManager').attr('version') == 'string' ){
+		if(parseInt(imVersion, 10) > 1){
+			if(typeof $('#enableIdeaManager').attr('data-version') === 'string' ){
 				$.extend(jQuery.validator.messages, {
 				  required: ' *This item is required.'
 				});

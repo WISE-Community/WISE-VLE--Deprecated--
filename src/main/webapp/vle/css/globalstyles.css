@@ -211,7 +211,8 @@ img.tooltip {
 
 .sectionContent h5,.sectionContent div {
 	margin: .5em 0;
-	font-size: .9em line-height:1.2em;
+	font-size: .9em;
+	line-height:1.2em;
 }
 
 .sectionContent p {

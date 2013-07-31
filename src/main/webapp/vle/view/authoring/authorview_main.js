@@ -1226,27 +1226,27 @@ View.prototype.editProjectMetadata = function(){
 			}
 			
 			// get Idea Manager version
-			if('ideaManagerVersion' in tools){
+			if(tools.hasOwnProperty('ideaManagerVersion')){
 				imVersion = tools.ideaManagerVersion;
 			}
 			
 			// get Idea Manager settings
-			if ('ideaManagerSettings' in tools){
+			if (tools.hasOwnProperty('ideaManagerSettings')){
 				imSettings = tools.ideaManagerSettings;
-				if('version' in tools.ideaManagerSettings){
+				if(tools.ideaManagerSettings.hasOwnProperty('version')){
 					imVersion = tools.ideaManagerSettings.version;
 				}
 			}
 		}
 		
-		if(this.projectHasRun && parseInt(imVersion) < 2){
+		if(this.projectHasRun && parseInt(imVersion, 10) < 2){
 			// project has run in classroom and uses older version of Idea Manager, so remove IM v2 settings panel
 			$('#ideaManagerSettings').remove();
 		} else {
 			// since project hasn't run and Idea Manager version hasn't been set < 2, we can use IM v2 for this project
 			imVersion = '2';
 			// set version as attribute of enable IM checkbox (will be read and stored when saving project metadata)
-			$('#enableIdeaManager').attr('version',imVersion);
+			$('#enableIdeaManager').attr('data-version',imVersion);
 			
 			// if Idea Manager is enabled, show settings panel
 			if($('#enableIdeaManager').is(':checked')){

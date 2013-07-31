@@ -703,9 +703,9 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
 		var title = this.getI18NString("idea_basket_add_an_idea");
-		if('ideaManagerSettings' in this.getProjectMetadata().tools){
+		if(this.getProjectMetadata().tools.hasOwnProperty('ideaManagerSettings')){
 			var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
-			if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
+			if(imSettings.hasOwnProperty('addIdeaTerm') && this.utils.isNonWSString(imSettings.addIdeaTerm)){
 				title = imSettings.addIdeaTerm;
 			}
 		}
@@ -858,7 +858,7 @@ View.prototype.getIdeaAttributes = function(){
 View.prototype.addIdeaToBasket = function() {
 	var view = this;
 	var imVersion = 1;
-	if('ideaManagerSettings' in this.getProjectMetadata().tools){
+	if(this.getProjectMetadata().tools.hasOwnProperty('ideaManagerSettings')){
 		imVersion = this.getProjectMetadata().tools.ideaManagerSettings.version;
 	}
 	
@@ -1393,14 +1393,15 @@ View.prototype.makeIdeaPublic = function(basket, ideaId) {
 View.prototype.makeIdeaPublicCallback = function(responseText, responseXML, args) {
 	if(responseText != null && responseText != '') {
 		//get our basket
-		var basket = args.basket;
+		var basket = args.basket
+			view = this;
 		
 		//get the public idea basket as a JSON object
 		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display the message in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);
@@ -1461,14 +1462,15 @@ View.prototype.makeIdeaPrivate = function(basket, ideaId) {
 View.prototype.makeIdeaPrivateCallback = function(responseText, responseXML, args) {
 	if(responseText != null && responseText != '') {
 		//get our basket
-		var basket = args.basket;
+		var basket = args.basket,
+			view = this;
 		
 		//get the public idea basket as a JSON object
 		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display it in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);
@@ -1514,7 +1516,8 @@ View.prototype.makeIdeaPrivateCallback = function(responseText, responseXML, arg
  */
 View.prototype.copyPublicIdea = function(basket, ideaWorkgroupId, ideaId) {
 	//get the current workgroup id
-	var workgroupId = this.getUserAndClassInfo().getWorkgroupId();
+	var workgroupId = this.getUserAndClassInfo().getWorkgroupId(),
+		view = this;
 	
 	//check if the idea exists in the private basket
 	var isPublicIdeaInPrivateBasket = basket.isPublicIdeaInPrivateBasket(ideaWorkgroupId, ideaId);
@@ -1524,10 +1527,10 @@ View.prototype.copyPublicIdea = function(basket, ideaWorkgroupId, ideaId) {
 		 * the student is trying to copy their own idea that is in
 		 * the public basket which is not allowed
 		 */ 
-		alert('Error: You are not allowed to copy your own public idea');
+		alert(view.getI18NStringWithParams('ideaBasket_public_copyOwnIdeaError', [basket.ideaTerm]));
 	} else if(isPublicIdeaInPrivateBasket) {
-		//the public idea is already in the private basket 
-		alert('Error: You have already copied this idea');
+		//the public idea is already in the private basket
+		alert(view.getI18NStringWithParams('ideaBasket_public_alreadyCopiedError', [basket.ideaTerm]));
 	} else {
 		//we will copy the public idea into our private basket
 		var ideaBasketParams = {
@@ -1569,7 +1572,7 @@ View.prototype.copyPublicIdeaCallback = function(responseText, responseXML, args
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else {
 			if(publicIdeaBasketJSONObj.errorMessage != null) {
 				//there was an error so we will display it in a popup
@@ -1633,7 +1636,7 @@ View.prototype.copyPublicIdeaCallback = function(responseText, responseXML, args
 					//save the idea basket back to the server
 					basket.saveIdeaBasket(thisView, 'addPrivateIdea', workgroupId, ideaId);
 					
-					alert('Successfully copied Public Idea');
+					alert(view.getI18NStringWithParams('ideaBasket_public_copySuccess', [basket.ideaTerm, basket.publicBasketTerm]));
 				}
 				
 				//update the public idea basket
@@ -1677,14 +1680,15 @@ View.prototype.addWorkgroupToWorkgroupIdsThatHaveCopied = function(basket, ideaW
 View.prototype.addWorkgroupToWorkgroupIdsThatHaveCopiedCallback = function(responseText, responseXML, args) {
 	if(responseText != null && responseText != '') {
 		//get our basket
-		var basket = args.basket;
+		var basket = args.basket,
+			view = this;
 		
 		//get the public idea basket as a JSON object
 		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display the message in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);
@@ -1769,10 +1773,10 @@ View.prototype.uncopyPublicIdea = function(basket, ideaId) {
  * @param args
  */
 View.prototype.uncopyPublicIdeaCallback = function(responseText, responseXML, args) {
-	var thisView = args.thisView;
-	var workgroupId = args.workgroupId;
-	var ideaId = args.ideaId;
-	var basket = args.basket;
+	var thisView = args.thisView,
+		workgroupId = args.workgroupId,
+		ideaId = args.ideaId,
+		basket = args.basket;
 	
 	if(responseText != null && responseText != '') {
 		//get the public idea basket as a JSON object
@@ -1780,7 +1784,7 @@ View.prototype.uncopyPublicIdeaCallback = function(responseText, responseXML, ar
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(thisView.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display the message in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);
