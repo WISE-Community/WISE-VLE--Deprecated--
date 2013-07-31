@@ -2036,6 +2036,21 @@ OPENRESPONSE.prototype.importWork = function(workToImport) {
 						
 						//append the response
 						response += nodeState.response;
+					} else if(type == 'ExplanationBuilderState') {
+						//the work is from an explanation builder step
+						
+						//get the text answer the student submitted in the explanation builder step
+						var answer = nodeState.answer;
+						
+						if(answer != null && answer != '') {
+							if(response != '') {
+								//separate work with a blank line
+								response += '\n\n';
+							}
+							
+							//append the answer
+							response += answer;							
+						}
 					}
 				}
 			}

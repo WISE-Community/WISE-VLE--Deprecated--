@@ -103,7 +103,9 @@ View.prototype.displayFlaggedWork = function() {
 		//get all the node ids in the project
 		var nodeIds = this.getProject().getNodeIds();
 		
-		flaggedWorkHtml += "<div id='chooseStep'>Choose a step: ";
+		var choose_a_step = this.getI18NString('choose_a_step');
+		
+		flaggedWorkHtml += "<div id='chooseStep'>" + choose_a_step + ": ";
 		
 		//select box for the student to choose which step's flagged work to look at
 		flaggedWorkHtml += "<select id='flagNodeIdSelect' onchange='eventManager.fire(\"displayFlaggedWorkForNodeId\")'>";
@@ -140,14 +142,18 @@ View.prototype.displayFlaggedWork = function() {
 		//div that we will use to display the flagged work
 		flaggedWorkHtml += "<div id='flaggedWorkForNodeIdDiv'></div>";
 	} else {
+		var there_are_no_flagged_items = this.getI18NString('there_are_no_flagged_items');
+		
 		//there are no flagged items
-		flaggedWorkHtml += "There are no flagged items.";
+		flaggedWorkHtml += there_are_no_flagged_items;
 	}
 	
 	//check if the showflaggedwork div exists
     if($('#showflaggedwork').size()==0){
+    	var teacher_flagged_work = this.getI18NString('teacher_flagged_work');
+    	
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'Teacher Flagged Work',zindex:9999});
+    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:teacher_flagged_work,zindex:9999});
     }
     
     //set the html into the div
@@ -190,11 +196,15 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 		
 		//display the prompt for the step
 		if(node.getPrompt() && node.getPrompt() != ''){
-			flaggedWorkHtml += "<div class='panelHeader'>Question/Instructions:</div>";
+			var question_instructions = this.getI18NString('question_instructions');
+			
+			flaggedWorkHtml += "<div class='panelHeader'>" + question_instructions + ":</div>";
 			flaggedWorkHtml += "<div class='dialogSection'><div class='sectionContent showallLatestWork'>" + node.getPrompt() + "</div></div>";
 		}
 		
-		flaggedWorkHtml += "<div class='panelHeader'>Sample Responses:</div><div class='dialogSection'>";
+		var sample_responses = this.getI18NString('sample_responses');
+		
+		flaggedWorkHtml += "<div class='panelHeader'>" + sample_responses + ":</div><div class='dialogSection'>";
 		
 		var flaggedWorkAnswers = "";
 		
@@ -209,8 +219,11 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 			
 			flaggedWorkAnswers += "<div class='stepWork'>";
 			
+			var team = this.getI18NString('team');
+			var anonymous = this.getI18NString('anonymous');
+			
 			//display the flagged work/answer
-			flaggedWorkAnswers += "<div class='sectionHead'>Team " + (y + 1) + " (Anonymous):</div>";
+			flaggedWorkAnswers += "<div class='sectionHead'>" + team + " " + (y + 1) + " (" + anonymous + "):</div>";
 			flaggedWorkAnswers += "<div class='sectionContent'>";
 			if (node.type == "MySystemNode") {
 				var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
@@ -370,17 +383,24 @@ View.prototype.displayShowAllWork = function() {
 		var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100) + "%";
 	    
 		// var closeButton1 = "<a href='#' class='container-close'>Close</a>";
-		// TODO: i18n
+
+		var teacher_score = this.getI18NString('teacher_score');
+		var computer_score = this.getI18NString('computer_score');
+		var total_score = this.getI18NString('total_score');
+		var percent_project_completed = this.getI18NString('percent_project_completed');
+		var my_work_with_teacher_feedback_and_scores = this.getI18NString('my_work_with_teacher_feedback_and_scores');
+		
+		
 	    var scoresDiv1 = "<table class='wisetable'>";
 	    
-	    var scoresDiv2 = "<thead><tr><th>Teacher Score</th><th>Computer Score</th><th>TOTAL SCORE</th><th>% of Project Completed</th></tr></thead>";
+	    var scoresDiv2 = "<thead><tr><th>" + teacher_score + "</th><th>" + computer_score + "</th><th>" + total_score + "</th><th>" + percent_project_completed + "</th></tr></thead>";
 	    	
 	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForProject + "</td><td class='scoreValue'><div class='pValue'>" + teamPercentProjectCompleted + "</div><div id='teamProgress' class='progress'></td></tr></table>";
 	    
 		allWorkHtml = "<div id='showWorkContainer' class='dialogContent'>" + scoresDiv1 + scoresDiv2 + scoresDiv3 + this.getProject().getShowAllWorkHtml(this.getProject().getRootNode(), true) + "</div>";
 		
 	    if($('#showallwork').size()==0){
-	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'My Work (with Teacher Feedback and Scores)'});
+	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:my_work_with_teacher_feedback_and_scores});
 	    }	    
 	    
 	    $('#showallwork').html(allWorkHtml);
@@ -457,8 +477,11 @@ View.prototype.displayShowAllWork = function() {
 		
 		//check if there was any new feeback for the student
 		if(this.getProject().hasNewFeedback()) {
+			var you_have_new_feedback_from_teacher = this.getI18NString('you_have_new_feedback_from_teacher');
+			var new_feedback_labeled_as_new = this.getI18NString('new_feedback_labeled_as_new');
+			
 			//display a popup to notify the student that there is new feedback
-			alert('You have new feedback from your teacher.\n\nThe new feedback is labelled as [New].');
+			alert(you_have_new_feedback_from_teacher + '\n\n' + new_feedback_labeled_as_new);
 		}
 	}
 };

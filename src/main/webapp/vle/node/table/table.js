@@ -181,10 +181,11 @@ Table.prototype.render = function() {
 	//get the latest state
 	var latestState = this.getLatestState();
 	
-	if(latestState == null && workToImport != null && workToImport.length > 0) {
+	if((latestState == null || (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.overridePreviousWorkHere !== undefined && this.content.graphOptions.overridePreviousWorkHere)) && workToImport != null && workToImport.length > 0) {
 		/*
 		 * the student has not done any work on this step yet and there
 		 * is specified work to import so we will use the import work
+		 * OR, an override flag is set to true in graph options (in advanced mode - JV)
 		 */
 		latestState = workToImport[workToImport.length - 1];
 	}
@@ -273,7 +274,11 @@ Table.prototype.render = function() {
 			cellTextInput.id = 'tableCell_' + x + '-' + y;
 			cellTextInput.name = 'tableCell_' + x + '-' + y;
 			cellTextInput.value = cellText;
-			cellTextInput.size = cellSize;
+			if (y == 0 && typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.autoResizeColumnTitles !== undefined && this.content.graphOptions.autoResizeColumnTitles){
+				cellTextInput.size = Math.max(cellText.length, cellSize);
+			} else {
+				cellTextInput.size = cellSize;
+			}
 			cellTextInput.onchange = studentTableChanged;
 			
 			if(cellUneditable) {
@@ -893,6 +898,14 @@ Table.prototype.displayGraphOptions = function() {
 		selectYAxis.change({thisTable:this}, function(event) {
 			event.data.thisTable.studentGraphOptionsChanged();
 		});
+
+		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+			var selectCAxis = $('<select id="studentSelectCAxis">');
+			selectCAxis.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+		}
+		
 		
 		//loop through all the columns
 		for(var z=0; z<this.numColumns; z++) {
@@ -902,6 +915,9 @@ Table.prototype.displayGraphOptions = function() {
 			//add this column header to the x and y drop down
 			selectXAxis.append($('<option>').attr('value', z).text(columnHeader));
 			selectYAxis.append($('<option>').attr('value', z).text(columnHeader));
+			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+				selectCAxis.append($('<option>').attr('value', z).text(columnHeader));
+			}
 		}
 		
 		var x_axis = this.view.getI18NString('x_axis', 'TableNode');
@@ -913,6 +929,13 @@ Table.prototype.displayGraphOptions = function() {
 		$('#graphOptionsDiv').append('<br>');
 		$('#graphOptionsDiv').append(y_axis + ': ');
 		$('#graphOptionsDiv').append(selectYAxis);
+
+		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+			//var c_axis = this.view.getI18NString('c_axis', 'TableNode');
+			$('#graphOptionsDiv').append('<br>');
+			$('#graphOptionsDiv').append('Color by: ');
+			$('#graphOptionsDiv').append(selectCAxis);
+		}
 		
 		//populate the axis drop downs
 		if(latestState != null) {
@@ -940,6 +963,8 @@ Table.prototype.displayGraphOptions = function() {
 							} else if(columnAxis == 'y') {
 								//set the y axis drop down to the value the student previously set it to
 								selectYAxis.val(columnIndex);
+							} else if (columnAxis == "c" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
+								selectCAxis.val(columnIndex);
 							}
 						}
 					}
@@ -1061,6 +1086,7 @@ Table.prototype.getColumnIndexesToGraph = function(graphOptions) {
 			 */
 			var xColumnIndex = $('#studentSelectXAxis').val();
 			var yColumnIndex = $('#studentSelectYAxis').val();
+
 			
 			//create the object for the x axis
 			var xColumnObject = {
@@ -1073,9 +1099,22 @@ Table.prototype.getColumnIndexesToGraph = function(graphOptions) {
 				columnIndex:yColumnIndex,
 				columnAxis:'y'
 			};
+
+			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+				var cColumnIndex = $('#studentSelectCAxis').val();
+				//create the object for the y axis
+				var cColumnObject = {
+					columnIndex:cColumnIndex,
+					columnAxis:'c'
+				};
+				//put the objects in an array
+				result = [xColumnObject, yColumnObject, cColumnObject];
+			} else {
+				//put the objects in an array
+				result = [xColumnObject, yColumnObject];	
+			}
 			
-			//put the objects in an array
-			result = [xColumnObject, yColumnObject];
+			
 		}
 	} else {
 		//the graph options were provided so we will get the columnToAxisMappings from it
@@ -1160,15 +1199,19 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 	var data = null;
 	
 	try {
-		/*
-		 * get the table data in the format google wants it in.
-		 * we store it in Array[x][y] and google wants it in
-		 * Array[y][x].
-		 */
-		var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
-		
-		//create the data
-		data = google.visualization.arrayToDataTable(dataInGoogleFormat);
+		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+			data = this.getGoogleDataTableForSeries(tableData, graphOptions);
+		} else {
+			/*
+			 * get the table data in the format google wants it in.
+			 * we store it in Array[x][y] and google wants it in
+			 * Array[y][x].
+			 */
+			var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+			
+			//create the data
+			data = google.visualization.arrayToDataTable(dataInGoogleFormat);
+		}
 	} catch(e) {
 		/*
 		 * the message that says there was an error making the graph because
@@ -1217,6 +1260,8 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		
 		if(graphType != null) {
 			if(graphType == 'scatterPlot') {
+				chart = new google.visualization.ScatterChart(graphDiv[0]);
+			} else if(graphType == 'scatterPlotbySeries') {
 				chart = new google.visualization.ScatterChart(graphDiv[0]);
 			} else if(graphType == 'lineGraph') {
 				chart = new google.visualization.LineChart(graphDiv[0]);
@@ -1536,6 +1581,63 @@ Table.prototype.checkStudentEnteredAxesLimits = function() {
 };
 
 /**
+ *	When the graph type is a scatter plot by series will reorganize the table
+ *  so that the y-axis variable is split into multiple series, depending on the
+ *	value of the "color" columns, for example
+ *   | time |  distance  |  type
+ *   |     1|           3|     a
+ *   |     2|           5|     a
+ *   |     1|           2|     b
+ *   |     4|          10|     b
+ *
+ *   will become:
+ *   | time |  distance-a|  distance-b
+ *   |     1|           3|     2
+ *   |     2|           5|     null
+ *   |     4|        null|     b
+ *   
+ */
+Table.prototype.getGoogleDataTableForSeries = function(tableData, graphOptions) {
+	var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', dataInGoogleFormat[0][0])
+	// get unique values of "color" column
+	var clevels = [];
+	for (var i = 1; i < dataInGoogleFormat.length; i++){
+		if (clevels.indexOf(dataInGoogleFormat[i][2]) == -1){
+			clevels.push(dataInGoogleFormat[i][2])
+		}
+	}
+	// create a column for each level
+	for (var c = 0; c < clevels.length; c++){
+		data.addColumn('number', dataInGoogleFormat[0][2]+" = "+clevels[c]);
+	}
+	// iterate through rows update appropriate cell
+	for (i = 1; i < dataInGoogleFormat.length; i++){
+		// what is series value of this data point?
+		var cval = dataInGoogleFormat[i][2];
+		var cindex = clevels.indexOf(cval);
+		// construct row adding y value at cindex
+		if (!isNaN(dataInGoogleFormat[i][0])){
+			var row = [dataInGoogleFormat[i][0]];
+			var found_value = false;
+			for (c = 0; c < clevels.length; c++){
+				if (c == cindex){
+					if (!isNaN(dataInGoogleFormat[i][1])){
+						row.push(dataInGoogleFormat[i][1]);
+						found_value = true;
+					}
+				} else {
+					row.push(null);
+				}
+			}
+			if (found_value) data.addRow(row);
+		}
+	}
+	return data;
+}
+
+/**
  * Get the table data in the format google wants it in.
  * we store it in Array[x][y] and google wants it in
  * Array[y][x].
@@ -1552,7 +1654,7 @@ Table.prototype.checkStudentEnteredAxesLimits = function() {
  * 	[distance, 0, 10, 20]
  * ]
  * 
- * google wants it like this
+ * google wants it like this -- yeah because this makes more sense, can search arr[0] for header (JV)
  * [
  * 	[time, distance],
  * 	[0, 0],
@@ -1734,7 +1836,7 @@ Table.prototype.getCellValue = function(x, y, tableData) {
  */
 Table.prototype.getGraphOptions = function() {
 	var graphOptions = {};
-	
+	console.log(this.content);
 	if(this.content.graphOptions != null) {
 		//set the enable graphing value into the graphOptions object
 		graphOptions.enableGraphing = this.content.graphOptions.enableGraphing;
@@ -1768,6 +1870,16 @@ Table.prototype.getGraphOptions = function() {
 			columnToAxisMappings.push(xColumnObject);
 			columnToAxisMappings.push(yColumnObject);
 			
+			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+				var cColumnIndex = parseInt($('#studentSelectCAxis').val());
+				//create the object to remember the column for the y axis
+				var cColumnObject = {
+					columnIndex:cColumnIndex,
+					columnAxis:'c'
+				};
+				columnToAxisMappings.push(cColumnObject);
+			}
+
 			//put the array into the graph options object
 			graphOptions.columnToAxisMappings = columnToAxisMappings;
 		} else if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
@@ -1871,6 +1983,132 @@ Table.prototype.processTagMaps = function() {
 				} else if(functionName == "showPreviousWork") {
 					//show the previous work in the previousWorkDiv
 					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if (functionName == "importWorkFromBox2d"){
+					//get the work to import
+					var bstate = this.node.getWorkToImport(tagName, functionArgs)[0];
+					if ( bstate instanceof Box2dModelState && typeof bstate.response !== "undefined" && typeof bstate.response.tableData !== "undefined"){
+						var ptableData = bstate.response.tableData;
+						// must copy all values in table so that we don't change them when we go back to box2d
+						var tableData = [];
+						for (var i = 0; i < ptableData.length; i++){
+							tableData[i] = [];
+							for (var j = 0; j < ptableData[i].length; j++){
+								tableData[i][j] = {};
+								for (var key in ptableData[i][j]){
+									tableData[i][j][key] = ptableData[i][j][key];  //copy values
+								}
+							}
+						}
+						
+						var showTestedMassValuesOnly = functionArgs[0] == "true" ||  functionArgs[0] == "1" ? true: false;
+						var showTestedLiquidValuesOnly = functionArgs[1] == "true" ||  functionArgs[1] == "1" ? true: false;
+						var arrColumnNamesToUse = functionArgs.length > 2 ? functionArgs[2].split(/ *, */) : [];
+						// if showTestedValuesOnly make any values associated with mass or volume correspond to test on scale or beaker
+						if (showTestedLiquidValuesOnly){
+							var tested_in_any_beaker = [];
+							for (var j = 1; j < tableData[0].length; j++) tested_in_any_beaker[j-1] = false;
+
+							for (var i = tableData.length-1; i >= 0; i--){
+								if (tableData[i][0].text.substr(0,10) == "Tested_in_"){
+									var liquid_name = tableData[i][0].text.substr(10);
+									for (var j = 1; j < tableData[i].length; j++){
+										// if this object was not tested remove values in other columns associated with this liquid
+										if (tableData[i][j].text == 0){
+											for (var k = 0; k < tableData.length; k++){
+												if (tableData[k][0].text.substr(tableData[k][0].text.length - liquid_name.length) == liquid_name && k != i){
+													tableData[k][j].text = NaN;
+												}
+											}
+										} else {
+											tested_in_any_beaker[j-1] = true;
+										}
+									}
+								}
+							}
+							// now we know for each row whether object has been tested in any beaker
+							// go through each tested_in_any_beaker and update volume
+							for (var t = 0; t < tested_in_any_beaker.length; t++){
+								j = t + 1;
+								if (tested_in_any_beaker[t] == 0){
+									for (var k = 0; k < tableData.length; k++){
+										if (tableData[k][0].text.substr(tableData[k][0].text.length - 6) == "Volume" || tableData[k][0].text.substr(tableData[k][0].text.length - 7) == "Density"){
+											tableData[k][j].text = NaN;
+										}
+									}
+								}
+							}
+						}
+						if (showTestedMassValuesOnly){
+							for (var i = tableData.length-1; i >= 0; i--){
+								if (tableData[i][0].text.substr(0,15) == "Tested_on_Scale"){
+									for (var j = 1; j < tableData[i].length; j++){
+										// if this object was not tested remove values in other columns associated with this liquid
+										if (tableData[i][j].text == 0){
+											for (var k = 0; k < tableData.length; k++){
+												if (tableData[k][0].text.substr(tableData[k][0].text.length - 4) == "Mass" || tableData[k][0].text.substr(tableData[k][0].text.length - 7) == "Density"){
+													tableData[k][j].text = NaN;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						// remove "tested in variables"
+						for (var i = tableData.length-1; i >= 0; i--){
+							if (tableData[i][0].text.substr(0,6) == "Tested"){
+								tableData.splice(i,1);
+							}
+						}
+						// remove "id if we are not showing previous work"
+						if ($("#previousWorkDiv").children().length == 0){
+							for (var i = tableData.length-1; i >= 0; i--){
+								if (tableData[i][0].text=="id"){
+									tableData.splice(i,1);
+								}
+							}
+						}
+						// use spaces instead of underscores
+						for (var i = tableData.length-1; i >= 0; i--){
+							tableData[i][0].text = tableData[i][0].text.replace(/_/g, " ");
+						}
+						// use only specified column names
+						if (arrColumnNamesToUse.length > 0){
+							var ntableData = [];
+							for (var c = arrColumnNamesToUse.length-1; c >= 0; c--){
+								var colName = arrColumnNamesToUse[c];
+								for (var i = tableData.length-1; i >= 0; i--){
+									if (tableData[i][0].text.match(colName) != null){
+										//console.log(colName,"in?", tableData[i][0].text, "because",tableData[i][0].text.match(colName));
+										ntableData.splice(0, 0, tableData.splice(i,1)[0]);
+									}
+								}
+							}
+							tableData = ntableData;
+						}
+
+						// round numbers
+						for (var i = tableData.length-1; i >= 0; i--){
+							for (var j = 1; j < tableData[i].length; j++){
+								if (!isNaN(tableData[i][j].text)){
+									tableData[i][j].text = Math.round(tableData[i][j].text*100)/100;
+								}
+							}
+						}
+						var tableState = {
+							"graphOptions":{},
+							"graphRendered":false,
+							"response":"",
+							"tableData":tableData,
+							"tableOptions":{
+								"numColumns":tableData.length,
+								"numRows":tableData[0].length,
+								"title":null
+							}
+						}
+						workToImport.push(tableState);
+					}
+					delete bstate;
 				}
 			}
 		}

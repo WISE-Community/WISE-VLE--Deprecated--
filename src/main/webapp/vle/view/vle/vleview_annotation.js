@@ -74,8 +74,10 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 			var cRaterFeedbackStringSoFar = "<span class='nodeAnnotationsCRater'>";
 			if (currentNode.content.getContentJSON().cRater.displayCRaterScoreToStudent) {
 				if (nodeAnnotationCRater != null) {
+					var you_got_a_score_of = this.getI18NString('you_got_a_score_of');
+					
 					// get the score from the annotation
-					cRaterFeedbackStringSoFar += "You got a score of "+nodeAnnotationCRater.value[nodeAnnotationCRater.value.length - 1].score+"<br/><br/>";					
+					cRaterFeedbackStringSoFar += you_got_a_score_of + " "+nodeAnnotationCRater.value[nodeAnnotationCRater.value.length - 1].score+"<br/><br/>";					
 				}
 			}
 			if (currentNode.content.getContentJSON().cRater.displayCRaterFeedbackToStudent) {
@@ -92,15 +94,22 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 		} else {
 			// otherwise, show the teacher score and feedback
 			if (nodeAnnotationScore != null && nodeAnnotationScore.value) {
+				var score = this.getI18NString('score');
+				var out_of = this.getI18NString('out_of');
+				
 				var maxScoreForThisStep = this.maxScores.getMaxScoreValueByNodeId(currentNode.id);
-				nodeAnnotationsString += "<span class='nodeAnnotationsScore'>Score: "+nodeAnnotationScore.value+" out of "+ maxScoreForThisStep +"</span><br/><br/>";
+				nodeAnnotationsString += "<span class='nodeAnnotationsScore'>" + score + ": "+nodeAnnotationScore.value+" " + out_of + " "+ maxScoreForThisStep +"</span><br/><br/>";
 			}
 			if (nodeAnnotationComment != null && nodeAnnotationComment.value) {
-				nodeAnnotationsString += "<span class='nodeAnnotationsComment'>Comments: "+nodeAnnotationComment.value+"</span><br/>";
+				var comments = this.getI18NString('comments');
+				
+				nodeAnnotationsString += "<span class='nodeAnnotationsComment'>" + comments + ": "+nodeAnnotationComment.value+"</span><br/>";
 			}
 		}
 		
-		nodeAnnotationsString += "<span class='nodeAnnotationsFooter' style='font-style:italic'>You can always view this feedback by clicking on the \"Feedback\" icon in the top right corner.</span>";
+		var you_can_always_view = this.getI18NString('you_can_always_view');
+		
+		nodeAnnotationsString += "<span class='nodeAnnotationsFooter' style='font-style:italic'>" + you_can_always_view + "</span>";
 		nodeAnnotationsString += "</div>";
 
 		//set the html into the div

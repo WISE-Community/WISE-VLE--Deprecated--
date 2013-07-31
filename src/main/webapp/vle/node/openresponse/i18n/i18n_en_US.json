@@ -218,5 +218,21 @@
 	"responses_from_peers_not_available": {
 		"value":"Responses from your peers are not available yet.",
 		"description":"The message that says responses from the classmates are not available yet"
+	},
+	"save_answer": {
+		"value":"Save Answer",
+		"description":"The label for the save answer in the grading view"
+	},
+	"check_answer": {
+		"value":"Check Answer",
+		"description":"The label for the check answer in the grading view"
+	},
+	"auto_score": {
+		"value":"Auto-Score",
+		"description":"The label for the auto score in the grading view"
+	},
+	"auto_feedback": {
+		"value":"Auto-Feedback",
+		"description":"The label for the auto feedback in the grading view"
 	}
 }

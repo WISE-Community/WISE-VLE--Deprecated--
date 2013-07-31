@@ -774,5 +774,121 @@
 	"common_click_here": {
 		"value":"click here",
 		"description":"the common text 'click here'"
+	},
+	"teacher_score": {
+		"value":"Teacher Score",
+		"description":"The column header for the teacher score"
+	},
+	"computer_score": {
+		"value":"Computer Score",
+		"description":"The column header for the computer score"
+	},
+	"total_score": {
+		"value":"Total Score",
+		"description":"The column header for the total score"
+	},
+	"percent_project_completed": {
+		"value":"% of Project Completed",
+		"description":"The column header for the project completion percentage"
+	},
+	"my_work_with_teacher_feedback_and_scores": {
+		"value":"My Work (with Teacher Feedback and Scores)",
+		"description":"The title for the my work dialog popup"
+	},
+	"you_have_new_feedback_from_teacher": {
+		"value":"You have new feedback from your teacher.",
+		"description":"The message that shows up when the student logs in and has new teacher feedback"
+	},
+	"new_feedback_labeled_as_new": {
+		"value":"The new feedback is labeled as [New].",
+		"description":"The message that shows up when the student logs in and has new teacher feedback"
+	},
+	"new_feedback": {
+		"value":"New Feedback",
+		"description":"The header for the section that displays the student work that has new feedback"
+	},
+	"my_work": {
+		"value":"My Work",
+		"description":"The header for the section that displays all of the student work"
+	},
+	"new_text": {
+		"value":"New",
+		"description":"The text 'New' used to label new feedback"
+	},
+	"teacher_feedback": {
+		"value":"Teacher Feedback",
+		"description":"The label for the teacher feedback"
+	},
+	"your_teacher_hasnt_graded": {
+		"value":"Grading: Your Teacher hasn't graded your work yet.",
+		"description":"The text to show that there is no feedback from the teacher yet"
+	},
+	"last_visited_on": {
+		"value":"Last visited on",
+		"description":"The label to show when the student last visited the step"
+	},
+	"latest_work": {
+		"value":"Latest Work",
+		"description":"The label to show the latest work"
+	},
+	"you_havent_visited_this_step": {
+		"value":"You haven't visited this step.",
+		"description":"The text to show that the student hasn't visited the step yet"
+	},
+	"you_havent_submitted_work_for_this_step": {
+		"value":"You haven't submitted work for this step.",
+		"description":"The text to show that the student hasn't submitted work for the step yet"
+	},
+	"teacher_flagged_work": {
+		"value":"Teacher Flagged Work",
+		"description":"The title for the flagged work window in the student vle"
+	},
+	"there_are_no_flagged_items": {
+		"value":"There are no flagged items.",
+		"description":"The message that says there are no flagged items"
+	},
+	"choose_a_step": {
+		"value":"Choose a step",
+		"description":"The label that tells the student to choose a step to view flagged work for in the flagged work window"
+	},
+	"question_instructions": {
+		"value":"Question/Instructions",
+		"description":"The label for the step prompt when displaying flagged work for a step"
+	},
+	"sample_responses": {
+		"value":"Sample Responses",
+		"description":"The label for the student work that has been flagged for a step"
+	},
+	"team": {
+		"value":"Team",
+		"description":"The label for the team"
+	},
+	"anonymous": {
+		"value":"Anonymous",
+		"description":"The label to specify that the team is anonymous"
+	},
+	"you_got_a_score_of": {
+		"value":"You got a score of",
+		"description":"The text to display the score in the feedback popup"
+	},
+	"out_of": {
+		"value":"out of",
+		"description":"The text to display the score in the feedback popup"
+	},
+	"comments": {
+		"value":"Comments",
+		"description":"The text to display the comments in the feedback popup"
+	},
+	"you_can_always_view": {
+		"value":"You can always view this feedback by clicking on the \"Feedback\" icon in the top right corner.",
+		"description":"The message at the bottom of the feedback popup to tell the student they can always bring the popup back up"
+	},
+	"you_must_view_all": {
+		"value":"You must view all",
+		"description":"The beginning of the message in the hints popup that says the student must view all hints before closing the hints popup"
+	},
+	"before_closing": {
+		"value":"before closing",
+		"description":"The end of the message in the hints popup that says the student must view all hints before closing the hints popup"
 	}
 }

@@ -130,7 +130,11 @@ View.prototype.displayHint = function(){
 						if(typeof hints.hintTermPlural == 'string'){
 							hintTermPlural = hints.hintTermPlural;
 						}
-						$(".hintMsg").html("You must view all " + hintTermPlural + " before closing");
+						
+						var you_must_view_all = event.data.view.getI18NString("you_must_view_all");
+						var before_closing = event.data.view.getI18NString("before_closing");
+						
+						$(".hintMsg").html(you_must_view_all + " " + hintTermPlural + " " + before_closing);
 				    	return false;
 				    };
 				};

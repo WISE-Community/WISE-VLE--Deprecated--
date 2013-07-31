@@ -124,7 +124,9 @@
 		if (pan_y != this.panShape.y){
 			this.panShape.y = pan_y;
 			this.drawPan();
-			this.massText.setText(Math.round(force*100)/100);
+			var t = Math.round(force*100)/100;
+			if (GLOBAL_PARAMETERS.SHOW_UNITS_ON_SCALE) t = t + " " + GLOBAL_PARAMETERS.SCALE_UNITS;
+			this.massText.setText(t);
 		}
 	}
 

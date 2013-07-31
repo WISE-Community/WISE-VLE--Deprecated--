@@ -91,12 +91,14 @@
 			
 			// go through rows and columns adding up mass in depths
 			var i, d, height_to = 0;
-			for (i = 0; i < this.heights.length; i++)
-			{
-				
+			var unique_materials = [];
+			for (i = 0; i < this.heights.length; i++){
 				var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
 				materialSpaces = Math.pow(this.diameters[i]/2, 2) * Math.PI * this.heights[i];
-				mass = GLOBAL_PARAMETERS.materials[this.materials[i]].density * materialSpaces;
+				var material = GLOBAL_PARAMETERS.materials[this.materials[i]];
+				var material_name = material.display_name;
+				if (unique_materials.indexOf(material_name) == -1) unique_materials.push(material_name);	
+				mass = material.density * materialSpaces;
 				o_mass += mass;
 				o_materialSpaces += materialSpaces;
 				o_exteriorSpaces += exteriorSpaces;
@@ -106,11 +108,14 @@
 				array2d[i] = {"mass":mass, "x_offset":(this.diameter_units-this.diameters[i])/2, "y_offset":height_to,"width":this.diameters[i], "height":this.heights[i], "depth":this.diameters[i], "diameter":this.diameters[i], "area":this.heights[i]*this.diameters[i], "totalSpaces":materialSpaces, "materialSpaces":materialSpaces, "exteriorSpaces":exteriorSpaces, "interiorSpaces":interiorSpaces, "protectedSpaces":protectedSpaces};
 				height_to += this.heights[i];
 			} 
+			this.savedObject.unique_materials = unique_materials;
 			this.savedObject.max_height = this.height_units;
 			this.savedObject.max_width = this.width_units;
 			this.savedObject.max_depth = this.depth_units;
 			this.savedObject.mass = o_mass;
 			this.savedObject.volume = o_materialSpaces;
+			this.savedObject.total_volume = o_materialSpaces + o_protectedSpaces + o_interiorSpaces;
+			this.savedObject.enclosed_volume = o_materialSpaces + o_protectedSpaces;
 			this.savedObject.density = this.savedObject.mass/ this.savedObject.volume;
 			this.savedObject.material_volume = o_materialSpaces;
 			this.savedObject.interior_volume = o_interiorSpaces;

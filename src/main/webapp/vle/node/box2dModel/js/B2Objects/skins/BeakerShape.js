@@ -19,6 +19,8 @@
 	// parameters
 	p.NUM_BACK_OBJECTS = 3;
 	p.WALL_THICKNESS = 2;
+	p.SPOUT_WIDTH = 50;
+	p.SPOUT_HEIGHT = 50;
 	p.CACHING = false;
 
 	p.initialize = function(relativeParent, width_px, height_px, depth_px, init_liquid_volume_perc, spilloff_volume_perc, showRuler, savedObject)
@@ -182,7 +184,7 @@
 			var spoutDiameter = 15;
 			var p1, p2, p3, p4, p5, p6;
 			p1 = new createjs.Point(0, 0);
-			p3 = new createjs.Point (100, 50);
+			p3 = new createjs.Point (this.SPOUT_WIDTH, this.SPOUT_HEIGHT);
 			
 			var spoutIncline = Math.atan((p3.y-p1.y)/(p3.x-p1.x));
 			var spoutWidth = p3.x - p1.x; var spoutHeight = p3.y - p1.y;
