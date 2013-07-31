@@ -3,6 +3,11 @@
  * Load the global tag maps from the project
  */
 View.prototype.loadGlobalTagMaps = function() {
+	//initialize the array of available global tag maps if necessary
+	if(this.availableGlobalTagMaps == null) {
+		this.availableGlobalTagMaps = [];
+	}
+	
 	//get the project
 	var project = this.getProject();
 	
@@ -78,24 +83,28 @@ View.prototype.createGlobalTagMap = function(globalTagMapParameters) {
 		//get the available global tag maps that we can create
 		var availableGlobalTagMaps = this.availableGlobalTagMaps;
 		
-		//loop through all the available global tag maps
-		for(var x=0; x<availableGlobalTagMaps.length; x++) {
-			//get an available global tag map
-			var availableGlobalTagMap = availableGlobalTagMaps[x];
-			
-			//get the function name from the available global tag map
-			var tempFunctionName = availableGlobalTagMap.functionName;
-			
-			//check if the function name matches the one from the parameter
-			if(functionName == tempFunctionName) {
-				/*
-				 * the function name matches so we have found the global tag map
-				 * that we want to create. we will create an instance of this
-				 * global tag map.
-				 */
-				globalTagMap = new availableGlobalTagMap(this, globalTagMapParameters);
+		if(availableGlobalTagMaps != null) {
+			//loop through all the available global tag maps
+			for(var x=0; x<availableGlobalTagMaps.length; x++) {
+				//get an available global tag map
+				var availableGlobalTagMap = availableGlobalTagMaps[x];
 				
-				break;
+				if(availableGlobalTagMap != null) {
+					//get the function name from the available global tag map
+					var tempFunctionName = availableGlobalTagMap.functionName;
+					
+					//check if the function name matches the one from the parameter
+					if(functionName == tempFunctionName) {
+						/*
+						 * the function name matches so we have found the global tag map
+						 * that we want to create. we will create an instance of this
+						 * global tag map.
+						 */
+						globalTagMap = new availableGlobalTagMap(this, globalTagMapParameters);
+						
+						break;
+					}
+				}
 			}
 		}
 	}
