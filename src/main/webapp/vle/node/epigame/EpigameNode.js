@@ -362,6 +362,86 @@ EpigameNode.prototype.getAvailableStatusesIncludingSpecialStatusValues = functio
 	return availableStatuses;
 };
 
+/**
+ * Get the explanation high score from the node state
+ * @param nodeState the node state to get the score from
+ * @return the explanation high score or null if there is no
+ * explanation high score
+ */
+EpigameNode.prototype.getHighScoreExplanation = function(nodeState) {
+	var highScoreExplanation = null;
+	
+	if(nodeState != null &&
+			nodeState.response != null && 
+			nodeState.response.highScore_explanation != null) {
+		highScoreExplanation = nodeState.response.highScore_explanation;
+	}
+	
+	return highScoreExplanation;
+};
+
+/**
+ * Get the performance high score from the node state
+ * @param nodeState the node state to get the score from
+ * @return the performance high score or null if there is no
+ * performance high score
+ */
+EpigameNode.prototype.getHighScorePerformance = function(nodeState) {
+	var highScorePerformance = null;
+	
+	if(nodeState != null &&
+			nodeState.response != null &&
+			nodeState.response.highScore_performance != null) {
+		highScorePerformance = nodeState.response.highScore_performance;
+	}
+	
+	return highScorePerformance;
+};
+
+/**
+ * Get the total high score from the node state
+ * @param nodeState the node state to get the score from
+ * @return the total high score or null if there is no
+ * total high score
+ */
+EpigameNode.prototype.getTotalScore = function(nodeState) {
+	var totalScore = null;
+	
+	if(nodeState != null && nodeState.response != null) {
+		
+		//check if there is an explanation high score or performance high score
+		if(nodeState.response.highScore_explanation != null || 
+				nodeState.response.highScore_performance != null) {
+			
+			totalScore = 0;
+			
+			if(nodeState.response.highScore_explanation != null) {
+				//add the explanation high score
+				var highScoreExplanation = nodeState.response.highScore_explanation;
+				totalScore += highScoreExplanation;
+			}
+			
+			if(nodeState.response.highScore_performance != null) {
+				//add the performance high score
+				var highScorePerformance = nodeState.response.highScore_performance;
+				totalScore += highScorePerformance;
+			}
+		}
+	}
+	
+	return totalScore;
+};
+
+/**
+ * Get the score from the node state
+ * @param the node state to get the score from
+ */
+EpigameNode.prototype.getScore = function(nodeState) {
+	var score = this.getTotalScore(nodeState);
+	
+	return score;
+};
+
 EpigameNode.prototype.navHelper = function() {
 	var interpretNode = function(node) {
 		var result = {

@@ -339,7 +339,718 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		
 		//set this flag so that we do not perform this initialization again for subsequent NavigationPanel.render() calls
 		this.navigationPanelLoaded = true;
+		
+		//add the available global tag maps for the starmap
+		view.addAvailableGlobalTagMap(PilotRatingGlobalTagMap);
+		view.addAvailableGlobalTagMap(WarpRatingGlobalTagMap);
+		view.addAvailableGlobalTagMap(AdvisorRatingGlobalTagMap);
 	}
+};
+
+PilotRatingGlobalTagMap.prototype = new GlobalTagMap();
+PilotRatingGlobalTagMap.prototype.constructor = PilotRatingGlobalTagMap;
+PilotRatingGlobalTagMap.prototype.parent = GlobalTagMap.prototype;
+PilotRatingGlobalTagMap.functionName = 'pilotRating';
+
+/**
+ * The constructor for the PilotRatingGlobalTagMap. This global tag
+ * map will accumulate the total score for all the steps in the project
+ * and give the student a rank based upon that score.
+ * @param view the view
+ * @param parameters parameters for this global tag map
+ */
+function PilotRatingGlobalTagMap(view, parameters) {
+	this.view = view;
+	
+	/*
+	 * get the tag name. this global tag map doesn't actually use the tag
+	 * since it looks at all steps in the project
+	 */
+	this.tagName = parameters.tagName;
+	
+	//get the possible scores
+	this.scores = parameters.scores;
+	
+	//get the id for the img element we will create
+	var pilotRatingId = PilotRatingGlobalTagMap.functionName;
+	this.pilotRatingId = pilotRatingId;
+	
+	//get the student's total score for all the steps
+	var totalScore = this.getTotalScore();
+	
+	//get the icon to initially display
+	var icon = this.getIconFromScore(totalScore);
+	
+	/*
+	 * subscribe to the studentWorkUpdated event so this tag map
+	 * can perform any necessary changes when the student work
+	 * changes
+	 */
+	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
+	
+	//create the img element to display the pilot rating
+	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
+	img.setAttributeNS(null, 'id', pilotRatingId);
+	img.setAttributeNS(null, 'height', '100');
+	img.setAttributeNS(null, 'width', '200');
+	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
+	img.setAttributeNS(null, 'x', '10');
+	img.setAttributeNS(null, 'y', '10');
+	img.setAttributeNS(null, 'visibility', 'visible');
+	
+	//add the img element to the starmap
+	$('#wrap').append(img);
+};
+
+/**
+ * The listener for the studentWorkUpdated event
+ * @param type the event type studentWorkUpdated
+ * @param args the arguments passed in when the event is fired
+ * @param obj this pilot rating global tag map object
+ */
+PilotRatingGlobalTagMap.prototype.studentWorkUpdatedListener = function(type, args, obj) {
+	var thisGlobalTagMap = obj;
+	
+	//call the handler
+	obj.studentWorkUpdatedHandler();
+};
+
+/**
+ * The handler for the studentWorkUpdated event
+ */
+PilotRatingGlobalTagMap.prototype.studentWorkUpdatedHandler = function() {
+	var view = this.view;
+
+	//get the student's total score for all the steps
+	var totalScore = this.getTotalScore();
+	
+	//get the rank from the score
+	var rank = this.getRankFromScore(totalScore);
+	
+	//get the icon path to display from the score
+	var icon = this.getIconFromScore(totalScore);
+
+	if(icon != null) {
+		//update the icon path to display for the pilot rating
+		$('#' + this.pilotRatingId).attr('href', icon);	
+	}
+};
+
+/**
+ * Get the student's total score for the project
+ */
+PilotRatingGlobalTagMap.prototype.getTotalScore = function() {
+	//get all the student work
+	var vleState = this.view.getState();
+	
+	//get all the step node ids
+	var nodeIds = this.view.getProject().getNodeIds();
+	
+	//accumulates the total score
+	var totalScore = 0;
+	
+	//loop through all the step node ids
+	for(var x=0; x<nodeIds.length; x++) {
+		//get a node id
+		var nodeId = nodeIds[x];
+		
+		//get a node
+		var node = this.view.getProject().getNodeById(nodeId);
+		
+		if(node != null) {
+			//get the latest work for the step
+			var latestWork = vleState.getLatestWorkByNodeId(nodeId);
+			
+			//get the score for the work
+			var score = node.getScore(latestWork);
+			
+			if(score != null) {
+				//accumulate the score
+				totalScore += score;
+			}
+		}
+	}
+	
+	return totalScore;
+};
+
+/**
+ * Get the rank from the score
+ * @param score the score
+ * @return the rank for the score
+ */
+PilotRatingGlobalTagMap.prototype.getRankFromScore = function(score) {
+	var rank = null;
+	
+	//get the possible scores
+	var scores = this.scores;
+	
+	if(scores != null) {
+		//loop through all the possible scores
+		for(var x=0; x<scores.length; x++) {
+			//get a score object
+			var tempScoreObject = scores[x];
+			
+			//get the score
+			var tempScore = tempScoreObject.score;
+			
+			//get the rank
+			var tempRank = tempScoreObject.rank;
+			
+			/*
+			 * check if the score the student has is larger than the
+			 * score for this score object. the first score that the
+			 * student surpasses will determine their rank so scores
+			 * should be ordered from highest to lowest in the scores
+			 * array.
+			 */
+			if(score >= tempScore) {
+				//the student has a larger score so they have achieved the rank
+				rank = tempRank;
+				break;
+			}
+		}
+	}
+	
+	return rank;
+};
+
+/**
+ * Get the icon path from the score
+ * @param score the score
+ * @return the icon path for the score
+ */
+PilotRatingGlobalTagMap.prototype.getIconFromScore = function(score) {
+	var icon = null;
+	
+	//get the possible scores
+	var scores = this.scores;
+	
+	if(scores != null) {
+		//loop through all the scores
+		for(var x=0; x<scores.length; x++) {
+			//get a score object
+			var tempScoreObject = scores[x];
+			
+			//get the score
+			var tempScore = tempScoreObject.score;
+			
+			//get the icon path
+			var tempIcon = tempScoreObject.icon;
+			
+			/*
+			 * check if the score the student has is larger than the
+			 * score for this score object. the first score that the
+			 * student surpasses will determine their icon so scores
+			 * should be ordered from highest to lowest in the scores
+			 * array.
+			 */
+			if(score >= tempScore) {
+				//the student has a larger score so they have achieved the icon
+				icon = tempIcon;
+				break;
+			}
+		}
+	}
+	
+	return icon;
+};
+
+
+WarpRatingGlobalTagMap.prototype = new GlobalTagMap();
+WarpRatingGlobalTagMap.prototype.constructor = WarpRatingGlobalTagMap;
+WarpRatingGlobalTagMap.prototype.parent = GlobalTagMap.prototype;
+WarpRatingGlobalTagMap.functionName = 'warpRating';
+
+/**
+ * The constructor for the WarpRatingGlobalTagMap. This global tag
+ * map will accumulate the score for all the steps with a specific
+ * tag and give the student a rank based upon that score.
+ * @param view the view
+ * @param parameters parameters for this global tag map
+ */
+function WarpRatingGlobalTagMap(view, parameters) {
+	this.view = view;
+	
+	//get the tag name
+	this.tagName = parameters.tagName;
+	
+	//get the possible scores
+	this.scores = parameters.scores;
+	
+	//get all the step node ids for the steps that have the given tag
+	var nodeIds = view.getProject().getNodeIdsByTag(this.tagName);
+	
+	//remember the node ids
+	this.nodeIds = nodeIds;
+	
+	/*
+	 * subscribe to the studentWorkUpdated event so this tag map
+	 * can perform any necessary changes when the student work
+	 * changes
+	 */
+	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
+	
+	/*
+	 * initialize the warp count since there can be multiple warp rating
+	 * global tag maps
+	 */
+	if(WarpRatingGlobalTagMap.warpCount == null) {
+		WarpRatingGlobalTagMap.warpCount = 0;
+	}
+	
+	//increment the warp count
+	WarpRatingGlobalTagMap.warpCount += 1;
+	
+	//set the warp number
+	var warpNumber = WarpRatingGlobalTagMap.warpCount;
+	this.warpNumber = warpNumber;
+	
+	//get the id for the img element we will create
+	var warpRatingId = WarpRatingGlobalTagMap.functionName + warpNumber;
+	this.warpRatingId = warpRatingId;
+	
+	//get the student's score for the tagged step(s)
+	var score = this.getScore();
+	
+	//get the icon to display based on the student's score
+	var icon = this.getIconFromScore(score);
+	
+	//get the y position where we will place the icon
+	var y = 10 + (100 * warpNumber);
+	
+	//create the img element to display the warp rating
+	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
+	img.setAttributeNS(null, 'id', warpRatingId);
+	img.setAttributeNS(null, 'height', '100');
+	img.setAttributeNS(null, 'width', '200');
+	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
+	img.setAttributeNS(null, 'x', '10');
+	img.setAttributeNS(null, 'y', y);
+	img.setAttributeNS(null, 'visibility', 'visible');
+	
+	//add the img element to the starmap
+	$('#wrap').append(img);
+};
+
+/**
+ * The listener for the studentWorkUpdated event
+ * @param type the event type studentWorkUpdated
+ * @param args the arguments passed in when the event is fired
+ * @param obj this warp rating global tag map object
+ */
+WarpRatingGlobalTagMap.prototype.studentWorkUpdatedListener = function(type, args, obj) {
+	var thisGlobalTagMap = obj;
+	
+	//get the node id and node visit from the args
+	var nodeId = args[0];
+	var nodeVisit = args[1];
+	
+	//call the handler
+	obj.studentWorkUpdatedHandler(nodeId, nodeVisit);
+};
+
+/**
+ * The handler for the studentWorkUpdated event
+ * @param nodeId the node id that the student work is for
+ * @param nodeVisit the node visit that was just submitted by the student
+ */
+WarpRatingGlobalTagMap.prototype.studentWorkUpdatedHandler = function(nodeId, nodeVisit) {
+	
+	//get the step node ids that were tagged
+	var nodeIds = this.nodeIds;
+	
+	if(nodeIds != null) {
+		
+		/*
+		 * check if the step that was updated is one of the
+		 * steps that were tagged for this global tag map
+		 */
+		if(nodeIds.indexOf(nodeId) != -1) {
+			//student work has been updated for a node that this global tag map has tagged
+			
+			//get the student's score for the tagged step(s)
+			var score = this.getScore();
+			
+			//get the rank
+			var rank = this.getRankFromScore(score);
+			
+			//get the icon path
+			var icon = this.getIconFromScore(score);
+			
+			//update the icon path for the warp rating
+			$('#' + this.warpRatingId).attr('href', icon);
+		}
+	}
+};
+
+/**
+ * Get the student's score for the the tagged step(s)
+ * @return the student's score for the tagged steps
+ */
+WarpRatingGlobalTagMap.prototype.getScore = function() {
+	//get the step node ids that were tagged
+	var nodeIds = this.nodeIds;
+	
+	//get all the student work
+	var vleState = this.view.getState();
+	
+	//accumulate the score
+	var score = 0;
+	
+	if(nodeIds != null) {
+		
+		//loop through all the step node ids that were tagged
+		for(var x=0; x<nodeIds.length; x++) {
+			
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			//get the node
+			var node = this.view.getProject().getNodeById(nodeId);
+			
+			if(node != null) {
+				//get the latest node state for the step
+				var latestWork = vleState.getLatestWorkByNodeId(nodeId);
+				
+				if(latestWork != null) {
+					
+					//get the score
+					var stepScore = node.getScore(latestWork);
+					
+					if(stepScore != null) {
+						//accumulate the score
+						score += stepScore;						
+					}
+				}
+			}
+		}
+	}
+	
+	return score;
+};
+
+/**
+ * Get the rank from the score
+ * @param score the score
+ * @return the rank for the score
+ */
+WarpRatingGlobalTagMap.prototype.getRankFromScore = function(score) {
+	var rank = null;
+	
+	//get the possible scores
+	var scores = this.scores;
+	
+	if(scores != null) {
+		//loop through all the scores
+		for(var x=0; x<scores.length; x++) {
+			//get a score object
+			var tempScoreObject = scores[x];
+			
+			//get the score
+			var tempScore = tempScoreObject.score;
+			
+			//get the rank
+			var tempRank = tempScoreObject.rank;
+			
+			/*
+			 * check if the score the student has is larger than the
+			 * score for this score object. the first score that the
+			 * student surpasses will determine their rank so scores
+			 * should be ordered from highest to lowest in the scores
+			 * array.
+			 */
+			if(score >= tempScore) {
+				//the student has a larger score so they have achieved the rank
+				rank = tempRank;
+				break;
+			}
+		}
+	}
+	
+	return rank;
+};
+
+/**
+ * Get the icon path from the score
+ * @param score the score
+ * @return the icon path for the score
+ */
+WarpRatingGlobalTagMap.prototype.getIconFromScore = function(score) {
+	var icon = null;
+	
+	//get the possible scores
+	var scores = this.scores;
+	
+	if(scores != null) {
+		//loop through all the scores
+		for(var x=0; x<scores.length; x++) {
+			//get a score object
+			var tempScoreObject = scores[x];
+			
+			//get the score
+			var tempScore = tempScoreObject.score;
+			
+			//get the icon path
+			var tempIcon = tempScoreObject.icon;
+			
+			/*
+			 * check if the score the student has is larger than the
+			 * score for this score object. the first score that the
+			 * student surpasses will determine their icon so scores
+			 * should be ordered from highest to lowest in the scores
+			 * array.
+			 */
+			if(score >= tempScore) {
+				//the student has a larger score so they have achieved the icon
+				icon = tempIcon;
+				break;
+			}
+		}
+	}
+	
+	return icon;
+};
+
+
+AdvisorRatingGlobalTagMap.prototype = new GlobalTagMap();
+AdvisorRatingGlobalTagMap.prototype.constructor = AdvisorRatingGlobalTagMap;
+AdvisorRatingGlobalTagMap.prototype.parent = GlobalTagMap.prototype;
+AdvisorRatingGlobalTagMap.functionName = 'advisorRating';
+
+/**
+ * The constructor for the AdvisorRatingGlobalTagMap. This global tag
+ * map will accumulate the score for all the steps with a specific
+ * tag and give the student a rank based upon that score.
+ * @param view the view
+ * @param parameters parameters for this global tag map
+ */
+function AdvisorRatingGlobalTagMap(view, parameters) {
+	this.view = view;
+	
+	//get the tag name
+	this.tagName = parameters.tagName;
+	
+	//get the possible scores
+	this.scores = parameters.scores;
+	
+	//get all the step node ids for the steps that have the given tag
+	var nodeIds = view.getProject().getNodeIdsByTag(this.tagName);
+	
+	//remember the node ids
+	this.nodeIds = nodeIds;
+	
+	//get the id for the img element we will create
+	var advisorRatingId = AdvisorRatingGlobalTagMap.functionName;
+	this.advisorRatingId = advisorRatingId;
+	
+	/*
+	 * subscribe to the studentWorkUpdated event so this tag map
+	 * can perform any necessary changes when the student work
+	 * changes
+	 */
+	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
+	
+	//get the student's score for the tagged step(s)
+	var score = this.getScore();
+	
+	//get the icon to display based on the student's score
+	var icon = this.getIconFromScore(score);
+	
+	//get the y position where we will place the icon
+	var y = 10 + (100 * 4);
+	
+	//create the img element to display the warp rating
+	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
+	img.setAttributeNS(null, 'id', 'advisorRating');
+	img.setAttributeNS(null, 'height', '100');
+	img.setAttributeNS(null, 'width', '200');
+	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
+	img.setAttributeNS(null, 'x', '10');
+	img.setAttributeNS(null, 'y', y);
+	img.setAttributeNS(null, 'visibility', 'visible');
+	
+	//add the img element to the starmap
+	$('#wrap').append(img);
+};
+
+/**
+ * The listener for the studentWorkUpdated event
+ * @param type the event type studentWorkUpdated
+ * @param args the arguments passed in when the event is fired
+ * @param obj this warp rating global tag map object
+ */
+AdvisorRatingGlobalTagMap.prototype.studentWorkUpdatedListener = function(type, args, obj) {
+	var thisGlobalTagMap = obj;
+	
+	//get the node id and node visit from the args
+	var nodeId = args[0];
+	var nodeVisit = args[1];
+	
+	//call the handler
+	obj.studentWorkUpdatedHandler(nodeId, nodeVisit);
+};
+
+/**
+ * The handler for the studentWorkUpdated event
+ * @param nodeId the node id that the student work is for
+ * @param nodeVisit the node visit that was just submitted by the student
+ */
+AdvisorRatingGlobalTagMap.prototype.studentWorkUpdatedHandler = function(nodeId, nodeVisit) {
+	
+	//get the step node ids that were tagged
+	var nodeIds = this.nodeIds;
+	
+	if(nodeIds != null) {
+		
+		/*
+		 * check if the step that was updated is one of the
+		 * steps that were tagged for this global tag map
+		 */
+		if(nodeIds.indexOf(nodeId) != -1) {
+			//student work has been updated for a node that this global tag map has tagged
+
+			//get the student's score for the tagged step(s)
+			var score = this.getScore();
+			
+			//get the rank
+			var rank = this.getRankFromScore(score);
+			
+			//get the icon path
+			var icon = this.getIconFromScore(score);
+			
+			//update the icon path for the warp rating
+			$('#' + this.advisorRatingId).attr('href', icon);
+		}
+	}
+};
+
+/**
+ * Get the student's score for the the tagged step(s)
+ * @return the student's score for the tagged steps
+ */
+AdvisorRatingGlobalTagMap.prototype.getScore = function() {
+	//get the step node ids that were tagged
+	var nodeIds = this.nodeIds;
+	
+	//get all the student work
+	var vleState = this.view.getState();
+	
+	//accumulate the score
+	var score = 0;
+	
+	if(nodeIds != null) {
+		
+		//loop through all the step node ids that were tagged
+		for(var x=0; x<nodeIds.length; x++) {
+			
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			//get the node
+			var node = this.view.getProject().getNodeById(nodeId);
+			
+			if(node != null) {
+				//get the latest node state for the step
+				var latestWork = vleState.getLatestWorkByNodeId(nodeId);
+				
+				if(latestWork != null) {
+					
+					//get the score
+					var stepScore = node.getScore(latestWork);
+					
+					if(stepScore != null) {
+						//accumulate the score
+						score += stepScore;						
+					}
+				}
+			}
+		}
+	}
+	
+	return score;
+};
+
+/**
+ * Get the rank from the score
+ * @param score the score
+ * @return the rank for the score
+ */
+AdvisorRatingGlobalTagMap.prototype.getRankFromScore = function(score) {
+	var rank = null;
+	
+	//get the possible scores
+	var scores = this.scores;
+	
+	if(scores != null) {
+		//loop through all the scores
+		for(var x=0; x<scores.length; x++) {
+			//get a score object
+			var tempScoreObject = scores[x];
+			
+			//get the score
+			var tempScore = tempScoreObject.score;
+			
+			//get the rank
+			var tempRank = tempScoreObject.rank;
+			
+			/*
+			 * check if the score the student has is larger than the
+			 * score for this score object. the first score that the
+			 * student surpasses will determine their rank so scores
+			 * should be ordered from highest to lowest in the scores
+			 * array.
+			 */
+			if(score >= tempScore) {
+				//the student has a larger score so they have achieved the rank
+				rank = tempRank;
+				break;
+			}
+		}
+	}
+	
+	return rank;
+};
+
+/**
+ * Get the icon path from the score
+ * @param score the score
+ * @return the icon path for the score
+ */
+AdvisorRatingGlobalTagMap.prototype.getIconFromScore = function(score) {
+	var icon = null;
+	
+	//get the possible scores
+	var scores = this.scores;
+	
+	if(scores != null) {
+		//loop through all the scores
+		for(var x=0; x<scores.length; x++) {
+			//get a score object
+			var tempScoreObject = scores[x];
+			
+			//get the score
+			var tempScore = tempScoreObject.score;
+			
+			//get the icon path
+			var tempIcon = tempScoreObject.icon;
+			
+			/*
+			 * check if the score the student has is larger than the
+			 * score for this score object. the first score that the
+			 * student surpasses will determine their icon so scores
+			 * should be ordered from highest to lowest in the scores
+			 * array.
+			 */
+			if(score >= tempScore) {
+				//the student has a larger score so they have achieved the icon
+				icon = tempIcon;
+				break;
+			}
+		}
+	}
+	
+	return icon;
 };
 
 NavigationPanel.prototype.menuLoaded = function() {

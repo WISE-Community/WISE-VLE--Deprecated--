@@ -391,6 +391,8 @@ var scriptloader = function(){
 			      'vle/view/vle/vleview_utils.js',
 			      'vle/view/vle/vleview_studentwork.js',
 			      'vle/view/vle/vleview_model.js',
+			      'vle/view/vle/vleview_globaltagmaps.js',
+			      'vle/navigation/GlobalTagMap.js',
 	              'vle/swfobject/swfobject.js'],
         author: ['vle/util/icon.js',
                  'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js',

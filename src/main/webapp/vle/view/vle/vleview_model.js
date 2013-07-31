@@ -98,7 +98,11 @@ StudentModel.prototype.pushStudentWorkToLatestNodeVisit = function(nodeId, nodeS
 					//process the student work in case we need to change the node's status
 					node.processStudentWork(nodeVisits);
 					
-					eventManager.fire('studentWorkUpdated');
+					/*
+					 * fire the studentWorkUpdated event and pass in the node id and node visit
+					 * so listeners will know which step the student work was updated for
+					 */
+					eventManager.fire('studentWorkUpdated', [nodeId, nodeVisit]);
 				} else {
 					//the nodeState is not an object so we will not save the nodeState
 					if(notificationManager != null) {

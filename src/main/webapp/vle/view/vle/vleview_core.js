@@ -28,6 +28,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.updateActiveTagMapConstraints();
 		obj.updateSequenceStatuses();
 		obj.processStudentWork();
+		obj.loadGlobalTagMaps();
 	} else if(type=='renderNodeCompleted'){
 		if(args){
 			obj.renderNodeCompletedListener(args[0]);

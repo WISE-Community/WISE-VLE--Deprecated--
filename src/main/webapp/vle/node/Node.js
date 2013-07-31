@@ -2502,6 +2502,15 @@ Node.prototype.populateNodeStatusDependencies = function() {
 	}
 };
 
+/**
+ * Get the score for the node state for this step. This should
+ * be implemented by child nodes if they want to utilize it.
+ * @param nodeState the node state to get the score from
+ */
+Node.prototype.getScore = function(nodeState) {
+	return null;
+};
+
 /*
  * Takes in a state JSON object and returns a STATE object. This
  * function should be overriden by child nodes.

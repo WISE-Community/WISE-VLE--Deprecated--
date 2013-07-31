@@ -18,6 +18,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var totalProjectContent = totalProjectContent;
 		var constraints = [];
 		var usedNodeTypes = [];
+		var globalTagMaps = [];
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/
@@ -1122,7 +1123,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					sequences: [],
 					startPoint: "",
 					navMode: navMode,
-					theme: theme
+					theme: theme,
+					globalTagMaps:[]
 			};
 			
 			/* set start point */
@@ -1141,6 +1143,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					project.sequences.push(allSequenceNodes[j].nodeJSON());
 				};
 			};
+			
+			//set the global tag maps
+			if(globalTagMaps != null) {
+				project.globalTagMaps = globalTagMaps;
+			}
 			
 			/* return the project object */
 			return project;
@@ -2353,6 +2360,20 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return parentNodeId;
 		};
 		
+		/**
+		 * Set the global tag maps from the project content
+		 */
+		var setGlobalTagMaps = function() {
+			globalTagMaps = content.getContentJSON().globalTagMaps;
+		};
+		
+		/**
+		 * Get the global tag maps
+		 */
+		var getGlobalTagMaps = function() {
+			return globalTagMaps;
+		};
+		
 		/* check to see if this project was passed a minifiedStr, in which we will
 		 * set the totalProjectContent and this project's content */
 		 if(totalProjectContent){
@@ -2390,6 +2411,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* create nodes for project and set rootNode*/
 			generateProjectNodes();
 			generateSequences();
+			
+			//set the global tag maps
+			setGlobalTagMaps();
 			
 			/* set up duplicate nodes */
 			setRealNodesInDuplicates();
@@ -2555,7 +2579,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* get the activity number, activity title, and step title*/
 			getNodeTitles:function(nodeId) {return getNodeTitles(nodeId);},
 			/* get all the node ids and node titles as an array */
-			getAllNodeIdsAndNodeTitles:function() {return getAllNodeIdsAndNodeTitles();}
+			getAllNodeIdsAndNodeTitles:function() {return getAllNodeIdsAndNodeTitles();},
+			/* set the global tag maps from the project content */
+			setGlobalTagMaps:function() {return setGlobalTagMaps();},
+			/* get the global tag maps */
+			getGlobalTagMaps:function() {return getGlobalTagMaps();}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };
