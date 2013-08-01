@@ -1,10 +1,10 @@
 {
-	"brainstorm_title": {
+	"title": {
 		"value":"オープンフォーラム",
 		"description":"The text 'Student Brainstorm: Server Based' in the page title"
 	},
-	"brainstorm_instructions": {
-		"value":"下のトピックを読んでから答えを書きなさい。<br/>  <em>セーブ</em>　ボタンをクリックするとクラスメートの応答が表示されます。",
+	"instructions": {
+		"value":"下のトピックを読んでから答えを書きなさい。<br/>  <em>{0}</em>　ボタンをクリックするとクラスメートの応答が表示されます。",
 		"description":"The instructions for the brainstorm step"
 	},	
 	"my_response": {
