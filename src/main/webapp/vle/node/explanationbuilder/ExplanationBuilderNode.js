@@ -336,7 +336,7 @@ ExplanationBuilderNode.prototype.renderGradingView = function(displayStudentWork
 		}
 		
 		//create a div for the idea that will be displayed as a rectangle
-		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="' + view.getI18NString('usedIdea_title','ExplanationBuilderNode') + " id="' + childDivIdPrefix + 'explanationIdea' 
+		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="' + view.getI18NString('usedIdea_title','ExplanationBuilderNode') + '" id="' + childDivIdPrefix + 'explanationIdea' 
 			+ id + '_' + stepWorkId + '" style="position:absolute; left:' + left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>';
 		
 		//add the idea div to the explanationBuilderIdeasDiv
