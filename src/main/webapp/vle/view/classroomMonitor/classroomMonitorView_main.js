@@ -287,7 +287,13 @@ View.prototype.periodButtonClicked = function(periodId) {
 	}
 	
 	//show the pause screens information for the period
-	this.showPeriodInPauseScreensDisplay(this.classroomMonitorPeriodIdSelected);
+	this.showPeriodInPauseScreensDisplay(periodId);
+	
+	//update the student progress display to only show students in the period
+	this.showPeriodInStudentProgressDisplay(periodId);
+	
+	//update the step progress display to only show data from the period
+	this.showPeriodInStepProgressDisplay(periodId);
 };
 
 /**
@@ -300,12 +306,6 @@ View.prototype.showPeriodInPauseScreensDisplay = function(periodId) {
 	
 	//update the status text to show the teacher whether the period is paused or not
 	this.setActivePausedButton(isPaused);
-	
-	//update the student progress display to only show students in the period
-	this.showPeriodInStudentProgressDisplay(periodId);
-	
-	//update the step progress display to only show data from the period
-	this.showPeriodInStepProgressDisplay(periodId);
 };
 
 /**
@@ -354,44 +354,21 @@ View.prototype.showPeriodInStepProgressDisplay = function(periodId) {
 		//get a node id
 		var nodeId = nodeIds[x];
 		
-		//skip the master node
-		if(nodeId != 'master') {
-			//get the node
-			var node = this.getProject().getNodeById(nodeId);
+		//get the node
+		var node = this.getProject().getNodeById(nodeId);
+		
+		if(node != null) {
+			//get the number of students in the period that are on this step
+			var numberOfStudentsOnStep = this.getNumberOfStudentsOnStep(nodeId, periodId);
+
+			//get the percentage of students in the period who have completed this step
+			var completionPercentage = this.calculateStepCompletionForNodeId(nodeId, periodId);
 			
-			if(node != null) {
-				
-				//get the number of students in the period that are on this step
-				var numberOfStudentsOnStep = this.getNumberOfStudentsOnStep(nodeId, periodId);
-				
-				if(numberOfStudentsOnStep == null) {
-					numberOfStudentsOnStep = '';
-				}
-				
-				//get the td element for the number of students for this step
-				var stepProgressNumberOfStudentsOnStepId = this.escapeIdForJquery('stepProgressTableDataNumberOfStudentsOnStep_' + nodeId);
-				var numberOfStudentsOnStepTD = $('#' + stepProgressNumberOfStudentsOnStepId);
-				
-				//update the text value to show the number of students on the step
-				numberOfStudentsOnStepTD.text(numberOfStudentsOnStep);
-				
-				//get the percentage of students in the period who have completed this step
-				var completionPercentage = this.calculateStepCompletionForNodeId(nodeId, periodId);
-				
-				if(completionPercentage == null) {
-					completionPercentage = '';
-				} else {
-					//append the % sign
-					completionPercentage += '%';
-				}
-				
-				//get the td element for the completion percentage for this step
-				var stepProgressCompletionPercentageId = this.escapeIdForJquery('stepProgressTableDataCompletionPercentage_' + nodeId);
-				var completionPercentageTD = $('#' + stepProgressCompletionPercentageId);
-				
-				//update the text value to show the completion percentage on the step
-				completionPercentageTD.text(completionPercentage);
-			}			
+			/*
+			 * update the number of students on the step and the 
+			 * number of students who have completed the step
+			 */
+			this.updateStepProgress(nodeId, numberOfStudentsOnStep, completionPercentage);
 		}
 	}
 };
@@ -1336,60 +1313,11 @@ View.prototype.updateStudentProgressTimeSpent = function(workgroupId) {
  * Update all the step progress rows
  */
 View.prototype.updateAllStepProgress = function() {
-	//get all the step node ids
-	var nodeIds = this.getProject().getAllNodeIds();
+	//get the period that is currently selected
+	var periodId = this.classroomMonitorPeriodIdSelected;
 	
-	//loop through all the node ids
-	for(var x=0; x<nodeIds.length; x++) {
-		//get a node id
-		var nodeId = nodeIds[x];
-		
-		//skip the  master node
-		if(nodeId != 'master') {
-			//get the step number and title
-			var stepNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeId);
-			
-			//get the node
-			var node = this.getProject().getNodeById(nodeId);
-			
-			if(node != null) {
-				var nodePrefix = '';
-
-				//get the prefix for the node type
-				if(node.type == 'sequence') {
-					nodePrefix = 'Activity';
-				} else {
-					nodePrefix = 'Step';
-				}
-				
-				//get the number of students currently on this step
-				var numberOfStudentsOnStep = this.getNumberOfStudentsOnStep(nodeId);
-				
-				//get the percentage of students who have completed this step
-				var completionPercentage = this.calculateStepCompletionForNodeId(nodeId);
-				
-				//get the node type
-				var nodeType = node.type;
-				
-				var tr = null;
-
-				if(nodeType == 'sequence') {
-					/*
-					 * we will not display number of students or 
-					 * percentage completion for sequence nodes
-					 */
-					completionPercentage = null;
-					numberOfStudentsOnStep= null;
-				}
-				
-				//create the step title
-				var stepTitle = nodePrefix + ' ' + stepNumberAndTitle;
-				
-				//update the step progress row for the step
-				this.updateStepProgress(nodeId, numberOfStudentsOnStep, completionPercentage);
-			}			
-		}
-	}
+	//recalculate the step progress for the period
+	this.showPeriodInStepProgressDisplay(periodId);
 };
 
 /**
