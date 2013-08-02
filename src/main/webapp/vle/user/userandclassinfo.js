@@ -11,9 +11,10 @@ View.prototype.getUserAndClassInfo = function() {
 	return this.userAndClassInfo;
 };
 
-View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos) {
-	return function(myUserInfoParam, classmateUserInfosParam, teacherUserInfoParam, sharedTeacherUserInfosParam) {
+View.prototype.createUserAndClassInfo = function(myUserInfo, periods, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos) {
+	return function(myUserInfoParam, periodsParam, classmateUserInfosParam, teacherUserInfoParam, sharedTeacherUserInfosParam) {
 		var myUserInfo = myUserInfoParam;
+		var periods = periodsParam;
 		var classmateUserInfos = classmateUserInfosParam;
 		var teacherUserInfo = teacherUserInfoParam;
 		
@@ -67,45 +68,8 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 		 * Get an array of period objects. Each period object contains
 		 * the period id and period name.
 		 */
-		var getAllPeriodObjects = function() {
-			//the array to hold all the period objects
-			var periodObjects = [];
-			
-			/*
-			 * the array to hold the period ids that we have already added
-			 * to the periodObjects array
-			 */
-			var periodIds = [];
-			
-			//loop through all the classmates
-			for(var x=0; x<classmateUserInfos.length; x++) {
-				//get a classmate
-				var classmateUserInfo = classmateUserInfos[x];
-				
-				//get the period id
-				var periodId = classmateUserInfo.periodId;
-				
-				//get the period name
-				var periodName = classmateUserInfo.periodName;
-				
-				if(periodIds.indexOf(periodId) == -1) {
-					//we have not added this period id yet
-					
-					//create the period object
-					var periodObject = {
-						periodId:periodId,
-						periodName:periodName
-					}
-					
-					//add the period object
-					periodObjects.push(periodObject);
-					
-					//add the period id so we don't add it to the period objects array again later
-					periodIds.push(periodId);
-				}
-			}
-			
-			return periodObjects;
+		var getPeriods = function() {
+			return periods;
 		};
 		
 		var getClassmateUserInfos = function() {
@@ -227,6 +191,28 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			return null;
 		};
 		
+		/**
+		 * Get the period id for a workgroup id
+		 * @param the workgroup id
+		 * @return the period id or null if we did not find the workgroup id
+		 */
+		var getClassmatePeriodIdByWorkgroupId = function(workgroupId) {
+			//loop through all the classmates
+			for(var x=0; x<classmateUserInfos.length; x++) {
+				//get a classmate
+				var classmate = classmateUserInfos[x];
+				
+				//check if this is the classmate we're looking for
+				if(classmate.workgroupId == workgroupId) {
+					//return the period name id
+					return classmate.periodId;
+				}
+			}
+			
+			//return null if we did not find the workgroup id in our classmates
+			return null;
+		};
+		
 		var getTeacherWorkgroupId = function() {
 			var workgroupId = null;
 			
@@ -272,6 +258,32 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			return sharedTeacherWorkgroupIds;
 		};
 		
+		/**
+		 * Get all the classmates in the period id
+		 * @param the period id. if the period id is null or 'all'
+		 * we will get classmates from all the periods
+		 * @return the classmates in the period
+		 */
+		var getClassmatesInPeriodId = function(periodId) {
+			var classmates = [];
+			
+			//loop through all the classmates
+			for (var x=0; x< classmateUserInfos.length; x++) {
+				var classmateUserInfo = classmateUserInfos[x];
+				
+				if(classmateUserInfo != null) {
+					var tempPeriodId = classmateUserInfo.periodId;
+					
+					//check if the classmate is in the period
+					if(periodId == null || periodId == 'all' || periodId == tempPeriodId) {
+						classmates.push(classmateUserInfo);
+					}
+				}
+			}
+			
+			return classmates;
+		}
+		
 		var getClassmatesInAlphabeticalOrder = function() {
 			
 			var sortByUserName = function(a, b) {
@@ -314,6 +326,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			getClassmatePeriodNameByWorkgroupId:function(workgroupId) {
 				return getClassmatePeriodNameByWorkgroupId(workgroupId);
 			},
+			getClassmatePeriodIdByWorkgroupId:function(workgroupId) {
+				return getClassmatePeriodIdByWorkgroupId(workgroupId);
+			},
 			getTeacherWorkgroupId:function() {
 				return getTeacherWorkgroupId();
 			},
@@ -344,17 +359,21 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 			getClassmateWorkgroupIds:function() {
 				return getClassmateWorkgroupIds();
 			},
-			getAllPeriodObjects:function() {
-				return getAllPeriodObjects();
+			getPeriods:function() {
+				return getPeriods();
+			},
+			getClassmatesInPeriodId:function(periodId) {
+				return getClassmatesInPeriodId(periodId);
 			}
 		};
-	}(myUserInfo, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);
+	}(myUserInfo, periods, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);
 };
 
 View.prototype.parseUserAndClassInfo = function(contentObject) {
 	var contentObjectJSON = contentObject.getContentJSON();
 	var classInfoJSON;
 	var myUserInfo;
+	var periods;
 	var classmateUserInfos;
 	var teacherUserInfo;
 	var sharedTeacherUserInfos;
@@ -364,6 +383,10 @@ View.prototype.parseUserAndClassInfo = function(contentObject) {
 		myUserInfo = contentObjectJSON.myUserInfo;
 		
 		if(classInfoJSON != null) {
+			if(classInfoJSON.periods != null) {
+				periods = classInfoJSON.periods;
+			}
+			
 			if(classInfoJSON.classmateUserInfos != null) {
 				classmateUserInfos = classInfoJSON.classmateUserInfos;
 			}
@@ -378,7 +401,7 @@ View.prototype.parseUserAndClassInfo = function(contentObject) {
 		}
 	}
 	
-	return this.createUserAndClassInfo(myUserInfo, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);
+	return this.createUserAndClassInfo(myUserInfo, periods, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);
 };
 
 

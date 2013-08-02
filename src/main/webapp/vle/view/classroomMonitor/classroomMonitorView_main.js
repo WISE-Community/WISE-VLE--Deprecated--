@@ -99,18 +99,33 @@ View.prototype.showStepProgressDisplay = function() {
  * Create the classroom monitor buttons
  */
 View.prototype.createClassroomMonitorButtons = function() {
+	//make the period button class
+	var chooseClassroomMonitorDisplayButtonClass = 'chooseClassroomMonitorDisplayButton';
+	
 	//create the pause all screens tool button
 	var pauseScreensToolButton = $('<input/>').attr({id:'pauseScreensButton', type:'button', name:'pauseScreensButton', value:'Pause Screens Tool'});
+	pauseScreensToolButton.addClass(chooseClassroomMonitorDisplayButtonClass);
+	
+	/*
+	 * make the button yellow since the pause screens display is 
+	 * the display we show when the classroom monitor starts up
+	 */
+	this.setActiveButtonBackgroundColor(pauseScreensToolButton);
 	
 	//create the student progress button
 	var studentProgressButton = $('<input/>').attr({id:'studentProgressButton', type:'button', name:'studentProgressButton', value:'Student Progress'});
+	studentProgressButton.addClass(chooseClassroomMonitorDisplayButtonClass);
 	
 	//create the step progress button
 	var stepProgressButton = $('<input/>').attr({id:'stepProgressButton', type:'button', name:'stepProgressButton', value:'Step Progress'});
+	stepProgressButton.addClass(chooseClassroomMonitorDisplayButtonClass);
 	
 	//set the click event for the pause all screens tool button
 	pauseScreensToolButton.click({thisView:this}, function(event) {
 		var thisView = event.data.thisView;
+		
+		//clear the background from the other display buttons and make this button background yellow
+		thisView.setActiveButtonBackgroundColor(this, chooseClassroomMonitorDisplayButtonClass);
 		
 		//show the pause all screens display
 		thisView.showPauseScreensDisplay();
@@ -120,6 +135,9 @@ View.prototype.createClassroomMonitorButtons = function() {
 	studentProgressButton.click({thisView:this}, function(event) {
 		var thisView = event.data.thisView;
 		
+		//clear the background from the other display buttons and make this button background yellow
+		thisView.setActiveButtonBackgroundColor(this, chooseClassroomMonitorDisplayButtonClass);
+		
 		//show the student progress display
 		thisView.showStudentProgressDisplay();
 	});
@@ -127,6 +145,9 @@ View.prototype.createClassroomMonitorButtons = function() {
 	//set the click event for the step progress button
 	stepProgressButton.click({thisView:this}, function(event) {
 		var thisView = event.data.thisView;
+		
+		//clear the background from the other display buttons and make this button background yellow
+		thisView.setActiveButtonBackgroundColor(this, chooseClassroomMonitorDisplayButtonClass);
 		
 		//show the step progress display
 		thisView.showStepProgressDisplay();
@@ -142,14 +163,44 @@ View.prototype.createClassroomMonitorButtons = function() {
 };
 
 /**
+ * Set the background of the active button to yellow and remove
+ * the background color from the other buttons that are in the
+ * same class
+ * @param button the button element to make yellow
+ * @param classToRemoveBackgroundFrom the class that the button is
+ * in so we can remove the yellow background from the other buttons
+ */
+View.prototype.setActiveButtonBackgroundColor = function(button, classToRemoveBackgroundFrom) {
+	if(classToRemoveBackgroundFrom != null) {
+		//remove the yellow background from the other buttons in the class
+		$('.' + classToRemoveBackgroundFrom).css('background', '');
+	}
+	
+	if(button != null) {
+		//make this button yellow
+		$(button).css('background', 'yellow');		
+	}
+};
+
+/**
  * Create the period buttons for the teacher to filter by period
  */
 View.prototype.createClassroomMonitorPeriods = function() {
+	//make the class to give to all period buttons
+	var periodButtonClass = 'periodButton';
+	
 	//get all the periods
-	var periodObjects = this.getUserAndClassInfo().getAllPeriodObjects();
+	var periods = this.getUserAndClassInfo().getPeriods();
 	
 	//create a button for all the periods
 	var allPeriodsButton = $('<input/>').attr({id:'periodButton_all', type:'button', name:'periodButton_all', value:'All'});
+	allPeriodsButton.addClass(periodButtonClass);
+	
+	/*
+	 * make the button yellow since all periods is selected 
+	 * when the classroom monitor starts up
+	 */
+	this.setActiveButtonBackgroundColor(allPeriodsButton);
 	
 	//add the all periods button to the UI
 	$('#classroomMonitorPeriodsDiv').append(allPeriodsButton);
@@ -164,6 +215,9 @@ View.prototype.createClassroomMonitorPeriods = function() {
 		//get the period id
 		var periodId = buttonId.replace('periodButton_', '');
 		
+		//clear the background from the other period buttons and make this button background yellow
+		thisView.setActiveButtonBackgroundColor(this, periodButtonClass);
+		
 		/*
 		 * a period button has been clicked so we will perform 
 		 * any necessary changes to the UI
@@ -171,11 +225,11 @@ View.prototype.createClassroomMonitorPeriods = function() {
 		thisView.periodButtonClicked(periodId);
 	});
 	
-	if(periodObjects != null) {
+	if(periods != null) {
 		//loop through all the periods
-		for(var x=0; x<periodObjects.length; x++) {
+		for(var x=0; x<periods.length; x++) {
 			//get a period
-			var periodObject = periodObjects[x];
+			var periodObject = periods[x];
 			var periodId = periodObject.periodId;
 			var periodName = periodObject.periodName;
 			
@@ -187,6 +241,7 @@ View.prototype.createClassroomMonitorPeriods = function() {
 			
 			//create the button
 			var periodButton = $('<input/>').attr({id:buttonId, type:'button', name:buttonId, value:buttonLabel});
+			periodButton.addClass(periodButtonClass);
 			
 			//add the button to the UI
 			$('#classroomMonitorPeriodsDiv').append(periodButton);
@@ -200,6 +255,9 @@ View.prototype.createClassroomMonitorPeriods = function() {
 				
 				//get the period id
 				var periodId = buttonId.replace('periodButton_', '');
+				
+				//clear the background from the other period buttons and make this button background yellow
+				thisView.setActiveButtonBackgroundColor(this, periodButtonClass);
 				
 				/*
 				 * a period button has been clicked so we will perform 
@@ -242,6 +300,12 @@ View.prototype.showPeriodInPauseScreensDisplay = function(periodId) {
 	
 	//update the status text to show the teacher whether the period is paused or not
 	this.setPauseScreenStatus(isPaused);
+	
+	//update the student progress display to only show students in the period
+	this.showPeriodInStudentProgressDisplay(periodId);
+	
+	//update the step progress display to only show data from the period
+	this.showPeriodInStepProgressDisplay(periodId);
 };
 
 /**
@@ -249,7 +313,30 @@ View.prototype.showPeriodInPauseScreensDisplay = function(periodId) {
  * @param periodId the period id
  */
 View.prototype.showPeriodInStudentProgressDisplay = function(periodId) {
-	//TODO
+	if(periodId == null || periodId == 'all') {
+		//show all the student rows for all the periods
+		$('.studentRow').show();
+	} else if(periodId != null) {
+		/*
+		 * period id is provided so we will hide all student rows except the
+		 * ones in the period
+		 */
+		
+		//hide all the student rows in the student progress display
+		$('.studentRow').hide();
+		
+		//get the period id class
+		var periodIdClass = 'periodId_' + periodId;
+		
+		/*
+		 * show all the student rows in the period within the
+		 * student progress display. if the student progress display
+		 * is not currently being displayed, the rows will
+		 * not be shown but they will be shown when the teacher 
+		 * switches to the student progress display.
+		 */ 
+		$('.' + periodIdClass).show();
+	}
 };
 
 /**
@@ -258,7 +345,55 @@ View.prototype.showPeriodInStudentProgressDisplay = function(periodId) {
  * @param periodId the period id
  */
 View.prototype.showPeriodInStepProgressDisplay = function(periodId) {
-	//TODO
+	
+	//get all the node ids. this includes activity and step node ids.
+	var nodeIds = this.getProject().getNodeIds();
+	
+	//loop through all the node ids
+	for(var x=0; x<nodeIds.length; x++) {
+		//get a node id
+		var nodeId = nodeIds[x];
+		
+		//skip the master node
+		if(nodeId != 'master') {
+			//get the node
+			var node = this.getProject().getNodeById(nodeId);
+			
+			if(node != null) {
+				
+				//get the number of students in the period that are on this step
+				var numberOfStudentsOnStep = this.getNumberOfStudentsOnStep(nodeId, periodId);
+				
+				if(numberOfStudentsOnStep == null) {
+					numberOfStudentsOnStep = '';
+				}
+				
+				//get the td element for the number of students for this step
+				var stepProgressNumberOfStudentsOnStepId = this.escapeIdForJquery('stepProgressTableDataNumberOfStudentsOnStep_' + nodeId);
+				var numberOfStudentsOnStepTD = $('#' + stepProgressNumberOfStudentsOnStepId);
+				
+				//update the text value to show the number of students on the step
+				numberOfStudentsOnStepTD.text(numberOfStudentsOnStep);
+				
+				//get the percentage of students in the period who have completed this step
+				var completionPercentage = this.calculateStepCompletionForNodeId(nodeId, periodId);
+				
+				if(completionPercentage == null) {
+					completionPercentage = '';
+				} else {
+					//append the % sign
+					completionPercentage += '%';
+				}
+				
+				//get the td element for the completion percentage for this step
+				var stepProgressCompletionPercentageId = this.escapeIdForJquery('stepProgressTableDataCompletionPercentage_' + nodeId);
+				var completionPercentageTD = $('#' + stepProgressCompletionPercentageId);
+				
+				//update the text value to show the completion percentage on the step
+				completionPercentageTD.text(completionPercentage);
+			}			
+		}
+	}
 };
 
 /**
@@ -420,8 +555,11 @@ View.prototype.createStudentProgressDisplay = function() {
 			//get the usernames for this workgroup
 			var userNames = this.userAndClassInfo.getUserNameByUserId(workgroupId);
 			
-			//get the period the workgroup is in
-			var period = this.userAndClassInfo.getClassmatePeriodNameByWorkgroupId(workgroupId);
+			//get the period name the workgroup is in
+			var periodName = this.userAndClassInfo.getClassmatePeriodNameByWorkgroupId(workgroupId);
+			
+			//get the period id the workgroup is in
+			var periodId = this.userAndClassInfo.getClassmatePeriodIdByWorkgroupId(workgroupId);
 			
 			//get the current step the workgroup is on
 			var currentStep = this.getStudentCurrentStepByWorkgroupId(workgroupId);
@@ -433,7 +571,7 @@ View.prototype.createStudentProgressDisplay = function() {
 			var timeSpent = '&nbsp';
 			
 			//create the row for the student
-			var studentTR = this.createStudentProgressDisplayRow(studentOnline, userNames, workgroupId, period, currentStep, timeSpent, studentCompletion);
+			var studentTR = this.createStudentProgressDisplayRow(studentOnline, userNames, workgroupId, periodId, periodName, currentStep, timeSpent, studentCompletion);
 			
 			if(studentTR != null) {
 				//add the the row for this student to the end of the table
@@ -451,18 +589,27 @@ View.prototype.createStudentProgressDisplay = function() {
  * @param studentOnline whether the workgroup is online
  * @param userNames the usernames for the workgroup
  * @param workgroupId the workgroup id
- * @param period the period name
+ * @param periodId the period id
+ * @param periodName the period name
  * @param currentStep the current step the workgroup is on
  * @param timeSpent the time spent on the current step
  * @param completionPercentage the project completion percentage for the workgroup
  * @return a TR element containing the student progress values
  */
-View.prototype.createStudentProgressDisplayRow = function(studentOnline, userNames, workgroupId, period, currentStep, timeSpent, completionPercentage) {
+View.prototype.createStudentProgressDisplayRow = function(studentOnline, userNames, workgroupId, periodId, periodName, currentStep, timeSpent, completionPercentage) {
 	var studentTR = null;
 	
 	if(workgroupId != null) {
 		//create the student row
 		var studentTR = $('<tr>').attr({id:'studentProgressTableRow_' + workgroupId});
+
+		//set the student row class
+		var studentRowClass = 'studentRow';
+		studentTR.addClass(studentRowClass);
+		
+		//create the period id class and add it to the student row
+		var periodIdClass = 'periodId_' + periodId;
+		studentTR.addClass(periodIdClass);
 		
 		//create the cell to display whether the workgroup is online
 		var onlineTD = $('<td>').attr({id:'studentProgressTableDataOnline_' + workgroupId});
@@ -478,7 +625,7 @@ View.prototype.createStudentProgressDisplayRow = function(studentOnline, userNam
 		
 		//create the cell to display the period name
 		var periodTD = $('<td>').attr({id:'studentProgressTableDataPeriod_' + workgroupId});
-		periodTD.text(period);
+		periodTD.text(periodName);
 		
 		//create the cell to display the current step the workgroup is on
 		var currentStepTD = $('<td>').attr({id:'studentProgressTableDataCurrentStep_' + workgroupId});
@@ -747,7 +894,7 @@ View.prototype.createRunStatus = function() {
 	runStatus.allPeriodsPaused = false;
 	
 	//get all the periods objects
-	var periods = this.getUserAndClassInfo().getAllPeriodObjects();
+	var periods = this.getUserAndClassInfo().getPeriods();
 	
 	//loop through all the periods
 	for(var x=0; x<periods.length; x++) {
@@ -1362,35 +1509,21 @@ View.prototype.isNodeCompleted = function(nodeId, nodeStatuses) {
 /**
  * Calculate the percentage of the class that has completed the step
  * @param nodeId the node id for the step
+ * @param periodId the period id to get the step completion for. if this
+ * parameter is null or 'all' we will calculate the step completion for
+ * all periods.
  * @return the percentage of the class that has completed the step
  * as an integer
  */
-View.prototype.calculateStepCompletionForNodeId = function(nodeId) {
+View.prototype.calculateStepCompletionForNodeId = function(nodeId, periodId) {
 	var numberStudentsCompleted = 0;
 	var totalNumberStudents = 0;
 	
-	//get the student statuses
-	var studentStatuses = this.studentStatuses;
+	//get the number of students in the period
+	totalNumberStudents = this.getNumberOfStudentsInPeriod(periodId);
 	
-	if(studentStatuses != null) {
-		//loop through all the student statuses
-		for(var x=0; x<studentStatuses.length; x++) {
-			//get a student status
-			var studentStatus = studentStatuses[x];
-			
-			//get the node statuses for the student
-			var nodeStatuses = studentStatus.nodeStatuses;
-			
-			//check if the student has completed the step
-			if(this.isNodeCompleted(nodeId, nodeStatuses)) {
-				//the student has completed the step so we will update the counter
-				numberStudentsCompleted++;
-			}
-			
-			//increment the total number of students count
-			totalNumberStudents++;
-		}
-	}
+	//get the number of students in the period that have completed the step
+	numberStudentsCompleted = this.getNumberOfStudentsInPeriodThatCompletedStep(periodId, nodeId);
 	
 	//calculate the percentage as an integer
 	var completionPercentage = numberStudentsCompleted / totalNumberStudents;
@@ -1400,11 +1533,97 @@ View.prototype.calculateStepCompletionForNodeId = function(nodeId) {
 };
 
 /**
+ * Get the number of students in the period
+ * @param periodId the period id. if this is null or 'all' we will
+ * get the number of students in all the periods.
+ * @return the number of students in the period
+ */
+View.prototype.getNumberOfStudentsInPeriod = function(periodId) {
+	var numberOfStudentsInPeriod = 0;
+	
+	var userAndClassInfo = this.getUserAndClassInfo();
+	
+	if(userAndClassInfo != null) {
+		//get the students in the run
+		var classmateUserInfos = userAndClassInfo.getClassmateUserInfos();
+		
+		if(classmateUserInfos != null) {
+			
+			//loop through all the students in the run
+			for(var x=0; x<classmateUserInfos.length; x++) {
+				//get a student
+				var classmateUserInfo = classmateUserInfos[x];
+				
+				//get the period id the student is in
+				var tempPeriodId = classmateUserInfo.periodId;
+				
+				if(periodId == null || periodId == 'all') {
+					//we are getting the number of students in all the periods
+					numberOfStudentsInPeriod++;
+				} else if(periodId == tempPeriodId) {
+					/*
+					 * we are getting the number of students in a specific period
+					 * and this student is in the period
+					 */
+					numberOfStudentsInPeriod++;
+				}
+			}
+		}
+	}
+	
+	return numberOfStudentsInPeriod;
+};
+
+/**
+ * Get the number of students in the period that have completed the step
+ * @param periodId the period id. if this is null or 'all' we will get all periods.
+ * @param nodeId the node id
+ * @return the number of students in the period that have completed the step
+ */
+View.prototype.getNumberOfStudentsInPeriodThatCompletedStep = function(periodId, nodeId) {
+	var numberOfStudentsInPeriodCompleted = 0;
+	
+	var studentStatuses = this.studentStatuses;
+	
+	if(studentStatuses != null) {
+		//loop through all the student statuses
+		for(var x=0; x<studentStatuses.length; x++) {
+			//get a student status
+			var studentStatus = studentStatuses[x];
+			
+			if(studentStatus != null) {
+				var tempPeriodId = studentStatus.periodId;
+				
+				if(periodId == null || periodId == 'all' || periodId == tempPeriodId) {
+					/*
+					 * we are getting the number of students who have completed the step
+					 * for all periods or if we are looking for a specific period and
+					 * the student we are currently on is in that period
+					 */
+					
+					//get the node statuses for the student
+					var nodeStatuses = studentStatus.nodeStatuses;
+					
+					//check if the student has completed the step
+					if(this.isNodeCompleted(nodeId, nodeStatuses)) {
+						//the student has completed the step so we will update the counter
+						numberOfStudentsInPeriodCompleted++;
+					}
+				}
+			}
+		}
+	}
+	
+	return numberOfStudentsInPeriodCompleted;
+};
+
+/**
  * Get the number of students on the step
  * @param nodeId the node id of the step
+ * @param period id the period id. if this is null or 'all' we will get all periods.
  * @return the number of students on the step
  */
-View.prototype.getNumberOfStudentsOnStep = function(nodeId) {
+View.prototype.getNumberOfStudentsOnStep = function(nodeId, periodId) {
 	var numberOfStudentsOnStep = 0;
 	
 	//get the student statuses
@@ -1416,13 +1635,23 @@ View.prototype.getNumberOfStudentsOnStep = function(nodeId) {
 			//get a student status
 			var studentStatus = studentStatuses[x];
 			
-			//get the current node id the student is on
-			var currentNodeId = studentStatus.currentNodeId;
-			
-			//check if the node id matches the one we want
-			if(nodeId == currentNodeId) {
-				//the node id matches so the student is on the step
-				numberOfStudentsOnStep++;
+			if(studentStatus != null) {
+				//get the period id the student is in
+				var tempPeriodId = studentStatus.periodId;
+				
+				//get the current node id the student is on
+				var currentNodeId = studentStatus.currentNodeId;
+				
+				//check if the student is in the period we want
+				if(periodId == null || periodId == 'all' || periodId == tempPeriodId) {
+					//we want all periods or the student is in the period we want
+					
+					//check if the node id matches the one we want
+					if(nodeId == currentNodeId) {
+						//the node id matches so the student is on the step
+						numberOfStudentsOnStep++;
+					}
+				}
 			}
 		}
 	}
