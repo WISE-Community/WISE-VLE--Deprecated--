@@ -299,7 +299,7 @@ View.prototype.showPeriodInPauseScreensDisplay = function(periodId) {
 	var isPaused  = this.isPeriodPaused(periodId);
 	
 	//update the status text to show the teacher whether the period is paused or not
-	this.setPauseScreenStatus(isPaused);
+	this.setActivePausedButton(isPaused);
 	
 	//update the student progress display to only show students in the period
 	this.showPeriodInStudentProgressDisplay(periodId);
@@ -433,14 +433,12 @@ View.prototype.createPauseScreensDisplay = function() {
 	//see if all periods have been paused
 	var isAllPeriodsPaused = this.isPeriodPaused();
 	
-	//set the text to display whether all periods have been paused or not
-	this.setPauseScreenStatus(isAllPeriodsPaused);
-	
-	//add a line break
-	$('#pauseScreensDisplay').append($('<br>'));
+	//the class for the pause and unpause buttons
+	var pauseButtonsClass = 'pauseButtons';
 	
 	//create the pause button
-	var pauseButton = $('<input/>').attr({id:'pauseButton', type:'button', name:'pauseButton', value:'Pause'});
+	var pauseButton = $('<input/>').attr({id:'pauseButton', type:'button', name:'pauseButton', value:'Paused'});
+	pauseButton.addClass(pauseButtonsClass);
 	
 	//set the click event for the pause button
 	pauseButton.click({thisView:this}, function(event) {
@@ -452,12 +450,16 @@ View.prototype.createPauseScreensDisplay = function() {
 		//pause the student screens for the selected period
 		thisView.pauseScreens(classroomMonitorPeriodIdSelected);
 		
-		//set the pause screen status on the classroom monitor to 'Paused'
-		thisView.setPauseScreenStatus(true);
+		//this is the pause button
+		var isPaused = true;
+
+		//make the pause button yellow		
+		thisView.setActivePausedButton(isPaused);
 	});
 
 	//create the un-pause button
-	var unPauseButton = $('<input/>').attr({id:'unPauseButton', type:'button', name:'unPauseButton', value:'Un-Pause'});
+	var unPauseButton = $('<input/>').attr({id:'unPauseButton', type:'button', name:'unPauseButton', value:'Un-Paused'});
+	unPauseButton.addClass(pauseButtonsClass);
 	
 	//set the click event for the un-pause button
 	unPauseButton.click({thisView:this}, function(event) {
@@ -469,28 +471,43 @@ View.prototype.createPauseScreensDisplay = function() {
 		//un-pause the student screens for the selected period
 		thisView.unPauseScreens(classroomMonitorPeriodIdSelected);
 		
-		//set the pause screen status on the classroom monitor to 'Un-Paused'
-		thisView.setPauseScreenStatus(false);
+		//this is the unpause button
+		var isPaused = false;
+
+		//make the unpause button yellow		
+		thisView.setActivePausedButton(isPaused);
 	});
 	
 	//add the pause and un-pause buttons
 	$('#pauseScreensDisplay').append(pauseButton);
 	$('#pauseScreensDisplay').append(unPauseButton);
+	
+	//make the appropriate paused or unpaused button yellow
+	this.setActivePausedButton(isAllPeriodsPaused);
 };
 
 /**
- * Set the pause screen status on the classroom monitor
+ * Set the appropriate paused/unpaused button to yellow show that
+ * it is active
  * @param isPaused boolean value whether the student screens are
  * paused or not
  */
-View.prototype.setPauseScreenStatus = function(isPaused) {
+View.prototype.setActivePausedButton = function(isPaused) {
+	var button = null;
+	
 	if(isPaused) {
-		//student screens are paused
-		$('#pauseScreenStatus').text('Status: Paused');
+		//get the paused button
+		button = $('#pauseButton');
 	} else {
-		//student screens are not paused
-		$('#pauseScreenStatus').text('Status: Un-Paused');
+		//get the unpaused button
+		button = $('#unPauseButton');
 	}
+	
+	//get the class for the pause buttons
+	var classToRemoveBackgroundFrom = 'pauseButtons';
+
+	//make the appropriate paused or unpaused button yellow
+	this.setActiveButtonBackgroundColor(button, classToRemoveBackgroundFrom);
 };
 
 /**
@@ -1984,9 +2001,11 @@ View.prototype.pauseScreenReceived = function(data) {
 				/*
 				 * if the period that the teacher has currently selected is
 				 * the period that is changing paused value we will update
-				 * the UI to reflect the new paused value
+				 * the UI to reflect which button is active/yellow
 				 */
-				this.setPauseScreenStatus(isPaused);				
+
+				//make the appropriate paused or unpaused button yellow
+				this.setActivePausedButton(isPaused);
 			}
 		}
 	}
