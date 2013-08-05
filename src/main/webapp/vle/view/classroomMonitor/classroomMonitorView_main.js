@@ -29,6 +29,12 @@ View.prototype.getClassroomMonitorConfig = function(classroomMonitorConfigUrl) {
  * Start the classroom monitor
  */
 View.prototype.startClassroomMonitor = function() {
+	//set the classroom monitor header
+	$('#classroomMonitorHeader').text('Classroom Monitor');
+	
+	//display a loading message
+	$('#classroomMonitorButtonDiv').text('Loading...');
+	
 	//initialize the session
 	this.initializeSession();
 	
@@ -1081,6 +1087,9 @@ View.prototype.getStudentCurrentStepByWorkgroupId = function(workgroupId) {
  * an array of workgroup ids
  */
 View.prototype.studentsOnlineListReceived = function(data) {
+	//remove the loading message
+	$('#classroomMonitorButtonDiv').text("");
+	
 	//get the list of workgroup ids that are online
 	var studentsOnlineList = data.studentsOnlineList;
 	
