@@ -538,6 +538,13 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 		yOption.text = 'Y';
 		selectAxisDropDown.appendChild(yOption);
 		
+		// if this is a series graph add the "Color" option
+		if (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.graphType !== "undefined" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
+			var cOption = createElement(document, 'option', {value:'c'});
+			cOption.text = 'Color';
+			selectAxisDropDown.appendChild(cOption);
+		}
+
 		//get the axis for this column if it has been set
 		var columnAxis = this.getColumnAxisByColumnIndex(x);
 		
@@ -548,6 +555,9 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 			} else if(columnAxis == 'y') {
 				//this column is set to y
 				yOption.selected = true;
+			} else if (columnAxis == 'c'){
+				//this column is set to c
+				cOption.selected = true;
 			}
 		}
 		

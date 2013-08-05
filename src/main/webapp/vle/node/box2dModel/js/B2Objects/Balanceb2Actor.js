@@ -372,7 +372,7 @@
 
 		if ((bodyA == pan) || (bodyB == pan)){
 			var obody = bodyA == pan ? bodyB : bodyA;
-			if (contactedBodies.indexOf(obody) == -1){
+			if (contactedBodies.indexOf(obody) == -1 && obody.GetUserData() != null && typeof obody.GetUserData().actor !== "undefined"){
 				contactedBodies.push(obody);
 				massOnPan += obody.GetMass();
 				obody[contactLinkToPan] = pan;
@@ -384,7 +384,7 @@
 			// are either body touching a body that is in the contact list?
 			for (var i = 0; i < contactedBodies.length; i++){
 				if (contactedBodies[i] == bodyA){
-					if (contactedBodies.indexOf(bodyB) == -1){
+					if (contactedBodies.indexOf(bodyB) == -1 && bodyB.GetUserData() != null && typeof bodyB.GetUserData().actor !== "undefined"){
 						contactedBodies.push(bodyB);
 						massOnPan += bodyB.GetMass();
 						bodyB[contactLinkToPan] = bodyA;
@@ -393,7 +393,7 @@
 					}
 					break;
 				} else if (contactedBodies[i] == bodyB){
-					if (contactedBodies.indexOf(bodyA) == -1){
+					if (contactedBodies.indexOf(bodyA) == -1 && bodyA.GetUserData() != null && typeof bodyA.GetUserData().actor !== "undefined"){
 						contactedBodies.push(bodyA);
 						massOnPan += bodyA.GetMass();
 						bodyA[contactLinkToPan] = bodyB;

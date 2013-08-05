@@ -91,8 +91,12 @@
 			// go through rows and columns adding up mass in depths
 			var i, d, height_to = 0;
 			var unique_materials = [];
+			var max_width = 0, max_height = 0, max_depth = 0;
 			for (i = 0; i < this.heights.length; i++){
 				var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
+				if (this.widths[i] > max_width) max_width = this.widths[i];
+				max_height += this.heights[i];
+				if (this.depths[i] > max_depth) max_depth = this.depths[i];
 				materialSpaces = this.widths[i] * this.depths[i] * this.heights[i];
 				var material = GLOBAL_PARAMETERS.materials[this.materials[i]];
 				var material_name = material.display_name;
@@ -108,9 +112,9 @@
 				height_to += this.heights[i];
 			} 
 			this.savedObject.unique_materials = unique_materials;
-			this.savedObject.max_height = this.height_units;
-			this.savedObject.max_width = this.width_units;
-			this.savedObject.max_depth = this.depth_units;
+			this.savedObject.max_height = max_height;
+			this.savedObject.max_width = max_width;
+			this.savedObject.max_depth = max_depth;
 			this.savedObject.mass = o_mass;
 			this.savedObject.volume = o_materialSpaces;
 			this.savedObject.total_volume = o_materialSpaces + o_protectedSpaces + o_interiorSpaces;

@@ -273,6 +273,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	row.id = args[0].id;
 	row.Materials = typeof args[0].unique_materials !== "undefined" ? args[0].unique_materials.slice().sort().toString() : "";
 	row.Total_Volume = args[0].total_volume;
+	row.Width = args[0].max_width;
+	row.Height = args[0].max_height;
+	row.Depth = args[0].max_depth;
 	row.Total_Mass = args[0].mass;
 	row.Total_Density = row.Total_Mass / row.Total_Volume;
 	row.Material_Mass = args[0].mass;

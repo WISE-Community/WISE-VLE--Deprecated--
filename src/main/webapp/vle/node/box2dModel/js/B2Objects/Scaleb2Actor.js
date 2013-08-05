@@ -52,6 +52,19 @@
 		this.viewing_rotation = 0;
 		this.justAddedBody = null;
 		
+		this.tareFlagForUpdate = false; // when set to true next update will set tare value
+		this.tareValue = 0;
+		// set up tare button
+		var tareButtonName = "tare-button-" + this.id;
+		$('#scale-button-holder').append('<input type="submit" id="'+tareButtonName+'" value="Reset" style="font-size:14px; position:absolute"/>');
+		var htmlElement = $('#' + tareButtonName).button().bind('click', {parent: this}, this.tare);
+		this.tareElement = new createjs.DOMElement(htmlElement[0]);
+		this.addChild(this.tareElement);
+			
+		this.tareElement.x = -this.base_width_top_units/2 * GLOBAL_PARAMETERS.SCALE;
+		this.tareElement.y = -this.base_height_units * GLOBAL_PARAMETERS.SCALE-4;
+
+
 		this.constructFixtures();
 	}
 
@@ -75,7 +88,7 @@
 		var vecs, vec;
 
 		var baseFixtureDef = this.baseFixtureDef = new b2FixtureDef;
-		baseFixtureDef.density = 100;
+		baseFixtureDef.density = 1000;
 		baseFixtureDef.restitution = 0.2;
 		baseFixtureDef.friction = 1.0;
 		baseFixtureDef.filter.categoryBits = 2;
@@ -91,7 +104,7 @@
 		baseBodyDef.type = b2Body.b2_dynamicBody;
 		
 		var panFixtureDef = this.panFixtureDef = new b2FixtureDef;
-		panFixtureDef.density = 100;
+		panFixtureDef.density = 1000;
 		panFixtureDef.restitution = 0.0;
 		panFixtureDef.linearDamping = 1.0;
 		panFixtureDef.friction = 5.0;
@@ -109,6 +122,7 @@
 
 		var panPrismJointDef = this.panPrismJointDef = new Box2D.Dynamics.Joints.b2PrismaticJointDef();
 		var panDistJointDef = this.panDistJointDef = new Box2D.Dynamics.Joints.b2DistanceJointDef();		
+	
 	}
 
 	p.setupInWorld = function (position_x, position_y, b2world){
@@ -208,7 +222,7 @@
 		var just_added = false;
 		if ((bodyA == this.pan) || (bodyB == this.pan)){
 			var obody = bodyA == this.pan ? bodyB : bodyA;
-			if (this.contactedBodies.indexOf(obody) == -1){
+			if (this.contactedBodies.indexOf(obody) == -1 && obody.GetUserData() != null && typeof obody.GetUserData().actor !== "undefined"){
 				this.contactedBodies.push(obody);
 				this.massOnPan += obody.GetMass();
 				obody.contactLinkToScalePan = this.pan;
@@ -220,7 +234,7 @@
 			// are either body touching a body that is in the contact list?
 			for (var i = 0; i < this.contactedBodies.length; i++){
 				if (this.contactedBodies[i] == bodyA){
-					if (this.contactedBodies.indexOf(bodyB) == -1){
+					if (this.contactedBodies.indexOf(bodyB) == -1 && bodyB.GetUserData() != null && typeof bodyB.GetUserData().actor !== "undefined"){
 						this.contactedBodies.push(bodyB);
 						this.massOnPan += bodyB.GetMass();
 						bodyB.contactLinkToScalePan = bodyA;
@@ -229,7 +243,7 @@
 					}
 					break;
 				} else if (this.contactedBodies[i] == bodyB){
-					if (this.contactedBodies.indexOf(bodyA) == -1){
+					if (this.contactedBodies.indexOf(bodyA) == -1 && bodyA.GetUserData() != null && typeof bodyA.GetUserData().actor !== "undefined"){
 						this.contactedBodies.push(bodyA);
 						this.massOnPan += bodyA.GetMass();
 						bodyA.contactLinkToScalePan = bodyB;
@@ -281,6 +295,15 @@
 		}
 	}
 	
+	/** When user presses the tare button (marked "Reset"), the currently displayed force down 
+	*	will be subtracted (during update)
+	*   from all future displays.
+	*/
+	p.tare = function (evt){
+		evt.data.parent.tareValue = 0;
+		evt.data.parent.tareFlagForUpdate = true;
+	}
+
 	p.update = function (){
 		if (this.base != null){
 			var pan_y;
@@ -301,17 +324,19 @@
 			//console.log(this.panDistJoint.GetReactionForce(1/createjs.Ticker.getFPS()).y);
 			var rF = this.panDistJoint.GetReactionForce(createjs.Ticker.getFPS()).y;
 
-			if (this.prev_rF != rF){
+			if (this.prev_rF != rF || this.tareFlagForUpdate){
 				var displayrF;
 				// acount for liqiud if necessary
 				if (false){
 					displayrF = this.massOnPan;
 				} else {
-					if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
-						displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/100;
-					} else {
-						displayrF = (rF - this.pan.GetMass()*10)/100;
-					}
+					//console.log(rF, this.pan.GetMass(),this.pan.GetMass()/1000*10);
+					displayrF = rF/1000;
+					//if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
+					//	displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/100;
+					//} else {
+					//	displayrF = (rF - this.pan.GetMass()*10)/100;
+					//}
 				}
 				
 				//displayrF = (rF - this.pan.GetMass()*10)/1000;
@@ -321,8 +346,15 @@
 				} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("k") != null){
 					displayVal = displayrF/10;	
 				} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("g|c") != null){
-					displayVal = displayrF*10;	
+					displayVal = displayrF/10*1000;	
 				} 
+				// if we are taring, set value here
+				if (this.tareFlagForUpdate){
+					this.tareValue = displayVal;
+					this.tareFlagForUpdate = false;
+				}
+				displayVal -= this.tareValue;
+
 				this.skin.redraw(pan_y - this.y, displayVal);
 				this.prev_rF = rF;
 			} 

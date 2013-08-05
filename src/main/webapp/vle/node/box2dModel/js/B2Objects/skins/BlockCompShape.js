@@ -261,17 +261,16 @@
 			var top_y = this.getHighestRow();
 			var bottom_y = this.getLowestRow();
 			var o_mass = 0, o_materialSpaces = 0, o_exteriorSpaces = 0, o_interiorSpaces = 0, o_protectedSpaces = 0;
-			
 			// go through rows and columns adding up mass in depths
-			var i, j, k, d;
+			//var max_width = 0, max_height = 0, max_depth = 0;
 			var unique_materials = [];
-			for (i = left_x; i <= right_x; i++)
+			for (var i = left_x; i <= right_x; i++)
 			{
-				array2d[i - left_x] = new Array();
-				for (j = top_y; j <= bottom_y; j++)
+				array2d[i - left_x] = [];
+				for (var j = top_y; j <= bottom_y; j++)
 				{
 					var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
-					for (k = 0; k < this.blockArray3d[i][j].length; k++)
+					for (var k = 0; k < this.blockArray3d[i][j].length; k++)
 					{
 						if (this.blockArray3d[i][j][k] != ""){
 							var material = GLOBAL_PARAMETERS.materials[this.blockArray3d[i][j][k]];
@@ -329,15 +328,14 @@
 	{
 		var input = this.blockArray3d;
 		var output = new Array();
-		var i, j, k
 		// populate interior array with "", exterior with B or E
-		for (i = 0; i < input.length; i++)
+		for (var i = 0; i < input.length; i++)
 		{
 			output[i] = new Array(); 
-			for (j = 0; j < input[0].length; j++)
+			for (var j = 0; j < input[0].length; j++)
 			{
 				output[i][j] = new Array();
-				for (k = 0; k < input[0][0].length; k++)
+				for (var k = 0; k < input[0][0].length; k++)
 				{
 					if (i == 0 || i == input.length-1 || j == input[0].length-1 || k == 0 || k == input[0][0].length-1)
 					{
@@ -368,7 +366,7 @@
 		{
 			i = 0;
 			k = 0;
-			for (d = 1; d < output.length + output[0][0].length - 2; d++)
+			for (var d = 1; d < output.length + output[0][0].length - 2; d++)
 			{
 				i = d;
 				k = 0;

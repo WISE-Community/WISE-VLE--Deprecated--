@@ -72,6 +72,9 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 		[{"text":"Materials", "uneditable":true}],
 		[{"text":"Total_Mass", "uneditable":true}],
 		[{"text":"Total_Volume", "uneditable":true}],
+		[{"text":"Width", "uneditable":true}],
+		[{"text":"Height", "uneditable":true}],
+		[{"text":"Depth", "uneditable":true}],
 		[{"text":"Total_Density", "uneditable":true}],
 		[{"text":"Material_Mass", "uneditable":true}],
 		[{"text":"Material_Volume", "uneditable":true}],
@@ -194,13 +197,13 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 				GLOBAL_PARAMETERS.liquids_in_world.push(liquid_name);
 		}
 
-		if (GLOBAL_PARAMETERS.INCLUDE_BEAKER_BUILDER){
+		//if (GLOBAL_PARAMETERS.INCLUDE_BEAKER_BUILDER){
 			for (var i = 0; i < GLOBAL_PARAMETERS.liquids_available.length; i++){
 				var liquid_name = GLOBAL_PARAMETERS.liquids_available[i];
 				if (GLOBAL_PARAMETERS.liquids_in_world.indexOf(liquid_name) == -1) 	
 					GLOBAL_PARAMETERS.liquids_in_world.push(liquid_name);
 			}
-		}
+		//}
 		// use old table or update new one?
 		if (tableData != null){
 			GLOBAL_PARAMETERS.tableData = tableData;

@@ -1189,6 +1189,16 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 	
 	//get the graph div id
 	var divId = graphDiv.attr('id');
+
+	// jv - if the graphOptions specify a height or width update the graphDiv
+	if (typeof this.content.graphOptions.width !== "undefined" && !isNaN(this.content.graphOptions.width)){
+		//graphDiv.attr('width', this.content.graphOptions.width);
+		graphDiv.width(this.content.graphOptions.width);
+	}
+	if (typeof this.content.graphOptions.height !== "undefined" && !isNaN(this.content.graphOptions.height)){
+		//graphDiv.attr('height', this.content.graphOptions.height);
+		graphDiv.height(this.content.graphOptions.height);
+	}
 	
 	//get the mode e.g. run, grading, authoring
 	var mode = this.view.config.getConfigParam('mode');
@@ -1273,6 +1283,58 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		}
 
 		try {
+			// jv----
+			// in the case where we want square axes, i.e. identical x and y axes, in "auto" mode
+			// we will need to use the data to find mins and maxs and then rewrite our axes limits
+			// In some cases we want to use the identical axes limits for x and y. Use the min and max of each axes
+			if (typeof this.content.graphOptions.useSquareAxesLimits !== "undefined" && this.content.graphOptions.useSquareAxesLimits && graphType != null && (graphType == 'scatterPlot' || graphType == 'scatterPlotbySeries') && typeof this.content.graphOptions.graphWhoSetAxesLimitsType !== "undefined" && this.content.graphOptions.graphWhoSetAxesLimitsType == 'auto' ){
+				var xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
+				// first column is x, top row is header, skip it
+				if (typeof data['K'] !== "undefined"){
+					for (var r = 0; r < data['K'].length; r ++){
+						if (!isNaN(data['K'][r]['c'][0].v) && data['K'][r]['c'][0].v != null){
+							var val = data['K'][r]['c'][0].v;
+							if (val < xMin) xMin = val;
+							if (val > xMax) xMax = val;
+						}
+						if (data['K'][r]['c'].length > 1){
+							// there may be more than one column for y vals iterate starting at 1
+							for (var c = 1; c < data['K'][r]['c'].length; c ++){
+								if (!isNaN(data['K'][r]['c'][c].v && data['K'][r]['c'][c].v != null)){
+									var val = data['K'][r]['c'][c].v;
+									if (val < yMin) yMin = val;
+									if (val > yMax) yMax = val;
+								}
+							}
+						}
+					}
+
+					if (xMin < Infinity || yMin < Infinity){
+						xMin = Math.min(xMin, yMin);
+						yMin = xMin;
+					}
+					if (xMax > -Infinity || yMax > -Infinity){
+						xMax = Math.max(xMax, yMax);
+						yMax = xMax;
+					}
+					// need both to be not infinity, then readjust by 10% (don't go below zero unless there are already vals below zero)
+					if (xMin < Infinity && xMax > -Infinity){
+						var range = xMax - xMin;
+						xMin = xMin >=0 && xMin-0.1*range < 0 ? 0 : xMin-0.1*range;
+						yMin = xMin;
+						xMax = xMax+0.1*range;
+						yMax = xMax;
+						// update options
+						options.hAxis.viewWindow = {};
+						options.hAxis.viewWindow.min = xMin;
+						options.hAxis.viewWindow.max = xMax;
+						options.vAxis.viewWindow = {};
+						options.vAxis.viewWindow.min = yMin;
+						options.vAxis.viewWindow.max = yMax;
+					}
+				}
+			}
+
 			//tell google to draw the graph
 			chart.draw(data, options);
 			this.graphRendered = true;
@@ -1345,9 +1407,10 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 			/*
 			 * create the options to tell google how to display the graph.
 			 * the min/max values will be automatically calculated by google.
+			 *  The title was previously backwards, should be y vs. x (JV)
 			 */
 			options = {
-				title: hTitle + ' vs. ' + vTitle,
+				title: vTitle + ' vs. ' + hTitle,
 				hAxis: {title: hTitle},
 				vAxis: {title: vTitle},
 				forceIFrame: false
@@ -1675,6 +1738,24 @@ Table.prototype.getGoogleDataTableForSeries = function(tableData, graphOptions) 
 Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 	//get the columns to graph
 	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
+	/// JV - IMPORTANT
+	// These need to be ordered x, y, c (if necessary) or else they will not be printed correctly
+	// put 'x' in front
+	if (columnIndexesToGraph.length > 1){
+		for (var i = 1; i < columnIndexesToGraph.length; i++){
+			if (columnIndexesToGraph[i].columnAxis == "x"){
+				columnIndexesToGraph.splice(0,0,columnIndexesToGraph.splice(i,1)[0]);
+			}
+		}
+	}
+	// put 'y' in second spot if it is not already there
+	if (columnIndexesToGraph.length > 2){
+		for (var i = 2; i < columnIndexesToGraph.length; i++){
+			if (columnIndexesToGraph[i].columnAxis == "y"){
+				columnIndexesToGraph.splice(1,0,columnIndexesToGraph.splice(i,1)[0]);
+			}
+		}
+	}
 	
 	var numRows = 0;
 	var numColumns = 0;
@@ -1958,7 +2039,8 @@ Table.prototype.processTagMaps = function() {
 	var enableStep = true;
 	var message = '';
 	var workToImport = [];
-	
+	var tableData = [];
+
 	//the tag maps
 	var tagMaps = this.node.tagMaps;
 	
@@ -1986,16 +2068,40 @@ Table.prototype.processTagMaps = function() {
 				} else if (functionName == "importWorkFromBox2d"){
 					//get the work to import
 					var bstate = this.node.getWorkToImport(tagName, functionArgs)[0];
-					if ( bstate instanceof Box2dModelState && typeof bstate.response !== "undefined" && typeof bstate.response.tableData !== "undefined"){
+					if (typeof bstate !== "undefined" && typeof bstate.response !== "undefined" && typeof bstate.response.tableData !== "undefined"){
 						var ptableData = bstate.response.tableData;
 						// must copy all values in table so that we don't change them when we go back to box2d
-						var tableData = [];
+						// can pull from more than one step
+						var reuseTable = tableData.length > 0 ? true : false;
+
 						for (var i = 0; i < ptableData.length; i++){
-							tableData[i] = [];
-							for (var j = 0; j < ptableData[i].length; j++){
-								tableData[i][j] = {};
-								for (var key in ptableData[i][j]){
-									tableData[i][j][key] = ptableData[i][j][key];  //copy values
+							// get the index for this item
+							var index;
+							var index_found = false;
+							var j_start = 0;
+							if (!reuseTable){
+								index = i;
+								tableData[index] = [];	
+								index_found = true;
+							} else {
+								// find index in table
+								for (var t = 0; t < tableData.length; t++){
+									if (tableData[t][0].text == ptableData[i][0].text.replace(/_/g, " ")){
+										index = t; 
+										index_found = true;
+										j_start = 1;
+										break;
+									}
+								}
+							}
+							if (index_found){
+								for (var j = j_start; j < ptableData[i].length; j++){
+									//tableData[i][j] = {};
+									var obj = {};
+									for (var key in ptableData[i][j]){
+										obj[key] = ptableData[i][j][key];  //copy values
+									}
+									tableData[index].push(obj);
 								}
 							}
 						}
@@ -2016,7 +2122,7 @@ Table.prototype.processTagMaps = function() {
 										if (tableData[i][j].text == 0){
 											for (var k = 0; k < tableData.length; k++){
 												if (tableData[k][0].text.substr(tableData[k][0].text.length - liquid_name.length) == liquid_name && k != i){
-													tableData[k][j].text = NaN;
+													tableData[k][j].text = "?";
 												}
 											}
 										} else {
@@ -2032,7 +2138,7 @@ Table.prototype.processTagMaps = function() {
 								if (tested_in_any_beaker[t] == 0){
 									for (var k = 0; k < tableData.length; k++){
 										if (tableData[k][0].text.substr(tableData[k][0].text.length - 6) == "Volume" || tableData[k][0].text.substr(tableData[k][0].text.length - 7) == "Density"){
-											tableData[k][j].text = NaN;
+											tableData[k][j].text = "?";
 										}
 									}
 								}
@@ -2046,7 +2152,7 @@ Table.prototype.processTagMaps = function() {
 										if (tableData[i][j].text == 0){
 											for (var k = 0; k < tableData.length; k++){
 												if (tableData[k][0].text.substr(tableData[k][0].text.length - 4) == "Mass" || tableData[k][0].text.substr(tableData[k][0].text.length - 7) == "Density"){
-													tableData[k][j].text = NaN;
+													tableData[k][j].text = "?";
 												}
 											}
 										}

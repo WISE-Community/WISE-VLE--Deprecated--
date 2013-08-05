@@ -49,51 +49,6 @@
 	"feedbackEvents": [],
 	"materials" :
 	{
-		"DWood":
-		{
-			"display_name":"Wood A",
-			"density":1.25,
-			"fill_colors":["#7D4613", "#8D5925", "#743B18", "#8D5925", "#743B18", "#7C4412", "#743B18"],
-			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"fill_colors_shadow":["#4D1603", "#5D2905", "#440B08", "#5D2905", "#440B08", "#4C0402", "#440B08"],
-			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"stroke_colors":["#3B0400", "#3B0400"],
-			"stroke_ratios":[0, 1],
-			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
-			"block_max":[10, 10, 10, 10],
-			"block_count":[0, 0, 0, 0],
-			"is_container":false		
-		},
-		"LWood":
-		{
-			"display_name":"Wood B",
-			"density":0.625,
-			"fill_colors":["#FBEFD0", "#FADBA2", "#FAE3B0", "#E8CFA1", "#F0D3A1", "#FBEED2", "#F9E2BA"],
-			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"fill_colors_shadow":["#CBBFA0", "#CAAB72", "#CAB380", "#B89F71", "#C0A371", "#CBBEA2", "#C9B28A"],
-			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"stroke_colors":["#AB854C", "#AB854C"],
-			"stroke_ratios":[0, 1],
-			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
-			"block_max":[10, 10, 10, 10],
-			"block_count":[0, 0, 0, 0],
-			"is_container":false				
-		},
-		"Metal":
-		{
-			"display_name":"Metal",
-			"density":1.5,
-			"fill_colors":["#BBBCBE", "#989CA0", "#BFBEC2", "#9EA0A4", "#A7A9AC", "#C3C6CA", "#BBBCBE"],
-			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"fill_colors_shadow":["#8B8C8E", "#686C70", "#8F8E92", "#6E7074", "#77797C", "#93868A", "#8B8C8E"],
-			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"stroke_colors":["#5F6163", "#5F6163"],
-			"stroke_ratios":[0, 1],
-			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
-			"block_max":[10, 10, 10, 10],
-			"block_count":[0, 0, 0, 0],
-			"is_container":false					
-		}, 
 		"CPlastic":
 		{
 			"display_name":"Clear Plastic",
@@ -134,6 +89,21 @@
 			"fill_colors_shadow":["#C0447C", "#BB005B", "#BB005B", "#C0447C", "#BB005B", "#BB005B", "#C0447C"],
 			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
 			"stroke_colors":["#AB004B", "#AB004B"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false				
+		},
+		"PVC":
+		{
+			"display_name":"PVC",
+			"density":1.4,
+			"fill_colors":["#FFFFFF", "#F0F0F0", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#F0F0F0", "#FFFFFF"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#EEEEEE", "#EEEEEE", "#EEEEEE", "#EEEEEE", "#EEEEEE", "#EEEEEE", "#EEEEEE"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#CCCCCC", "#CCCCCC"],
 			"stroke_ratios":[0, 1],
 			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
 			"block_max":[10, 10, 10, 10],
@@ -200,6 +170,21 @@
 	         "block_count":[0, 0, 0, 0],
 	         "is_container":false          
 	      },
+	     "Coal":
+		{
+		   "display_name":"Coal",
+		   "density":0.9,
+		   "fill_colors":["#202020", "#303030", "#202020", "#505050", "#303030", "#202020", "#303030","#202020", "#303030", "#202020", "#404040", "#303030", "#202020", "#303030"],
+		   "fill_ratios":[0, 0.136, 0.2607, 0.2692, 0.3697, 0.4208, 0.464,0.5, 0.586, 0.6207, 0.6992, 0.7597, 0.8308, 0.9444],
+		   "fill_colors_shadow":["#000000", "#101010", "#000000", "#202020", "#101010", "#000000", "#101010"],
+		   "fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+		   "stroke_colors":["#000000", "#000000"],
+		   "stroke_ratios":[0, 1],
+		   "depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+		   "block_max":[10, 10, 10, 10],
+		   "block_count":[0, 0, 0, 0],
+		   "is_container":false          
+		},
 	    "Gold":
 	    {
 	    	"display_name":"Gold",
@@ -381,7 +366,86 @@
 			"block_max":[10, 10, 10, 10],
 			"block_count":[0, 0, 0, 0],
 			"is_container":false				
+		},
+		"Cork":
+		{
+			"display_name":"Cork",
+			"density":0.25,
+			"fill_colors":["#FBCFC0", "#DAAAA2", "#FAC3B0", "#D8AFA1", "#F0E3E1", "#FBBEB2", "#F9C2CA"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#CBBFA0", "#CAAB72", "#CAB380", "#B89F71", "#C0A371", "#CBBEA2", "#C9B28A"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#AB854C", "#AB854C"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false				
+		},
+		"Flint":
+		{
+			"display_name":"Flint",
+			"density":2.6,
+			"fill_colors":[ "#808080","#999090","#808080","#998070","#706050","#898980","#909090","#808080","#999090","#808080",
+            "#998070","#706050","#898980","#909090"],
+			"fill_ratios":[0,0.136,0.2607,0.3292,0.3697,0.4208,0.4744,0.5,0.57,0.6407,0.6992,0.7497,0.8108,0.9644],
+			"fill_colors_shadow":["#CBBFA0", "#CAAB72", "#CAB380", "#B89F71", "#C0A371", "#CBBEA2", "#C9B28A"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#AB854C", "#AB854C"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false	
+		},
+		"Pumice":
+		{
+			"display_name":"Pumice",
+			"density":0.55,
+			"fill_colors":["#C0D0C0", "#E0F0C0","#F0F0F0","#F0FFE0","#D0D0D0","#E0F0F0","#E0E0E0","#C0D0C0","#E0F0C0","#F0F0F0",
+            "#F0FFE0","#D0D0D0","#E0F0F0","#E0E0E0"],
+			"fill_ratios":[0,0.136,0.2607,0.3292,0.3697,0.4208,0.4744,0.5,0.57,0.6407,0.6992,0.7497,0.8108,0.9644],
+			"fill_colors_shadow":["#CBBFA0", "#CAAB72", "#CAB380", "#B89F71", "#C0A371", "#CBBEA2", "#C9B28A"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#AB854C", "#AB854C"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false	
 		}
+		"Cement":
+		{
+			"display_name":"Cement",
+			"density":1.5,
+			"fill_colors":["#B0B0B0", "#C0C0C0","#C5C5C5","#C0C0C0","#B0B0B0","#A0A0A0","#B0B0B0","#C0C0C0","#B0B0B0","#C0C0C0",
+            "#B0B0B0","#C0C0C0","#D0D0D0","#C0C0C0"],
+			"fill_ratios":[0,0.136,0.2607,0.3292,0.3697,0.4208,0.4744,0.5,0.57,0.6407,0.6992,0.7497,0.8108,0.9644],
+			"fill_colors_shadow":["#CBBFA0", "#CAAB72", "#CAB380", "#B89F71", "#C0A371", "#CBBEA2", "#C9B28A"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#6B606C", "#6B656C"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false	
+		},
+		"Wax":
+		{
+			"display_name":"Wax",
+			"density":0.93,
+			"fill_colors":["#FBFFD0", "#EAE0A2", "#FAF3B0", "#D8DFA1", "#F0F3A1", "#EBEED2", "#F9F2BA"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#CBBFA0", "#CAAB72", "#CAB380", "#B89F71", "#C0A371", "#CBBEA2", "#C9B28A"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#AB854C", "#AB854C"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false				
+		}
+
 	},
 	"liquids" : 
 	{
@@ -403,15 +467,14 @@
 			"fill_color_container":"rgba(200,225,140,1.0)",
 			"stroke_color_container":"rgba(100,125,70,1.0)"
 		},
-		"Acid" :
-		{
-			"display_name":"Acid",
-			"density":1.6,
-			"fill_color":"rgba(200,200,140,0.4)",
-			"stroke_color": "rgba(200,200,140,0.8)",
-			"fill_color_container":"rgba(200,200,140,1.0)",
-			"stroke_color_container":"rgba(100,100,70,1.0)"
-		}
+		"Acid": {
+         "display_name": "Acid",
+         "density": 1.6,
+         "fill_color": "rgba(250,250,140,0.4)",
+         "stroke_color": "rgba(220,220,140,0.8)",
+         "fill_color_container": "rgba(250,250,140,1.0)",
+         "stroke_color_container": "rgba(220,220,140,1.0)"
+      }
 	},
 	"premades":{
 	    "5_Mix_rect":
@@ -467,6 +530,32 @@
  			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
  			[["","","","",""],["","","","",""],["","","DWood","",""],["","","","",""],["","","","",""]],
  			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"2x2x2_block_usteel":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","Steel","Steel",""],["","","Steel","Steel",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","Steel","Steel",""],["","","Steel","Steel",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"3x3x3_block_usteel":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","Steel","Steel","Steel",""],["","Steel","Steel","Steel",""],["","Steel","Steel","Steel",""],["","","","",""]],
+ 			[["","","","",""],["","Steel","Steel","Steel",""],["","Steel","Steel","Steel",""],["","Steel","Steel","Steel",""],["","","","",""]],
+ 			[["","","","",""],["","Steel","Steel","Steel",""],["","Steel","Steel","Steel",""],["","Steel","Steel","Steel",""],["","","","",""]],
  			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
  			],
  			"is_container":false, 
