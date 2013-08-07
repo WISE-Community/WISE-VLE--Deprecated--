@@ -61,6 +61,19 @@ View.prototype.Mysystem2Node.getAuthoringActvityData = function() {
 };
 
 View.prototype.Mysystem2Node.previewFrameLoaded = function() {
+  var selfRef = this;
+  this.getMySystem().resolveAssetPath = function(contentString) {
+    if(typeof contentString === "undefined") {
+      return "";
+    }
+    var fullProjectFolderPath = selfRef.view.getProjectFolderPath();
+    //make sure the projectFolder ends with '/'
+    if(fullProjectFolderPath.charAt(fullProjectFolderPath.length - 1) != '/') {
+      fullProjectFolderPath += '/';
+    }
+    contentString = contentString.replace(/^\.?\/?assets\//gi, fullProjectFolderPath + 'assets/');
+    return contentString;
+  };
   this.getAuthoringApp().setPreviewApp(this.getMySystem());
 };
 
@@ -80,11 +93,11 @@ View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
   var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
   var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
 
-  var git_sha         = document.createTextNode("commit sha  : 0e76748085fa3969b7e0a37e447291403bc162a4 ");
-  var git_time        = document.createTextNode("commit time : Wed Mar 27 17:15:07 2013 -0400 ");
-  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, re_add_js_rules, master) ");
-  var sc_build_time   = document.createTextNode("build time  : 2013-03-27 17:27:01 -0400 ");
-  var sc_build_number = document.createTextNode("build no.   : 59a6ebbee13a8569e5c5ec02fc315ae0fb3f4fcf ");
+  var git_sha         = document.createTextNode("commit sha  : 159cfd6084d5dcbce8a7080dc188cc8fd72ee0de ");
+  var git_time        = document.createTextNode("commit time : Fri Jun 14 11:38:04 2013 -0400 ");
+  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, master) ");
+  var sc_build_time   = document.createTextNode("build time  : 2013-06-14 11:39:13 -0400 ");
+  var sc_build_number = document.createTextNode("build no.   : 8ac8325606b9ce7e115ae60200fe4522a9073fbc ");
   
   git_sha_div.appendChild(git_sha);
   git_time_div.appendChild(git_time);
