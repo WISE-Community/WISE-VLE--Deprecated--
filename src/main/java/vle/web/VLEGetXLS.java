@@ -1606,7 +1606,7 @@ public class VLEGetXLS extends VLEServlet {
 			 * create the row that will display the user data such as the actual values
 			 * for workgroup id, student login, teacher login, period name, etc.
 			 */
-			workgroupColumnCounter = createUserDataRow(workgroupColumnCounter, rowForWorkgroupId, rowForWorkgroupIdVector, userId, true, false, null);
+			workgroupColumnCounter = createUserDataRow(workgroupColumnCounter, rowForWorkgroupId, rowForWorkgroupIdVector, userId, true, true, null);
 			
 			/*
 			 * increment the column counter to create an empty column under the header column
@@ -1955,27 +1955,6 @@ public class VLEGetXLS extends VLEServlet {
 		int rowCounter = 0;
 		int headerColumn = 0;
 		
-		//create the row that will display the metadata column headers
-		Row metaDataHeaderRow = createRow(mainSheet, rowCounter++);
-		Vector<String> metaDataHeaderRowVector = createRowVector();
-		createUserDataHeaderRow(headerColumn, metaDataHeaderRow, metaDataHeaderRowVector, false, true);
-		
-		//write the csv row if we are generating a csv file
-		writeCSV(metaDataHeaderRowVector);
-		
-		//create the row that will display the metadata column values
-		Row metaDataRow = createRow(mainSheet, rowCounter++);
-		Vector<String> metaDataRowVector = createRowVector();
-		createUserDataRow(headerColumn, metaDataRow, metaDataRowVector, "", false, true, null);
-		
-		//write the csv row if we are generating a csv file
-		writeCSV(metaDataRowVector);
-		
-		//create a blank row
-		rowCounter++;
-		Vector<String> emptyVector = createRowVector();
-		writeCSV(emptyVector);
-		
 		//create the step title row
 		Row stepTitleRow = createRow(mainSheet, rowCounter++);
 		Vector<String> stepTitleRowVector = createRowVector();
@@ -2005,8 +1984,8 @@ public class VLEGetXLS extends VLEServlet {
 			setCellValue(stepExtraRow, stepExtraRowVector, x, "");
 		}
 		
-		//start on column 5 because the first 5 columns are for the user data columns
-		int columnCounter = 5;
+		//start on column 13 because the first 13 columns are for the user data columns
+		int columnCounter = 13;
 		
 		//set the cells that describe each of the rows
 		setCellValue(stepTitleRow, stepTitleRowVector, columnCounter, "Step Title");
@@ -2021,8 +2000,8 @@ public class VLEGetXLS extends VLEServlet {
 		 */
 		Row userDataHeaderRow = createRow(mainSheet, rowCounter++);
 		Vector<String> userDataHeaderRowVector = createRowVector();
-		createUserDataHeaderRow(headerColumn, userDataHeaderRow, userDataHeaderRowVector, true, false);
-		
+		columnCounter = createUserDataHeaderRow(headerColumn, userDataHeaderRow, userDataHeaderRowVector, true, true);
+
 		/*
 		 * increment the column counter so the student work begins on the next column
 		 * and not underneath the column that contains the cells above that contain
@@ -4128,36 +4107,18 @@ public class VLEGetXLS extends VLEServlet {
 			//counter for the header column cells
 			int headerColumn = 0;
 			
-			/*
-			 * create the row that will display the user data headers such as workgroup id,
-			 * student login, teacher login, period name, etc.
-			 */
-			Row userDataHeaderRow = createRow(userIdSheet, rowCounter++);
-			Vector<String> userDataHeaderRowVector = createRowVector();
-			createUserDataHeaderRow(headerColumn, userDataHeaderRow, userDataHeaderRowVector, true, true);
-			
-			//write the csv row if we are generating a csv file
-			writeCSV(userDataHeaderRowVector);
-			
-			/*
-			 * create the row that will display the user data such as the actual values
-			 * for workgroup id, student login, teacher login, period name, etc.
-			 */
-			Row userDataRow = createRow(userIdSheet, rowCounter++);
-			Vector<String> userDataRowVector = createRowVector();
-			createUserDataRow(headerColumn, userDataRow, userDataRowVector, workgroupId, true, true, null);
-			
-			//write the csv row if we are generating a csv file
-			writeCSV(userDataRowVector);
-			
-			//create a blank row for spacing
-			rowCounter++;
-			Vector<String> emptyVector = createRowVector();
-			writeCSV(emptyVector);
-			
 			//create the first row which will contain the headers
 			Row headerRow = createRow(userIdSheet, rowCounter++);
 	    	Vector<String> headerRowVector = createRowVector();
+	    	
+			/*
+			 * create the cells that will display the user data headers such as workgroup id,
+			 * student login, teacher login, period name, etc.
+			 */
+			headerColumn = createUserDataHeaderRow(headerColumn, headerRow, headerRowVector, true, true);
+			
+			//write the csv row if we are generating a csv file
+			writeCSV(headerRowVector);
 	    	
 	    	//vector that contains all the header column names
 	    	Vector<String> headerColumnNames = new Vector<String>();
@@ -4266,6 +4227,12 @@ public class VLEGetXLS extends VLEServlet {
 							    		 */
 							    		timeSpentOnStep = (endTime.getTime() - startTime.getTime()) / 1000;	
 							    	}
+							    	
+									/*
+									 * create the cells that will display the user data such as the actual values
+									 * for workgroup id, student login, teacher login, period name, etc.
+									 */
+							    	columnCounter = createUserDataRow(columnCounter, ideaRow, ideaRowVector, workgroupId, true, true, null);
 							    	
 									columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, stepWorkId);
 									columnCounter = setCellValue(ideaRow, ideaRowVector, columnCounter, title);
@@ -5312,31 +5279,10 @@ public class VLEGetXLS extends VLEServlet {
 
 		int headerColumn = 0;
 		
-		//output the meta data header cells
-		Row metaDataHeaderRow = createRow(mainSheet, rowCounter++);
-		Vector<String> metaDataHeaderRowVector = createRowVector();
-		createUserDataHeaderRow(headerColumn, metaDataHeaderRow, metaDataHeaderRowVector, false, true);
-		
-		//write the csv row if we are generating a csv file
-		writeCSV(metaDataHeaderRowVector);
-		
-		//output the meta data cells
-		Row metaDataRow = createRow(mainSheet, rowCounter++);
-		Vector<String> metaDataRowVector = createRowVector();
-		createUserDataRow(headerColumn, metaDataRow, metaDataRowVector, "", false, true, null);
-		
-		//write the csv row if we are generating a csv file
-		writeCSV(metaDataRowVector);
-		
-		//create a blank row
-		rowCounter++;
-		Vector<String> emptyVector = createRowVector();
-		writeCSV(emptyVector);
-		
 		//output the user header rows such as workgroup id, wise id 1, etc.
 		Row headerRow = createRow(mainSheet, rowCounter++);
 		Vector<String> headerRowVector = createRowVector();
-		columnCounter = createUserDataHeaderRow(headerColumn, headerRow, headerRowVector, true, false);
+		columnCounter = createUserDataHeaderRow(headerColumn, headerRow, headerRowVector, true, true);
 
 		//loop through all the header fields to add them to the excel
 		for(int x=0; x<headerFields.size(); x++) {
@@ -5498,7 +5444,7 @@ public class VLEGetXLS extends VLEServlet {
 				}
 				
 				//WorkgrupId, Wise Id 1, Wise Id 2, Wise Id 3, Class Period
-				columnCounter = createUserDataRow(columnCounter, ideaBasketRow, ideaBasketRowVector, workgroupId + "", true, false, periodName);
+				columnCounter = createUserDataRow(columnCounter, ideaBasketRow, ideaBasketRowVector, workgroupId + "", true, true, periodName);
 				
 				//Is Public
 				Boolean isPublic = ideaBasket.isPublic();
