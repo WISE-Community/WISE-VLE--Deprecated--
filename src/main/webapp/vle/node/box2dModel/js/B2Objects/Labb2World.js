@@ -323,7 +323,7 @@
 				var height_above = 0;
 				if (x > this.width_px){
 					if (o != null && typeof o.height_units_above !== "undefined" && !isNaN(o.height_units_above)) height_above = o.height_units_above + o.height_units_below;
-					x = 0;
+					x = (this.width_px - actor.width_px_right)  * Math.random();
 				}
 				y = this.shelf_height_units - actor.height_units_below -  height_above;
 			} else {

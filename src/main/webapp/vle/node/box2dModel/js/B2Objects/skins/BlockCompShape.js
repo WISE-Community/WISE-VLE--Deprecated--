@@ -264,14 +264,11 @@
 			// go through rows and columns adding up mass in depths
 			//var max_width = 0, max_height = 0, max_depth = 0;
 			var unique_materials = [];
-			for (var i = left_x; i <= right_x; i++)
-			{
+			for (var i = left_x; i <= right_x; i++) {
 				array2d[i - left_x] = [];
-				for (var j = top_y; j <= bottom_y; j++)
-				{
+				for (var j = top_y; j <= bottom_y; j++)	{
 					var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
-					for (var k = 0; k < this.blockArray3d[i][j].length; k++)
-					{
+					for (var k = 0; k < this.blockArray3d[i][j].length; k++) {
 						if (this.blockArray3d[i][j][k] != ""){
 							var material = GLOBAL_PARAMETERS.materials[this.blockArray3d[i][j][k]];
 							mass += material.density;
@@ -298,7 +295,34 @@
 					array2d[i - left_x][j - top_y] = {"mass":mass, "totalSpaces":spaces3d[0][0].length, "materialSpaces":materialSpaces, "exteriorSpaces":exteriorSpaces, "interiorSpaces":interiorSpaces, "protectedSpaces":protectedSpaces};
 				}
 			} 
+			// go through again to find the width and depth at each height level
+			this.widths = [];
+			this.heights = [];
+			this.depths = [];
+			for (var j = top_y; j <= bottom_y; j++){
+				var max_width = 0;
+				var max_depth = 0;
+				var width = 0;
+				for (var i = left_x; i <= right_x; i++) {
+					var depth = 0;
+					for (var k = 0; k < this.blockArray3d[i][j].length; k++) {
+						if (this.blockArray3d[i][j][k] != ""){
+							depth++;
+						}
+					}
+					if (depth > 0) width++;
+					if (depth > max_depth) max_depth = depth;
+				}
+				if (width > max_width) max_width = width;
+				this.heights.push(1);
+				this.widths.push(max_width);
+				this.depths.push(max_depth);
+			}
+
 			this.savedObject.unique_materials = unique_materials;
+			this.savedObject.widths = this.widths;
+			this.savedObject.heights = this.heights;
+			this.savedObject.depths = this.depths;			
 			this.savedObject.max_height = Math.abs(this.getLowestRow()+1 - this.getHighestRow());
 			this.savedObject.max_width = Math.abs(this.getRightmostColumn()+1 - this.getLeftmostColumn());
 			this.savedObject.max_depth = Math.abs(this.getDeepestIndex()+1 - this.getShallowistIndex());

@@ -106,7 +106,7 @@
 		if (this.showRuler){
 			this.rulerTextContainer.x = -this.width_px/2;	
 			this.pointerShape.x = -this.width_px/2;
-			this.pointerText.x = this.pointerShape.x - 43;
+			this.pointerText.x = this.pointerShape.x - 63;
 		}
 		
 		
@@ -172,7 +172,14 @@
 		g.beginLinearGradientFill(this.material.fill_colors, this.material.fill_ratios, -this.width_px/2, 0, this.width_px/2, 0);
 		g.drawRect(-this.width_px/2, -this.height_px, this.width_px, this.height_px);
 		g.endFill();
-		// right side wall
+		// spilloff line
+		if (this.spilloff_volume_perc > 0 && this.spilloff_volume_perc < 1.0){
+			g.setStrokeStyle(1.0).beginStroke("rgba(250,0,0,0.5)")
+			.moveTo(-this.width_px/2, -this.height_px*this.spilloff_volume_perc)
+			.lineTo(this.width_px/2, -this.height_px*this.spilloff_volume_perc)
+			.lineTo(this.width_px/2+ this.width_from_depth, -this.height_px*this.spilloff_volume_perc-this.height_from_depth).endStroke();
+		}
+			// right side wall
 		g.beginLinearGradientFill(this.material.fill_colors, this.material.fill_ratios, this.width_px/2, 0, this.width_px/2 + this.width_from_depth, 0);
 		g.moveTo(this.width_px/2, -this.height_px).lineTo(this.width_px/2 + this.width_from_depth, -this.height_px-this.height_from_depth).lineTo(this.width_px/2 + this.width_from_depth, -this.height_from_depth).lineTo(this.width_px/2, 0).lineTo(this.width_px/2, -this.height_px);
 		g.endFill();
@@ -215,7 +222,6 @@
 
  		// draw a ruler
  		if (this.showRuler){
-
 			g = this.rulerGraphics;
 			g.clear();
 			g.setStrokeStyle(1);
@@ -239,7 +245,7 @@
 			g.setStrokeStyle(1);
 			g.beginStroke("rgba(100, 100, 100, 1)");
 			g.beginFill("rgba(255,255,255, 1.0)");
-			g.moveTo(0, 0).lineTo(-8, -10).lineTo(-46, -10).lineTo(-46, 10).lineTo(-8, 10).lineTo(0, 0);
+			g.moveTo(0, 0).lineTo(-8, -10).lineTo(-66, -10).lineTo(-66, 10).lineTo(-8, 10).lineTo(0, 0);
 			g.endFill();
 			g.endStroke();		
 		}
@@ -296,7 +302,8 @@
 			if (this.showRuler){
 				this.pointerShape.y = this.frontWaterLineShape.y;
 				this.pointerText.y = this.pointerShape.y - 10;
-				this.pointerText.text = Math.round(10*this.liquid_height_px / this.height_px * this.volume_units)/10;
+				var val = Math.round(10*this.liquid_height_px / this.height_px * this.volume_units)/10;
+				this.pointerText.text = val.toString() + " " + (GLOBAL_PARAMETERS.SHOW_UNITS_ON_BEAKER ? GLOBAL_PARAMETERS.VOLUME_UNITS : "");
 			}			
 		} 	
 	}

@@ -54,6 +54,7 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 	GLOBAL_PARAMETERS["INCLUDE_SCALE"] =true;
 	GLOBAL_PARAMETERS["INCLUDE_BEAKER"] =true;
 	GLOBAL_PARAMETERS["SHOW_UNITS_ON_SCALE"] =false;
+	GLOBAL_PARAMETERS["SHOW_UNITS_ON_BEAKER"] =true;
 	GLOBAL_PARAMETERS["SCALE"] = 30;
 	GLOBAL_PARAMETERS["IMAGE_SCALE"] = 0.5;
 	GLOBAL_PARAMETERS["LENGTH_UNITS"] = "cm";
@@ -72,6 +73,9 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 		[{"text":"Materials", "uneditable":true}],
 		[{"text":"Total_Mass", "uneditable":true}],
 		[{"text":"Total_Volume", "uneditable":true}],
+		[{"text":"Widths", "uneditable":true}],
+		[{"text":"Heights", "uneditable":true}],
+		[{"text":"Depths", "uneditable":true}],
 		[{"text":"Width", "uneditable":true}],
 		[{"text":"Height", "uneditable":true}],
 		[{"text":"Depth", "uneditable":true}],
@@ -191,6 +195,7 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 		}
 		// copy over liquids available to liquids in world
 		GLOBAL_PARAMETERS.liquids_in_world = [];
+		//for (var key in ) 
 		for (var i = 0; i < GLOBAL_PARAMETERS.beakers_in_world.length; i++){
 			var liquid_name = typeof GLOBAL_PARAMETERS.beakers_in_world[i].liquid !== "undefined" ? GLOBAL_PARAMETERS.beakers_in_world[i].liquid : (typeof GLOBAL_PARAMETERS.beakers_in_world[i].liquid_name !== "undefined" ? GLOBAL_PARAMETERS.beakers_in_world[i].liquid_name : "");
 			if (liquid_name.length > 0 && GLOBAL_PARAMETERS.liquids_in_world.indexOf(liquid_name) == -1) 

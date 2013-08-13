@@ -37,7 +37,8 @@ TableNode.authoringToolDescription = "Students fill out a table"; //TODO: rename
 TableNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
 	{functionName:'showPreviousWork', functionArgs:[]},
-	{functionName:'importWorkFromBox2d', functionArgs:['showTestedMassValuesOnly', 'showTestedLiquidValuesOnly','arrColumnNamesToUse']}
+	{functionName:'importWorkFromBox2d', functionArgs:['showTestedMassValuesOnly', 'showTestedLiquidValuesOnly','arrColumnNamesToUse']},
+	{functionName:'importWorkFromNetLogo', functionArgs:['arrColumnNamesToUse']}
 ];
 
 /**

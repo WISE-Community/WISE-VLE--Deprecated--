@@ -113,6 +113,9 @@
 				height_to += this.heights[i];
 			} 
 			this.savedObject.unique_materials = unique_materials;
+			this.savedObject.widths = this.widths;
+			this.savedObject.heights = this.heights;
+			this.savedObject.depths = this.depths;			
 			this.savedObject.max_height = max_height;
 			this.savedObject.max_width = max_width;
 			this.savedObject.max_depth = max_depth;

@@ -273,6 +273,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	row.id = args[0].id;
 	row.Materials = typeof args[0].unique_materials !== "undefined" ? args[0].unique_materials.slice().sort().toString() : "";
 	row.Total_Volume = args[0].total_volume;
+	row.Widths = typeof args[0].widths !== "undefined" ? args[0].widths.toString().replace(/,/g,", ") : undefined;
+	row.Heights = typeof args[0].heights !== "undefined" ? args[0].heights.toString().replace(/,/g,", ") : undefined;
+	row.Depths = typeof args[0].depths !== "undefined" ? args[0].depths.toString().replace(/,/g,", ") : undefined;
 	row.Width = args[0].max_width;
 	row.Height = args[0].max_height;
 	row.Depth = args[0].max_depth;
@@ -291,9 +294,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		var liquid_name = GLOBAL_PARAMETERS.liquids_in_world[i];
 		var liquid_density = GLOBAL_PARAMETERS.liquids[liquid_name].density;
 		if (row.Total_Density > liquid_density){
-			row["Sink_in_"+liquid_name] = 1;
+			row["Sink_in_"+liquid_name] = "Yes";
 		} else {
-			row["Sink_in_"+liquid_name] = 0;
+			row["Sink_in_"+liquid_name] = "No";
 		}
 		row["Percent_Submerged_in_"+liquid_name] = Math.min(1, row.Total_Density / liquid_density);
 		row["Percent_Above_"+liquid_name] = 1 - row["Percent_Submerged_in_"+liquid_name];

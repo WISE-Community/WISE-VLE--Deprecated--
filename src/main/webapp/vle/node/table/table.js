@@ -68,6 +68,50 @@ function Table(node) {
 };
 
 /**
+*   A general function for adding unique rows from one table to another, if they are of equal length.
+*   Assumes that the columns represent the same variables in both tables.
+*
+*/
+function addToTable(mainTableData, newTableData) {
+	// if tables don't fit just return main table
+	if (mainTableData.length != newTableData.length) return mainTableData;
+
+	// turn old table into array of row strings
+	var rowstrings = [];
+	for (var row = 0; row < mainTableData[0].length; row++){
+		// create strings from rows to compare
+		rowstring = ""
+		for (var col = 0; col < mainTableData.length; col++){
+			rowstring += " " + mainTableData[col][row].text;
+		}
+		rowstrings.push(rowstring);
+	}
+
+	// just attach unique rows to the old table
+	for (var prow = 0; prow < newTableData[0].length; prow++){
+		// create strings from rows to compare
+		var prowstring = ""
+		for (var pcol = 0; pcol < newTableData.length; pcol++){
+			prowstring += " " + newTableData[pcol][prow].text;
+		}
+		// compare prowstring to each pre-existing table rowstrings
+		var found_value = false;
+		for (var row = 0; row < rowstrings.length; row++){
+			if (rowstrings[row] == prowstring){
+				found_value = true; break;
+			}
+		}
+		if (!found_value){
+			// add new row
+			for (var pcol = 0; pcol < newTableData.length; pcol++){
+				mainTableData[pcol].push(newTableData[pcol][prow]);
+			}
+		}
+	}			
+	return mainTableData;				
+}
+
+/**
  * Populate the work from the previous step if a populatePreviousWorkNodeId has been set
  */
 Table.prototype.populatePreviousWork = function() {
@@ -98,6 +142,8 @@ Table.prototype.populatePreviousWork = function() {
 		}
 	}
 };
+
+
 
 /**
  * This function renders everything the student sees when they visit the step.
@@ -181,13 +227,27 @@ Table.prototype.render = function() {
 	//get the latest state
 	var latestState = this.getLatestState();
 	
-	if((latestState == null || (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.overridePreviousWorkHere !== undefined && this.content.graphOptions.overridePreviousWorkHere)) && workToImport != null && workToImport.length > 0) {
+	if(latestState == null && workToImport != null && workToImport.length > 0) {
 		/*
 		 * the student has not done any work on this step yet and there
 		 * is specified work to import so we will use the import work
-		 * OR, an override flag is set to true in graph options (in advanced mode - JV)
 		 */
 		latestState = workToImport[workToImport.length - 1];
+		this.tableChanged = true;
+	} else if (latestState != null && workToImport != null && workToImport.length > 0 && typeof workToImport[workToImport.length - 1].tableData !== "undefined" && workToImport[workToImport.length - 1].tableData.length > 0){
+		// In those cases where there is previous work and work to import
+		if (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.overridePreviousWorkHere !== undefined && this.content.graphOptions.overridePreviousWorkHere) {
+			// if overridePreviousWorkHere flag is set to true, do same as if there was no previous work (i.e. latest state)
+			latestState = workToImport[workToImport.length - 1];
+			this.tableChanged = true;
+		} else if (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.addToPreviousWorkHere !== undefined && this.content.graphOptions.addToPreviousWorkHere){
+			latestState.tableData = addToTable(latestState.tableData, workToImport[workToImport.length - 1].tableData);
+			latestState.tableOptions.numRows = latestState.tableData[0].length;
+			this.tableChanged = true;
+		}
+	} else if (latestState == null && workToImport == null){
+		// there is no prior work or work to import, just save the initial rendering
+		this.tableChanged = true;
 	}
 	
 	//get the number of rows and columns from the content
@@ -1667,8 +1727,10 @@ Table.prototype.getGoogleDataTableForSeries = function(tableData, graphOptions) 
 	// get unique values of "color" column
 	var clevels = [];
 	for (var i = 1; i < dataInGoogleFormat.length; i++){
-		if (clevels.indexOf(dataInGoogleFormat[i][2]) == -1){
-			clevels.push(dataInGoogleFormat[i][2])
+		var clevel = dataInGoogleFormat[i][2];
+		// is this level unique, and if we are only using a subset of levels is this level present
+		if (clevels.indexOf(clevel) == -1 && (typeof this.content.graphOptions.arrColorLevelsToUse === "undefined" || this.content.graphOptions.arrColorLevelsToUse == null || this.content.graphOptions.arrColorLevelsToUse.length == 0 || this.content.graphOptions.arrColorLevelsToUse.indexOf(clevel) != -1)){
+			clevels.push(clevel)
 		}
 	}
 	// create a column for each level
@@ -1917,7 +1979,6 @@ Table.prototype.getCellValue = function(x, y, tableData) {
  */
 Table.prototype.getGraphOptions = function() {
 	var graphOptions = {};
-	console.log(this.content);
 	if(this.content.graphOptions != null) {
 		//set the enable graphing value into the graphOptions object
 		graphOptions.enableGraphing = this.content.graphOptions.enableGraphing;
@@ -2065,6 +2126,91 @@ Table.prototype.processTagMaps = function() {
 				} else if(functionName == "showPreviousWork") {
 					//show the previous work in the previousWorkDiv
 					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if (functionName == "importWorkFromNetLogo"){
+					var nlstate = this.node.getWorkToImport(tagName, functionArgs)[0];
+					if (typeof nlstate !== "undefined" && typeof nlstate.data !== "undefined"  && typeof nlstate.data.runs !== "undefined"  && typeof nlstate.data.description !== "undefined"){
+						
+						var description = nlstate.data.description;
+						var runs = nlstate.data.runs;
+						var ptableData = [];
+						// place description in an array
+						// get all keys that are in both description and runs
+						var dkeys = [], rkeys = [];
+						for (var key in description){
+							if (dkeys.indexOf(key) == -1){
+								dkeys.push(key);
+							}
+						}
+						if (runs.length > 0){
+							for (var key in runs[0]){
+								if (rkeys.indexOf(key) == -1 && runs[0][key].length > 0){
+									rkeys.push(key);
+								}
+							}
+						}
+						var keys = dkeys.filter(function(value) { 
+                            return rkeys.indexOf(value) > -1;
+                        });;
+						
+						for (var k = 0; k < keys.length; k++){
+							var key = keys[k];
+							for (var t = 0; t < description[key].length; t++){
+								ptableData.push([{'text':description[key][t].label}]);
+							}						
+						}
+						
+						// for each run add new column to array
+						for (var r = 0; r < runs.length; r++){
+							var col = 0;
+							var run = runs[r];
+							for (var k = 0; k < keys.length; k++){
+								var key = keys[k];
+								for (var t = 0; t < run[key].length; t++){
+									ptableData[col].push({'text':run[key][t]});
+									col++;
+								}
+							}
+						}
+						// must copy all values in table so that we don't change them when we go back to box2d
+						// can pull from more than one step
+						var reuseTable = tableData.length > 0 ? true : false;
+						if (reuseTable){
+							tableData = addToTable(tableData, ptableData);
+						} else {
+							tableData = ptableData;
+						}
+
+						// use only specified column names
+						var arrColumnNamesToUse = functionArgs.length > 2 ? functionArgs[2].split(/ *, */) : [];
+						if (arrColumnNamesToUse.length > 0){
+							var ntableData = [];
+							for (var c = arrColumnNamesToUse.length-1; c >= 0; c--){
+								var colName = arrColumnNamesToUse[c];
+								for (var i = tableData.length-1; i >= 0; i--){
+									if (tableData[i][0].text.match(colName) != null){
+										//console.log(colName,"in?", tableData[i][0].text, "because",tableData[i][0].text.match(colName));
+										ntableData.splice(0, 0, tableData.splice(i,1)[0]);
+									}
+								}
+							}
+							tableData = ntableData;
+						}
+
+						var tableState = {
+							"graphOptions":{},
+							"graphRendered":false,
+							"response":"",
+							"tableData":tableData,
+							"tableOptions":{
+								"numColumns":tableData.length,
+								"numRows":tableData[0].length,
+								"title":null
+							}
+						}
+						workToImport.push(tableState);
+						
+						delete nlstate;
+					}
 				} else if (functionName == "importWorkFromBox2d"){
 					//get the work to import
 					var bstate = this.node.getWorkToImport(tagName, functionArgs)[0];
