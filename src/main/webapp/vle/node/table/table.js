@@ -629,6 +629,8 @@ Table.prototype.getLatestState = function() {
  */
 Table.prototype.save = function() {
 	if(this.responseChanged || this.tableChanged || this.graphRendered || this.graphOptionsChanged || this.dropDownTitleChanged) {
+		$('#saveFeedbackDiv').css('visibility', 'visible').fadeIn(350);
+
 		//get the answer the student wrote
 		var response = $('#studentResponseTextArea').val();
 		
@@ -813,7 +815,8 @@ Table.prototype.reset = function() {
  */
 Table.prototype.studentTableChanged = function() {
 	this.tableChanged = true;
-	
+	this.hideSaveFeedback();
+
 	/*
 	 * the table has changed so we will set this to false so
 	 * the next time the student visits this step it will not
@@ -840,6 +843,7 @@ Table.prototype.studentTableChanged = function() {
  */
 Table.prototype.studentResponseChanged = function() {
 	this.responseChanged = true;
+	this.hideSaveFeedback();
 };
 
 /**
@@ -847,7 +851,8 @@ Table.prototype.studentResponseChanged = function() {
  */
 Table.prototype.studentGraphOptionsChanged = function() {
 	this.graphOptionsChanged = true;
-	
+	this.hideSaveFeedback();
+
 	/*
 	 * the graph options have changed so we will set this to false so
 	 * the next time the student visits this step it will not
@@ -1398,6 +1403,7 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 			//tell google to draw the graph
 			chart.draw(data, options);
 			this.graphRendered = true;
+			this.hideSaveFeedback();
 			this.clearGraphMessage();
 		} catch(e) {
 			//the message that says there was an error so we were unable to draw the chart
@@ -2429,6 +2435,7 @@ Table.prototype.getDropDownTitleSelected = function() {
  */
 Table.prototype.dropDownTitleHasChanged = function() {
 	this.dropDownTitleChanged = true;
+	this.hideSaveFeedback();
 };
 
 /**
@@ -2617,6 +2624,13 @@ Table.prototype.getTableOptions = function() {
 	tableOptions.numColumns = this.numColumns;
 	
 	return tableOptions;
+};
+
+/**
+ * Hide the "Saved!" message
+ */
+Table.prototype.hideSaveFeedback = function() {
+	$('#saveFeedbackDiv').fadeOut(0);
 };
 
 //used to notify scriptloader that this script has finished loading
