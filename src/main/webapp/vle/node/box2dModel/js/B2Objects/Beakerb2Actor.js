@@ -78,7 +78,6 @@
 		this.viewing_rotation = 0;
 		this.refillElement = null;
 		this.releaseElement = null;
-		
 
 		this.puddles = [];
 		this.constructFixtures();

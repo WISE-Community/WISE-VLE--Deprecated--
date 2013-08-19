@@ -23,5 +23,16 @@ Description: For each unique model (and maybe filled vs. unfilled) has a row of 
 Update: make-model, delete-model, test*
 Details:
 	Each model will have the following in a table:
-	id 	|	total_mass	|	total_volume	| total_density |	enclosed_mass |	enclosed_volume	| enclosed_density | sink_or_float | percent_submerged	 | tested_in_beaker  | tested_on_scale   | tested_on_balance  
+	id 	|	total_mass	|	total_volume	| total_density |	enclosed_mass |	enclosed_volume	| enclosed_density | volume_displaced | sink_or_float | percent_submerged	 | tested_in_beaker  | tested_on_scale   | tested_on_balance  
 
+	tableData should be structured like this:
+	tableData:[
+		[
+			{text:"x", uneditable:false},
+			{text:"3", uneditable:false}
+		], 
+		[
+			{text:"y", uneditable:false},
+			{text:"2", uneditable:false}
+		]
+	]

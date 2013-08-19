@@ -1,99 +1,124 @@
-/**
- * The constructor for the carGraph object that we use to perform rendering
- * and logic in a carGraph step
- * @constructor
- * @param node the step we are on
- * @param view the vle view
+/*
+ * This is a grapher step object that developers can use to create new
+ * step types.
+ * 
+ * TODO: Copy this file and rename it to
+ * 
+ * <new step type>.js
+ * e.g. for example if you are creating a quiz step it would look
+ * something like quiz.js
+ *
+ * and then put the new file into the new folder
+ * you created for your new step type
+ *
+ * your new folder will look something like
+ * vlewrapper/WebContent/vle/node/<new step type>/
+ *
+ * e.g. for example if you are creating a quiz step it would look something like
+ * vlewrapper/WebContent/vle/node/quiz/
+ * 
+ * 
+ * TODO: in this file, change all occurrences of the word 'Grapher' to the
+ * name of your new step type
+ * 
+ * <new step type>
+ * e.g. for example if you are creating a quiz step it would look
+ * something like Quiz
  */
-function CARGRAPH(node) {
-	//the step we are on
+
+/**
+ * This is the constructor for the object that will perform the logic for
+ * the step when the students work on it. An instance of this object will
+ * be created in the .html for this step (look at grapher.html)
+ * 
+ * TODO: rename Grapher
+ * 
+ * @constructor
+ */
+function Grapher(node) {
 	this.node = node;
-	
-	//get the view from the node
-	this.view = this.node.view;
-	
-	//the content for the step
+	this.view = node.view;
 	this.content = node.getContent().getContentJSON();
 	
-	// current dynamic image that is being graphed.
-	this.currentDynamicImageId = null;
-	
-	/*
-	 * a timestamp used for calculating the amount of time the carGraph has
-	 * been collecting data. this is only updated in startCollecting() and
-	 * dataReceived()
-	 */
-	this.timeCheck = null;
-	
-	/*
-	 * the amount of time that the carGraph has been collecting data. this
-	 * will be used as the x value (time) for the carGraph data.
-	 */
-	this.elapsedTime = 0;
-	
-	//the default 
-	this.lockPredictionOnCollectionStart = false;
-
-	if(typeof this.content.createPrediction != "undefined" && !this.content.createPrediction) {
-		//hide the prediction buttons
-		this.hidePredictionButtons();
-	}
-	
 	if(node.studentWork != null) {
-		//the student has work from previous visits to this step
 		this.states = node.studentWork; 
 	} else {
-		//the student does not have any previous work for this step
 		this.states = [];  
 	};
-	
-	//the carGraph state that will contain the student work
-	this.carGraphState = new CARGRAPHSTATE();
-	
-	// if there is a state from before, use that
-	if(this.states != null && this.states.length > 0) {
-		//get the last state in the states array
-		this.carGraphState = this.states[this.states.length - 1];
-	} 
+
+	//the grapher state that will contain the student work
+	this.grapherState = this.getLatestStateCopy();
 	
 	//flag to keep track of whether the student has change any axis range value this visit
 	this.axisRangeChanged = false;
+
 	//flag to keep track of whether the student has change any axis labels
 	this.axisLabelChanged = false;
 	
+
 	if(this.content != null) {
 		//get the graph parameters for displaying the data to the student
 		this.graphParams = this.parseGraphParams(this.content.graphParams);
-				
-		if(this.content.lockPredictionOnCollectionStart != null) {
-			//get whether to lock the prediction when the student starts collecting data
-			this.lockPredictionOnCollectionStart = this.content.lockPredictionOnCollectionStart;			
-		}
-		// Edited by Jonathan Vitale!
-		this.tickSpacing = typeof this.content.tickSpacing != "undefined" ? this.content.tickSpacing : 1;
-		this.tickValues = typeof this.content.tickValues != "undefined" ? this.content.tickValues : [];
+		this.createPrediction = typeof this.content.createPrediction !== "undefined" ? this.content.createPrediction : true;
 	}
 	
 	/*
 	 * flag to keep track of whether the student has modified the graph
-	 * by retrieving data from the carGraph
+	 * by retrieving data from the grapher
 	 */
 	this.graphChanged = false;
 	
+	//the labels for the graph legends
+	var distance = this.view.getI18NString('distance', 'GrapherNode');
+	var velocity = this.view.getI18NString('velocity', 'GrapherNode');
+	var acceleration = this.view.getI18NString('acceleration', 'GrapherNode');
+	var temperature = this.view.getI18NString('temperature', 'GrapherNode');
+	
+	//the names for the different types of graphs
+	this.graphNames = {};
+	
+	//the units for the different types of graphs
+	this.graphUnits = {
+		x:typeof this.content.graphParams.xUnits !== "undefined" ? this.content.graphParams.xUnits : "", 
+		y:typeof this.content.graphParams.yUnits !== "undefined" ? this.content.graphParams.yUnits : ""
+	};
+	
+
 	/*
-	 * used to store the plot variable returne from $.plot() so that we can access
+	 * the color for the graph lines
+	 * 0 yellow
+	 * 1 light blue
+	 * 2 red
+	 * 3 green
+	 * 4 purple
+	 * 5 dark yellow
+	 * 6 teal blue
+	 * 7 brown
+	 * 8 dark green
+	 * 9 dark purple
+	 */
+	this.graphColors = [];
+	
+	if (typeof this.content.seriesLabels.length !== "undefined" && this.content.seriesLabels.length > 0){
+		// cycle through each custom series label
+		var seriesLabels = this.content.seriesLabels;
+		for (var s = 0; s < seriesLabels.length; s++){
+			this.graphNames[s] = seriesLabels[s];
+			//this.graphUnits[s] = typeof this.content.graphParams.yUnits !== "undefined" ? this.content.graphParams.yUnits : "";
+			this.graphColors[s] = (s + 1) % 10;
+		}
+	} else {
+		this.graphNames[0] = 'prediction';
+		//this.graphUnits[0] = "";
+		this.graphColors[0] = 1;
+	}
+	this.currentGraphName = this.graphNames[0];
+	
+	/*
+	 * used to store the plot variable returned from $.plot() so that we can access
 	 * it from other functions
 	 */
 	this.globalPlot = null;
-	
-	/*
-	 * flag to determine whether we need to clear the graph data when the student
-	 * clicks the Start button. we want to clear the graph when they click the
-	 * Start button the first time for each new visit of the step. subsequent
-	 * clicks of the Start button during the same visit will cause the graph 
-	 * data to append to the existing graph data.
-	 */
-	this.clearDataOnStart = true;
 	
 	//get the prediction from the previous step if there is a prevWorkNodeIds
 	this.getPreviousPrediction();
@@ -104,31 +129,34 @@ function CARGRAPH(node) {
 	
 	this.predictionLocked = false;
 	
-	if(this.carGraphState.predictionLocked) {
+	if(!this.content.createPrediction || this.grapherState.predictionLocked) {
 		//the prediction should be locked
 		this.predictionLocked = true;
 	}
-
-	this.createPrediction = true;
-	if(typeof this.content.createPrediction != "undefined" && !this.content.createPrediction) {
-		//the prediction should be locked
-		this.createPrediction = false;
-	}
+	
+	//whether the grapher has been loaded or not
+	this.grapherLoaded = false;
 	
 	//the last point the student has clicked on
 	this.lastPointClicked = null;
 
 	// a point being dragged
 	this.dragPoint = null;
-	
-	//whether we want to show the correct graph
-	this.showCorrectGraph = false;
 };
 
 /**
- * Render the carGraph step
+ * This function renders everything the student sees when they visit the step.
+ * This includes setting up the html ui elements as well as reloading any
+ * previous work the student has submitted when they previously worked on this
+ * step, if any.
+ * 
+ * TODO: rename Grapher
+ * 
+ * note: you do not have to use 'promptDiv' or 'studentResponseTextArea', they
+ * are just provided as examples. you may create your own html ui elements in
+ * the .html file for this step (look at grapher.html).
  */
-CARGRAPH.prototype.render = function() {
+Grapher.prototype.render = function() {
 	var enableStep = true;
 	var message = '';
 	var workToImport = [];
@@ -143,290 +171,157 @@ CARGRAPH.prototype.render = function() {
 		message = tagMapResults.message;
 		workToImport = tagMapResults.workToImport;
 	}
-	
+
 	if(this.states != null && this.states.length == 0 && workToImport != null && workToImport.length > 0) {
 		/*
-		 * the student has not done any work for this step yet
-		 * and there is work to import so we will display the
-		 * work to import
+		 * the student has not done any work for this step and
+		 * there is work to import so we will use the work to import
 		 */
-		this.carGraphState = workToImport[workToImport.length - 1];
+		this.grapherState = workToImport[workToImport.length - 1];
 	}
 	
-	// clear animation div and any dynamic Image radio that was rendered already
-	$('#animationDiv').html("");
-	
-	$("#dynamicImageRadioDiv").html("");
-
-	//set the prompt into the step
-	$('#promptDiv').html(this.content.prompt);
-
-	//set the graph title
-	$('#graphTitle').html(this.content.graphTitle);
-
-	//plot the carGraph data from the student's previous visit, if any
-	this.plotData();
-
-	//add the graph labels
-	this.setupGraphLabels();
-
-	//set the axis values
-	this.setupAxisValues();
-
-	//show the graph options if necessary
-	this.showGraphOptions();
-
-	//display the annotations, if any
-	this.setupAnnotations();
-
-	/*
-	 * get the student's previous response, if any, and re-populate
-	 * the response textarea with it
-	 */
-	var response = this.getResponseFromState();
-	$("#responseTextArea").val(response);
-
-	//set the size of the text area
-	$("#responseTextArea").attr('rows', this.content.expectedLines);
-	$("#responseTextArea").attr('cols', 80);
-	
-	if(this.predictionLocked) {
-		//disable the prediction buttons
-		this.disablePredictionButtons();
-	}
-
-	//display the starter sentence button if necessary
-	this.displayStarterSentenceButton();
-
-	// analyze accuracy of student predictions
-	this.analyzePredictions();
-
-	/*
-	 * used to determine if the student is click dragging on the graph
-	 * for use when they are creating a prediction
-	 */
-	this.mouseDown = false;
-	$("#" + this.graphDivId).bind('mousedown', {thisCarGraph:this}, (function(event) {
-		event.data.thisCarGraph.mouseDown = true;
-	}));
-	$("#" + this.graphDivId).bind('mouseup', {thisCarGraph:this}, (function(event) {
-		event.data.thisCarGraph.mouseDown = false;
-	}));
-
-	//listen for the keydown event
-	$(window).bind("keydown", {thisCarGraph:this}, function(event) {
-	    event.data.thisCarGraph.handleKeyDown(event);
-	});
-	
-	//listen for the click event
-	$(window).bind("click", {thisCarGraph:this}, function(event) {
-		//check if the mouse is inside the graph div
-	    if(!event.data.thisCarGraph.mouseInsideGraphDiv) {
-	    	/*
-	    	 * the mouse is outside the graph div so we will
-	    	 * set the lastPointClicked to null. we need to do
-	    	 * this because if the student clicked on a point
-	    	 * on the graph and then decided to start typing
-	    	 * their response and typed backspace while typing
-	    	 * their response, it would delete the 
-	    	 * lastPointClicked point. so now whenever the
-	    	 * student clicks outside of the graph div we
-	    	 * just clear the lastPointClicked so they won't
-	    	 * accidentally delete a point on the graph.
-	    	 */
-	    	event.data.thisCarGraph.lastPointClicked = null;
-	    }
-	});
-	
-	//listen for the mouse enter event on the graphDiv
-	$("#" + this.graphDivId).bind("mouseenter", {thisCarGraph:this}, function(event) {
-		event.data.thisCarGraph.mouseInsideGraphDiv = true;
-		if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").show();
-	});
-	
-	//listen for the mouse leave event on the graphDiv
-	$("#" + this.graphDivId).bind("mouseleave", {thisCarGraph:this}, function(event) {
-		event.data.thisCarGraph.mouseInsideGraphDiv = false;
-		if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").hide();
-		event.data.thisCarGraph.dragPoint = null;
-	});
-	
-	/*
-	 * used to hide or show the annotation tool tips. if the student has
-	 * their mouse in the graph div we will hide the annotation tool tips
-	 * so that they don't block them from clicking on the plot points.
-	 * when the mouse cursor is outside of the graph div we will show the
-	 * annotation tool tips for them to view.
-	 */
-	$("#" + this.graphDivId).bind('mouseover', (function(event) {
-		$(".activeAnnotationToolTip").hide();
-	}));
-	$("#" + this.graphDivId).bind('mouseleave', (function(event) {
-		$(".activeAnnotationToolTip").show();
-	}));
-	
-	$("#" + this.graphDivId).bind("plothover", (function (event, pos) {
-				$("#x").text(pos.x.toFixed(2));
-				$("#y").text(pos.y.toFixed(2)); 
-	}));
-
-	// calculate how many pixels there are between the y ticks in the animation div
-	var ymax = typeof this.carGraphState.yMax != "undefined" ? parseFloat(this.carGraphState.yMax) : parseFloat(this.content.graphParams.ymax);
-	var ymin = typeof this.carGraphState.yMin != "undefined" ? parseFloat(this.carGraphState.yMin) : parseFloat(this.content.graphParams.ymin);
+	if(this.content.requirePredictionBeforeEnter && this.node.prevWorkNodeIds.length != 0 && this.grapherState.predictionArray.length == 0) {
+		/*
+		 * this step requires a prediction before opening, there is an associated prevWorkNodeId
+		 * and there is no prediction so we will lock the student out of this step until they
+		 * create the prediction in the previously associated step
+		 */
 		
-	this.yTickSize = 700 / (ymax/this.tickSpacing);  
-
-	//find the position of the graph div so we can display the message in the center of it
-	var animationDivPosition = $('#animationDiv').position();
-	
-	//get the position that will show the message in the center of the graph div
-	var animationDivTop = animationDivPosition.top;
-	var animationDivLeft = animationDivPosition.left;
-	// display the static images (e.g. houses and schools)
-	for (var i=0; i < this.content.staticImages.length; i++) {
-		var staticImage = this.content.staticImages[i];		
-		var left = staticImage.tickIndex/this.tickSpacing*this.yTickSize;
-		// display labels above images
-		$("#animationDiv").append("<div class='staticImageLabel' style='top:"  + "px;left: "+left+"'>"+staticImage.label+"</div>");
-		$("#animationDiv").append("<img class='staticImage' style='top:" + 25 + "px;left:"+left+"' src='"+staticImage.img+"'></img>");
-	
-	}		
-
-	// display the ticks in the animationDiv
-	if (this.tickValues.length > 0){
-		for (var i = 0; i < this.tickValues.length; i++){
-			var yTickPosition = this.tickValues[i]/this.tickSpacing*this.yTickSize;         // this tick's x position
-			$("#animationDiv").append("<div class='tickGraphics' style='top:" + 60 + "px; left:"+yTickPosition+"'>"+this.tickValues[i]+"</div>");
-		}
+		var prevWorkNodeId = this.node.prevWorkNodeIds[0];
+		var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
+		
+		//the text that says you must make a prediction on a previous step before they can work on this step
+		var you_must_make_a_prediction = this.view.getI18NString('you_must_make_a_prediction', 'GrapherNode');
+		var before_you_can_work = this.view.getI18NString('before_you_can_work', 'GrapherNode');
+		
+		//display the message to tell the student to create a prediction in the previously associated step
+		$('#promptDiv').html(you_must_make_a_prediction + " <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> " + before_you_can_work);
+		this.hideAllInputFields();
 	} else {
-		for (var i=parseInt(ymin); i <= parseInt(ymax); i+=this.tickSpacing) {
-			var yTickPosition = i/this.tickSpacing*this.yTickSize;         // this tick's x position
-			$("#animationDiv").append("<div class='tickGraphics' style='top:" + 60 + "px; left:"+yTickPosition+"'>"+i+"</div>");
+		//set the prompt into the step
+		$('#promptDiv').html(this.content.prompt);
+
+		//set the graph title
+		$('#graphTitle').html(this.content.graphTitle);
+
+		if (this.content.seriesLabels.length == 0) this.content.seriesLabels.push('prediction');
+		var seriesLabels = this.content.seriesLabels;
+		if (seriesLabels.length > 1){
+			for (var s = 0; s < seriesLabels.length; s++){
+				// add radio input so students can choose which series they're drawing the graph for
+				var checked = "";
+				if (s==0) checked = "checked";
+				
+				if($("#seriesRadioDiv").length < seriesLabels.length) 
+					$("#seriesRadioDiv").append("<input class='seriesRadio' name='dynamic' type='radio' "+checked+" onclick='seriesChanged("+s+")'>"+seriesLabels[s]+"</input>");
+			}
 		}
+		//plot the grapher data from the student's previous visit, if any
+		this.plotData();
+		
+		//add the graph labels
+		this.setupGraphLabels();
+		
+		//set the axis values
+		this.setupAxisValues();
+		
+		//show the graph options if necessary
+		this.showGraphOptions();
+		
+		//display the annotations, if any
+		this.setupAnnotations();
+		
+		/*
+		 * get the student's previous response, if any, and re-populate
+		 * the response textarea with it
+		 */
+		var response = this.getResponseFromGrapherState();
+		$("#responseTextArea").val(response);
+		
+		//set the size of the text area
+		$("#responseTextArea").attr('rows', this.content.expectedLines);
+		$("#responseTextArea").attr('cols', 80);
+		
+		if(!this.content.createPrediction) {
+			//hide the prediction buttons
+			this.hidePredictionButtons();
+		}
+		
+		if(this.predictionLocked) {
+			//disable the prediction buttons
+			this.disablePredictionButtons();
+		}
+		
+		//display the starter sentence button if necessary
+		this.displayStarterSentenceButton();
+		
+		/*
+		 * used to determine if the student is click dragging on the graph
+		 * for use when they are creating a prediction
+		 */
+		this.mouseDown = false;
+		$("#" + this.graphDivId).bind('mousedown', {thisGrapher:this}, (function(event) {
+			event.data.thisGrapher.mouseDown = true;
+		}));
+		$("#" + this.graphDivId).bind('mouseup', {thisGrapher:this}, (function(event) {
+			event.data.thisGrapher.mouseDown = false;
+		}));
+
+		//listen for the keydown event
+		$(window).bind("keydown", {thisGrapher:this}, function(event) {
+		    event.data.thisGrapher.handleKeyDown(event);
+		});
+		
+		//listen for the click event
+		$(window).bind("click", {thisGrapher:this}, function(event) {
+			//check if the mouse is inside the graph div
+		    if(!event.data.thisGrapher.mouseInsideGraphDiv) {
+		    	/*
+		    	 * the mouse is outside the graph div so we will
+		    	 * set the lastPointClicked to null. we need to do
+		    	 * this because if the student clicked on a point
+		    	 * on the graph and then decided to start typing
+		    	 * their response and typed backspace while typing
+		    	 * their response, it would delete the 
+		    	 * lastPointClicked point. so now whenever the
+		    	 * student clicks outside of the graph div we
+		    	 * just clear the lastPointClicked so they won't
+		    	 * accidentally delete a point on the graph.
+		    	 */
+		    	event.data.thisGrapher.lastPointClicked = null;
+		    }
+		});
+		
+		//listen for the mouse enter event on the graphDiv
+		$("#" + this.graphDivId).bind("mouseenter", {thisGrapher:this}, function(event) {
+			event.data.thisGrapher.mouseInsideGraphDiv = true;
+			if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").show();
+		});
+		
+		//listen for the mouse leave event on the graphDiv
+		$("#" + this.graphDivId).bind("mouseleave", {thisGrapher:this}, function(event) {
+			event.data.thisGrapher.mouseInsideGraphDiv = false;
+			if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").hide();
+			event.data.thisGrapher.dragPoint = null;
+		});
+		
+		/*
+		 * used to hide or show the annotation tool tips. if the student has
+		 * their mouse in the graph div we will hide the annotation tool tips
+		 * so that they don't block them from clicking on the plot points.
+		 * when the mouse cursor is outside of the graph div we will show the
+		 * annotation tool tips for them to view.
+		 */
+		$("#" + this.graphDivId).bind('mouseover', (function(event) {
+			$(".activeAnnotationToolTip").hide();
+		}));
+		$("#" + this.graphDivId).bind('mouseleave', (function(event) {
+			$(".activeAnnotationToolTip").show();
+		}));
 	}
 	
-	var topSoFar = 90;  // offset from the top of the screen, to ensure that the images don't overlap
-	// display the dynamic images (e.g. cars) at time=0 (starting point)
-	for (var i=0; i< this.content.dynamicImages.length; i++) {
-		var dynamicImage = this.content.dynamicImages[i];	
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 
-		var predictionStartingYValue = ymin-100;  // if no prediction at time=0, hide this car from the view.	
-		var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
-	    var yValue = this.getYValue(0,predictionArr);
-	    var predictionStartingYValue = yValue/this.tickSpacing*this.yTickSize;
-	    
-	    // find the first real y value
-	    dynamicImage.predictionInitialYValue = ymin-100; // unlike predictionStartingValue, will search for the first actual value
-	    for (var xinc = 0; xinc <= this.content.graphParams.xmax; xinc += this.content.gatherXIncrement){
-	    	var yinc = this.getYValue(xinc,predictionArr);
-	    	if (yinc >= ymin && yinc <= ymax){
-	    		dynamicImage.predictionInitialYValue = yinc; break;
-	    	}
-	    }
-	    // display the user's car
-    	var dynamicImage = this.content.dynamicImages[i];		
-		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ topSoFar +"; left: "+predictionStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
-		
-		// increment topSoFar
-		topSoFar += dynamicImage.height+15;	
-		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
-		if (this.content.runCorrectAnswer) {
-
-			var correctStartingYValue = ymin-100;  // if there is no correct y-value at time=0, hide this car from the view.
-			
-			//get the expected results
-			var expectedResults = this.content.expectedResults;
-			//loop through all the expected results
-			for(var y=0; y<expectedResults.length; y++) {
-				//get an expected result
-				var expectedResult = expectedResults[y];
-
-				if(dynamicImage != null && expectedResult != null) {
-					//check if we have found an expected result for the car that is used in this step
-					if(dynamicImage.id == expectedResult.id) {
-						var expectedResultArray = expectedResult.expectedPoints;
-						var yValue = this.getYValueObj(0,expectedResultArray);
-						if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues){
-							correctStartingYValue = (yValue + dynamicImage.predictionInitialYValue)/this.tickSpacing*this.yTickSize;
-							//console.log("prediction start", dynamicImage.predictionInitialYValue, correctStartingYValue, yValue/this.tickSpacing*this.yTickSize );
-						} else {
-							correctStartingYValue = yValue/this.tickSpacing*this.yTickSize;
-						}
-					}
-				}
-			}
-
-			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ topSoFar +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
-		}
-		// increment topSoFar
-		topSoFar += dynamicImage.height+15;
-		$("#animationDiv").height(topSoFar);
-		
-		// add radio input so students can choose which car they're drawing the graph for
-		var checked = "";
-		if (i==0) {
-			this.setCurrentDynamicImageId(dynamicImage.id);
-			checked = "checked";
-		}
-		$("#dynamicImageRadioDiv").append("<input class='dynamicImageRadio' name='dynamic' type='radio' "+checked+" onclick='dynamicImageChanged(\""+dynamicImage.id+"\")'>"+dynamicImage.graphLabel+"</input>");
-	}	
-	
-};
-
-/**
- * Do one frame of the animation sequence. Loops through all of the
- * predictions graphs and moves the position of their corresponding images
- * in the animationDiv.
- * 
- * @param xValue the current value of the x-axis that is being animated.
- */
-CARGRAPH.prototype.displayOneFrame = function(xValue) {		  
-    for (var i=0; i<this.content.dynamicImages.length;i++) {
-	    var dynamicImage = this.content.dynamicImages[i];
-	    var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
-	    var yValue = this.getYValue(xValue,predictionArr);
-	    // yValue == -200 means the car is going back in time, which is a problem.
-	    if (yValue == -200){
-	    	if ($('#animationError').length == 0){
-		    	var x = $("#"+dynamicImage.id).position().left;
-		    	var y = $("#"+dynamicImage.id).position().top;
-		    	$("#animationDiv").append("<div id='animationError' style='position:absolute;color:#FF0000;left:"+x+";top:"+y+"'>ERROR </div>");
-			}
-	    } 
-	    var leftValue = yValue/this.tickSpacing*this.yTickSize;
-	    $("#"+dynamicImage.id).css("left",leftValue);
-    	this.setCrosshair({x:xValue,y:yValue});  // show cross hair on current x
-    }
-    
-    // if runCorrectAnswer is enabled, move the position of the correct image in the animationDiv also
-    if (this.content.runCorrectAnswer) {
-        for (var i=0; i<this.content.dynamicImages.length;i++) {
-    	    var dynamicImage = this.content.dynamicImages[i];
-
-    		//get the expected results
-    		var expectedResults = this.content.expectedResults;
-    		//loop through all the expected results
-    		for(var y=0; y<expectedResults.length; y++) {
-    			//get an expected result
-    			var expectedResult = expectedResults[y];
-    			
-    			if(dynamicImage != null && expectedResult != null) {
-    				//check if we have found an expected result for the car that is used in this step
-    				if(dynamicImage.id == expectedResult.id) {
-    					var expectedResultArray = expectedResult.expectedPoints;
-    		    	    var yValue = this.getYValueObj(xValue,expectedResultArray);
-    		    	    var leftValue;
-    		    	    if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues){
-    		    	    	leftValue = (yValue+dynamicImage.predictionInitialYValue)/this.tickSpacing*this.yTickSize;
-    		    	    } else {
-    		    	    	leftValue = yValue/this.tickSpacing*this.yTickSize;
-    		    	    }
-    		    	    $("#"+dynamicImage.id+"-correct").css("left",leftValue);
-    				}
-    			}
-    		}
-        }
-    }
 };
 
 /**
@@ -444,7 +339,7 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
  * @param predictionArray: array of points for one prediction graph
  * @return: corresponding y-Value within the prediction graph.
  */ 
-CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
+Grapher.prototype.getYValue = function(xValue,predictionArray) {
      if (predictionArray.length > 0) {
     	// check if the array contains a value for x less than the specified xValue. If not, return -100.
     	var firstPrediction = predictionArray[0];
@@ -499,7 +394,7 @@ CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
  * @param predictionArray: array of points for one prediction graph
  * @return: corresponding y-Value within the prediction graph.
  */ 
-CARGRAPH.prototype.getYValueObj = function(xValue,predictionArray) {
+Grapher.prototype.getYValueObj = function(xValue,predictionArray) {
     var xSoFar = 0;
     var ySoFar = 0;
     if (predictionArray.length > 0) {
@@ -533,108 +428,72 @@ CARGRAPH.prototype.getYValueObj = function(xValue,predictionArray) {
 };
 
 /**
- * This function analyzes the student predictions against the expected values, looking for the following:
- * 1) Initial Position correct
- * For each segment, pairing segment-for-segment
- * 2) Slope of segments (speed) - too fast, too slow
- * 3) Duration of segments - too long, too short
- * (Note, not analyzing distance traveled for each segment as it is redundant with above information - Algebra)
- *
- * Stores an analysis object in the state.
+ * This function retrieves the latest student work
+ * 
+ * TODO: rename Grapher
+ * 
+ * @return the latest state object or null if the student has never submitted
+ * work for this step
  */
-CARGRAPH.prototype.analyzePredictions = function (){
-	if (typeof this.content.dynamicImages !== "undefined" && typeof this.content.expectedResults !== "undefined"){
-		for(var x=0; x<this.content.dynamicImages.length; x++) {
-			//get a car
-			var dynamicImage = this.content.dynamicImages[i];	
-				
-			//loop through all the expected results
-			for(var y=0; y<this.content.expectedResults.length; y++) {
-				//get an expected result
-				//get the expected results
-	    		var expectedResult = this.content.expectedResults[y];
-					
-				if(dynamicImage != null && expectedResult != null) {
-					//check if we have found an expected result for the car that is used in this step
-					console.log(dynamicImage.id , expectedResult.id)
-					if(dynamicImage.id == expectedResult.id) {
-						//get the array of correct points so we can plot them
-						var expectedPoints = this.convertToPlottableArray(expectedResult.expectedPoints);
-						var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
-						console.log(expectedPoints, predictionArr);
-					}
-				}
-			}
-		}
-	}
-};
-
-/**
- * Get the latest student work for this step
- * @return the latest student work state object
- */
-CARGRAPH.prototype.getLatestState = function() {
-	//a new carGraph state will be returned if there are no states
-	var latestState = new CARGRAPHSTATE();
+Grapher.prototype.getLatestState = function() {
+	var latestState = null;
 	
+	//check if the states array has any elements
 	if(this.states != null && this.states.length > 0) {
-		//get the last state in the states array
+		//get the last state
 		latestState = this.states[this.states.length - 1];
 	}
 	
 	return latestState;
 };
 
+/**
+ * Get a copy of the latest student work for this step
+ * @return a copy of the latest student work state object
+ */
+Grapher.prototype.getLatestStateCopy = function() {
+	//a new sensor state will be returned if there are no states
+	var latestStateCopy = new GrapherState();
+
+	if(this.states != null && this.states.length > 0) {
+		//get the last state in the states array
+		var latestState = this.states[this.states.length - 1];
+		
+		//copy the values in the latest state into the latest state copy
+		GrapherState.prototype.copyState(latestState, latestStateCopy);
+	}
+	
+	return latestStateCopy;
+};
+
+Grapher.prototype.setCurrentSeriesByIndex = function(seriesIndex) {
+	this.currentGraphName = this.content.seriesLabels[seriesIndex];
+};
 
 /**
  * This is called when the student clears the data they have collected
  */
-CARGRAPH.prototype.clearData = function() {
+Grapher.prototype.clearData = function() {
 	//clear the data from the graph and annotations
-	this.carGraphState.clearSensorData();
+	this.grapherState.clearGrapherData();
 	
-	//delete the annotations for the carGraph data
-	this.carGraphState.removeSensorAnnotations();
+	//delete the annotations for the grapher data
+	this.grapherState.removeGrapherAnnotations();
 	
-	//remove the carGraph annotations text boxes and delete buttons from the UI
-	this.deleteSensorAnnotationsFromUI();
+	//remove the grapher annotations text boxes and delete buttons from the UI
+	this.deleteGrapherAnnotationsFromUI();
 	
-	//remove the annotation tool tips for the carGraph data line from the UI
+	//remove the annotation tool tips for the grapher data line from the UI
 	this.removeAnnotationToolTipData();
 	
 	/*
-	 * plot the graph again, there will be no carGraph data so the 
+	 * plot the graph again, there will be no grapher data so the 
 	 * graph will essentially be blank
 	 */
 	this.plotData();
 	
-	//reset the elapsed time
-	this.elapsedTime = 0;
-	
 	//update the flag since the graph has been cleared
 	this.graphChanged = true;
-};
-
-CARGRAPH.prototype.setCurrentDynamicImageId = function(dynamicImageId) {
-	this.currentDynamicImageId = dynamicImageId;
-};
-
-/**
- * Get the previous response the student typed into the textarea
- * @return
- */
-CARGRAPH.prototype.getPreviousResponse = function() {
-	var previousResponse = "";
-	
-	//get the latest state
-	var previousState = this.getLatestState();
-	
-	if(previousState != null) {
-		//get the previous response
-		previousResponse = previousState.response;
-	}
-	
-	return previousResponse;
 };
 
 /**
@@ -642,7 +501,7 @@ CARGRAPH.prototype.getPreviousResponse = function() {
  * @return an object we can use to pass to the flot graph to
  * specify how the graph should look
  */
-CARGRAPH.prototype.parseGraphParams = function(contentGraphParams) {
+Grapher.prototype.parseGraphParams = function(contentGraphParams) {
 	//create the object that will contain the graph params
 	var graphParams = {};
 	
@@ -676,28 +535,28 @@ CARGRAPH.prototype.parseGraphParams = function(contentGraphParams) {
 	}
 	
 	/*
-	 * if the carGraph state contains axis values it will override
+	 * if the grapher state contains axis values it will override
 	 * the axis values from the content
 	 */
-	if(this.carGraphState != null) {
-		if(this.carGraphState.xMin != null) {
-			//set the xmin value from the carGraph state
-			graphParams.xaxis.min = this.carGraphState.xMin;
+	if(this.grapherState != null) {
+		if(this.grapherState.xMin != null) {
+			//set the xmin value from the grapher state
+			graphParams.xaxis.min = this.grapherState.xMin;
 		}
 		
-		if(this.carGraphState.xMax != null) {
-			//set the xmax value from the carGraph state
-			graphParams.xaxis.max = this.carGraphState.xMax;
+		if(this.grapherState.xMax != null) {
+			//set the xmax value from the grapher state
+			graphParams.xaxis.max = this.grapherState.xMax;
 		}
 		
-		if(this.carGraphState.yMin != null) {
-			//set the ymin value from the carGraph state
-			graphParams.yaxis.min = this.carGraphState.yMin;
+		if(this.grapherState.yMin != null) {
+			//set the ymin value from the grapher state
+			graphParams.yaxis.min = this.grapherState.yMin;
 		}
 		
-		if(this.carGraphState.yMax != null) {
-			//set the ymax value from the carGraph state
-			graphParams.yaxis.max = this.carGraphState.yMax;
+		if(this.grapherState.yMax != null) {
+			//set the ymax value from the grapher state
+			graphParams.yaxis.max = this.grapherState.yMax;
 		}
 	}
 	
@@ -722,7 +581,7 @@ CARGRAPH.prototype.parseGraphParams = function(contentGraphParams) {
  * graph to specify how the graph should look
  * @return
  */
-CARGRAPH.prototype.getGraphParams = function() {
+Grapher.prototype.getGraphParams = function() {
 	//parse the graph params
 	this.graphParams = this.parseGraphParams(this.content.graphParams);
 	
@@ -730,12 +589,18 @@ CARGRAPH.prototype.getGraphParams = function() {
 };
 
 /**
- * Save the student work for this step. This includes the carGraph
- * data and the response the student typed. 
+ * This function retrieves the student work from the html ui, creates a state
+ * object to represent the student work, and then saves the student work.
+ * 
+ * TODO: rename Grapher
+ * 
+ * note: you do not have to use 'studentResponseTextArea', they are just 
+ * provided as examples. you may create your own html ui elements in
+ * the .html file for this step (look at grapher.html).
  */
-CARGRAPH.prototype.save = function(fromHtml) {
-	//get the response the student typed
-	var response = ""
+Grapher.prototype.save = function() {
+	//get the answer the student wrote
+	var response = document.getElementById('responseTextArea').value;
 	
 	//get the previous student work
 	var latestState = this.getLatestState();
@@ -745,19 +610,19 @@ CARGRAPH.prototype.save = function(fromHtml) {
 		//get the previous response
 		var previousResponse = latestState.response;
 	}
-	
+
 	/*
 	 * check that the student has changed the response or the graph or any annotations
 	 */
 	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged || this.axisLabelChanged) {
 		//set the student response into the state
-		this.carGraphState.response = response;
+		this.grapherState.response = response;
 		
 		//fire the event to push this state to the global view.states object
-		this.view.pushStudentWork(this.node.id, this.carGraphState);
+		this.view.pushStudentWork(this.node.id, this.grapherState);
 
 		//push the state object into the local copy of states
-		this.states.push(this.carGraphState);		
+		this.states.push(this.grapherState);		
 	}
 	
 	/*
@@ -771,26 +636,14 @@ CARGRAPH.prototype.save = function(fromHtml) {
 };
 
 /**
- * Get the response the student wrote
- * @return the text in the textarea
+ * Get the response from the grapher state
+ * @return the response text from the current grapher state
  */
-CARGRAPH.prototype.getResponseFromTextArea = function() {
-	//get the textarea
-	var responseTextArea = document.getElementById('responseTextArea');
-	
-	//get the text in the textarea
-	return responseTextArea.value;
-};
-
-/**
- * Get the response from the carGraph state
- * @return the response text from the current carGraph state
- */
-CARGRAPH.prototype.getResponseFromState = function() {
+Grapher.prototype.getResponseFromGrapherState = function() {
 	var response = "";
 	
 	//get the latest state
-	var state = this.carGraphState;
+	var state = this.grapherState;
 	
 	if(state != null) {
 		//get the response
@@ -800,12 +653,7 @@ CARGRAPH.prototype.getResponseFromState = function() {
 	return response;
 };
 
-/**
- * Plot the data onto the graph so the student can see it.
- * @param graphDivId the id of the div we will use to plot the graph
- * @param graphCheckBoxesDivId the id of the div we will put the filter check boxes in
- */
-CARGRAPH.prototype.plotData = function(graphDiv, graphCheckBoxesDiv) {
+Grapher.prototype.plotData = function(graphDiv, graphCheckBoxesDiv) {
 	if(graphDiv == null) {
 		//this will be the default graphDivId if none is provided as an argument
 		graphDiv = $('#' + this.graphDivId);
@@ -830,35 +678,32 @@ CARGRAPH.prototype.plotData = function(graphDiv, graphCheckBoxesDiv) {
 	//create the data sets array
 	var dataSets = [];
 
+	var seriesLabels = this.content.seriesLabels;
 	/*
 	 * check if we want to show the correct graph. this will be used
 	 * in the grading tool
 	 */
-	if(this.showCorrectGraph) {
-		//get the cars that are used in this car graph step
-		var dynamicImages = this.content.dynamicImages;
-		
+	if(typeof this.showCorrectGraph !== "undefined" && this.showCorrectGraph) {
 		//get the expected results
 		var expectedResults = this.content.expectedResults;
 		
-		//loop through all the cars that are used in this step
-		for(var x=0; x<dynamicImages.length; x++) {
-			//get a car
-			var dynamicImage = dynamicImages[x];
+		//loop through all the series that are used in this step
+		for(var s=0; s<seriesLabels.length; s++) {
+			var seriesLabel = seriesLabels[s];
 			
 			//loop through all the expected results
 			for(var y=0; y<expectedResults.length; y++) {
 				//get an expected result
 				var expectedResult = expectedResults[y];
 				
-				if(dynamicImage != null && expectedResult != null) {
-					//check if we have found an expected result for the car that is used in this step
-					if(dynamicImage.id == expectedResult.id) {
+				if(seriesLabel != null && expectedResult != null) {
+					//check if we have found an expected result for the series that is used in this step
+					if(seriesLabel == expectedResult.id) {
 						//get the array of correct points so we can plot them
 						var expectedPoints = this.convertToPlottableArray(expectedResult.expectedPoints);
 						
 						//get the graph line label
-						var graphLabel = "Correct " + dynamicImage.graphLabel;
+						var graphLabel = "Correct " + seriesLabel;
 						
 						/*
 						 * get the graph line name. we will just convert the graphLabel to
@@ -882,20 +727,20 @@ CARGRAPH.prototype.plotData = function(graphDiv, graphCheckBoxesDiv) {
 	}
 	
 	// get the prediction arrays for each dynamic image
-	for (var i=0; i< this.content.dynamicImages.length; i++) {
-		var dynamicImage = this.content.dynamicImages[i];		
-		
-		var predictionsForThisDynamicImage = [];
+	for(var s=0; s<seriesLabels.length; s++) {
+		var seriesLabel = seriesLabels[s];
+			
+		var predictionsForThisSeries = [];
 
 		// get the corresponding predictions array
-		var predictionArray = this.getPredictionArrayByPredictionId(dynamicImage.id);
-
+		var predictionArray = this.getPredictionArrayByPredictionIndex(s);
+		
 		var checked=false;
-		if (this.currentDynamicImageId == dynamicImage.id) {
+		if (this.currentGraphName == seriesLabel) {
 			checked=true;
 		}
-
-		dataSets.push({data:predictionArray, label:dynamicImage.graphLabel, color:dynamicImage.graphColor, name:dynamicImage.id, checked:checked});
+		var color = typeof this.content.seriesColors !== "undefined" && s < this.content.seriesColors.length && this.content.seriesColors[s].length > 0 ? this.content.seriesColors[s] : 'blue';
+		dataSets.push({data:predictionArray, label:seriesLabel, color: color , name:seriesLabel, checked:checked});
 	}
 
 	//set the data set to a global variable so we can access it in other places
@@ -918,58 +763,123 @@ CARGRAPH.prototype.plotData = function(graphDiv, graphCheckBoxesDiv) {
 };
 
 /**
- * Draws crosshair on the graph on the specified coordinates.
+ * Calculate the velocity array given the distance array
+ * @param distanceArray an array of distance points. each element in the
+ * distance array is also an array that looks like this [<time>,<distance>]
+ * @return an array of velocity points. each element in the velocity
+ * array is also an array that looks like this [<time>,<velocity>]
  */
-CARGRAPH.prototype.setCrosshair = function(pos) {
-	this.globalPlot.setCrosshair(pos);
+Grapher.prototype.calculateVelocityArray = function(distanceArray) {
+	return this.calculateDerivativeArray(distanceArray);
 };
 
 /**
- * Clears the crosshair from the graph
+ * Calculate the acceleration array given the velocity array
+ * @param velocityArray an array of velocity points. each element in the
+ * velocity array is also an array that looks like this [<time>,<velocity>]
+ * @return an array of acceleration points. each element in the acceleration
+ * array is also an array that looks like this [<time>,<acceleration>]
  */
-CARGRAPH.prototype.clearCrosshair = function(pos) {
-	this.globalPlot.clearCrosshair();
+Grapher.prototype.calculateAccelerationArray = function(velocityArray) {
+	return this.calculateDerivativeArray(velocityArray);
+};
+
+/**
+ * Calculate the derivative array by calculating the rate of change
+ * of the points in the given data array
+ * @param dataArray an array containing data points. each element in the
+ * array is also an array and looks like this [<x>,<y>]
+ * @return an array containing the derivative values
+ */
+Grapher.prototype.calculateDerivativeArray = function(dataArray) {
+	//the array we will store the derivative values in
+	var derivativeArray = [];
+	
+	//loop through all the points in the data array
+	for(var x=0; x<dataArray.length; x++) {
+		//get the index of the previous point
+		var previousPointIndex = x - 1;
+		
+		//make sure the previous point exists
+		if(previousPointIndex >= 0) {
+			//get the previous point
+			var point1 = dataArray[previousPointIndex];
+			
+			//get the current point
+			var point2 = dataArray[x];
+			
+			//get the x and y values of the previous point
+			var point1x = point1[0];
+			var point1y = point1[1];
+			
+			//get the x and y values of the current point
+			var point2x = point2[0];
+			var point2y = point2[1];
+			
+			var derivativePoint = [];
+			
+			//get the difference between the y values of the points
+			var derivativeY = point2y - point1y;
+			
+			//get the difference between the x values of the points
+			var derivativeX = point2x - point1x;
+			
+			//calculate the rate of change to get the derivative value
+			var derivativeValue = derivativeY / derivativeX;
+			
+			//use the x value of the current point as the x value for the derivative point
+			derivativePoint[0] = point2x;
+			
+			//round the derivative value to the nearest hundredth and set it as the y value for the derivative point
+			derivativePoint[1] = parseFloat(derivativeValue.toFixed(2));
+			
+			//add the derivative point to our array
+			derivativeArray.push(derivativePoint);
+		}
+	}
+	
+	return derivativeArray;
 };
 
 /**
  * Setup the graph so that when the student mouseovers a point it displays
  * the x,y values for that point.
  */
-CARGRAPH.prototype.setupPlotHover = function() {
+Grapher.prototype.setupPlotHover = function() {
 	$("#" + this.graphDivId).unbind("plothover");
 	
     var previousPoint = null;
     
     /*
-     * bind this function to the plothover event. the thisCarGraph object
-     * will be passed into the function and accessed through event.data.thisCarGraph
+     * bind this function to the plothover event. the thisGrapher object
+     * will be passed into the function and accessed through event.data.thisGrapher
      */
-    $("#" + this.graphDivId).bind("plothover", {thisCarGraph:this}, function (event, pos, item) {
+    $("#" + this.graphDivId).bind("plothover", {thisGrapher:this}, function (event, pos, item) {
     	
-    	var contentGraphParams = event.data.thisCarGraph.content.graphParams;
+    	var contentGraphParams = event.data.thisGrapher.content.graphParams;
         //get the position of the mouse in the graph	
     	var x = pos.x;
     	var y = pos.y;
-    	var xmax = typeof event.data.thisCarGraph.carGraphState.xMax != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.xMax) : parseFloat(event.data.thisCarGraph.content.graphParams.xmax);
-		var xmin = typeof event.data.thisCarGraph.carGraphState.xMin != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.xMin) : parseFloat(event.data.thisCarGraph.content.graphParams.xmin);
-		var ymax = typeof event.data.thisCarGraph.carGraphState.yMax != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.yMax) : parseFloat(event.data.thisCarGraph.content.graphParams.ymax);
-		var ymin = typeof event.data.thisCarGraph.carGraphState.yMin != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.yMin) : parseFloat(event.data.thisCarGraph.content.graphParams.ymin);
+    	var xmax = typeof event.data.thisGrapher.grapherState.xMax != "undefined" ? parseFloat(event.data.thisGrapher.grapherState.xMax) : parseFloat(event.data.thisGrapher.content.graphParams.xmax);
+		var xmin = typeof event.data.thisGrapher.grapherState.xMin != "undefined" ? parseFloat(event.data.thisGrapher.grapherState.xMin) : parseFloat(event.data.thisGrapher.content.graphParams.xmin);
+		var ymax = typeof event.data.thisGrapher.grapherState.yMax != "undefined" ? parseFloat(event.data.thisGrapher.grapherState.yMax) : parseFloat(event.data.thisGrapher.content.graphParams.ymax);
+		var ymin = typeof event.data.thisGrapher.grapherState.yMin != "undefined" ? parseFloat(event.data.thisGrapher.grapherState.yMin) : parseFloat(event.data.thisGrapher.content.graphParams.ymin);
 	
     	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
 			if (x < xmin){
 				x = xmin;
 			} else if (x > xmax){
-				x = contentGraphParams.xmax;
+				x = xmax;
 			} 
 			if (y < ymin ){
-				y = contentGraphParams.ymin;
+				y = ymin;
 			} else if (y > ymax){
 				y = ymax;
 			} 
     	} 
 
     	// jv test with significant figures
-    	if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+    	if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
     		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
     		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
     	} else {
@@ -979,16 +889,16 @@ CARGRAPH.prototype.setupPlotHover = function() {
     	}
 
     	//get the x units
-    	var graphXUnits = event.data.thisCarGraph.content.graphParams.xUnits;
+    	var graphXUnits = event.data.thisGrapher.content.graphParams.xUnits;
     	
     	//get the y units
-    	var graphYUnits = event.data.thisCarGraph.content.graphParams.yUnits;
+    	var graphYUnits = event.data.thisGrapher.content.graphParams.yUnits;
     	
     	//display the position e.g. (10.52 min, 4.34 km)
     	var plotHoverPositionText = "(" + plotHoverPositionX + " " + graphXUnits + ", " + plotHoverPositionY + " " + graphYUnits + ")";
     	
     	$('#plotHoverPosition').html(plotHoverPositionText);
-    	if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+    	if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
     		$('#plotHoverPosition').html(plotHoverPositionText).css({position: 'absolute', float: 'left', left: pos.pageX + 20, top: pos.pageY}); 
    		 }
 
@@ -1007,10 +917,10 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
 					if (x < xmin && item.series.data.length > 1){
 						x = xmin;
-						y = event.data.thisCarGraph.getYValue(x,item.series.data);
+						y = event.data.thisGrapher.getYValue(x,item.series.data);
 					} else if (x > xmax && item.series.data.length > 1){
 						x = xmax;
-						y = event.data.thisCarGraph.getYValue(x,item.series.data);
+						y = event.data.thisGrapher.getYValue(x,item.series.data);
 					} 
     			} 
         
@@ -1020,16 +930,16 @@ CARGRAPH.prototype.setupPlotHover = function() {
         				y:item.datapoint[1]
         		};
         		//get the offset of the points relative to the plot div
-                var offsetObject = event.data.thisCarGraph.globalPlot.pointOffset(dataPointObject);
+                var offsetObject = event.data.thisGrapher.globalPlot.pointOffset(dataPointObject);
         		var plotOffsetX = offsetObject.left;
         		var plotOffsetY = offsetObject.top;
                 
                 //get the units for the x and y values
-                var xUnits = event.data.thisCarGraph.content.graphParams.xUnits;
-                var yUnits = event.data.thisCarGraph.content.graphParams.yUnits;
+                var xUnits = event.data.thisGrapher.content.graphParams.xUnits;
+                var yUnits = event.data.thisGrapher.content.graphParams.yUnits;
                 
                 // in hoverable coords clean up the tooltip text a bit
-                if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+                if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
 		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
 		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
 		    	} else {
@@ -1041,7 +951,7 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 var toolTipText = item.series.label + ": " + x + " " + xUnits + ", " + y + " " + yUnits;
                 
                 //display the tool tip
-                event.data.thisCarGraph.showTooltip(plotOffsetX, plotOffsetY, toolTipText);
+                event.data.thisGrapher.showTooltip(plotOffsetX, plotOffsetY, toolTipText);
             }
         } else {
         	//remove the tool tip
@@ -1050,21 +960,21 @@ CARGRAPH.prototype.setupPlotHover = function() {
         }
         
         //check if the student is click dragging to create prediction points
-        if(event.data.thisCarGraph.mouseDown) {
-        	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction) {
+        if(event.data.thisGrapher.mouseDown) {
+        	if(!event.data.thisGrapher.predictionLocked && event.data.thisGrapher.createPrediction) {
         		// allow author to enable or disable draw while dragging
-        		if (event.data.thisCarGraph.content.allowDragDraw) {
+        		if (event.data.thisGrapher.content.allowDragDraw) {
 					//add prediction point
-					event.data.thisCarGraph.predictionReceived(pos.x, pos.y);
+					event.data.thisGrapher.predictionReceived(pos.x, pos.y);
 					
 					//plot the graph again so the new point is displayed
-					event.data.thisCarGraph.plotData();        		
+					event.data.thisGrapher.plotData();        		
 				} // allow points to be dragged up or down along their x value
-				 else if (typeof event.data.thisCarGraph.content.allowDragPoint != "undefined" && event.data.thisCarGraph.content.allowDragPoint) {
-					if (item && event.data.thisCarGraph.dragPoint == null){
+				 else if (typeof event.data.thisGrapher.content.allowDragPoint != "undefined" && event.data.thisGrapher.content.allowDragPoint) {
+					if (item && event.data.thisGrapher.dragPoint == null){
 						// if there is a point we are hovering over and there is no drag point, set it
-						 event.data.thisCarGraph.dragPoint = item;
-					} else if (event.data.thisCarGraph.dragPoint != null) {
+						 event.data.thisGrapher.dragPoint = item;
+					} else if (event.data.thisGrapher.dragPoint != null) {
 						// move the point
 						var y = pos.y;
 						// if we are using the easy click option, only show points within domain
@@ -1076,20 +986,20 @@ CARGRAPH.prototype.setupPlotHover = function() {
 							} 
     					} 
     					// in hoverable coords clean up the tooltip text a bit
-		                if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+		                if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
 				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
 				    	} else {
 				    		y = y.toFixed(2);
 				    	}
 
-						event.data.thisCarGraph.predictionUpdateByX(parseFloat(event.data.thisCarGraph.dragPoint.datapoint[0]), pos.y);
+						event.data.thisGrapher.predictionUpdateByX(parseFloat(event.data.thisGrapher.dragPoint.datapoint[0]), pos.y);
 						//plot the graph again so the point is displayed
-						event.data.thisCarGraph.plotData();
+						event.data.thisGrapher.plotData();
 					}
 				}
         	}
         } else {
-        	event.data.thisCarGraph.dragPoint = null;
+        	event.data.thisGrapher.dragPoint = null;
         }
     });
 };
@@ -1100,7 +1010,7 @@ CARGRAPH.prototype.setupPlotHover = function() {
  * @param y the y position to display the tool tip at
  * @param toolTipText the text to display in the tool tip
  */
-CARGRAPH.prototype.showTooltip = function(x, y, toolTipText) {
+Grapher.prototype.showTooltip = function(x, y, toolTipText) {
     $('<div id="tooltip">' + toolTipText + '</div>').css( {
         position: 'absolute',
         //display: 'none',
@@ -1117,26 +1027,26 @@ CARGRAPH.prototype.showTooltip = function(x, y, toolTipText) {
  * Setup the graph so that when the student clicks on a data point it creates
  * an annotation.
  */
-CARGRAPH.prototype.setupPlotClick = function() {
+Grapher.prototype.setupPlotClick = function() {
 	$("#" + this.graphDivId).unbind("plotclick");
 	
 	/*
-	 * bind the plotclick event to this function. the thisCarGraph object
-	 * will be passed into the function and accessed through event.data.thisCarGraph
+	 * bind the plotclick event to this function. the thisGrapher object
+	 * will be passed into the function and accessed through event.data.thisGrapher
 	 */
-    $("#" + this.graphDivId).bind("plotclick", {thisCarGraph:this}, function (event, pos, item) {
+    $("#" + this.graphDivId).bind("plotclick", {thisGrapher:this}, function (event, pos, item) {
         if (item) {
         	//student has clicked on a point
         	
         	// if the point is not on a series that is currently selected, do nothing
-        	if (item.series.name != event.data.thisCarGraph.currentDynamicImageId) {
+        	if (item.series.name != event.data.thisGrapher.currentGraphName) {
         		return;
         	}
         	
             //get the name of the graph line
             var seriesName = item.series.name;
             
-        	if(seriesName.indexOf("prediction") == -1 || !event.data.thisCarGraph.predictionLocked) {
+        	if(seriesName.indexOf("prediction") == -1 || !event.data.thisGrapher.predictionLocked) {
         		/*
         		 * the plot line that was clicked was not a prediction line
         		 * or create prediction is enabled. this is just to prevent
@@ -1145,7 +1055,7 @@ CARGRAPH.prototype.setupPlotClick = function() {
         		 */
         		
             	//highlight the data point that was clicked
-                event.data.thisCarGraph.globalPlot.highlight(item.series, item.datapoint);
+                event.data.thisGrapher.globalPlot.highlight(item.series, item.datapoint);
                 
                 //get the index of the point for the graph line
                 var dataIndex = item.dataIndex;
@@ -1154,13 +1064,13 @@ CARGRAPH.prototype.setupPlotClick = function() {
                 var dataPoint = item.datapoint;
                 
                 //create an annotation
-                event.data.thisCarGraph.createAnnotation(seriesName, dataIndex, dataPoint);
+                event.data.thisGrapher.createAnnotation(seriesName, dataIndex, dataPoint);
                 
                 //get the x value
                 var x = dataPoint[0];
                 
             	//remember the data for the point that was clicked
-                event.data.thisCarGraph.lastPointClicked = {
+                event.data.thisGrapher.lastPointClicked = {
             		seriesName:seriesName,
             		dataIndex:dataIndex,
             		x:x
@@ -1170,16 +1080,16 @@ CARGRAPH.prototype.setupPlotClick = function() {
         	//student has clicked on an empty spot on the graph
         	
         	//check if this step allows the student to create a prediction
-        	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction && event.data.thisCarGraph.dragPoint == null) {
-        		var isCompleted = event.data.thisCarGraph.node.isCompleted();
+        	if(!event.data.thisGrapher.predictionLocked && event.data.thisGrapher.createPrediction && event.data.thisGrapher.dragPoint == null) {
+        		var isCompleted = event.data.thisGrapher.node.isCompleted();
         		//create the prediction point
-        		event.data.thisCarGraph.predictionReceived(pos.x, pos.y);
+        		event.data.thisGrapher.predictionReceived(pos.x, pos.y);
         		//plot the graph again so the point is displayed
-            	event.data.thisCarGraph.plotData();
+            	event.data.thisGrapher.plotData();
 
             	// if this node is constrained and we are using easyClickExtremes, save data to release constraints (possibly)
-        		if (typeof event.data.thisCarGraph.content.graphParams.easyClickExtremes != "undefined" && event.data.thisCarGraph.content.graphParams.easyClickExtremes && isCompleted != event.data.thisCarGraph.node.isCompleted(event.data.thisCarGraph.carGraphState)){
-        			event.data.thisCarGraph.save();
+        		if (typeof event.data.thisGrapher.content.graphParams.easyClickExtremes != "undefined" && event.data.thisGrapher.content.graphParams.easyClickExtremes && isCompleted != event.data.thisGrapher.node.isCompleted(event.data.thisGrapher.grapherState)){
+        			event.data.thisGrapher.save();
         		}
         	}
         }
@@ -1191,7 +1101,7 @@ CARGRAPH.prototype.setupPlotClick = function() {
  * Setup the plot filter so students can turn on/off the different
  * lines in the graph when there is more than one line displayed
  */
-CARGRAPH.prototype.setupPlotFilter = function() {
+Grapher.prototype.setupPlotFilter = function() {
     //get the div where we display the checkboxes
     var graphCheckBoxesDiv = $("#" + this.graphCheckBoxesDivId);
     
@@ -1199,11 +1109,11 @@ CARGRAPH.prototype.setupPlotFilter = function() {
     var graphParams = this.getGraphParams();
     
     /*
-     * save this into thisCarGraph so that the filterDataSets can access it
+     * save this into thisGrapher so that the filterDataSets can access it
      * since the context within filterDataSets will be different when
      * it gets called
      */
-    var thisCarGraph = this;
+    var thisGrapher = this;
     
     /*
      * Filters the graph lines depending on which ones are checked in the options
@@ -1213,7 +1123,7 @@ CARGRAPH.prototype.setupPlotFilter = function() {
     	var dataToDisplay = [];
 
     	//get all the data sets
-    	var dataSets = thisCarGraph.globalDataSets;
+    	var dataSets = thisGrapher.globalDataSets;
 
     	if(graphCheckBoxesDiv.length == 0) {
     		//we could not find the checkboxes div so we will just display all the graph lines
@@ -1235,13 +1145,13 @@ CARGRAPH.prototype.setupPlotFilter = function() {
     	}
 
     	//display the graph lines that we want to display
-    	thisCarGraph.globalPlot = $.plot($("#" + thisCarGraph.graphDivId), dataToDisplay, graphParams);
+    	thisGrapher.globalPlot = $.plot($("#" + thisGrapher.graphDivId), dataToDisplay, graphParams);
     	
     	//delete all the annotation tool tips form the UI
-    	thisCarGraph.removeAllAnnotationToolTips();
+    	thisGrapher.removeAllAnnotationToolTips();
     	
     	//highlight the points that have annotations
-    	thisCarGraph.highlightAnnotationPoints(null, null, dataToDisplay);
+    	thisGrapher.highlightAnnotationPoints(null, null, dataToDisplay);
     }
     
     //check if we have created the check boxes
@@ -1275,7 +1185,7 @@ CARGRAPH.prototype.setupPlotFilter = function() {
 /**
  * Add the annotations to the UI
  */
-CARGRAPH.prototype.setupAnnotations = function() {
+Grapher.prototype.setupAnnotations = function() {
 	/*
 	 * clear any existing annotations, this is needed when the student
 	 * clicks on the current step again in the left nav menu because
@@ -1284,7 +1194,7 @@ CARGRAPH.prototype.setupAnnotations = function() {
 	$("#graphAnnotationsDiv").html("");
 
 	//get the annotations
-	var annotationArray = this.carGraphState.annotationArray;
+	var annotationArray = this.grapherState.annotationArray;
 	
 	//loop through all the annotations
 	for(var i=0; i<annotationArray.length; i++) {
@@ -1330,14 +1240,14 @@ CARGRAPH.prototype.setupAnnotations = function() {
 
 /**
  * Highlight the points that have annotations
- * @param carGraphState
+ * @param grapherState
  * @param plot
  * @param dataSets the data sets currently displayed on the graph
  */
-CARGRAPH.prototype.highlightAnnotationPoints = function(carGraphState, plot, dataSets) {
-	if(carGraphState == null) {
-		//use this.carGraphState as the default carGraph state if carGraphState was note provided
-		carGraphState = this.carGraphState;
+Grapher.prototype.highlightAnnotationPoints = function(grapherState, plot, dataSets) {
+	if(grapherState == null) {
+		//use this.grapherState as the default grapher state if grapherState was note provided
+		grapherState = this.grapherState;
 	}
 	
 	if(plot == null) {
@@ -1346,7 +1256,7 @@ CARGRAPH.prototype.highlightAnnotationPoints = function(carGraphState, plot, dat
 	}
 	
 	//get the annotations
-	var annotationArray = carGraphState.annotationArray;
+	var annotationArray = grapherState.annotationArray;
 	
 	//loop through all the annotations
 	for(var i=0; i<annotationArray.length; i++) {
@@ -1391,7 +1301,7 @@ CARGRAPH.prototype.highlightAnnotationPoints = function(carGraphState, plot, dat
  * @param seriesName the name of the graph line
  * @return the grapha line object (aka series)
  */
-CARGRAPH.prototype.getSeriesByName = function(plot, seriesName) {
+Grapher.prototype.getSeriesByName = function(plot, seriesName) {
 	//get the array that contains all the graph line objects
 	var seriesArray = plot.getData();
 	
@@ -1411,13 +1321,70 @@ CARGRAPH.prototype.getSeriesByName = function(plot, seriesName) {
 };
 
 /**
+ * Get the units for the graph given the graph type
+ * @param graphType
+ * e.g.
+ * 'distance'
+ * 'velocity'
+ * 'acceleration'
+ * 'temperature'
+ * @return the units for the graph type
+ * e.g.
+ * 'm'
+ * 'm/s'
+ * 'm/s^2'
+ * 'C'
+ * 's'
+ */
+Grapher.prototype.getGraphUnits = function(xORy) {
+	return this.graphUnits[xORy];
+};
+
+/**
+ * Get the graph label for the given graph type
+ * @param graphType
+ * e.g.
+ * 'distance'
+ * 'velocity'
+ * 'acceleration'
+ * 'temperature'
+ * @return the label that we will display in the legend
+ * e.g.
+ * 'distance (m)'
+ * 'velocity (m/s)'
+ * 'acceleration (m/s^2)'
+ * 'temperature (C)'
+ */
+Grapher.prototype.getGraphLabel = function(graphName) {
+	//get the name of the graph
+	var graphLabel = this.graphNames[graphName];
+	
+	//get the units
+	var graphUnits = this.graphUnits[graphLabel];
+	
+	return graphName + " (" + graphUnits + ")";
+};
+
+/**
+ * Get the graph name given the graph type
+ * @param graphType the type of the graph
+ * e.g.
+ * "prediction"
+ * UPDATE - 8/15/2013 - now also uses a series index for those cases where there are multiple series
+ * @return the graph name
+ */
+Grapher.prototype.getGraphName = function(seriesIndex) {
+	return 'prediction'-seriesIndex;
+};
+
+/**
  * Add the annotation to the UI
  * @param seriesName the name of the graph line
  * @param dataIndex the index on the graph line for the data point
  * @param dataText the text containing the x,y values of the data point
  * @param annotationText the text the student wrote for the annotation
  */
-CARGRAPH.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dataText, annotationText) {
+Grapher.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dataText, annotationText) {
 	//create the html that will represent the annotation
 	var annotationHtml = "";
 	
@@ -1427,23 +1394,11 @@ CARGRAPH.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dat
 	//whether we will allow the student to edit the annotation
 	var enableEditing = "";
 	
-	if(seriesName.indexOf("prediction") != -1 && this.predictionLocked) {
-		/*
-		 * the annotation is for the prediction line and create prediction
-		 * is disabled so we will not allow them to edit this annotation
-		 */
-		enableEditing = "disabled";
-	}
-	
 	//get the series name we will use in the DOM
 	var domSeriesName = this.getDOMSeriesName(seriesName);
 	
-	//set the class determined by whether this annotation is for carGraph data or prediction
-	if(seriesName.indexOf("prediction") != -1) {
-		annotationClass = "predictionAnnotation";
-	} else {
-		annotationClass = "carGraphAnnotation";
-	}
+	//set the class determined by whether this annotation is for grapher data or prediction
+	annotationClass = "predictionAnnotation";
 	
 	//get the x value we will use in the DOM id
 	var domXValue = this.getDOMXValue(x);
@@ -1454,10 +1409,10 @@ CARGRAPH.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dat
 	annotationHtml += "<p id='" + domSeriesName + domXValue + "AnnotationDataText' style='display:inline'>" + seriesName + " [" + dataText + "]: </p>";
 	
 	//add the text input where the student can type
-	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationInputText' type='text' class='predictionTextInput' value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + x + ")' size='50' " + enableEditing + "/>";
+	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationInputText' type='text' class='predictionTextInput' value='" + annotationText + "' onchange='editAnnotation(\"" + domSeriesName + "\", " + x + ")' size='50' " + enableEditing + "/>";
 	
 	//add the delete button to delete the annotation
-	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationDeleteButton' type='button' class='predictionDeleteButton' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ", " + x + ")' " + enableEditing + "/>";
+	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationDeleteButton' type='button' class='predictionDeleteButton' value='Delete' onclick='deleteAnnotation(\"" + domSeriesName + "\", " + dataIndex + ", " + x + ")' " + enableEditing + "/>";
 	annotationHtml += "</div>";
 	
 	//add the annotation html to the div where we put all the annotations
@@ -1469,7 +1424,7 @@ CARGRAPH.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dat
  * @param seriesName the name of the graph line
  * @param x the x value for the data point
  */
-CARGRAPH.prototype.deleteAnnotationFromUI = function(seriesName, x) {
+Grapher.prototype.deleteAnnotationFromUI = function(seriesName, x) {
 	//get the series name with spaces replaced with underscores
 	var domSeriesName = this.getDOMSeriesName(seriesName);
 	
@@ -1483,31 +1438,31 @@ CARGRAPH.prototype.deleteAnnotationFromUI = function(seriesName, x) {
 /**
  * Delete all the annotations from the annotation div
  */
-CARGRAPH.prototype.deleteAllAnnotationsFromUI = function() {
+Grapher.prototype.deleteAllAnnotationsFromUI = function() {
 	$("#graphAnnotationsDiv").html("");
 };
 
 /**
- * Delete the carGraph annotations from the UI
+ * Delete the grapher annotations from the UI
  */
-CARGRAPH.prototype.deleteSensorAnnotationsFromUI = function() {
-	$(".carGraphAnnotation").remove();
+Grapher.prototype.deleteGrapherAnnotationsFromUI = function() {
+	$(".grapherAnnotation").remove();
 };
 
 /**
  * Delete the prediction annotations from the UI
  */
-CARGRAPH.prototype.deletePredictionAnnotationsFromUI = function() {
+Grapher.prototype.deletePredictionAnnotationsFromUI = function() {
 	$(".predictionAnnotation").remove();
 };
 
 /**
- * Create a new annotation in the carGraph state and also in the html UI
+ * Create a new annotation in the grapher state and also in the html UI
  * @param seriesName the name of the graph line
  * @param dataIndex the index on the graph line for the data point
  * @param dataPoint the x, y data point in an array [x,y]
  */
-CARGRAPH.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint) {
+Grapher.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint) {
 	//get the y units
 	var graphYUnits = this.content.graphParams.yUnits;
 	
@@ -1522,14 +1477,14 @@ CARGRAPH.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint)
 	var dataText = x + " " + graphXUnits + ", " + y + " " + graphYUnits;
 	
 	//check if there is already an annotation for the given point
-	var annotation = this.carGraphState.getAnnotationBySeriesXValue(seriesName, x);
+	var annotation = this.grapherState.getAnnotationBySeriesXValue(seriesName, x);
 	
 	if(annotation == null) {
 		/*
-		 * if this carGraph state contains old data it will not have 
+		 * if this grapher state contains old data it will not have 
 		 * an x value so we will have to search using the data index
 		 */
-		annotation = this.carGraphState.getAnnotationBySeriesDataIndex(seriesName, dataIndex);
+		annotation = this.grapherState.getAnnotationBySeriesDataIndex(seriesName, dataIndex);
 	}
 	
 	if(annotation == null) {
@@ -1538,8 +1493,8 @@ CARGRAPH.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint)
 		//add the annotation to the UI
 		this.addAnnotationToUI(seriesName, dataIndex, x, y, dataText, "");
 		
-		//add the annotation to the carGraph state
-		this.carGraphState.addAnnotation(seriesName, dataIndex, x, y, dataText);
+		//add the annotation to the grapher state
+		this.grapherState.addAnnotation(seriesName, dataIndex, x, y, dataText);
 		
 		//set this flag so we know that we will need to save student data since it has changed
 		this.annotationsChanged = true;
@@ -1553,17 +1508,17 @@ CARGRAPH.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint)
 };
 
 /**
- * Delete the annotation from the UI and the carGraph state
+ * Delete the annotation from the UI and the grapher state
  * @param seriesName the name of the graph line
  * @param dataIndex the index of the point in the line
  * @param x the index on the graph line for the data point
  */
-CARGRAPH.prototype.deleteAnnotation = function(seriesName, dataIndex, x) {
+Grapher.prototype.deleteAnnotation = function(seriesName, dataIndex, x) {
 	//delete the annotation from the UI
 	this.deleteAnnotationFromUI(seriesName, x);
 	
-	//delete the annotation from the carGraph state
-	this.carGraphState.deleteAnnotation(seriesName, x);
+	//delete the annotation from the grapher state
+	this.grapherState.deleteAnnotation(seriesName, x);
 	
 	//get the graph line
 	var series = this.getSeriesByName(this.globalPlot, seriesName);
@@ -1586,14 +1541,14 @@ CARGRAPH.prototype.deleteAnnotation = function(seriesName, dataIndex, x) {
 
 /**
  * The student has edited the annotation text for the annotation so
- * we will update it in the carGraph state annotation
+ * we will update it in the grapher state annotation
  * @param seriesName the name of the graph line
  * @param x the x value for the data point
  * @param annotationText the text the student has written
  */
-CARGRAPH.prototype.editAnnotation = function(seriesName, x, annotationText) {
-	//update the annotation in the carGraph state
-	this.carGraphState.editAnnotation(seriesName, x, annotationText);
+Grapher.prototype.editAnnotation = function(seriesName, x, annotationText) {
+	//update the annotation in the grapher state
+	this.grapherState.editAnnotation(seriesName, x, annotationText);
 	
 	var domSeriesName = this.getDOMSeriesName(seriesName);
 	
@@ -1621,7 +1576,7 @@ CARGRAPH.prototype.editAnnotation = function(seriesName, x, annotationText) {
 /**
  * Set the labels for the graph
  */
-CARGRAPH.prototype.setupGraphLabels = function() {
+Grapher.prototype.setupGraphLabels = function() {
 	if(this.content.graphParams != null) {
 		//get the x and y labels
 		var xLabel = "";
@@ -1635,15 +1590,15 @@ CARGRAPH.prototype.setupGraphLabels = function() {
 		}
 		
 		/*
-		 * if the sensor state contains axis values it will override
+		 * if the grapher state contains axis values it will override
 		 * the axis values from the content
 		 */
-		if(this.carGraphState != null) {
-			if(this.carGraphState.xlabel != null && this.carGraphState.xlabel != "")  {
-				xLabel = this.carGraphState.xlabel;
+		if(this.grapherState != null) {
+			if(this.grapherState.xlabel != null && this.grapherState.xlabel != "")  {
+				xLabel = this.grapherState.xlabel;
 			}
-			if(this.carGraphState.ylabel != null && this.carGraphState.ylabel != "")  {
-				yLabel = this.carGraphState.ylabel;
+			if(this.grapherState.ylabel != null && this.grapherState.ylabel != "")  {
+				yLabel = this.grapherState.ylabel;
 			}
 		}
 
@@ -1660,7 +1615,7 @@ CARGRAPH.prototype.setupGraphLabels = function() {
  * Display the starter sentence button if the author has specified to
  * do so
  */
-CARGRAPH.prototype.displayStarterSentenceButton = function() {
+Grapher.prototype.displayStarterSentenceButton = function() {
 	if(this.content.starterSentence) {
 		if(this.content.starterSentence.display == "0") {
 			//do not show the starter sentence button
@@ -1699,7 +1654,7 @@ CARGRAPH.prototype.displayStarterSentenceButton = function() {
 /**
  * Append the starter sentence to the response textarea
  */
-CARGRAPH.prototype.showStarterSentence = function() {
+Grapher.prototype.showStarterSentence = function() {
 	if(this.content.starterSentence) {
 		//get the starter sentence
 		var starterSentence = this.content.starterSentence.sentence;
@@ -1714,7 +1669,7 @@ CARGRAPH.prototype.showStarterSentence = function() {
 /**
  * Show the graph check box options if the author has specified to
  */
-CARGRAPH.prototype.showGraphOptions = function() {
+Grapher.prototype.showGraphOptions = function() {
 	if(this.content.showGraphOptions) {
 		//show the graph options
 		$('#graphCheckBoxesDiv').show();
@@ -1728,9 +1683,9 @@ CARGRAPH.prototype.showGraphOptions = function() {
  * The student has changed the axis range so we will obtain those
  * values and plot the graph again
  */
-CARGRAPH.prototype.updateAxisRange = function() {
+Grapher.prototype.updateAxisRange = function() {
 	if (this.content.graphParams.allowUpdateAxisRange) {
-		//set this flag so we know the carGraph state has changed
+		//set this flag so we know the grapher state has changed
 		this.axisRangeChanged = true;
 
 		//get all the values from the text box inputs
@@ -1748,11 +1703,11 @@ CARGRAPH.prototype.updateAxisRange = function() {
 			return;
 		}
 		
-		//set the value into the carGraph state
-		this.carGraphState.xMin = xMin;
-		this.carGraphState.xMax = xMax;
-		this.carGraphState.yMin = yMin;
-		this.carGraphState.yMax = yMax;
+		//set the value into the grapher state
+		this.grapherState.xMin = xMin;
+		this.grapherState.xMax = xMax;
+		this.grapherState.yMin = yMin;
+		this.grapherState.yMax = yMax;
 
 		//parse the graph params again to obtain the new values in the graph params
 		this.graphParams = this.parseGraphParams(this.content.graphParams);
@@ -1773,7 +1728,7 @@ CARGRAPH.prototype.updateAxisRange = function() {
  * @param resetInvalidValues whether to reset the values that are invalid
  * @param enableAlert whether to display the alert message with feedback
  */
-CARGRAPH.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidValues, enableAlert) {
+Grapher.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidValues, enableAlert) {
 	var result = true;
 	
 	if(isNaN(Number(xMin))) {
@@ -1863,12 +1818,12 @@ CARGRAPH.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvali
  * Reset the x min value. First check for an x min value in
  * the state, and if it is not found there, check the content
  */
-CARGRAPH.prototype.resetXMin = function() {
+Grapher.prototype.resetXMin = function() {
 	var previousXMin = null;
 	
-	if(this.carGraphState.xMin != null) {
+	if(this.grapherState.xMin != null) {
 		//reset the x min value from the state
-		previousXMin = this.carGraphState.xMin;
+		previousXMin = this.grapherState.xMin;
 	} else if(this.content.graphParams.xmin != null) {
 		//reset the x min value from the content
 		previousXMin = this.content.graphParams.xmin;
@@ -1882,12 +1837,12 @@ CARGRAPH.prototype.resetXMin = function() {
  * Reset the x max value. First check for an x max value in
  * the state, and if it is not found there, check the content
  */
-CARGRAPH.prototype.resetXMax = function() {
+Grapher.prototype.resetXMax = function() {
 	var previousXMax = null;
 	
-	if(this.carGraphState.xMax != null) {
+	if(this.grapherState.xMax != null) {
 		//reset the x max value from the state
-		previousXMax = this.carGraphState.xMax;
+		previousXMax = this.grapherState.xMax;
 	} else if(this.content.graphParams.xmax != null) {
 		//reset the x max value from the content
 		previousXMax = this.content.graphParams.xmax;
@@ -1901,12 +1856,12 @@ CARGRAPH.prototype.resetXMax = function() {
  * Reset the y min value. First check for an y min value in
  * the state, and if it is not found there, check the content
  */
-CARGRAPH.prototype.resetYMin = function() {
+Grapher.prototype.resetYMin = function() {
 	var previousYMin = null;
 	
-	if(this.carGraphState.yMin != null) {
+	if(this.grapherState.yMin != null) {
 		//reset the y min value from the state
-		previousYMin = this.carGraphState.yMin;
+		previousYMin = this.grapherState.yMin;
 	} else if(this.content.graphParams.ymin != null) {
 		//reset the y min value from the content
 		previousYMin = this.content.graphParams.ymin;
@@ -1920,12 +1875,12 @@ CARGRAPH.prototype.resetYMin = function() {
  * Reset the x max value. First check for an x max value in
  * the state, and if it is not found there, check the content
  */
-CARGRAPH.prototype.resetYMax = function() {
+Grapher.prototype.resetYMax = function() {
 	var previousYMax = null;
 	
-	if(this.carGraphState.yMax != null) {
+	if(this.grapherState.yMax != null) {
 		//reset the y max value from the state
-		previousYMax = this.carGraphState.yMax;
+		previousYMax = this.grapherState.yMax;
 	} else if(this.content.graphParams.ymax != null) {
 		//reset the y max value from the content
 		previousYMax = this.content.graphParams.ymax;
@@ -1939,8 +1894,8 @@ CARGRAPH.prototype.resetYMax = function() {
  * The student wants to reset the axis range values back to the
  * default values
  */
-CARGRAPH.prototype.resetDefaultAxisRange = function() {
-	//set this flag so we know the carGraph state has changed
+Grapher.prototype.resetDefaultAxisRange = function() {
+	//set this flag so we know the grapher state has changed
 	this.axisRangeChanged = true;
 	
 	var xMin = "";
@@ -1976,11 +1931,11 @@ CARGRAPH.prototype.resetDefaultAxisRange = function() {
 	$('#yMinInput').val(yMin);
 	$('#yMaxInput').val(yMax);
 	
-	//reset the values in the carGraph state
-	this.carGraphState.xMin = this.content.graphParams.xmin;
-	this.carGraphState.xMax = this.content.graphParams.xmax;
-	this.carGraphState.yMin = this.content.graphParams.ymin;
-	this.carGraphState.yMax = this.content.graphParams.ymax;
+	//reset the values in the grapher state
+	this.grapherState.xMin = this.content.graphParams.xmin;
+	this.grapherState.xMax = this.content.graphParams.xmax;
+	this.grapherState.yMin = this.content.graphParams.ymin;
+	this.grapherState.yMax = this.content.graphParams.ymax;
 	
 	//parse the graph params again to obtain the new values in the graph params
 	this.graphParams = this.parseGraphParams(this.content.graphParams);
@@ -1994,20 +1949,20 @@ CARGRAPH.prototype.resetDefaultAxisRange = function() {
  * @return an array containing arrays with two values [x, y] that represent
  * the prediction points
  */
-CARGRAPH.prototype.getPredictionArrayByPredictionId = function(predictionId) {
+Grapher.prototype.getPredictionArrayByPredictionIndex = function(predictionIndex) {
 	//get the graph data array from the current state 
-	var predictionArray = this.generatePredictionArray(this.carGraphState, predictionId);
+	var predictionArray = this.generatePredictionArray(this.grapherState, this.content.seriesLabels[predictionIndex]);
 	
 	return predictionArray;
 };
 
 /**
  * Generate the prediction array in a format that we can give to flot to plot
- * @param state the carGraph state
+ * @param state the grapher state
  * @return an array containing arrays with two values [x, y] that represent
  * the prediction points
  */
-CARGRAPH.prototype.generatePredictionArray = function(state,predictionId) {
+Grapher.prototype.generatePredictionArray = function(state,predictionId) {
 	var predictionArray = [];
 	
 	if(state != null) {
@@ -2056,7 +2011,7 @@ CARGRAPH.prototype.generatePredictionArray = function(state,predictionId) {
  * @param arrayToConvert an array of object positions with x and y fields
  * @returns an array of arrays
  */
-CARGRAPH.prototype.convertToPlottableArray = function(arrayToConvert) {
+Grapher.prototype.convertToPlottableArray = function(arrayToConvert) {
 	var plottableArray = [];
 	
 	//loop through all the elements in the object array
@@ -2091,17 +2046,17 @@ CARGRAPH.prototype.convertToPlottableArray = function(arrayToConvert) {
  * @param x the x value for the point
  * @param y the y value for the point
  */
-CARGRAPH.prototype.predictionReceived = function(x, y) {
+Grapher.prototype.predictionReceived = function(x, y) {
 	
 	if(x != null && y != null) {
 		//round x down to the nearest 0.01
-		var xFactor = 1 / this.content.gatherXIncrement;
-		x = Math.round(x * xFactor) / xFactor;		
+		//var xFactor = 1 / this.content.gatherXIncrement;
+		x = parseFloat(x.toFixed(2));		
 		y = parseFloat(y.toFixed(2));
-		var xmax = typeof this.carGraphState.xMax != "undefined" ? parseFloat(this.carGraphState.xMax) : parseFloat(this.content.graphParams.xmax);
-		var xmin = typeof this.carGraphState.xMin != "undefined" ? parseFloat(this.carGraphState.xMin) : parseFloat(this.content.graphParams.xmin);
-		var ymax = typeof this.carGraphState.yMax != "undefined" ? parseFloat(this.carGraphState.yMax) : parseFloat(this.content.graphParams.ymax);
-		var ymin = typeof this.carGraphState.yMin != "undefined" ? parseFloat(this.carGraphState.yMin) : parseFloat(this.content.graphParams.ymin);
+		var xmax = typeof this.grapherState.xMax != "undefined" ? parseFloat(this.grapherState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var xmin = typeof this.grapherState.xMin != "undefined" ? parseFloat(this.grapherState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var ymax = typeof this.grapherState.yMax != "undefined" ? parseFloat(this.grapherState.yMax) : parseFloat(this.content.graphParams.ymax);
+		var ymin = typeof this.grapherState.yMin != "undefined" ? parseFloat(this.grapherState.yMin) : parseFloat(this.content.graphParams.ymin);
 	
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
 			if (x < xmin){
@@ -2116,14 +2071,14 @@ CARGRAPH.prototype.predictionReceived = function(x, y) {
 			}
 		}
 		
-		//insert the point into the carGraph state
-		this.carGraphState.predictionReceived(this.currentDynamicImageId, x, y, typeof this.content.graphParams.allowNonFunctionalData != "undefined" ? !this.content.graphParams.allowNonFunctionalData : true);
+		//insert the point into the grapher state
+		this.grapherState.predictionReceived(this.currentGraphName, x, y, typeof this.content.graphParams.allowNonFunctionalData != "undefined" ? !this.content.graphParams.allowNonFunctionalData : true);
 		
 		this.graphChanged = true;
 		
-		var seriesName = this.currentDynamicImageId;
+		var seriesName = this.currentGraphName;
 		
-		var annotation = this.carGraphState.getAnnotationBySeriesXValue(seriesName, x);
+		var annotation = this.grapherState.getAnnotationBySeriesXValue(seriesName, x);
 		
 		if(annotation != null) {
 			//annotation exists for this x value so we will update that annotation
@@ -2166,17 +2121,18 @@ CARGRAPH.prototype.predictionReceived = function(x, y) {
  * @param x the old x value for the point
  * @param y the new y value for the point
  */
-CARGRAPH.prototype.predictionUpdateByX = function(x, y) {
+Grapher.prototype.predictionUpdateByX = function(x, y) {
 	
 	if(x != null && y != null) {
 		//round x down to the nearest 0.01
 		var xFactor = 1 / this.content.gatherXIncrement;
-		x = Math.round(x * xFactor) / xFactor;		
+		//x = Math.round(x * xFactor) / xFactor;	
+		x = parseFloat(x.toFixed(2));	
 		y = parseFloat(y.toFixed(2));
-		var xmax = typeof this.carGraphState.xMax != "undefined" ? parseFloat(this.carGraphState.xMax) : parseFloat(this.content.graphParams.xmax);
-		var xmin = typeof this.carGraphState.xMin != "undefined" ? parseFloat(this.carGraphState.xMin) : parseFloat(this.content.graphParams.xmin);
-		var ymax = typeof this.carGraphState.yMax != "undefined" ? parseFloat(this.carGraphState.yMax) : parseFloat(this.content.graphParams.ymax);
-		var ymin = typeof this.carGraphState.yMin != "undefined" ? parseFloat(this.carGraphState.yMin) : parseFloat(this.content.graphParams.ymin);
+		var xmax = typeof this.grapherState.xMax != "undefined" ? parseFloat(this.grapherState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var xmin = typeof this.grapherState.xMin != "undefined" ? parseFloat(this.grapherState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var ymax = typeof this.grapherState.yMax != "undefined" ? parseFloat(this.grapherState.yMax) : parseFloat(this.content.graphParams.ymax);
+		var ymin = typeof this.grapherState.yMin != "undefined" ? parseFloat(this.grapherState.yMin) : parseFloat(this.content.graphParams.ymin);
 	
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
 			if (x < xmin){
@@ -2191,12 +2147,12 @@ CARGRAPH.prototype.predictionUpdateByX = function(x, y) {
 			}
 		}
 		
-		//insert the point into the carGraph state
-		this.graphChanged = this.carGraphState.predictionUpdateByX(this.currentDynamicImageId, x, y);
+		//insert the point into the grapher state
+		this.graphChanged = this.grapherState.predictionUpdateByX(this.currentGraphName, x, y);
 		if (this.graphChanged){
-			var seriesName = this.currentDynamicImageId;
+			var seriesName = this.currentGraphName;
 			
-			var annotation = this.carGraphState.getAnnotationBySeriesXValue(seriesName, x);
+			var annotation = this.grapherState.getAnnotationBySeriesXValue(seriesName, x);
 			
 			if(annotation != null) {
 				//annotation exists for this x value so we will update that annotation
@@ -2238,21 +2194,21 @@ CARGRAPH.prototype.predictionUpdateByX = function(x, y) {
 /**
  * Hide the prediction buttons
  */
-CARGRAPH.prototype.hidePredictionButtons = function() {
+Grapher.prototype.hidePredictionButtons = function() {
 	$('#clearPredictionButton').hide();
 };
 
 /**
  * Disable the clear prediction button
  */
-CARGRAPH.prototype.disablePredictionButtons = function() {
+Grapher.prototype.disablePredictionButtons = function() {
 	$('#clearPredictionButton').attr('disabled', true);
 };
 
 /**
  * Setup the axis limit values on the graph
  */
-CARGRAPH.prototype.setupAxisValues = function() {
+Grapher.prototype.setupAxisValues = function() {
 	var xMin = "";
 	var xMax = "";
 	var yMin = "";
@@ -2281,24 +2237,24 @@ CARGRAPH.prototype.setupAxisValues = function() {
 	}
 	
 	/*
-	 * if the carGraph state contains axis values it will override
+	 * if the grapher state contains axis values it will override
 	 * the axis values from the content
 	 */
-	if(this.carGraphState != null) {
-		if(this.carGraphState.xMin != null) {
-			xMin = this.carGraphState.xMin;
+	if(this.grapherState != null) {
+		if(this.grapherState.xMin != null) {
+			xMin = this.grapherState.xMin;
 		}
 		
-		if(this.carGraphState.xMax != null) {
-			xMax = this.carGraphState.xMax;
+		if(this.grapherState.xMax != null) {
+			xMax = this.grapherState.xMax;
 		}
 		
-		if(this.carGraphState.yMin != null) {
-			yMin = this.carGraphState.yMin;
+		if(this.grapherState.yMin != null) {
+			yMin = this.grapherState.yMin;
 		}
 		
-		if(this.carGraphState.yMax != null) {
-			yMax = this.carGraphState.yMax;
+		if(this.grapherState.yMax != null) {
+			yMax = this.grapherState.yMax;
 		}
 	}
 	
@@ -2321,13 +2277,13 @@ CARGRAPH.prototype.setupAxisValues = function() {
  * Get the prediction from the prevWorkNodeIds
  * @return
  */
-CARGRAPH.prototype.getPreviousPrediction = function() {
+Grapher.prototype.getPreviousPrediction = function() {
 	if(this.node.prevWorkNodeIds.length > 0) {
 		if(this.view.getState() != null) {
 			//get the node type for the previous work
 			var prevWorkNodeType = this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type;
 			//we can only pre populate the work from a previous node if it is a graph step like this one
-			if(prevWorkNodeType == 'GrapherNode' || prevWorkNodeType == 'SensorNode' || prevWorkNodeType == 'CarGraphNode') {
+			if(prevWorkNodeType == 'GrapherNode' || prevWorkNodeType == 'GrapherNode') {
 				//get the state from the previous step that this step is linked to
 				var predictionState = this.view.getState().getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
 				
@@ -2338,77 +2294,57 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 				 * set it into our prediction array
 				 * OR if cannot create prediction then always use previous prediction - jonathan vitale
 				 */
-				if(predictionState != null && predictionState != "" && (this.carGraphState.predictionArray.length == 0 || !this.createPrediction)) {
+				if(predictionState != null && predictionState != "" && (this.grapherState.predictionArray.length == 0 || !this.createPrediction)) {
 
 					var predictionId = "";
 					
-					//get the cars that are used in this step
-					var dynamicImages = this.content.dynamicImages;
+					//get the labels that are used in this step
+					var seriesLabels = this.content.seriesLabels;
+					
 					/*
-					 * make a copy of the prediction array and set it into our carGraph state
+					 * find the id of the series that is used in this step, we will assume
+					 * only one series is used
+					 */
+					for(var x=0; x<seriesLabels.length; x++) {
+						var seriesLabel = seriesLabels[x];
+						
+						if(seriesLabel != null) {
+							//get the id of the series e.g. "greenCar"
+							predictionId = seriesLabel;
+						}
+					}
+					
+					/*
+					 * make a copy of the prediction array and set it into our grapher state
 					 * so we don't accidentally modify the data from the other state
 					 */
 					var predictions = JSON.parse(JSON.stringify(predictionState.predictionArray));
 					
-					if(prevWorkNodeType == 'GrapherNode'){
-						if (predictions.length > 0) this.carGraphState.predictionArray = [];
-						// may have multiple series
-						for (var s = 0; s < predictions.length; s++){
-							// use the dynamic image name, if it exists, else use
-							predictionId = s < dynamicImages.length ? dynamicImages[s].id : predictions[s].id;
-							var predictionObject = {
-								id:predictionId,
-								predictions:predictions[s].predictions
-							};
-							this.carGraphState.predictionArray.push(predictionObject);
-							
-							var predictionAnnotations = [];
-							
-							//get all the prediction annotations
-							for(var x=0; x<predictionState.annotationArray.length; x++) {
-								var annotation = predictionState.annotationArray[x];
-								predictionAnnotations.push(annotation);
-							}
-						}
-					} else {
-						/*
-						 * find the id of the car that is used in this step, we will assume
-						 * only one car is used
-						 */
-						for(var x=0; x<dynamicImages.length; x++) {
-							var dynamicImage = dynamicImages[x];
-							
-							if(dynamicImage != null) {
-								//get the id of the car e.g. "greenCar"
-								predictionId = dynamicImage.id;
-							}
-						}
-						
-						//create a prediction object from the previous work from the previous work node
-						var predictionObject = {
-							id:predictionId,
-							predictions:predictions
-						};
+					//create a prediction object from the previous work from the previous work node
+					var predictionObject = {
+						id:predictionId,
+						predictions:predictions
+					};
 					
-						// if we cannot create a new prediction, set predictionArray to previous - jonathan vitale
-						if (this.createPrediction){
-							//put the previous work into our state
-							this.carGraphState.predictionArray.push(predictionObject);
-						} else {
-							this.carGraphState.predictionArray = [predictionObject]
-						}
+					// if we cannot create a new prediction, set predictionArray to previous - jonathan vitale
+					if (this.createPrediction){
+						//put the previous work into our state
+						this.grapherState.predictionArray.push(predictionObject);
+					} else {
+						this.grapherState.predictionArray = [predictionObject]
+					}
+					
+					var predictionAnnotations = [];
+					
+					//get all the prediction annotations
+					for(var x=0; x<predictionState.annotationArray.length; x++) {
+						var annotation = predictionState.annotationArray[x];
 						
-						var predictionAnnotations = [];
-						
-						//get all the prediction annotations
-						for(var x=0; x<predictionState.annotationArray.length; x++) {
-							var annotation = predictionState.annotationArray[x];
-							
-							if(annotation.seriesName.indexOf("prediction") != -1) {
-								predictionAnnotations.push(annotation);
-							}
+						if(annotation.seriesName.indexOf("prediction") != -1) {
+							predictionAnnotations.push(annotation);
 						}
 					}
+					
 					/*
 					 * make a copy of the prediction annotations so we don't accidentally modify
 					 * the data in the other state 
@@ -2417,34 +2353,43 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 					
 					//add the prediction annotations to our annotation array
 					for(var y=0; y<predictionAnnotations.length; y++) {
-						this.carGraphState.annotationArray.push(predictionAnnotations[y]);
+						this.grapherState.annotationArray.push(predictionAnnotations[y]);
 					}
 					
 					this.graphChanged = true;
 				}
 				// update axis and labels
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xlabel == "undefined" || this.carGraphState.xlabel == "" || !this.createPrediction) && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
-					this.carGraphState.xlabel = predictionState.xlabel;
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.xUnits == "undefined" || this.grapherState.xUnits == "" || !this.createPrediction) && typeof predictionState.xUnits != "undefined" && predictionState.xUnits != "") {
+					this.grapherState.xUnits = predictionState.xUnits;
 					this.axisLabelChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.ylabel == "undefined" || this.carGraphState.ylabel == "" || !this.createPrediction) && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
-					this.carGraphState.ylabel = predictionState.ylabel;
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.yUnits == "undefined" || this.grapherState.yUnits == "" || !this.createPrediction) && typeof predictionState.yUnits != "undefined" && predictionState.yUnits != "") {
+					this.grapherState.yUnits = predictionState.yUnits;
 					this.axisLabelChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMin == "undefined" || this.carGraphState.xMin == "" || !this.createPrediction) && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
-					this.carGraphState.xMin = predictionState.xMin;
+				// update axis and labels
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.xlabel == "undefined" || this.grapherState.xlabel == "" || !this.createPrediction) && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
+					this.grapherState.xlabel = predictionState.xlabel;
+					this.axisLabelChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.ylabel == "undefined" || this.grapherState.ylabel == "" || !this.createPrediction) && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
+					this.grapherState.ylabel = predictionState.ylabel;
+					this.axisLabelChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.xMin == "undefined" || this.grapherState.xMin == "" || !this.createPrediction) && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
+					this.grapherState.xMin = predictionState.xMin;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMin == "undefined" || this.carGraphState.yMin == "" || !this.createPrediction) && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
-					this.carGraphState.yMin = predictionState.yMin;
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.yMin == "undefined" || this.grapherState.yMin == "" || !this.createPrediction) && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
+					this.grapherState.yMin = predictionState.yMin;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMax == "undefined" || this.carGraphState.xMax == "" || !this.createPrediction) && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
-					this.carGraphState.xMax = predictionState.xMax;
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.xMax == "undefined" || this.grapherState.xMax == "" || !this.createPrediction) && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
+					this.grapherState.xMax = predictionState.xMax;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMax == "undefined" || this.carGraphState.yMax == "" || !this.createPrediction) && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
-					this.carGraphState.yMax = predictionState.yMax;
+				if(predictionState != null && predictionState != "" && (typeof this.grapherState.yMax == "undefined" || this.grapherState.yMax == "" || !this.createPrediction) && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
+					this.grapherState.yMax = predictionState.yMax;
 					this.axisRangeChanged = true;
 				}
 			}
@@ -2455,16 +2400,28 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 /**
  * Delete the prediction points and annotations
  */
-CARGRAPH.prototype.clearPrediction = function() {
-	//clear the prediction array
-	this.carGraphState.predictionArray = [];
+Grapher.prototype.clearPrediction = function() {
+	//clear the prediction array for the current series
+	var found_series = false;
+	for (var i = 0; i < this.grapherState.predictionArray.length; i++){
+		if (this.grapherState.predictionArray[i]['id'] == this.currentGraphName){
+			this.grapherState.predictionArray.splice(i, 1);
+			found_series = true;
+			break;
+		}
+	}
+	//if (!found_series) this.grapherState.predictionArray = [];
+
+	//delete the prediction annotations from the UI
+	for (var i = 0; i < this.grapherState.annotationArray.length; i++){
+		if (this.grapherState.annotationArray[i]['seriesName'] == this.currentGraphName){
+			this.deleteAnnotationFromUI(this.currentGraphName, this.grapherState.annotationArray[i]['x']);
+		}
+	}
 	
 	//delete the prediction annotations
-	this.carGraphState.removePredictionAnnotations();
-	
-	//delete the prediction annotations from the UI
-	this.deletePredictionAnnotationsFromUI();
-	
+	this.grapherState.removePredictionAnnotations(this.currentGraphName);
+		
 	//delete the prediction annotation tool tips on the graph
 	this.removeAnnotationToolTipPrediction();
 	
@@ -2477,21 +2434,21 @@ CARGRAPH.prototype.clearPrediction = function() {
 /**
  * Callback when predictionArray is updated
  */
-CARGRAPH.prototype.predictionArrayUpdated = function() {
+Grapher.prototype.predictionArrayUpdated = function() {
 
 };
 
 /**
  * Delete the prediction annotation tool tips
  */
-CARGRAPH.prototype.removeAnnotationToolTipPrediction = function() {
+Grapher.prototype.removeAnnotationToolTipPrediction = function() {
 	this.removeAnnotationToolTip("annotationToolTipPrediction");
 };
 
 /**
  * Delete the data annotation tool tips
  */
-CARGRAPH.prototype.removeAnnotationToolTipData = function() {
+Grapher.prototype.removeAnnotationToolTipData = function() {
 	this.removeAnnotationToolTip("annotationToolTipData");
 };
 
@@ -2499,7 +2456,7 @@ CARGRAPH.prototype.removeAnnotationToolTipData = function() {
  * Delete the annotation tool tips for the given class
  * @param annotationToolTipClass the class for the annotation tool tips we want to delete
  */
-CARGRAPH.prototype.removeAnnotationToolTip = function(annotationToolTipClass) {
+Grapher.prototype.removeAnnotationToolTip = function(annotationToolTipClass) {
 	$("." + annotationToolTipClass).remove();
 };
 
@@ -2509,7 +2466,7 @@ CARGRAPH.prototype.removeAnnotationToolTip = function(annotationToolTipClass) {
  * @param name the name of a data set (aka series name)
  * @return whether a data set has the given name
  */
-CARGRAPH.prototype.dataSetContainsName = function(dataSets, name) {
+Grapher.prototype.dataSetContainsName = function(dataSets, name) {
 	if(dataSets != null) {
 		//loop through all the data sets
 		for(var x=0; x<dataSets.length; x++) {
@@ -2529,7 +2486,7 @@ CARGRAPH.prototype.dataSetContainsName = function(dataSets, name) {
 /**
  * Delete all the annotation tool tips from the graph
  */
-CARGRAPH.prototype.removeAllAnnotationToolTips = function() {
+Grapher.prototype.removeAllAnnotationToolTips = function() {
 	$("." + this.graphDivId + "AnnotationToolTip").remove();
 };
 
@@ -2541,7 +2498,7 @@ CARGRAPH.prototype.removeAllAnnotationToolTips = function() {
  * @param y the y value of the point
  * @param annotationText the text the student wrote for the annotation
  */
-CARGRAPH.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, x, y, annotationText) {
+Grapher.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, x, y, annotationText) {
 	//use this.globalPlot as the default if plot was not provided
 	var plot = this.globalPlot;
 	
@@ -2622,15 +2579,18 @@ CARGRAPH.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, x,
 /**
  * Get the series name that we will use in the DOM. This just means
  * replacing any spaces " " with underscores "_"
+ * also quotes with no space.
  * @param seriesName the name of the series
  * @return the seriesName with spaces replaced with underscores
  */
-CARGRAPH.prototype.getDOMSeriesName = function(seriesName) {
+Grapher.prototype.getDOMSeriesName = function(seriesName) {
 	var domSeriesName = "";
 	
 	if(seriesName != null) {
 		//replace the spaces with underscores
 		domSeriesName = seriesName.replace(/ /g, "_");
+		domSeriesName = domSeriesName.replace(/'/g, "");
+		domSeriesName = domSeriesName.replace(/"/g, "");
 	}
 	
 	return domSeriesName;
@@ -2642,7 +2602,7 @@ CARGRAPH.prototype.getDOMSeriesName = function(seriesName) {
  * @param x the x value
  * @return the x value with "." replaced with "_"
  */
-CARGRAPH.prototype.getDOMXValue = function(x) {
+Grapher.prototype.getDOMXValue = function(x) {
 	var domXValue = "";
 	
 	if(x != null) {
@@ -2661,7 +2621,7 @@ CARGRAPH.prototype.getDOMXValue = function(x) {
  * working on this step because they have not yet created a prediction in
  * the previous associated step
  */
-CARGRAPH.prototype.hideAllInputFields = function() {
+Grapher.prototype.hideAllInputFields = function() {
 	$('#clearButton').hide();
 	$('#clearPredictionButton').hide();
 	$('#resetDefaultAxisLimitsButton').hide();
@@ -2679,7 +2639,7 @@ CARGRAPH.prototype.hideAllInputFields = function() {
  * Set the div id that we will plot the graph in
  * @param plotDivId the id of the plot div
  */
-CARGRAPH.prototype.setGraphDivId = function(graphDivId) {
+Grapher.prototype.setGraphDivId = function(graphDivId) {
 	this.graphDivId = graphDivId;
 };
 
@@ -2692,7 +2652,7 @@ CARGRAPH.prototype.setGraphDivId = function(graphDivId) {
  * "prediction"
  * @return the color for the graph line
  */
-CARGRAPH.prototype.getGraphColor = function(graphType) {
+Grapher.prototype.getGraphColor = function(graphType) {
 	return this.graphColors[graphType];
 };
 
@@ -2703,7 +2663,7 @@ CARGRAPH.prototype.getGraphColor = function(graphType) {
  * @return the data index of the point with the given x value
  * or null if there is none
  */
-CARGRAPH.prototype.getDataIndexAtX = function(series, x) {
+Grapher.prototype.getDataIndexAtX = function(series, x) {
 	var data = series.data;
 	
 	//loop through all the data points
@@ -2727,29 +2687,47 @@ CARGRAPH.prototype.getDataIndexAtX = function(series, x) {
  * Disable the prediction annotation inputs so the student can't edit the
  * prediction annotations anymore
  */
-CARGRAPH.prototype.disablePredictionTextInputAndDeleteButton = function() {
+Grapher.prototype.disablePredictionTextInputAndDeleteButton = function() {
 	$('.predictionTextInput').attr('disabled', true);
 	$('.predictionDeleteButton').attr('disabled', true);
 };
 
-CARGRAPH.prototype.smarts = function() {
-	if (this.carGraphState.getPredictionObjByPredictionId("greenCar").predictions.length < 5) {
-		alert("More points needed");
-		return false;
-	} else if (this.carGraphState.getPredictionObjByPredictionId("hikers").predictions.length < 3) {
-		alert("More points needed");
-		return false;
-	}
+/**
+ * Show the graph message
+ * @param message the message the student will see
+ * @param backgroundColor the background color of the message
+ */
+Grapher.prototype.showGraphMessage = function(message, backgroundColor) {
+	//find the position of the graph div so we can display the message in the center of it
+	var position = $('#graphDiv').position();
 	
-	return true;
+	//get the position that will show the message in the center of the graph div
+	var top = position.top + 115;
+	var left = position.left + 55;
+	
+	//set the position
+	$('#graphMessageDiv').css('top', top);
+	$('#graphMessageDiv').css('left', left);
+	
+	//show the message
+	$('#graphMessageDiv').show();
+	$('#graphMessageTable').css('background-color', backgroundColor);
+	$('#graphMessage').css('font-family', 'arial');
+	$('#graphMessage').html(message);
 };
 
+/**
+ * Hide the graph message
+ */
+Grapher.prototype.hideGraphMessage = function() {
+	$('#graphMessageDiv').hide();
+};
 
 /**
  * Called when the student clicks
  * @param event the click event
  */
-CARGRAPH.prototype.handleKeyDown = function(event) {
+Grapher.prototype.handleKeyDown = function(event) {
 	if(event.keyCode == 8 || event.keyCode == 46) {
 		//student pressed the backspace or delete key
 		
@@ -2780,39 +2758,17 @@ CARGRAPH.prototype.handleKeyDown = function(event) {
 /**
  * Remove the prediction point from the graph. First remove any
  * annotations for the point and then remove the point from
- * the carGraphState
+ * the grapherState
  */
-CARGRAPH.prototype.removePredictionPoint = function(seriesName, dataIndex, x) {
+Grapher.prototype.removePredictionPoint = function(seriesName, dataIndex, x) {
 	//check that this is a prediction line
 	if(this.seriesIsPrediction(seriesName)) {
 		//remove any annotations associated with the point
 		this.deleteAnnotation(seriesName, dataIndex, x);
 		
-		//remove the data point from the carGraphState
-		this.carGraphState.removePredictionPoint(seriesName, dataIndex);		
+		//remove the data point from the grapherState
+		this.grapherState.removePredictionPoint(seriesName, dataIndex);		
 	}
-};
-
-/**
- * Determine if the series is a prediction line
- * @param seriesName the name of the series. usually
- * the name of a prediction line will contain the
- * word prediction e.g.
- * "temperature prediction"
- * "distance prediction"
- * or in the case of car graph
- * "greenCar"
- * @returns whether the line is a prediction line
- */
-CARGRAPH.prototype.seriesIsPrediction = function(seriesName) {
-	var result = false;
-	
-	//check if the series name contains the word prediction or greenCar
-	if(seriesName.indexOf("prediction") != -1 || seriesName == "greenCar" || seriesName == "hikers") {
-		result = true;
-	}
-	
-	return result;
 };
 
 /**
@@ -2823,7 +2779,7 @@ CARGRAPH.prototype.seriesIsPrediction = function(seriesName) {
  * message
  * workToImport
  */
-CARGRAPH.prototype.processTagMaps = function() {
+Grapher.prototype.processTagMaps = function() {
 	var enableStep = true;
 	var message = '';
 	var workToImport = [];
@@ -2891,7 +2847,16 @@ CARGRAPH.prototype.processTagMaps = function() {
 	return returnObject;
 };
 
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
-	eventManager.fire('scriptLoaded', 'vle/node/cargraph/cargraph.js');
+	/*
+	 * TODO: rename grapher to your new folder name
+	 * TODO: rename grapher.js
+	 * 
+	 * e.g. if you were creating a quiz step it would look like
+	 * 
+	 * eventManager.fire('scriptLoaded', 'vle/node/quiz/quiz.js');
+	 */
+	eventManager.fire('scriptLoaded', 'vle/node/grapher/grapher.js');
 }
