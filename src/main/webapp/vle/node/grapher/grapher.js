@@ -2941,6 +2941,60 @@ Grapher.prototype.processTagMaps = function() {
 	return returnObject;
 };
 
+/**
+ * Generate the data array that we will send to the graph to plot
+ * @param state a GrapherState object
+ * @return an array containing data that will be used to plot
+ * the data onto a graph
+ */
+Grapher.prototype.generateGraphDataArray = function(state) {
+	var dataArray = [];
+	
+	if(state != null) {
+		//get the data array from the state
+		var sensorDataArray = state.sensorDataArray;
+		
+		if(sensorDataArray != null) {
+
+			/*
+			 * the interval that we want to display data points. this is used
+			 * to smooth out the graphs for the student and to spread out the
+			 * data points so they aren't all clustered together.
+			 * e.g. if the sampleInterval is set to 5, we will only show every
+			 * 5th data point in the graph to the student
+			 */
+			var sampleInterval = 3;
+			
+			//loop through all the elements in the data array
+			for(var i=0; i<sensorDataArray.length; i++) {
+				
+				/*
+				 * check if we want to display this data point in regards
+				 * to the sample interval
+				 */
+				if(i % sampleInterval == 0) {
+					//get the data array element
+					var sensorData = sensorDataArray[i];
+					
+					//get the time
+					var x = sensorData.x;
+					
+					//get the y value. this may be distance or temp or etc.
+					var y = sensorData.y;
+					
+					/*
+					 * add the x, y data point into the array. flot expects
+					 * the each element in the array to be an array.
+					 */
+					dataArray.push([x, y]);					
+				}
+			}
+		}		
+	}
+	
+	return dataArray;
+};
+
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

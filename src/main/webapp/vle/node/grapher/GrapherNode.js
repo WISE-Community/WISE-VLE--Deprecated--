@@ -187,9 +187,9 @@ GrapherNode.prototype.onExit = function() {
  * look at GrapherNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-GrapherNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+GrapherNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create a SENSOR object that we will use to perform all the graphing logic for us
-	var grapher = new SENSOR(this, this.view);
+	var grapher = new Grapher(this, this.view);
 	
 	if(childDivIdPrefix == null) {
 		//the default child div id prefix will be "" if none is provided
