@@ -110,8 +110,9 @@
 	    function doOneFrame() {	
 	    	var xmax = typeof cargraph.carGraphState.xMax != "undefined" ? parseFloat(cargraph.carGraphState.xMax) : parseFloat(cargraph.content.graphParams.xmax);
 			var xmin = typeof cargraph.carGraphState.xMin != "undefined" ? parseFloat(cargraph.carGraphState.xMin) : parseFloat(cargraph.content.graphParams.xmin);
-			
-	        var xValue = 1.0*parseInt(xmin) + animationFrameXIncrement*animationFrameIndex * 1.0*parseInt(xmax) / 60 *(typeof cargraph.content.animationTimeScaleFactor != "undefined" ? cargraph.content.animationTimeScaleFactor : 1.0);
+			var animationTimeScaleFactor = typeof cargraph.animationTimeScaleFactor !== "undefined" ? cargraph.animationTimeScaleFactor : 1.0;
+
+	        var xValue = parseInt(xmin) + animationFrameXIncrement*animationFrameIndex * parseInt(xmax) / 60 * animationTimeScaleFactor;
 	        xValue = xValue.toFixed(numSignificantDigits);  // just need one significant digit	
 	        // 2011-05-02 Armin: important to multiply xmax with a number value to make
 	        // the comparison work, if not done xmax is a string and xValue 7.0 is bigger
@@ -123,6 +124,14 @@
 			    // the crosshair has exceeded the xMax. stop the animation
 			    stopAnimation();
 		    }
+	    }
+
+	    function setFrameIndexFromXValue(xValue) {
+	    	var xmax = typeof cargraph.carGraphState.xMax != "undefined" ? parseFloat(cargraph.carGraphState.xMax) : parseFloat(cargraph.content.graphParams.xmax);
+			var xmin = typeof cargraph.carGraphState.xMin != "undefined" ? parseFloat(cargraph.carGraphState.xMin) : parseFloat(cargraph.content.graphParams.xmin);
+			var animationTimeScaleFactor = typeof cargraph.animationTimeScaleFactor !== "undefined" ? cargraph.animationTimeScaleFactor : 1.0;
+			animationFrameIndex = (xValue - parseInt(xmin)) / (animationFrameXIncrement * parseInt(xmax) / 60 * animationTimeScaleFactor);
+			cargraph.displayOneFrame(xValue);
 	    }
 
 	    /** 
@@ -226,6 +235,10 @@
 	      		<td>
 			      <input id="startButton" type="button" value="Start" onclick="startPauseAnimation();" />
 			      <input id="stopButton" type="button" value="Stop" onclick="stopAnimation();" />
+			      <span>   Model speed:     </span>
+			      <span style="color:#0000ff">slow</span>
+			      <input id="modelSpeedSlider" type="range" />
+			      <span style="color:#0000ff">fast</span>
 			      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction();" />
 			      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange();" />
 			      <input id="tableButton" type="button" value="Show table" onclick="showDialog();" style="visibility:hidden;"/>

@@ -38,8 +38,6 @@ View.prototype.grapherDispatcher = function(type,args,obj){
 		obj.GrapherNode.updateEnableCreatePrediction();
 	} else if(type=='grapherUpdateEasyPrediction'){
 		obj.GrapherNode.updateEasyPrediction();
-	} else if(type=='grapherUpdateCustomSeries'){
-		obj.GrapherNode.updateCustomSeries();
 	} else if(type=='grapherNewCustomSeriesLabel'){
 		obj.GrapherNode.newCustomSeriesLabel();
 	} else if(type=='grapherUpdateSeriesLabel'){
@@ -81,7 +79,6 @@ var events = [
 	'grapherUpdateShowGraphOptions',
 	'grapherUpdateEnableCreatePrediction',
 	'grapherUpdateEasyPrediction',
-	'grapherUpdateCustomSeries',
 	'grapherNewCustomSeriesLabel',
 	'grapherUpdateSeriesLabel',
 	'grapherUpdateSeriesColor',

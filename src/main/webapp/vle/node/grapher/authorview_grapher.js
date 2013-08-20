@@ -34,7 +34,7 @@ View.prototype.GrapherNode = {};
  * 
  * TODO: rename GrapherNode
  */
-View.prototype.GrapherNode.commonComponents = [];
+View.prototype.GrapherNode.commonComponents = ['StudentResponseBoxSize', 'StarterSentenceAuthoring', 'Prompt', 'LinkTo'];
 
 /**
  * Generates the authoring page. This function will create the authoring
@@ -148,20 +148,39 @@ View.prototype.GrapherNode.generatePage = function(view){
 	var easyPredictionCheckBox = createElement(document, 'input', {id: 'easyPredictionCheckBox', type: 'checkbox', onclick: 'eventManager.fire("grapherUpdateEasyPrediction")'});
 	var easyPredictionText = document.createTextNode('Use easy prediction settings');
 	
-	// when clicked author can create custom - and multiple - series
-	var customSeriesCheckBox = createElement(document, 'input', {id: 'customSeriesCheckBox', type: 'checkbox', onclick: 'eventManager.fire("grapherUpdateCustomSeries")'});
-	var customSeriesText = document.createTextNode('Use custom (multiple) series');
-		
+	var newSeriesLabelButton = createElement(document, 'input', {type: 'button', id: 'newCustomSeriesLabel', name: 'newCustomSeriesLabel', value: 'New Series', onclick: 'eventManager.fire("grapherNewCustomSeriesLabel")'});
+	
 	pageDiv.appendChild(enableCreatePredictionCheckBox);
 	pageDiv.appendChild(enableCreatePredictionText);
 	pageDiv.appendChild(createBreak());
-
+	
 	predictionDiv.appendChild(easyPredictionCheckBox);
 	predictionDiv.appendChild(easyPredictionText);
 	predictionDiv.appendChild(createBreak());
-	predictionDiv.appendChild(customSeriesCheckBox);
-	predictionDiv.appendChild(customSeriesText);
+	predictionDiv.appendChild(newSeriesLabelButton);
 	predictionDiv.appendChild(createBreak());
+
+	if (this.content.seriesLabels == null){
+		this.content.seriesLabels = [""];
+	} 
+
+	if (this.content.seriesColors == null){
+		this.content.seriesColors = [""];
+	} 
+
+	for (var index = 0; index < this.content.seriesLabels.length; index++){
+		var seriesLabelText = document.createTextNode('Name of series:');
+		var seriesLabel = createElement(document, 'input', {type: 'input', id: 'seriesLabelInput-'+index, name: 'seriesLabelInput-'+index, value: this.content.seriesLabels[index], size:20, onchange: 'eventManager.fire("grapherUpdateSeriesLabel", '+index+')'});
+		
+		var seriesColorText = document.createTextNode('Color:');
+		var seriesColor = createElement(document, 'input', {type: 'input', id: 'seriesColorInput-'+index, name: 'seriesColorInput-'+index, value: this.content.seriesColors[index], size:10, onchange: 'eventManager.fire("grapherUpdateSeriesColor", '+index+')'});
+		
+		predictionDiv.appendChild(seriesLabelText);
+		predictionDiv.appendChild(seriesLabel);
+		predictionDiv.appendChild(seriesColorText);
+		predictionDiv.appendChild(seriesColor);
+		predictionDiv.appendChild(createBreak());
+	}
 
 	pageDiv.appendChild(predictionDiv);
 	pageDiv.appendChild(createBreak());
@@ -186,7 +205,7 @@ View.prototype.GrapherNode.generatePage = function(view){
 	var xAxisText = document.createTextNode('X Axis Name: ');
 	var xAxisInput = createElement(document, 'input', {type: 'input', id: 'xAxisNameInput', name: 'xAxisNameInput', value: xLabel, onchange: 'eventManager.fire("grapherUpdateXAxisName")'});
 	var xUnitsText = document.createTextNode('X Axis Units: ');
-	var xUnitsInput = createElement(document, 'input', {type: 'input', id: 'xUnitsInput', name: 'xLabelInput', value: xLabel, onchange: 'eventManager.fire("grapherUpdateXUnits")'});
+	var xUnitsInput = createElement(document, 'input', {type: 'input', id: 'xUnitsInput', name: 'xLabelInput', value: xUnits, onchange: 'eventManager.fire("grapherUpdateXUnits")'});
 	var xMinText = document.createTextNode('Min X: ');
 	var xMinInput = createElement(document, 'input', {type: 'input', id: 'xMinInput', name: 'xMinInput', value: xMin, onchange: 'eventManager.fire("grapherUpdateXMin")'});
 	var xMaxText = document.createTextNode('Max X: ');
@@ -211,7 +230,7 @@ View.prototype.GrapherNode.generatePage = function(view){
 	var yAxisText = document.createTextNode('Y Axis Name: ');
 	var yAxisInput = createElement(document, 'input', {type: 'input', id: 'yAxisNameInput', name: 'yAxisNameInput', value: xLabel, onchange: 'eventManager.fire("grapherUpdateYAxisName")'});
 	var yUnitsText = document.createTextNode('Y Axis Units: ');
-	var yUnitsInput = createElement(document, 'input', {type: 'input', id: 'yUnitsInput', name: 'yLabelInput', value: yLabel, onchange: 'eventManager.fire("grapherUpdateYUnits")'});
+	var yUnitsInput = createElement(document, 'input', {type: 'input', id: 'yUnitsInput', name: 'yLabelInput', value: yUnits, onchange: 'eventManager.fire("grapherUpdateYUnits")'});
 	var yMinText = document.createTextNode('Min Y: ');
 	var yMinInput = createElement(document, 'input', {type: 'input', id: 'yMinInput', name: 'yMinInput', value: yMin, onchange: 'eventManager.fire("grapherUpdateYMin")'});
 	var yMaxText = document.createTextNode('Max Y: ');
@@ -866,18 +885,6 @@ View.prototype.GrapherNode.updateEasyPrediction = function() {
 	this.view.eventManager.fire('sourceUpdated');
 };
 
-/**
- * Update the custom series options
- */
-View.prototype.GrapherNode.updateCustomSeries = function() {
-	//these options all make it easier to plot
-	this.content.useCustomSeries = this.isChecked($('#customSeriesCheckBox').attr('checked'));
-	var newSeriesLabelButton = createElement(document, 'input', {type: 'button', id: 'newCustomSeriesLabel', name: 'newCustomSeriesLabel', value: 'New Series', onclick: 'eventManager.fire("grapherNewCustomSeriesLabel")'});
-	this.predictionDiv.appendChild(newSeriesLabelButton);
-	this.predictionDiv.appendChild(createBreak());
-	//fire source updated event
-	this.view.eventManager.fire('sourceUpdated');
-};
 
 /**
  * Update the custom series options

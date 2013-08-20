@@ -2,6 +2,7 @@
    "prompt": "",
    "excelExportStringTemplate":"",
    "createPrediction": true,
+   "enableEasyPrediction":true,
    "graphParams": {
    	   "xlabel":"",
  	   "xUnits":"",

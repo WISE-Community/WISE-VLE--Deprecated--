@@ -427,6 +427,28 @@ GrapherState.prototype.predictionUpdateByX = function(predictionId, x, y) {
 }
 
 /**
+ * Update a prediction based on the inputed x value to new y value
+ * @param x the x value of the point
+ * @param y the new y value
+ */
+GrapherState.prototype.predictionUpdateBySeriesDataIndex = function(predictionId, x, y, index) {
+	if (this.getPredictionObjByPredictionId(predictionId) == null) {
+		return false;
+	}
+	var predictionArray = this.getPredictionObjByPredictionId(predictionId).predictions;
+	
+	// save 
+	if (index < predictionArray.length){
+		predictionArray[index].x = x;
+		predictionArray[index].y = y;
+		this.setPredictionsForPredictionId(predictionId, predictionArray);	
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
  * Remove the element with the given index from the prediction array
  * @param index the index to remove
  */

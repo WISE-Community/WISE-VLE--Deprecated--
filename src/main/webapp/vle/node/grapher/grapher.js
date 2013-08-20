@@ -204,6 +204,7 @@ Grapher.prototype.render = function() {
 		//set the graph title
 		$('#graphTitle').html(this.content.graphTitle);
 
+		// add radio buttons for series
 		if (this.content.seriesLabels.length == 0) this.content.seriesLabels.push('prediction');
 		var seriesLabels = this.content.seriesLabels;
 		if (seriesLabels.length > 1){
@@ -212,10 +213,11 @@ Grapher.prototype.render = function() {
 				var checked = "";
 				if (s==0) checked = "checked";
 				
-				if($("#seriesRadioDiv").length < seriesLabels.length) 
+				if($("#seriesRadioDiv").children().length < seriesLabels.length) 
 					$("#seriesRadioDiv").append("<input class='seriesRadio' name='dynamic' type='radio' "+checked+" onclick='seriesChanged("+s+")'>"+seriesLabels[s]+"</input>");
 			}
 		}
+
 		//plot the grapher data from the student's previous visit, if any
 		this.plotData();
 		
@@ -239,8 +241,12 @@ Grapher.prototype.render = function() {
 		$("#responseTextArea").val(response);
 		
 		//set the size of the text area
-		$("#responseTextArea").attr('rows', this.content.expectedLines);
-		$("#responseTextArea").attr('cols', 80);
+		if (this.content.expectedLines > 0){
+			$("#responseTextArea").attr('rows', this.content.expectedLines);
+			$("#responseTextArea").attr('cols', 80);
+		} else {
+			$("#responseTextArea").hide();
+		}
 		
 		if(!this.content.createPrediction) {
 			//hide the prediction buttons
@@ -880,9 +886,11 @@ Grapher.prototype.setupPlotHover = function() {
 
     	// jv test with significant figures
     	if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
-    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
-    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
-    	} else {
+    		var sigdiginx = 2-Math.floor(Math.log(Math.abs(xmax))/Math.LN10);
+    		plotHoverPositionX = sigdiginx >= 0 ? x.toFixed(sigdiginx) : Math.floor(x / Math.pow(10, -sigdiginx)) * Math.pow(10, -sigdiginx); 
+    		var sigdiginy = 2-Math.floor(Math.log(Math.abs(ymax))/Math.LN10);
+    		plotHoverPositionY = sigdiginy >= 0 ? y.toFixed(sigdiginy) : Math.floor(y / Math.pow(10, -sigdiginy)) * Math.pow(10, -sigdiginy); 
+	  	} else {
     		//get the position of the mouse in the graph
     		plotHoverPositionX = x.toFixed(2);
     		plotHoverPositionY = y.toFixed(2);
@@ -939,9 +947,11 @@ Grapher.prototype.setupPlotHover = function() {
                 var yUnits = event.data.thisGrapher.content.graphParams.yUnits;
                 
                 // in hoverable coords clean up the tooltip text a bit
-                if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
-		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
-		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
+                if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse !== "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
+		    		var sigdiginx = 2-Math.floor(Math.log(Math.abs(xmax))/Math.LN10);
+		    		x = sigdiginx >= 0 ? x.toFixed(sigdiginx) : Math.floor(x / Math.pow(10, -sigdiginx)) * Math.pow(10, -sigdiginx); 
+		    		var sigdiginy = 2-Math.floor(Math.log(Math.abs(ymax))/Math.LN10);
+		    		y = sigdiginy >= 0 ? y.toFixed(sigdiginy) : Math.floor(y / Math.pow(10, -sigdiginy)) * Math.pow(10, -sigdiginy); 
 		    	} else {
 		    		x = x.toFixed(2);
 		    		y = y.toFixed(2);
@@ -969,16 +979,24 @@ Grapher.prototype.setupPlotHover = function() {
 					
 					//plot the graph again so the new point is displayed
 					event.data.thisGrapher.plotData();        		
-				} // allow points to be dragged up or down along their x value
+				} // allow points to be dragged up or down around screen
 				 else if (typeof event.data.thisGrapher.content.allowDragPoint != "undefined" && event.data.thisGrapher.content.allowDragPoint) {
 					if (item && event.data.thisGrapher.dragPoint == null){
 						// if there is a point we are hovering over and there is no drag point, set it
 						 event.data.thisGrapher.dragPoint = item;
 					} else if (event.data.thisGrapher.dragPoint != null) {
 						// move the point
+						var x = pos.x;
 						var y = pos.y;
+						var oldx = event.data.thisGrapher.dragPoint.datapoint[0];
 						// if we are using the easy click option, only show points within domain
 		                if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+							if (x < xmin){
+								x = xmin;
+							} else if (x > xmax){
+								x = xmax;
+							} 
+
 							if (y < ymin){
 								y = ymin;
 							} else if (y > ymax){
@@ -987,12 +1005,15 @@ Grapher.prototype.setupPlotHover = function() {
     					} 
     					// in hoverable coords clean up the tooltip text a bit
 		                if (typeof event.data.thisGrapher.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisGrapher.content.graphParams.coordsFollowMouse){
-				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
+				    		var sigdiginx = 2-Math.floor(Math.log(Math.abs(xmax))/Math.LN10);
+				    		x = sigdiginx >= 0 ? x.toFixed(sigdiginx) : Math.floor(x / Math.pow(10, -sigdiginx)) * Math.pow(10, -sigdiginx); 
+				    		var sigdiginy = 2-Math.floor(Math.log(Math.abs(ymax))/Math.LN10);
+				    		y = sigdiginy >= 0 ? y.toFixed(sigdiginy) : Math.floor(y / Math.pow(10, -sigdiginy)) * Math.pow(10, -sigdiginy); 
 				    	} else {
+				    		x = x.toFixed(2);
 				    		y = y.toFixed(2);
 				    	}
-
-						event.data.thisGrapher.predictionUpdateByX(parseFloat(event.data.thisGrapher.dragPoint.datapoint[0]), pos.y);
+				    	event.data.thisGrapher.predictionUpdateBySeriesDataIndex(parseFloat(x), parseFloat(y), event.data.thisGrapher.dragPoint.dataIndex);
 						//plot the graph again so the point is displayed
 						event.data.thisGrapher.plotData();
 					}
@@ -1035,8 +1056,8 @@ Grapher.prototype.setupPlotClick = function() {
 	 * will be passed into the function and accessed through event.data.thisGrapher
 	 */
     $("#" + this.graphDivId).bind("plotclick", {thisGrapher:this}, function (event, pos, item) {
-        if (item) {
-        	//student has clicked on a point
+        if (item && item.series.name == event.data.thisGrapher.currentGraphName) {
+        	//student has clicked on a point in this series
         	
         	// if the point is not on a series that is currently selected, do nothing
         	if (item.series.name != event.data.thisGrapher.currentGraphName) {
@@ -2175,6 +2196,79 @@ Grapher.prototype.predictionUpdateByX = function(x, y) {
 				//get the data index of the point with the given x value
 				var dataIndex = this.getDataIndexAtX(series, x);
 				
+				//set the new values into the annotation
+				annotation.x = x;
+				annotation.y = y;
+				annotation.dataText = dataText;
+				annotation.dataIndex = dataIndex;
+				
+				//get the x value we will use in the DOM id
+				var domXValue = this.getDOMXValue(x);
+				
+				//update the data text in the annotation in the UI
+				$("#" + domSeriesName + domXValue + "AnnotationDataText").html(seriesName + " [" + dataText + "]: ");
+			}
+		}
+	}
+};
+
+/**
+ * The student is updating a prediction point (both x and y), lookup by old x value
+ * @param x the old x value for the point
+ * @param y the new y value for the point
+ */
+Grapher.prototype.predictionUpdateBySeriesDataIndex = function(x, y, dataIndex) {
+	
+	if(x != null && y != null) {
+		//round x down to the nearest 0.01
+		var xFactor = 1 / this.content.gatherXIncrement;
+		//x = Math.round(x * xFactor) / xFactor;	
+		x = parseFloat(x.toFixed(2));	
+		y = parseFloat(y.toFixed(2));
+		
+		var xmax = typeof this.grapherState.xMax != "undefined" ? parseFloat(this.grapherState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var xmin = typeof this.grapherState.xMin != "undefined" ? parseFloat(this.grapherState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var ymax = typeof this.grapherState.yMax != "undefined" ? parseFloat(this.grapherState.yMax) : parseFloat(this.content.graphParams.ymax);
+		var ymin = typeof this.grapherState.yMin != "undefined" ? parseFloat(this.grapherState.yMin) : parseFloat(this.content.graphParams.ymin);
+	
+		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
+			if (x < xmin){
+				x = xmin;
+			} else if (x > xmax){
+				x = xmax;
+			}
+			if (y < ymin){
+				y = ymin;
+			} else if (y > ymax){
+				y = ymax;
+			}
+		}
+		
+		//insert the point into the grapher state
+		this.graphChanged = this.grapherState.predictionUpdateBySeriesDataIndex(this.currentGraphName, x, y, dataIndex);
+		if (this.graphChanged){
+			var seriesName = this.currentGraphName;
+			
+			var annotation = this.grapherState.getAnnotationBySeriesDataIndex(seriesName, dataIndex);
+			
+			if(annotation != null) {
+				//annotation exists for this x value so we will update that annotation
+				
+				//get the y units
+				var graphYUnits = this.content.graphParams.yUnits;
+				
+				//get the x units
+				var graphXUnits = this.content.graphParams.xUnits;
+				
+				//get the text representation of the data point
+				var dataText = x + " " + graphXUnits + ", " + y + " " + graphYUnits;
+
+				//get the series name used in the dom
+				var domSeriesName = this.getDOMSeriesName(seriesName);
+
+				//get the series
+				var series = this.getSeriesByName(this.globalPlot, seriesName);
+								
 				//set the new values into the annotation
 				annotation.x = x;
 				annotation.y = y;

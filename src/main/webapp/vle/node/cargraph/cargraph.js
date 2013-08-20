@@ -153,6 +153,20 @@ CARGRAPH.prototype.render = function() {
 		this.carGraphState = workToImport[workToImport.length - 1];
 	}
 	
+	var graphParams = this.getGraphParams();
+	this.animationTimeScaleFactor = typeof this.content.animationTimeScaleFactor !== "undefined" ? this.content.animationTimeScaleFactor : parseFloat(graphParams.xaxis.max) / 60;
+	var middleVal = parseFloat(graphParams.xaxis.max) / 30;
+	$('#modelSpeedSlider')
+		.attr('min', middleVal / 10)
+		.attr('max', middleVal + middleVal*9/10)
+		.attr('step', middleVal / 20)
+		.attr('value', this.animationTimeScaleFactor)
+		.bind('change', {thisCarGraph:this}, function(event){
+			event.preventDefault();
+			event.data.thisCarGraph.animationTimeScaleFactor = event.currentTarget.valueAsNumber;
+			stopAnimation();
+		});
+
 	// clear animation div and any dynamic Image radio that was rendered already
 	$('#animationDiv').html("");
 	
@@ -330,7 +344,7 @@ CARGRAPH.prototype.render = function() {
 		// increment topSoFar
 		topSoFar += dynamicImage.height+15;	
 		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
-		if (this.content.runCorrectAnswer) {
+		if (typeof this.content.runCorrectAnswer !== "undefined" && this.content.runCorrectAnswer) {
 
 			var correctStartingYValue = ymin-100;  // if there is no correct y-value at time=0, hide this car from the view.
 			
@@ -357,6 +371,13 @@ CARGRAPH.prototype.render = function() {
 			}
 
 			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ topSoFar +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
+		} else if (typeof this.content.showAnalysisHints !== "undefined" && typeof this.content.showAnalysisHints){
+			var analysisArray = this.getAnalysisArrayByPredictionId(this.carGraphState, dynamicImage.id);
+			if (analysisArray.length > 0){
+				$("#animationDiv").append("<div id='animationError"+i+"' style='position:absolute;color:#FF0000;left:"+ymin+";top:"+topSoFar+"'>"+analysisArray[0]+"</div>");	
+			} else {
+				$("#animationDiv").append("<div id='animationError"+i+"' style='position:absolute;color:#FF0000;left:"+ymin+";top:"+topSoFar+"'>Make a prediction!</div>");	
+			}
 		}
 		// increment topSoFar
 		topSoFar += dynamicImage.height+15;
@@ -385,24 +406,26 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 	    var dynamicImage = this.content.dynamicImages[i];
 	    var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
 	    var yValue = this.getYValue(xValue,predictionArr);
-	    // yValue == -200 means the car is going back in time, which is a problem.
-	    if (yValue == -200){
-	    	if ($('#animationError').length == 0){
-		    	var x = $("#"+dynamicImage.id).position().left;
-		    	var y = $("#"+dynamicImage.id).position().top;
-		    	$("#animationDiv").append("<div id='animationError' style='position:absolute;color:#FF0000;left:"+x+";top:"+y+"'>ERROR </div>");
-			}
-	    } 
-	    var leftValue = yValue/this.tickSpacing*this.yTickSize;
+	    
+    	// find current analysis
+    	var analysisArray = this.getAnalysisArrayByPredictionId(this.carGraphState, dynamicImage.id);
+    	var analysis = this.getAnalysisAtX(xValue, predictionArr, analysisArray);
+    	if (analysis == "Back in time error" || yValue == -200){
+    		var x = $("#"+dynamicImage.id).position().left;
+    		var y = $("#"+dynamicImage.id).position().top;
+    		if ($('#animationError'+i).length == 0){		   	
+    		   	$("#animationDiv").append("<div id='animationError"+i+"' style='position:absolute;color:#FF0000;left:"+x+";top:"+y+"'>"+analysis+"</div>");
+    		} else {
+    			$("#animationError"+i).text(analysis);
+    			$("#animationError"+i).css("left", x);
+    			$("#animationError"+i).css("top", y);
+    		}
+    	}
+    	var leftValue = yValue/this.tickSpacing*this.yTickSize;
 	    $("#"+dynamicImage.id).css("left",leftValue);
     	this.setCrosshair({x:xValue,y:yValue});  // show cross hair on current x
-    }
-    
-    // if runCorrectAnswer is enabled, move the position of the correct image in the animationDiv also
-    if (this.content.runCorrectAnswer) {
-        for (var i=0; i<this.content.dynamicImages.length;i++) {
-    	    var dynamicImage = this.content.dynamicImages[i];
 
+    	if (this.content.runCorrectAnswer) {
     		//get the expected results
     		var expectedResults = this.content.expectedResults;
     		//loop through all the expected results
@@ -425,7 +448,11 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
     				}
     			}
     		}
-        }
+    	} else if (typeof this.content.showAnalysisHints !== "undefined" && this.content.showAnalysisHints){
+    		//$("#animationDiv").append("<div id='animationError' style='position:absolute;color:#FF0000;left:"+leftValue+";top:"+topSoFar+"'>"+analysis+"</div>");
+    		$("#animationError"+i).text(analysis);
+    		$("#animationError"+i).css("left", leftValue);
+    	}
     }
 };
 
@@ -500,7 +527,7 @@ CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
  * @return: corresponding y-Value within the prediction graph.
  */ 
 CARGRAPH.prototype.getYValueObj = function(xValue,predictionArray) {
-    var xSoFar = 0;
+	var xSoFar = 0;
     var ySoFar = 0;
     if (predictionArray.length > 0) {
     	// check if the array contains a value for x less than the specified xValue. If not, return -100.
@@ -533,6 +560,37 @@ CARGRAPH.prototype.getYValueObj = function(xValue,predictionArray) {
 };
 
 /**
+ * Given xValue, returns analysis for the current segment.
+ * 
+ * @param xValue: x Value in the prediction graph
+ * @param predictionArray: array of points for one prediction graph
+ * @return: analysis string
+ */ 
+CARGRAPH.prototype.getAnalysisAtX = function(xValue,predictionArray,analysisArray) {
+	var xSoFar = 0;
+    var ySoFar = 0;
+    if (predictionArray.length > 0) {
+    	// check to see if first prediction starts after this xValue
+    	var firstPrediction = predictionArray[0];
+    	if (firstPrediction[0] > xValue) {
+    		return analysisArray[0];
+    	}
+    }
+    for (var i=0; i< predictionArray.length; i++) {
+	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
+	    if (prediction[0] < xValue) {
+		    // x value not yet found, set ySoFar in case we'll need it for later
+		    xSoFar = prediction[0];
+		    ySoFar = prediction[1];				    
+	    } else {
+		    // this is the correct segment
+		    return analysisArray[i];
+	    }
+    }
+    return "";
+};
+
+/**
  * This function analyzes the student predictions against the expected values, looking for the following:
  * 1) Initial Position correct
  * For each segment, pairing segment-for-segment
@@ -543,10 +601,14 @@ CARGRAPH.prototype.getYValueObj = function(xValue,predictionArray) {
  * Stores an analysis object in the state.
  */
 CARGRAPH.prototype.analyzePredictions = function (){
-	if (typeof this.content.dynamicImages !== "undefined" && typeof this.content.expectedResults !== "undefined"){
+	var graphParams = this.getGraphParams();
+	var moe = typeof this.content.marginOfErrorAsPercent !== "undefined" ? (this.content.marginOfErrorAsPercent > 1 ? this.content.marginOfErrorAsPercent / 100 : this.content.marginOfErrorAsPercent) : 0.05;
+    var moeX = moe * (graphParams.xaxis.max - graphParams.xaxis.min);
+    var moeY = moe * (graphParams.yaxis.max - graphParams.yaxis.min);
+    if (typeof this.content.dynamicImages !== "undefined" && typeof this.content.expectedResults !== "undefined"){
 		for(var x=0; x<this.content.dynamicImages.length; x++) {
 			//get a car
-			var dynamicImage = this.content.dynamicImages[i];	
+			var dynamicImage = this.content.dynamicImages[x];	
 				
 			//loop through all the expected results
 			for(var y=0; y<this.content.expectedResults.length; y++) {
@@ -556,12 +618,68 @@ CARGRAPH.prototype.analyzePredictions = function (){
 					
 				if(dynamicImage != null && expectedResult != null) {
 					//check if we have found an expected result for the car that is used in this step
-					console.log(dynamicImage.id , expectedResult.id)
 					if(dynamicImage.id == expectedResult.id) {
 						//get the array of correct points so we can plot them
 						var expectedPoints = this.convertToPlottableArray(expectedResult.expectedPoints);
 						var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
-						console.log(expectedPoints, predictionArr);
+						var analysisArray = [];
+						// for first point, just looking at initial position, time
+						if (predictionArr.length > 0){
+							if (expectedPoints.length > 0){
+								var p = predictionArr[0];
+								var e = expectedPoints[0];
+								if (e[0] - p[0] > moeX){
+									analysisArray[0] = "Start too late";
+								} else if (p[0] - e[0] > moeX){
+									analysisArray[0] = "Start too early";
+								} else if (e[1] - p[1] > moeY || p[1] - e[1] > moeY){
+									analysisArray[0] = "Starting position incorrect";
+								} else {
+									analysisArray[0] = ""; // okay starting point
+								}
+							}
+						}
+						if (predictionArr.length > 1){
+							for (var z=1; z< predictionArr.length; z++){
+								var p = predictionArr[z];
+								if (expectedPoints.length > z){
+									var e = expectedPoints[z];
+									// for slope find the expected y-value for the predicted x-value, is this within moe?
+									var ey = this.getYValue(p[0], predictionArr);
+									if (p[0] <= predictionArr[z-1][0]){
+										analysisArray[z] = "Back in time error";
+									} else if (p[1] != predictionArr[z-1][1] && (p[1] - predictionArr[z-1][1])/Math.abs(p[1] - predictionArr[z-1][1]) != (e[1] - expectedPoints[z-1][1])/Math.abs(e[1] - expectedPoints[z-1][1])){
+									   analysisArray[z] = "Wrong direction";
+									} else if (e[1] - ey > moeY){
+										analysisArray[z] = "Too fast";
+									} else if (ey - e[1] > moeY){
+										analysisArray[z] = "Too slow";
+									} else if (e[0] - p[0] > moeX){
+										analysisArray[z] = "Stopped too late";
+									} else if (p[0] - e[0] > moeX){
+										analysisArray[z] = "Stoppped too early";
+									} else if (e[1] - p[1] > moeY || p[1] - e[1] > moeY){
+										if (analysisArray[0] == "Starting position incorrect"){
+											analysisArray[z] = "Starting position incorrect";
+										} else {
+											analysisArray[z] = ""; // shouldn't happen
+										}
+									} else {
+										analysisArray[z] = ""; // good segment
+									}
+								} else {
+									analysisArray[z] = "Too many changes in speed or direction";
+								}
+							}
+						}
+						// add an extra index if there are not enough points
+						if (predictionArr.length < expectedPoints.length){
+							analysisArray.push("Not enough changes in speed or direction");
+						}
+
+						// add to most recent state
+						var state = this.carGraphState;
+						if (state != null && typeof state.predictionArray[x] !== "undefined") state.predictionArray[x]['analysisArray'] = analysisArray;
 					}
 				}
 			}
@@ -970,9 +1088,11 @@ CARGRAPH.prototype.setupPlotHover = function() {
 
     	// jv test with significant figures
     	if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
-    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
-    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
-    	} else {
+    		var sigdiginx = 2-Math.floor(Math.log(Math.abs(xmax))/Math.LN10);
+    		plotHoverPositionX = sigdiginx >= 0 ? x.toFixed(sigdiginx) : Math.floor(x / Math.pow(10, -sigdiginx)) * Math.pow(10, -sigdiginx); 
+    		var sigdiginy = 2-Math.floor(Math.log(Math.abs(ymax))/Math.LN10);
+    		plotHoverPositionY = sigdiginy >= 0 ? y.toFixed(sigdiginy) : Math.floor(y / Math.pow(10, -sigdiginy)) * Math.pow(10, -sigdiginy); 
+	  	} else {
     		//get the position of the mouse in the graph
     		plotHoverPositionX = x.toFixed(2);
     		plotHoverPositionY = y.toFixed(2);
@@ -1030,9 +1150,11 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 
                 // in hoverable coords clean up the tooltip text a bit
                 if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
-		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
-		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
-		    	} else {
+		    		var sigdiginx = 2-Math.floor(Math.log(Math.abs(xmax))/Math.LN10);
+		    		x = sigdiginx >= 0 ? x.toFixed(sigdiginx) : Math.floor(x / Math.pow(10, -sigdiginx)) * Math.pow(10, -sigdiginx); 
+		    		var sigdiginy = 2-Math.floor(Math.log(Math.abs(ymax))/Math.LN10);
+		    		y = sigdiginy >= 0 ? y.toFixed(sigdiginy) : Math.floor(y / Math.pow(10, -sigdiginy)) * Math.pow(10, -sigdiginy); 
+		     	} else {
 		    		x = x.toFixed(2);
 		    		y = y.toFixed(2);
 		    	}
@@ -1051,6 +1173,9 @@ CARGRAPH.prototype.setupPlotHover = function() {
         
         //check if the student is click dragging to create prediction points
         if(event.data.thisCarGraph.mouseDown) {
+        	// in any case move animation to current position on graph
+        	setFrameIndexFromXValue(pos.x);
+        	
         	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction) {
         		// allow author to enable or disable draw while dragging
         		if (event.data.thisCarGraph.content.allowDragDraw) {
@@ -1077,8 +1202,9 @@ CARGRAPH.prototype.setupPlotHover = function() {
     					} 
     					// in hoverable coords clean up the tooltip text a bit
 		                if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
-				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
-				    	} else {
+				    		var sigdiginy = 2-Math.floor(Math.log(Math.abs(ymax))/Math.LN10);
+				    		y = sigdiginy >= 0 ? y.toFixed(sigdiginy) : Math.floor(y / Math.pow(10, -sigdiginy)) * Math.pow(10, -sigdiginy); 
+					 	} else {
 				    		y = y.toFixed(2);
 				    	}
 
@@ -1125,6 +1251,9 @@ CARGRAPH.prototype.setupPlotClick = function() {
 	 * will be passed into the function and accessed through event.data.thisCarGraph
 	 */
     $("#" + this.graphDivId).bind("plotclick", {thisCarGraph:this}, function (event, pos, item) {
+        // in any case move animation to current position on graph
+        setFrameIndexFromXValue(pos.x);
+        	
         if (item) {
         	//student has clicked on a point
         	
@@ -2007,10 +2136,11 @@ CARGRAPH.prototype.getPredictionArrayByPredictionId = function(predictionId) {
  * @return an array containing arrays with two values [x, y] that represent
  * the prediction points
  */
-CARGRAPH.prototype.generatePredictionArray = function(state,predictionId) {
+CARGRAPH.prototype.generatePredictionArray = function(state, predictionId) {
 	var predictionArray = [];
 	
 	if(state != null) {
+	
 		//get the data array from the state
 		var statePredictionArray = state.predictionArray;
 		
@@ -2044,6 +2174,35 @@ CARGRAPH.prototype.generatePredictionArray = function(state,predictionId) {
 		}		
 	}
 	return predictionArray;
+};
+
+/**
+ * Get reference to the analysis array
+ * @return an array containing the analysis for the given prediction
+ */
+CARGRAPH.prototype.getAnalysisArrayByPredictionId = function(state, predictionId) {
+	//get the graph data array from the current state 
+	if(state != null) {
+		//get the data array from the state
+		var statePredictionArray = state.predictionArray;
+		
+		if(statePredictionArray != null) {
+			//loop through all the elements in the data array
+			for(var i=0; i<statePredictionArray.length; i++) {
+				
+				var predictionObj = statePredictionArray[i];
+				
+				if (predictionObj.id == predictionId) {
+					if (typeof predictionObj.analysisArray !== "undefined"){
+						return predictionObj.analysisArray;
+					} else {
+						return [];
+					}
+				}
+			}
+		}
+	}	
+	return [];
 };
 
 /**
@@ -2313,7 +2472,8 @@ CARGRAPH.prototype.setupAxisValues = function() {
 		$('#xMinInput').attr("disabled","disabled");		
 		$('#xMaxInput').attr("disabled","disabled");		
 		$('#yMinInput').attr("disabled","disabled");		
-		$('#yMaxInput').attr("disabled","disabled");		
+		$('#yMaxInput').attr("disabled","disabled");
+		$('#resetDefaultAxisLimitsButton').hide();		
 	}
 };
 
