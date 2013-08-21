@@ -4,7 +4,7 @@
         "description": "The text 'questionnaire' in the page title"
     },
     "question": {
-        "value": "問",
+        "value": "質問",
         "description": "The text 'question' in the step header, right above where the prompt/question is shown"
     },
     "submit": {

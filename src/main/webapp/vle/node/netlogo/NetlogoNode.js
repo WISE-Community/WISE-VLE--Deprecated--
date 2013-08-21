@@ -4,6 +4,13 @@ NetlogoNode.prototype.constructor = NetlogoNode;
 NetlogoNode.prototype.parent = Node.prototype;
 NetlogoNode.authoringToolName = "Netlogo";
 NetlogoNode.authoringToolDescription = "Students work on a NetLogo activity";
+NetlogoNode.prototype.i18nEnabled = true;
+NetlogoNode.prototype.i18nPath = "/vlewrapper/vle/node/netlogo/i18n/";
+NetlogoNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"es":"es"
+};
 
 /**
  * @constructor

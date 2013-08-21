@@ -12,7 +12,8 @@ OpenResponseNode.prototype.i18nEnabled = true;
 OpenResponseNode.prototype.i18nPath = "/vlewrapper/vle/node/openresponse/i18n/";
 OpenResponseNode.prototype.supportedLocales = {
 			"en_US":"en_US",
-			"ja":"ja"
+			"ja":"ja",
+			"es":"es"
 };
 
 OpenResponseNode.tagMapFunctions = [
