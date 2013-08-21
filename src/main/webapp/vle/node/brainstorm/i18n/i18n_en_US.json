@@ -4,7 +4,7 @@
 		"description":"The title for a brainstorm step"
 	},
 	"instructions": {
-		"value":"Read the brainstorm topic below, then write your response in the blank box.<br/>Click <em>{0}</em> to save your work and review responses from other students.",
+		"value":"Read the brainstorm topic below, then write your response in the blank box. <br/>Click <em>{0}</em> to save your work and review responses from other students.",
 		"description":"The instructions for the brainstorm step"
 	},	
 	"my_response": {
@@ -32,7 +32,8 @@
 		"description":"Text to display when user tries to save an empty post or replay"
 	},
 	"save_success":{
-		"value":"Post saved!"
+		"value":"Post saved!",
+		"description":"Save success confirmation message"
 	},
 	"save_fail":{
 		"value":"Error: Failed to save post. Please try again or notify your teacher.",
