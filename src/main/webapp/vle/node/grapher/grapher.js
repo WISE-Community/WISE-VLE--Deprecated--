@@ -1484,6 +1484,7 @@ Grapher.prototype.deletePredictionAnnotationsFromUI = function() {
  * @param dataPoint the x, y data point in an array [x,y]
  */
 Grapher.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint) {
+	if (typeof this.content.allowAnnotations !== "undefined" && !this.content.allowAnnotations) return;
 	//get the y units
 	var graphYUnits = this.content.graphParams.yUnits;
 	
@@ -2363,7 +2364,8 @@ Grapher.prototype.setupAxisValues = function() {
 		$('#xMinInput').attr("disabled","disabled");		
 		$('#xMaxInput').attr("disabled","disabled");		
 		$('#yMinInput').attr("disabled","disabled");		
-		$('#yMaxInput').attr("disabled","disabled");		
+		$('#yMaxInput').attr("disabled","disabled");	
+		$('#resetDefaultAxisLimitsButton').hide();
 	}
 };
 
@@ -2822,7 +2824,7 @@ Grapher.prototype.hideGraphMessage = function() {
  * @param event the click event
  */
 Grapher.prototype.handleKeyDown = function(event) {
-	if(event.keyCode == 8 || event.keyCode == 46) {
+	if(event.keyCode == 46) {
 		//student pressed the backspace or delete key
 		
 		/*
@@ -2856,7 +2858,7 @@ Grapher.prototype.handleKeyDown = function(event) {
  */
 Grapher.prototype.removePredictionPoint = function(seriesName, dataIndex, x) {
 	//check that this is a prediction line
-	if(this.seriesIsPrediction(seriesName)) {
+	if(true) {
 		//remove any annotations associated with the point
 		this.deleteAnnotation(seriesName, dataIndex, x);
 		

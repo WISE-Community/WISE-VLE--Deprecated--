@@ -203,10 +203,12 @@ View.prototype.TableNode.generatePage = function(view){
 	
 	//create the div that will hold the graphing options
 	var graphingOptionsDiv = createElement(document, 'div', {id: 'graphingOptionsDiv'});
+	var graphTypeDiv = createElement(document, 'div', {id: 'graphTypeDiv'});
 	
 	//create the radio buttons to choose the graph type
 	var graphTypeRadioButtons = this.generateGraphTypeRadioButtons();
-	graphingOptionsDiv.appendChild(graphTypeRadioButtons);
+	graphTypeDiv.appendChild(graphTypeRadioButtons);
+	graphingOptionsDiv.appendChild(graphTypeDiv);
 	graphingOptionsDiv.appendChild(createBreak());
 	
 	//create the radio buttons to choose who will select the axes to graph
@@ -336,6 +338,90 @@ View.prototype.TableNode.generateGraphTypeRadioButtons = function() {
 	}
 	
 	return graphTypeRadioButtonsDiv;
+};
+
+View.prototype.TableNode.generateSeriesPropertiesInputs = function() {
+	// create a button to allow for new label color pair
+	var generateSeriesInputButton = createElement(document, 'input', {type: 'button', id: 'newSeriesProperties', name: 'newSeriesProperties', value: 'New Series', onclick: 'eventManager.fire("tableNewSeriesPropertiesClicked")'});
+	$('#graphTypeDiv').append(generateSeriesInputButton);
+	$('#graphTypeDiv').append(createBreak());
+
+	// create any pairs that already exist
+	if (typeof this.content.graphOptions.seriesLabels === "undefined"){
+		this.content.graphOptions.seriesLabels = [];
+		this.content.graphOptions.seriesColors = [];
+		this.content.graphOptions.seriesPointSizes = [];
+	}
+	for (var index = 0; index < this.content.graphOptions.seriesLabels.length; index++){
+		$('#graphTypeDiv').append(document.createTextNode('Value:'));
+		$('#graphTypeDiv').append(createElement(document, 'input', {type: 'input', id: 'seriesLabelInput-'+index, name: 'seriesLabelInput-'+index, value: this.content.graphOptions.seriesLabels[index], size:20, onchange: 'eventManager.fire("tableUpdateSeriesLabel", '+index+')'}));
+		$('#graphTypeDiv').append(document.createTextNode('Color:'));
+		$('#graphTypeDiv').append(createElement(document, 'input', {type: 'input', id: 'seriesColorInput-'+index, name: 'seriesColorInput-'+index, value: this.content.graphOptions.seriesColors[index], size:6, onchange: 'eventManager.fire("tableUpdateSeriesColor", '+index+')'}));
+		$('#graphTypeDiv').append(document.createTextNode('Point Size:'));
+		$('#graphTypeDiv').append(createElement(document, 'input', {type: 'input', id: 'seriesPointSizeInput-'+index, name: 'seriesPointSizeInput-'+index, value: this.content.graphOptions.seriesPointSizes[index], size:2, onchange: 'eventManager.fire("tableUpdateSeriesPointSize", '+index+')'}));
+		$('#graphTypeDiv').append(createBreak());
+	}
+}
+
+View.prototype.TableNode.tableNewSeriesProperties = function() {
+	var index = 0;
+	if (this.content.graphOptions.seriesLabels == null){
+		this.content.graphOptions.seriesLabels = [];
+	} else {
+		index = this.content.graphOptions.seriesLabels.length;
+	} 
+
+	var seriesLabelText = document.createTextNode('Value:');
+	var seriesLabel = createElement(document, 'input', {type: 'input', id: 'seriesLabelInput-'+index, name: 'seriesLabelInput-'+index, value: "", size:20, onchange: 'eventManager.fire("tableUpdateSeriesLabel", '+index+')'});
+	this.content.graphOptions.seriesLabels.push("");
+
+	var seriesColorText = document.createTextNode('Color:');
+	var seriesColor = createElement(document, 'input', {type: 'input', id: 'seriesColorInput-'+index, name: 'seriesColorInput-'+index, value: "", size:10, onchange: 'eventManager.fire("tableUpdateSeriesColor", '+index+')'});
+	this.content.graphOptions.seriesColors.push("");
+
+	var seriesPointSizeText = document.createTextNode('Point Size:');
+	var seriesPointSize = createElement(document, 'input', {type: 'input', id: 'seriesPointSizeInput-'+index, name: 'seriesPointSizeInput-'+index, value: "", size:10, onchange: 'eventManager.fire("tableUpdateSeriesPointSize", '+index+')'});
+	this.content.graphOptions.seriesPointSizes.push("");
+
+	$('#graphTypeDiv').append(seriesLabelText);
+	$('#graphTypeDiv').append(seriesLabel);
+	$('#graphTypeDiv').append(seriesColorText);
+	$('#graphTypeDiv').append(seriesColor);
+	$('#graphTypeDiv').append(seriesPointSizeText);
+	$('#graphTypeDiv').append(seriesPointSize);
+	$('#graphTypeDiv').append(createBreak());
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+}
+
+/**
+ * Update the custom series label
+ */
+View.prototype.TableNode.tableUpdateSeriesLabel = function(index) {
+	
+	this.content.graphOptions.seriesLabels[index] = $('#seriesLabelInput-'+index).attr('value');
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the custom series label color
+ */
+View.prototype.TableNode.tableUpdateSeriesColor = function(index) {
+	
+	this.content.graphOptions.seriesColors[index] = $('#seriesColorInput-'+index).attr('value');
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the custom series label point size
+ */
+View.prototype.TableNode.tableUpdateSeriesPointSize = function(index) {
+	
+	this.content.graphOptions.seriesPointSizes[index] = $('#seriesPointSizeInput-'+index).attr('value');
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
@@ -543,6 +629,9 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 			var cOption = createElement(document, 'option', {value:'c'});
 			cOption.text = 'Color';
 			selectAxisDropDown.appendChild(cOption);
+			var pOption = createElement(document, 'option', {value:'p'});
+			pOption.text = 'Point Size';
+			selectAxisDropDown.appendChild(pOption);
 		}
 
 		//get the axis for this column if it has been set
@@ -558,6 +647,9 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 			} else if (columnAxis == 'c'){
 				//this column is set to c
 				cOption.selected = true;
+			} else if (columnAxis == 'p'){
+				//this column is set to c
+				pOption.selected = true;
 			}
 		}
 		
@@ -1344,6 +1436,7 @@ View.prototype.TableNode.populateGraphOptions = function() {
 		if(this.content.graphOptions.graphType != null && this.content.graphOptions.graphType != '') {
 			//check the radio button for the graph type
 			$('input[name=graphType][value=' + this.content.graphOptions.graphType + ']').attr('checked', true);
+			if (this.content.graphOptions.graphType == "scatterPlotbySeries") this.generateSeriesPropertiesInputs();
 		}
 		
 		if(this.content.graphOptions.graphSelectAxesType != null && this.content.graphOptions.graphSelectAxesType != '') {
@@ -1549,7 +1642,12 @@ View.prototype.TableNode.tableGraphTypeClicked = function() {
 	
 	//update the step content
 	this.content.graphOptions.graphType = graphType;
-	
+
+	if (graphType == "scatterPlotbySeries"){
+		// when a scatter plot by series is selected additional options are available
+		this.generateSeriesPropertiesInputs();
+	}
+
 	//fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
 };

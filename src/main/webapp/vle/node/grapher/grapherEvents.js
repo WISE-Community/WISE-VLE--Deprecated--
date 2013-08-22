@@ -54,6 +54,8 @@ View.prototype.grapherDispatcher = function(type,args,obj){
 		obj.GrapherNode.updateGraphTitle();
 	} else if(type=='grapherUpdateAllowUpdateAxisRange'){
 		obj.GrapherNode.updateAllowUpdateAxisRange();
+	} else if(type=='grapherUpdateAllowAnnotations'){
+		obj.GrapherNode.updateAllowAnnotations();
 	}
 };
 
@@ -86,7 +88,8 @@ var events = [
 	'grapherUpdateShowAcceleration',
 	'grapherUpdateRequirePredictionBeforeEnter',
 	'grapherUpdateGraphTitle',
-	'grapherUpdateAllowUpdateAxisRange'
+	'grapherUpdateAllowUpdateAxisRange',
+	'grapherUpdateAllowAnnotations'
 ];
 
 /*

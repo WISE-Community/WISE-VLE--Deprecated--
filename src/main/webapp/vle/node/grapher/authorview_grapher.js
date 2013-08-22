@@ -160,6 +160,12 @@ View.prototype.GrapherNode.generatePage = function(view){
 	predictionDiv.appendChild(newSeriesLabelButton);
 	predictionDiv.appendChild(createBreak());
 
+	//populate the require prediction before enter checkbox
+	if(this.content.enableEasyPrediction) {
+		easyPredictionCheckBox.checked = true;
+		this.updateEasyPrediction();
+	}
+
 	if (this.content.seriesLabels == null){
 		this.content.seriesLabels = [""];
 	} 
@@ -263,6 +269,21 @@ View.prototype.GrapherNode.generatePage = function(view){
 	//populate the allow student to change axis limit check box
 	if(this.content.graphParams.allowUpdateAxisRange) {
 		allowUpdateAxisRangeCheckBox.checked = true;
+	}
+
+	//create the check box to allow the student to change the axis limits
+	var allowAnnotationsCheckBox = createElement(document, 'input', {id: 'allowAnnotationsCheckBox', type: 'checkbox', onclick: 'eventManager.fire("grapherUpdateAllowAnnotations")'});
+	var allowAnnotationsText = document.createTextNode("Allow Student to Annotate Points");
+	
+	//insert the allow student to change axis limit check box
+	pageDiv.appendChild(allowAnnotationsCheckBox);
+	pageDiv.appendChild(allowAnnotationsText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//populate the allow student to change axis limit check box
+	if(this.content.allowAnnotations) {
+		allowAnnotationsCheckBox.checked = true;
 	}
 	
 	//create the show graph options elements
@@ -963,6 +984,16 @@ View.prototype.GrapherNode.updateAllowUpdateAxisRange = function() {
 	this.view.eventManager.fire('sourceUpdated');
 };
 
+/**
+ * Update the allow update axis range value
+ */
+View.prototype.GrapherNode.updateAllowAnnotations = function() {
+	//get the value of the allow update axis range and set it into the content
+	this.content.allowAnnotations = this.isChecked($('#allowAnnotationsCheckBox').attr('checked'));
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

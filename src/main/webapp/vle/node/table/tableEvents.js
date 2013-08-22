@@ -55,6 +55,16 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.tableSelectColumnToAxisMappingDropDownChanged();
 	} else if(type == 'tableGraphTypeClicked') {
 		obj.TableNode.tableGraphTypeClicked();
+	} else if(type == 'tableNewSeriesPropertiesClicked') {
+		obj.TableNode.tableNewSeriesProperties();
+	} else if(type=='tableUpdateSeriesLabel'){
+		obj.TableNode.tableUpdateSeriesLabel(args[0]);
+	} else if(type=='tableUpdateSeriesColor'){
+		obj.TableNode.tableUpdateSeriesColor(args[0]);
+	} else if(type=='tableUpdateSeriesPointSize'){
+		obj.TableNode.tableUpdateSeriesPointSize(args[0]);
+	} else if(type == 'tableGraphTypeClicked') {
+		obj.TableNode.tableGraphTypeClicked();
 	} else if(type == 'tableGraphSelectAxesTypeClicked') {
 		obj.TableNode.tableGraphSelectAxesTypeClicked();
 	} else if(type == 'tableGraphWhoSetAxesLimitsTypeClicked') {
@@ -109,6 +119,10 @@ var events = [
 	'tableEnableGraphingClicked',
 	'tableSelectColumnToAxisMappingDropDownChanged',
 	'tableGraphTypeClicked',
+	'tableNewSeriesPropertiesClicked',
+	'tableUpdateSeriesLabel',
+	'tableUpdateSeriesColor',
+	'tableUpdateSeriesPointSize',
 	'tableGraphSelectAxesTypeClicked',
 	'tableGraphWhoSetAxesLimitsTypeClicked',
 	'tableUpdateGraphXMin',

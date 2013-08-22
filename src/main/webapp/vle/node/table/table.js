@@ -964,6 +964,12 @@ Table.prototype.displayGraphOptions = function() {
 			selectCAxis.change({thisTable:this}, function(event) {
 				event.data.thisTable.studentGraphOptionsChanged();
 			});
+
+			var selectPAxis = $('<select id="studentSelectPAxis">');
+			selectPAxis.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+
 		}
 		
 		
@@ -977,6 +983,7 @@ Table.prototype.displayGraphOptions = function() {
 			selectYAxis.append($('<option>').attr('value', z).text(columnHeader));
 			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
 				selectCAxis.append($('<option>').attr('value', z).text(columnHeader));
+				selectPAxis.append($('<option>').attr('value', z).text(columnHeader));
 			}
 		}
 		
@@ -991,10 +998,12 @@ Table.prototype.displayGraphOptions = function() {
 		$('#graphOptionsDiv').append(selectYAxis);
 
 		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
-			//var c_axis = this.view.getI18NString('c_axis', 'TableNode');
 			$('#graphOptionsDiv').append('<br>');
 			$('#graphOptionsDiv').append('Color by: ');
 			$('#graphOptionsDiv').append(selectCAxis);
+			$('#graphOptionsDiv').append('<br>');
+			$('#graphOptionsDiv').append('Point Size by: ');
+			$('#graphOptionsDiv').append(selectPAxis);
 		}
 		
 		//populate the axis drop downs
@@ -1025,6 +1034,8 @@ Table.prototype.displayGraphOptions = function() {
 								selectYAxis.val(columnIndex);
 							} else if (columnAxis == "c" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
 								selectCAxis.val(columnIndex);
+							} else if (columnAxis == "p" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
+								selectPAxis.val(columnIndex);
 							}
 						}
 					}
@@ -1160,21 +1171,29 @@ Table.prototype.getColumnIndexesToGraph = function(graphOptions) {
 				columnAxis:'y'
 			};
 
+			//put the objects in an array
+			result = [xColumnObject, yColumnObject];	
+			
 			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
 				var cColumnIndex = $('#studentSelectCAxis').val();
-				//create the object for the y axis
-				var cColumnObject = {
-					columnIndex:cColumnIndex,
-					columnAxis:'c'
-				};
-				//put the objects in an array
-				result = [xColumnObject, yColumnObject, cColumnObject];
-			} else {
-				//put the objects in an array
-				result = [xColumnObject, yColumnObject];	
-			}
-			
-			
+				if (cColumnIndex != null && cColumnIndex > 0){
+					//create the object for the y axis
+					var cColumnObject = {
+						columnIndex:cColumnIndex,
+						columnAxis:'c'
+					};
+					result.push(cColumnObject);
+				}
+				var pColumnIndex = $('#studentSelectPAxis').val();
+				if (pColumnIndex != null && pColumnIndex > 0){
+					//create the object for the y axis
+					var pColumnObject = {
+						polumnIndex:pColumnIndex,
+						columnAxis:'p'
+					};
+					result.push(pColumnObject);
+				}
+			} 
 		}
 	} else {
 		//the graph options were provided so we will get the columnToAxisMappings from it
@@ -1270,7 +1289,9 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 	
 	try {
 		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
-			data = this.getGoogleDataTableForSeries(tableData, graphOptions);
+			var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+			
+			data = this.getGoogleDataTableForSeries(dataInGoogleFormat, graphOptions);
 		} else {
 			/*
 			 * get the table data in the format google wants it in.
@@ -1423,9 +1444,11 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 	
 	//get the column indexes we will graph
 	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
-	
+
 	var hTitle = '';
 	var vTitle = '';
+	var cTitle = '';
+	var pTitle = '';
 	
 	if(columnIndexesToGraph != null) {
 		//loop through all the objects in the array
@@ -1450,7 +1473,13 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 					vTitle += ', ';
 				}
 				vTitle += this.getColumnHeaderByIndex(columnIndex, tableData);
-			}
+			} else if(columnAxis == 'c') {
+				//get the column header for the series to color by
+				cTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
+			} else if(columnAxis == 'p') {
+				//get the column header for the series to color by
+				pTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
+			} 
 		}		
 	}
 	
@@ -1637,6 +1666,76 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 		 */
 		options.title = this.getDropDownTitleSelected();
 	}
+
+	// if scatter plot by series with color labels apply here
+	if (typeof this.content.graphOptions.graphType !== "undefined" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
+		var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+		var gdata = this.getGoogleDataTableForSeries(dataInGoogleFormat, graphOptions);
+		var series = [];
+		if (typeof this.content.graphOptions.seriesLabels !== "undefined"  && this.content.graphOptions.seriesLabels.length > 0){
+			// loop through column headers
+			for (var h = 1; h < gdata.H.length; h++){
+				var hvalue = gdata.H[h].label;
+				if (cTitle.length > 0) hvalue = hvalue.replace(cTitle + " = ","");
+				if (pTitle.length > 0) hvalue = hvalue.replace(pTitle + " = ","");
+				var lindex = this.content.graphOptions.seriesLabels.indexOf(hvalue);
+				if (lindex > -1){
+					var seriesObj = {};
+					if (this.content.graphOptions.seriesColors[lindex].length > 0) seriesObj['color'] = this.content.graphOptions.seriesColors[lindex];
+					if (this.content.graphOptions.seriesPointSizes[lindex].length > 0) seriesObj['pointSize'] = this.content.graphOptions.seriesPointSizes[lindex];
+					series.push(seriesObj);
+				} else {
+					series.push({});
+				}
+			}
+		} else {
+			var clevels = {};
+			var plevels = {};
+			for (var h = 1; h < gdata.H.length; h++){
+				// do we have multiple series, are they by color pointsize or both?
+				var seriesObj = {};
+				if (cTitle.length > 0 && pTitle.length == 0){
+					seriesObj = {}; 
+				} else if (cTitle.length == 0 && pTitle.length > 0){
+					seriesObj = {'color':"#0000ff", 'pointSize':5*h}; 
+				} else if (cTitle.length > 0 && pTitle.length > 0){
+					var hvalue = gdata.H[h].label;
+					hvalue = hvalue.replace(cTitle + " = ","");
+					hvalue = hvalue.replace(pTitle + " = ","");
+					vals = hvalue.split(" and ");
+					// is the clevel unique
+					var color;
+					if (typeof clevels[vals[0]] === "undefined"){
+						var colors = ['blue','red','green','orange','purple','yellow','black'];
+						if (h-1 < colors.length){
+							color = colors[h-1];
+						} else {
+							color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+						}
+						clevels[vals[0]] = color;
+					} else {
+						color = clevels[vals[0]];
+					}
+					
+					// is the plevel unique
+					var pointSize;
+					if (typeof plevels[vals[0]] === "undefined"){
+						pointSize = 5 * h;
+						plevels[vals[0]] = pointSize;
+					} else {
+						pointSize = plevels[vals[0]];
+					}
+
+					seriesObj = {'color':color, 'pointSize':pointSize}; 
+				} else {
+					seriesObj = {}; 
+				}
+				series.push(seriesObj);
+			}
+		}
+		options.series = series;
+	}
+	
 	
 	return options;
 };
@@ -1706,59 +1805,133 @@ Table.prototype.checkStudentEnteredAxesLimits = function() {
 /**
  *	When the graph type is a scatter plot by series will reorganize the table
  *  so that the y-axis variable is split into multiple series, depending on the
- *	value of the "color" columns, for example
- *   | time |  distance  |  type
- *   |     1|           3|     a
- *   |     2|           5|     a
- *   |     1|           2|     b
- *   |     4|          10|     b
+ *	value of the "color" column and/or "pointSize" column, for example
+ *   | time |  distance  |  CTYPE        | PTYPE
+ *   |     1|           3|     a         | x
+ *   |     2|           5|     a         | y
+ *   |     1|           2|     b         | x
+ *   |     4|          10|     b         | y
  *
  *   will become:
- *   | time |  distance-a|  distance-b
- *   |     1|           3|     2
- *   |     2|           5|     null
- *   |     4|        null|     b
+ *   | time | distance CTYPE = a and PTYPE = x | distance CTYPE = b and PTYPE = x | distance CTYPE = a and PTYPE = x |distance CTYPE = b and PTYPE = y
+ *   |     1|           3|  null | null | null
+ *   |     2|        null|     5 | null | null
+ *   |     4|        null|  null | 2    | null
+ *   |     5|        null|  null | null | 10
  *   
  */
-Table.prototype.getGoogleDataTableForSeries = function(tableData, graphOptions) {
-	var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+Table.prototype.getGoogleDataTableForSeries = function(dataInGoogleFormat, graphOptions) {
 	var data = new google.visualization.DataTable();
 	data.addColumn('number', dataInGoogleFormat[0][0])
 	// get unique values of "color" column
 	var clevels = [];
-	for (var i = 1; i < dataInGoogleFormat.length; i++){
-		var clevel = dataInGoogleFormat[i][2];
-		// is this level unique, and if we are only using a subset of levels is this level present
-		if (clevels.indexOf(clevel) == -1 && (typeof this.content.graphOptions.arrColorLevelsToUse === "undefined" || this.content.graphOptions.arrColorLevelsToUse == null || this.content.graphOptions.arrColorLevelsToUse.length == 0 || this.content.graphOptions.arrColorLevelsToUse.indexOf(clevel) != -1)){
-			clevels.push(clevel)
-		}
-	}
-	// create a column for each level
-	for (var c = 0; c < clevels.length; c++){
-		data.addColumn('number', dataInGoogleFormat[0][2]+" = "+clevels[c]);
-	}
-	// iterate through rows update appropriate cell
-	for (i = 1; i < dataInGoogleFormat.length; i++){
-		// what is series value of this data point?
-		var cval = dataInGoogleFormat[i][2];
-		var cindex = clevels.indexOf(cval);
-		// construct row adding y value at cindex
-		if (!isNaN(dataInGoogleFormat[i][0])){
-			var row = [dataInGoogleFormat[i][0]];
-			var found_value = false;
-			for (c = 0; c < clevels.length; c++){
-				if (c == cindex){
-					if (!isNaN(dataInGoogleFormat[i][1])){
-						row.push(dataInGoogleFormat[i][1]);
-						found_value = true;
-					}
-				} else {
-					row.push(null);
-				}
+	if (dataInGoogleFormat[0].length > 2){
+		for (var i = 1; i < dataInGoogleFormat.length; i++){
+			var clevel = dataInGoogleFormat[i][2];
+			// is this level unique, and if we are only using a subset of levels is this level present
+			if (clevels.indexOf(clevel) == -1){
+				clevels.push(clevel)
 			}
-			if (found_value) data.addRow(row);
 		}
 	}
+	var plevels = [];
+	if (dataInGoogleFormat[0].length > 3){
+		for (var i = 1; i < dataInGoogleFormat.length; i++){
+			var plevel = dataInGoogleFormat[i][3];
+			// is this level unique, and if we are only using a subset of levels is this level present
+			if (plevels.indexOf(plevel) == -1){
+				plevels.push(plevel)
+			}
+		}
+	}
+	// create a column for each level of color column if no pointsize
+	if (clevels.length > 0 && plevels.length == 0){
+		for (var c = 0; c < clevels.length; c++){
+				data.addColumn('number', dataInGoogleFormat[0][2]+" = "+clevels[c]);
+		}
+		// iterate through rows update appropriate cell
+		for (i = 1; i < dataInGoogleFormat.length; i++){
+			// what is series value of this data point?
+			var cval = dataInGoogleFormat[i][2];
+			var cindex = clevels.indexOf(cval);
+			// construct row adding y value at cindex
+			if (!isNaN(dataInGoogleFormat[i][0])){
+				var row = [dataInGoogleFormat[i][0]];
+				var found_value = false;
+				for (c = 0; c < clevels.length; c++){
+					if (c == cindex){
+						if (!isNaN(dataInGoogleFormat[i][1])){
+							row.push(dataInGoogleFormat[i][1]);
+							found_value = true;
+						}
+					} else {
+						row.push(null);
+					}
+				}
+				if (found_value) data.addRow(row);
+			}
+		}
+	} else if (plevels.length > 0 && clevels.length == 0){
+		for (var p = 0; p < plevels.length; p++){
+				data.addColumn('number', dataInGoogleFormat[0][3]+" = "+plevels[p]);
+		}
+		// iterate through rows update appropriate cell
+		for (i = 1; i < dataInGoogleFormat.length; i++){
+			// what is series value of this data point?
+			var pval = dataInGoogleFormat[i][3];
+			var pindex = plevels.indexOf(pval);
+			// construct row adding y value at cindex
+			if (!isNaN(dataInGoogleFormat[i][0])){
+				var row = [dataInGoogleFormat[i][0]];
+				var found_value = false;
+				for (p = 0; p < plevels.length; p++){
+					if (p == pindex){
+						if (!isNaN(dataInGoogleFormat[i][1])){
+							row.push(dataInGoogleFormat[i][1]);
+							found_value = true;
+						}
+					} else {
+						row.push(null);
+					}
+				}
+				if (found_value) data.addRow(row);
+			}
+		}
+	} else if (clevels.length > 0 && plevels.length > 0){ 
+		for (var c = 0; c < clevels.length; c++){
+			for (var p = 0; p < plevels.length; p++){
+				data.addColumn('number',dataInGoogleFormat[0][2]+" = "+clevels[c] + " and " + dataInGoogleFormat[0][3]+" = "+plevels[p]);
+			}
+		}
+		// iterate through rows update appropriate cell
+		for (i = 1; i < dataInGoogleFormat.length; i++){
+			// what is series value of this data point?
+			var cval = dataInGoogleFormat[i][2];
+			var cindex = clevels.indexOf(cval);
+			var pval = dataInGoogleFormat[i][3];
+			var pindex = plevels.indexOf(pval);
+			// construct row adding y value at cindex
+			if (!isNaN(dataInGoogleFormat[i][0])){
+				var row = [dataInGoogleFormat[i][0]];
+				var found_value = false;
+				for (c = 0; c < clevels.length; c++){
+					for (p = 0; p < plevels.length; p++){
+						if (c == cindex && p == pindex){
+							if (!isNaN(dataInGoogleFormat[i][1])){
+								row.push(dataInGoogleFormat[i][1]);
+								found_value = true;
+							}
+						} else {
+							row.push(null);
+						}
+					}
+				}
+				if (found_value) data.addRow(row);
+			}
+		}
+	}
+
+	
 	return data;
 }
 
@@ -1801,7 +1974,7 @@ Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 	//get the columns to graph
 	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
 	/// JV - IMPORTANT
-	// These need to be ordered x, y, c (if necessary) or else they will not be printed correctly
+	// These need to be ordered x, y, c, p (if necessary) or else they will not be printed correctly
 	// put 'x' in front
 	if (columnIndexesToGraph.length > 1){
 		for (var i = 1; i < columnIndexesToGraph.length; i++){
@@ -1815,6 +1988,15 @@ Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 		for (var i = 2; i < columnIndexesToGraph.length; i++){
 			if (columnIndexesToGraph[i].columnAxis == "y"){
 				columnIndexesToGraph.splice(1,0,columnIndexesToGraph.splice(i,1)[0]);
+			}
+		}
+	}
+
+	// put 'c' in second spot if it is not already there
+	if (columnIndexesToGraph.length > 3){
+		for (var i = 3; i < columnIndexesToGraph.length; i++){
+			if (columnIndexesToGraph[i].columnAxis == "c"){
+				columnIndexesToGraph.splice(2,0,columnIndexesToGraph.splice(i,1)[0]);
 			}
 		}
 	}
@@ -2181,7 +2363,7 @@ Table.prototype.processTagMaps = function() {
 						}
 
 						// use only specified column names
-						var arrColumnNamesToUse = functionArgs.length > 2 ? functionArgs[2].split(/ *, */) : [];
+						var arrColumnNamesToUse = functionArgs.length > 0 ? functionArgs[0].split(/ *, */) : [];
 						if (arrColumnNamesToUse.length > 0){
 							var ntableData = [];
 							for (var c = arrColumnNamesToUse.length-1; c >= 0; c--){
