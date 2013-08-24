@@ -1,0 +1,59 @@
+{
+    "title": {
+        "value": "Torbellino de ideas",
+        "description": "The title for a brainstorm step"
+    },
+    "instructions": {
+        "value": "Leer el tema del torbellino de ideas abajo y luego escribir su respuesta en la caja en blanco.
+Clic  {0}  para grabar el trabajo y revisar las respuestas de los demás estudiantes.",
+        "description": "The instructions for the brainstorm step"
+    },
+    "my_response": {
+        "value": "Mi respuesta",
+        "description": "The text 'My Response' right above the textbox where the student types in their response"
+    },
+    "save": {
+        "value": "Grabar",
+        "description": "The text 'Save' on the button to save and post a brainstorm response"
+    },
+    "other_student_responses": {
+        "value": "Respuestas de otros compañeros",
+        "description": "The text 'Other Student Responses' that is displayed above the list of other students' responses"
+    },
+    "check_for_new_responses": {
+        "value": "Comprobar nuevas respuestas",
+        "description": "The text 'Check for New Responses' that is displayed on a button that triggers the loading of other students' responses"
+    },
+    "showStarterSentence": {
+        "value": "Mostrar oración iniciadora",
+        "description": "Text for link to show the starter sentence for the step"
+    },
+    "save_noContent": {
+        "value": "Nada para grabar",
+        "description": "Text to display when user tries to save an empty post or replay"
+    },
+    "save_success": {
+        "value": "Respuesta grabada",
+        "description": "Save success confirmation message"
+    },
+    "save_fail": {
+        "value": "Error: No se pudo grabar el mensaje. Pruebe de nuevo o contacte a su docente.",
+        "description": "Error text to display when server fails to save user's post or reply"
+    },
+    "flag_inappropriate": {
+        "value": "Este comentario ha sido marcado como inapropiado.",
+        "description": "Text to display when a comment has been removed"
+    },
+    "postedByLabel": {
+        "value": "Contribución de:",
+        "description": "Label text indicating user that posted a message"
+    },
+    "post_reply": {
+        "value": "Responder",
+        "description": "Text for button/link to add a new reply to a brainstorm post"
+    },
+    "noStarter": {
+        "value": "No hay oración iniciadora específica para este  {0} .",
+        "description": "Text to display when user requests to display starter sentence but step does not have one set"
+    }
+}

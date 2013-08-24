@@ -534,5 +534,29 @@
     "grading_button_special_export_description": {
         "value": "(Zip File に生徒の回答をエクスポートする）",
         "description": "GradingTool: Description next the Special Export button"
+    },
+    "student_aggregate_view_intro_text": {
+        "value": "{0}のサマリービュー",
+        "description": "Text above where the aggregate view would be displayed"
+    },
+    "student_aggregate_view_preview_mode_default_text": {
+        "value": "このステップの統合ビューはクラスルームランをセットアップした後に表示されます。",
+        "description": "Default text to display for aggregate view when in preview mode."
+    },
+    "project_error_has_no_steps": {
+        "value": "エラーが生じました。このプロジェクトにはステップがありません。",
+        "description": "The error text to be displayed when the project has no steps in it"
+    },
+    "common_click_here": {
+        "value": "ここをクリック",
+        "description": "the common text 'click here'"
+    },
+    "authoring_imsettings_attribute_help": {
+        "value": "ヘルプはここに表示されます。",
+        "description": ""
+    },
+    "authoring_imsettings_terminology_help": {
+        "value": "ヘルプはここに表示されます。",
+        "description": ""
     }
 }

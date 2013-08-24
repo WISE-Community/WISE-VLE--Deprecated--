@@ -4,6 +4,13 @@ MWNode.prototype.constructor = MWNode;
 MWNode.prototype.parent = Node.prototype;
 MWNode.authoringToolName = "Molecular Workbench";
 MWNode.authoringToolDescription = "Students work on a Molecular Workbench applet";
+MWNode.prototype.i18nEnabled = true;
+MWNode.prototype.i18nPath = "/vlewrapper/vle/node/mw/i18n/";
+MWNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"es":"es"
+};
 
 /**
  * @constructor

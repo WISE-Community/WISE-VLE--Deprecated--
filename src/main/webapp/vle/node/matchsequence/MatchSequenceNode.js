@@ -7,6 +7,13 @@ MatchSequenceNode.prototype.constructor = MatchSequenceNode;
 MatchSequenceNode.prototype.parent = Node.prototype;
 MatchSequenceNode.authoringToolName = "Match & Sequence";
 MatchSequenceNode.authoringToolDescription = "Students drag and drop choices into boxes";
+MatchSequenceNode.prototype.i18nEnabled = true;
+MatchSequenceNode.prototype.i18nPath = "/vlewrapper/vle/node/matchsequence/i18n/";
+MatchSequenceNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"es":"es"
+};
 
 MatchSequenceNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
@@ -100,7 +107,7 @@ MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, 
 		var maxScore = matchSequence.getMaxPossibleScore();
 		
 		text += "<br>";
-		text += "Auto-Graded Score: " + state.score + "/" + maxScore;
+		text += this.view.getI18NStringWithParams("autograded_score",[state.store + "/" + maxScore],"MatchSequenceNode");
 	}
 	
 	displayStudentWorkDiv.append(text);
