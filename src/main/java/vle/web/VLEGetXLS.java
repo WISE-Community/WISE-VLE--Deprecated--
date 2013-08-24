@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
@@ -995,9 +996,6 @@ public class VLEGetXLS extends VLEServlet {
 				//get all the work for a workgroup id
 				List<StepWork> stepWorksForWorkgroupId = StepWork.getByUserInfo(userInfo);
 				
-				//the counter for the rows
-				long studentWorkRowCount = 0;
-				
 		    	/*
 		    	 * loop through all the work for the current student, this will
 		    	 * already be ordered chronologically
@@ -1155,89 +1153,13 @@ public class VLEGetXLS extends VLEServlet {
 							//get the node states
 							JSONArray nodeStates = stepWorkDataJSON.getJSONArray("nodeStates");
 							
-							if(nodeStates.length() == 0) {
-								//the node states is empty so we will fill out the row but without student work
-								
-						    	//counter for the cell columns
-						    	int tempColumn = 0;
-						    	
-						    	//increment the student row count
-						    	studentWorkRowCount++;
-						    	
-						    	//create a new row for this step work
-						    	Row tempRow = createRow(userIdSheet, rowCounter++);
-						    	Vector<String> tempRowVector = createRowVector();
-						    	
-						    	//set the step work/visit number
-						    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, studentWorkRowCount);
-						    	
-						    	//there is no student work
-								JSONObject nodeState = null;
-								
-								//write the row
-								tempColumn = writeAllStudentWorkRow(tempColumn, tempRow, tempRowVector, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, nodeState);
-							} else {
-								//loop through all the node states
-								for(int i=0; i<nodeStates.length(); i++) {
-							    	//counter for the cell columns
-							    	int tempColumn = 0;
-							    	
-							    	//increment the student row count
-							    	studentWorkRowCount++;
-							    	
-							    	//create a new row for this step work
-							    	Row tempRow = createRow(userIdSheet, rowCounter++);
-							    	Vector<String> tempRowVector = createRowVector();
-							    	
-							    	//set the step work/visit number
-							    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, studentWorkRowCount);
-							    	
-							    	//get the node state
-									JSONObject nodeState = nodeStates.getJSONObject(i);
-									
-									//write the row
-									tempColumn = writeAllStudentWorkRow(tempColumn, tempRow, tempRowVector, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, nodeState);
-								}
-							}
+							//write the student work rows for the node states
+							rowCounter = writeAllStudentWorkRows(userIdSheet, rowCounter, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, nodeStates);
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 			    }
-		    	
-		    	/*
-		    	 * check if we need to add more Student Work header cells. this value
-		    	 * is set when a step requires multiple cells to display the data
-		    	 * such as assessment list steps which can have multiple parts
-		    	 * and require multiple cells.
-		    	 */
-		    	if(maxNumberOfStepWorkParts > 1) {
-		    		//we need to add more Student Work header cells
-		    		
-		    		/*
-		    		 * set the necessary number of header cells, the first one will
-		    		 * overwrite the previous header cell set above, changing it from
-		    		 * "Student Work" to "Student Work Part 1"
-		    		 */
-		    		for(int stepWorkCounter=0; stepWorkCounter<maxNumberOfStepWorkParts; stepWorkCounter++) {
-		    			String stepWorkHeader = "Student Work Part " + (stepWorkCounter + 1);
-		    			
-		    			if(stepWorkCounter > 0) {
-		    				stepWorkHeader += " (if applicable)";
-		    			}
-		    			
-		    			/*
-		    			 * set the value in the cell "Student Work Part #". this will
-		    			 * not show up in the csv export since we have already written
-		    			 * the header column vector to the csv above
-		    			 */
-		    			headerColumn = setCellValue(headerRow, headerRowVector, headerColumn, stepWorkHeader);
-		    		}
-		    	}
-		    	
-				//create an empty row for the csv
-				Vector<String> emptyVector2 = createRowVector();
-				writeCSV(emptyVector2);
 			}
 		}
 
@@ -1269,11 +1191,10 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param stepWorksForWorkgroupId
 	 * @param nodeJSONObject
 	 * @param nodeState
-	 * @return the column index for the next empty column
+	 * @return the row counter for the next empty row
 	 */
-	private int writeAllStudentWorkRow(int tempColumn, 
-			Row tempRow, 
-			Vector<String> tempRowVector,
+	private int writeAllStudentWorkRows(XSSFSheet userIdSheet,
+			int rowCounter,
 			String nodeId,
 			Long workgroupId,
 			String wiseId1,
@@ -1283,7 +1204,82 @@ public class VLEGetXLS extends VLEServlet {
 			int stepVisitCount,
 			String nodeTitle,
 			String nodeType,
-			String prompt,
+			String nodePrompt,
+			JSONObject nodeContent,
+			Timestamp startTime,
+			Timestamp endTime,
+			Timestamp postTime,
+			StepWork stepWork,
+			int periodId,
+			UserInfo userInfo,
+			List<StepWork> stepWorksForWorkgroupId,
+			JSONObject nodeJSONObject,
+			JSONArray nodeStates) {
+		
+		if(nodeStates.length() == 0) {
+			//the node states is empty so we will fill out the row but without student work
+			
+	    	//there is no student work
+			JSONObject nodeState = null;
+			
+			//write the row for the node state
+			rowCounter = writeAllStudentWorkNodeState(userIdSheet, rowCounter, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, nodeState);
+		} else {
+			//loop through all the node states
+			for(int i=0; i<nodeStates.length(); i++) {
+				try {
+					//get a node state
+					JSONObject nodeState = nodeStates.getJSONObject(i);
+					
+					//write the row for the node state
+					rowCounter = writeAllStudentWorkNodeState(userIdSheet, rowCounter, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, nodeState);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return rowCounter;
+	}
+	
+	/**
+	 * Write the student work node state to the excel
+	 * @param userIdSheet
+	 * @param rowCounter
+	 * @param nodeId
+	 * @param workgroupId
+	 * @param wiseId1
+	 * @param wiseId2
+	 * @param wiseId3
+	 * @param stepWorkId
+	 * @param stepVisitCount
+	 * @param nodeTitle
+	 * @param nodeType
+	 * @param nodePrompt
+	 * @param nodeContent
+	 * @param startTime
+	 * @param endTime
+	 * @param postTime
+	 * @param stepWork
+	 * @param periodId
+	 * @param userInfo
+	 * @param stepWorksForWorkgroupId
+	 * @param nodeJSONObject
+	 * @param nodeState
+	 * @return the row counter for the next empty row
+	 */
+	private int writeAllStudentWorkNodeState(XSSFSheet userIdSheet,
+			int rowCounter,
+			String nodeId,
+			Long workgroupId,
+			String wiseId1,
+			String wiseId2,
+			String wiseId3,
+			Long stepWorkId,
+			int stepVisitCount,
+			String nodeTitle,
+			String nodeType,
+			String nodePrompt,
 			JSONObject nodeContent,
 			Timestamp startTime,
 			Timestamp endTime,
@@ -1295,8 +1291,119 @@ public class VLEGetXLS extends VLEServlet {
 			JSONObject nodeJSONObject,
 			JSONObject nodeState) {
 		
+    	//get the student work columns for this node state if export columns were authored
+    	ArrayList<ArrayList<Object>> columns = getExportColumnDataValues(nodeState, nodeId);
+    	
+    	//get the column names of the export columns if they were authored
+    	ArrayList<Object> columnNames = getExportColumnNames(nodeId);
+    	
+    	//create rows from the student work columns
+    	ArrayList<ArrayList<Object>> rows = getRowsFromColumns(columns);
+
 		//increment the step revision count for this step
-		int stepRevisionCount = increaseStepRevisionCount(nodeId);
+		increaseStepRevisionCount(nodeId);
+		
+    	if(rows.size() > 0) {
+    		//there are rows
+    		
+    		//loop through all the rows
+    		for(int x=0; x<rows.size(); x++) {
+    			//get a row
+    			ArrayList<Object> row = rows.get(x);
+
+    			//write the row to the excel
+    			writeAllStudentWorkRow(userIdSheet, rowCounter, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, columnNames, row);
+    			
+    			//update the row counter
+    			rowCounter++;
+    		}
+    	} else {
+    		//there are no rows
+    		
+    		//get the response
+    		String response = getNodeStateResponse(nodeState, nodeId);
+    		
+    		ArrayList<Object> row = new ArrayList<Object>();
+    		
+    		//put the response in the row
+    		row.add(response);
+
+    		//write the row to the excel
+    		writeAllStudentWorkRow(userIdSheet, rowCounter, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, columnNames, row);
+    		
+    		//update the row counter
+    		rowCounter++;
+    	}
+    	
+    	return rowCounter;
+	}
+	
+	/**
+	 * Write the student work row to the excel
+	 * @param userIdSheet
+	 * @param rowCounter
+	 * @param nodeId
+	 * @param workgroupId
+	 * @param wiseId1
+	 * @param wiseId2
+	 * @param wiseId3
+	 * @param stepWorkId
+	 * @param stepVisitCount
+	 * @param nodeTitle
+	 * @param nodeType
+	 * @param nodePrompt
+	 * @param nodeContent
+	 * @param startTime
+	 * @param endTime
+	 * @param postTime
+	 * @param stepWork
+	 * @param periodId
+	 * @param userInfo
+	 * @param stepWorksForWorkgroupId
+	 * @param nodeJSONObject
+	 * @param columnNames
+	 * @param row
+	 * @return
+	 */
+	private int writeAllStudentWorkRow(XSSFSheet userIdSheet,
+			int rowCounter,
+			String nodeId,
+			Long workgroupId,
+			String wiseId1,
+			String wiseId2,
+			String wiseId3,
+			Long stepWorkId,
+			int stepVisitCount,
+			String nodeTitle,
+			String nodeType,
+			String nodePrompt,
+			JSONObject nodeContent,
+			Timestamp startTime,
+			Timestamp endTime,
+			Timestamp postTime,
+			StepWork stepWork,
+			int periodId,
+			UserInfo userInfo,
+			List<StepWork> stepWorksForWorkgroupId,
+			JSONObject nodeJSONObject,
+			ArrayList<Object> columnNames,
+			ArrayList<Object> row) {
+    	
+		//counter for the cell columns
+    	int tempColumn = 0;
+
+    	//increment the student row count
+    	int studentWorkRowCount = rowCounter;
+    	
+    	//create a new row for this step work
+    	Row tempRow = createRow(userIdSheet, rowCounter++);
+    	Vector<String> tempRowVector = createRowVector();
+    	
+    	//set the step work/visit number
+    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, studentWorkRowCount);
+    	
+		//get the step revision count
+		int stepRevisionCount = getStepRevisionCount(nodeId);
 		
 		//set the workgroup information and run information columns
 		tempColumn = createUserDataRow(tempColumn, tempRow, tempRowVector, workgroupId.toString(), true, true, null);
@@ -1317,7 +1424,7 @@ public class VLEGetXLS extends VLEServlet {
     	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, nodeType);
     	
     	//set the prompt
-    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, prompt);
+    	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, nodePrompt);
     	
     	//set the node id
     	tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, nodeId);
@@ -1378,13 +1485,770 @@ public class VLEGetXLS extends VLEServlet {
 		 */
     	tempColumn = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, tempRow, tempRowVector, tempColumn, "allStudentWork");
     	
-    	//set the work into the cells
-    	tempColumn = setNodeStateResponse(tempRow, tempRowVector, tempColumn, nodeState, nodeId);
-    	
+    	if(row != null) {
+    		//loop through all the elements in the array
+    		for(int x=0; x<row.size(); x++) {
+    			//get an element
+        		Object object = row.get(x);
+
+        		if(object != null) {
+        			//this column has student data
+        			
+        			//get the column index
+        			int cellColumn = tempColumn;
+        			
+        			if(object instanceof String) {
+        				//set the cell string value
+                		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, (String) object);        				
+        			} else if(object instanceof Long) {
+        				//set the cell long value
+                		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, (Long) object);        				
+        			} else if(object instanceof Integer) {
+        				//set the cell integer value
+                		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, (Integer) object);
+        			} else if(object instanceof Double) {
+        				//set the cell integer value
+                		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, (Double) object);
+        			} else if(object instanceof Float) {
+        				//set the cell integer value
+                		tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, (Float) object);
+        			} else {
+        				//set the cell value as a string
+        				tempColumn = setCellValue(tempRow, tempRowVector, tempColumn, object.toString());
+        			}
+        			
+        			//check if there are column names
+            		if(columnNames != null) {
+            			/*
+            			 * there are column names so we will make sure there is a column name
+            			 * available for this column index
+            			 */
+            			if(columnNames.size() > x) {
+            				//there is a column name for the column index so we will get the column name for the column
+            				String comment = (String) columnNames.get(x);
+                			
+                			if(comment != null) {
+                				/*
+                				 * set the column name as a comment for the cell which will display when
+                				 * the user mouseovers the cell
+                				 */
+                				setCellComment(userIdSheet, tempRow, cellColumn, comment);
+                			}            				
+            			}
+            		}
+        		} else {
+        			//this column does not have student data so we will move the column counter to skip this cell
+        			tempColumn++;
+        			
+        			//add an empty element to the row vector
+        			addEmptyElementsToVector(tempRowVector, 1);
+        		}
+        	}    		
+    	}
+
     	//write the csv row if we are generating a csv file
     	writeCSV(tempRowVector);
-    	
+
     	return tempColumn;
+	}
+	
+	/**
+	 * Set the comment for a cell
+	 * @param sheet the excel sheet
+	 * @param row the excel row
+	 * @param column the column index
+	 * @param comment the comment string
+	 */
+	private void setCellComment(XSSFSheet sheet, Row row, int column, String comment) {
+		if(row != null) {
+			//get the cell
+			Cell cell = row.getCell(column);
+			
+			if(cell != null) {
+				if(sheet != null) {
+					//make the comment
+					XSSFComment cellComment = sheet.createDrawingPatriarch().createCellComment(new XSSFClientAnchor());
+					cellComment.setString(comment);
+
+					//add the comment to the cell
+			    	cell.setCellComment(cellComment);	
+				}
+			}			
+		}
+	}
+	
+	/**
+	 * Get the rows from the columns
+	 * @param columns an array of columns
+	 * @return an array of rows
+	 */
+	private ArrayList<ArrayList<Object>> getRowsFromColumns(ArrayList<ArrayList<Object>> columns) {
+		//an array to hold the rows
+		ArrayList<ArrayList<Object>> rows = new ArrayList<ArrayList<Object>>();
+		
+		if(columns != null) {
+			
+			//loop through all the columns
+			for(int x=0; x<columns.size(); x++) {
+				
+				//get a column
+				ArrayList<Object> column = columns.get(x);
+
+				if(column != null) {
+					
+					//loop through all the data values in the column
+					for(int y=0; y<column.size(); y++) {
+						Object dataValue = null;
+						
+						try {
+							//get a data value
+							dataValue = column.get(y);	
+						} catch(IndexOutOfBoundsException e) {
+							
+						}
+						
+						ArrayList<Object> row = null;
+						
+						try {
+							//get the row that we will put the data value in
+							row = rows.get(y);
+						} catch(IndexOutOfBoundsException e) {
+							
+						}
+						
+						if(row == null) {
+							//the row does not exist so we will create it
+							row = new ArrayList<Object>();
+							rows.add(y, row);
+						}
+						
+						//set the data value into the row
+						setValueInRow(row, x, dataValue);
+					}
+				}
+			}
+		}
+		
+		return rows;
+	}
+	
+	/**
+	 * Set the value into the row in the given index
+	 * @param row the array
+	 * @param index the index
+	 * @param value the value to put into the row
+	 * @return the updated row
+	 */
+	private ArrayList<Object> setValueInRow(ArrayList<Object> row, int index, Object value) {
+		if(row != null) {
+			
+			//check if the array is large enough to insert an element at the given index
+			if(row.size() <= index) {
+				/*
+				 * it is not large enough so we will insert empty values into the array
+				 * until it is large enough
+				 */
+				while(row.size() <= index) {
+					row.add("");
+				}
+			}
+
+			//set the value into the array
+			row.set(index, value);
+		}
+		
+		return row;
+	}
+	
+	/**
+	 * Print the export column names and data value columns to System.out
+	 * @param columnNames the column names
+	 * @param columns the columns
+	 */
+	private void printExportColumns(ArrayList<Object> columnNames, ArrayList<ArrayList<Object>> columns) {
+		//an array to hold the rows
+		ArrayList<ArrayList<Object>> rows = new ArrayList<ArrayList<Object>>();
+		
+		if(columnNames != null && columnNames.size() > 0) {
+			//output the column names
+			System.out.println("columnNames");
+			System.out.println(columnNames);
+		}
+
+		//get the column data in row format
+		rows = getRowsFromColumns(columns);
+
+		if(rows != null && rows.size() > 0) {
+			//output the student data value rows
+			System.out.println("columnValues");
+			
+			//loop through all the rows
+			for(int rowsCounter=0; rowsCounter<rows.size(); rowsCounter++) {
+				//get a row
+				ArrayList<Object> row = rows.get(rowsCounter);
+				
+				//output the row
+				System.out.println(row);
+			}
+		}
+	}
+	
+	/**
+	 * Get the export column names for the step
+	 * @param nodeId the node id of the step
+	 * @return an array containing the export column names
+	 */
+	private ArrayList<Object> getExportColumnNames(String nodeId) {
+		//the column names
+		ArrayList<Object> columnNames = new ArrayList<Object>();
+		
+		//get the export column objects
+		JSONArray exportColumns = getExportColumns(nodeId);
+		
+		if(exportColumns != null) {
+			
+			//loop through all the export column objects
+			for(int x=0; x<exportColumns.length(); x++) {
+				try {
+					//get an export column object
+					JSONObject exportColumn = exportColumns.getJSONObject(x);
+					
+					//get the column name
+					String columnName = exportColumn.getString("columnName");
+					
+					//add the column name to our array
+					columnNames.add(columnName);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return columnNames;
+	}
+	
+	/**
+	 * Check if an export column is referencing the same object as another export column
+	 * @param exportColumn1 the first export column
+	 * @param exportColumn2 the second export column
+	 * @param depth the current depth we are currently referencing in terms of child fields
+	 * @return whether the export columns are referencing the same object
+	 */
+	private boolean isExportColumnReferencingSameObject(JSONObject exportColumn1, JSONObject exportColumn2, int depth) {
+		boolean result = false;
+		
+		String field1 = null;
+		String field2 = null;
+		
+		//get the field of the first export column
+		if(exportColumn1 != null && exportColumn1.has("field")) {
+			try {
+				field1 = exportColumn1.getString("field");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		//get the field of the second export column
+		if(exportColumn2 != null && exportColumn2.has("field")) {
+			try {
+				field2 = exportColumn2.getString("field");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		JSONObject childField1 = null;
+		JSONObject childField2 = null;
+		
+		//get the child field of the first export column
+		if(exportColumn1 != null && exportColumn1.has("childField")) {
+			try {
+				childField1 = exportColumn1.getJSONObject("childField");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		//get the child field of the second export column
+		if(exportColumn2 != null && exportColumn2.has("childField")) {
+			try {
+				childField2 = exportColumn2.getJSONObject("childField");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(depth == 0) {
+			//we are on the first level
+			
+			if(exportColumn1 == null && exportColumn2 == null) {
+				//both the export columns are null so they are not referencing the same object
+				result = false;
+			} else if(exportColumn1 != null && exportColumn2 == null) {
+				//one of the export columns is null but the other is not so they are not referencing the same object
+				result = false;
+			} else if(exportColumn1 == null && exportColumn2 != null) {
+				//one of the export columns is null but the other is not so they are not referencing the same object
+				result = false;
+			} else if(exportColumn1 != null && exportColumn2 != null) {
+				//both export columns are not null so we will look at the fields
+				
+				if(field1 == null && field2 == null) {
+					//both fields are null so they are not referencing the same object
+					result = false;
+				} else if(field1 != null && field2 == null) {
+					//one of the fields is null but the other is not so they are not referencing the same object
+					result = false;
+				} else if(field1 == null && field2 != null) {
+					//one of the fields is null but the other is not so they are not referencing the same object
+					result = false;
+				} else if(field1.equals(field2)) {
+					/*
+					 * the field values are the same so we will iterate to the child field objects
+					 * to see if they are the same as well
+					 */
+					result = isExportColumnReferencingSameObject(childField1, childField2, depth + 1);
+				} else if(!field1.equals(field2)) {
+					//the field values are not null and not the same so they are not referencing the same object
+					result = false;
+				}
+			}
+		} else {
+			//we are on a level deeper than the first level
+			
+			if(exportColumn1 == null && exportColumn2 == null) {
+				/*
+				 * both export columns are null and we are on a level deeper than the first
+				 * which means the export columns are referencing the same object
+				 * 
+				 * example
+				 * 
+				 * exportColumn1 = {
+				 * 		"field":"ideas",
+				 * }
+				 * 
+				 * exportColumn2 = {
+				 * 		"field":"ideas",
+				 * }
+				 * 
+				 * the first time this function is called the field values are the same so
+				 * we iterate onto the childFields. when the function is called again, the
+				 * childField object will be passed in as the export column parameters and
+				 * will both be null. in this case the original export columns are both
+				 * referencing the same field "ideas" and both of their childField objects
+				 * are null. this means they are referencing the same object so we will
+				 * return true
+				 */
+				result = true;
+			} else if(exportColumn1 != null && exportColumn2 == null) {
+				//one of the export columns is null but the other is not so they are not referencing the same object
+				result = false;
+			} else if(exportColumn1 == null && exportColumn2 != null) {
+				//one of the export columns is null but the other is not so they are not referencing the same object
+				result = false;
+			} else if(exportColumn1 != null && exportColumn2 != null) {
+				//both export columns are not null so we will look at the fields
+				
+				if(field1 == null && field2 == null) {
+					//both field values are null so we will compare the child field objects
+					result = isExportColumnReferencingSameObject(childField1, childField2, depth + 1);
+				} else if(field1 != null && field2 == null) {
+					//one of the fields is null but the other is not so they are not referencing the same object
+					result = false;
+				} else if(field1 == null && field2 != null) {
+					//one of the fields is null but the other is not so they are not referencing the same object
+					result = false;
+				} else if(field1.equals(field2)) {
+					/*
+					 * the field values are the same so we will iterate to the child field objects
+					 * to see if they are the same as well
+					 */
+					result = isExportColumnReferencingSameObject(childField1, childField2, depth + 1);
+				} else if(!field1.equals(field2)) {
+					//the fields are not the same
+					
+					if(childField1 == null && childField2 == null) {
+						/*
+						 * there are no child fields so we have reached the leaf nodes which means they
+						 * are referencing the same object
+						 */
+						result = true;
+					} else if(childField1 != null && childField2 == null) {
+						//one of the columns has a child field but the other does not so they are not referencing the same object
+						result = false;
+					} else if(childField1 == null && childField2 != null) {
+						//one of the columns has a child field but the other does not so they are not referencing the same object
+						result = false;
+					} else if(childField1 != null && childField2 != null) {
+						//both of the columns have child fields which means they both go deeper and are not referencing the same object
+						result = false;
+					}
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Get the student data values for the export column
+	 * @param nodeState the node state
+	 * @param nodeId the node if of the step
+	 * @return the student data values columns. this is a two dimensional array
+	 * with the first dimension being the columns and the second dimension being
+	 * the rows.
+	 */
+	private ArrayList<ArrayList<Object>> getExportColumnDataValues(JSONObject nodeState, String nodeId) {
+		//holds the columns and values of the columns
+		ArrayList<ArrayList<Object>> columns = new ArrayList<ArrayList<Object>>();
+		
+		//holds the number of times a column was expanded and multiplied
+		ArrayList<ArrayList<Integer>> expandAndMultiplyAmountsList = new ArrayList<ArrayList<Integer>>();
+		
+		if(nodeState != null) {
+			//get the export columns for the step
+			JSONArray exportColumns = getExportColumns(nodeId);
+			
+			if(exportColumns != null) {
+				//keep track of the export columns we have visited
+				JSONArray visitedExportColumns = new JSONArray();
+				
+				//loop through all the export columns
+				for(int columnIndex=0; columnIndex<exportColumns.length(); columnIndex++) {
+					try {
+						//get an export column
+						JSONObject exportColumn = exportColumns.getJSONObject(columnIndex);
+						
+						//used to hold the visited column that references the same object
+						ArrayList<Integer> relatedColumnExpandAndMultiplyAmounts = null;
+						
+						/*
+						 * loop through all the visited export columns to check if there are
+						 * any that reference the same object. if there is a column that references
+						 * the same object, we need to apply the same expansion and muliplying
+						 * for our new column.
+						 */
+						for(int visitedColumnIndex=0; visitedColumnIndex<visitedExportColumns.length(); visitedColumnIndex++) {
+							//get a visited export column
+							JSONObject visitedExportColumn = visitedExportColumns.getJSONObject(visitedColumnIndex);
+							
+							//check if our current column references the same object as the visited export column
+							boolean isExportColumnReferencingSameObject = isExportColumnReferencingSameObject(visitedExportColumn, exportColumn, 0);
+							
+							if(isExportColumnReferencingSameObject) {
+								/*
+								 * our current column references the same object so we will get the
+								 * expand and multipley amounts for the visited export column so we
+								 * can apply it to our new column.
+								 */
+								relatedColumnExpandAndMultiplyAmounts = expandAndMultiplyAmountsList.get(visitedColumnIndex);
+								break;
+							}
+						}
+						
+						//get the student data values for the field
+						ArrayList<Object> newColumn = getColumnValuesForField(exportColumn, nodeState);
+						
+						if(relatedColumnExpandAndMultiplyAmounts == null) {
+							//we did not find any previous columns that referenced the same object
+							
+							//get the column size
+							int newColumnSize = newColumn.size();
+
+							//get the length of the previous columns. all the columns will be the same length
+							int previousColumnLength = getColumnLength(columns);
+							
+							if(previousColumnLength == 0) {
+								previousColumnLength = 1;
+							}
+							
+							if(newColumnSize > 1) {
+								//the column size is greater than 1
+								
+								if(columnIndex == 0) {
+									/*
+									 * we are adding the first column so we will just add the column without
+									 * having to perform any expanding or multiplying 
+									 */
+									columns.add(newColumn);
+								} else {
+									/*
+									 * we are not on the first column so we may need to perform some
+									 * expanding and multiplying to the values
+									 */
+									
+									/*
+									 * multiply all the previous columns by the number of values in this column
+									 * 
+									 * example
+									 * 
+									 * the first column for the "answer" field contains values hello and world
+									 * 
+									 * answer
+									 * ------
+									 * hello
+									 * world
+									 * 
+									 * the new "x" column we are adding contains two values 1 and 2. this is how
+									 * the columns will look after we perform the expanding and multiplying and add
+									 * our new column
+									 * 
+									 * answer| x
+									 * ----------
+									 * hello | 1
+									 * world | 1
+									 * hello | 2
+									 * world | 2
+									 * 
+									 * each column ("answer" and "x") have two values which means we need to multiply
+									 * the existing column (the one that contains "hello" and "world"), and expand
+									 * the new column (the one that contains 1 and 2).
+									 */
+									columns = multiplyColumns(columns, newColumnSize);
+									
+									//we need to update how much we expanded or multiplied the previous columns
+									updateExpandAndMultiplyAmounts(expandAndMultiplyAmountsList, newColumnSize);
+									
+									/*
+									 * expand each value in the current column by the length of the previous column
+									 * 
+									 * answer
+									 * ------
+									 * hello
+									 * world
+									 * 
+									 * the new "x" column we are adding contains two values 1 and 2. 
+									 * the previous column has two values so we will need to expand
+									 * each of the "x" values by two. we will end up with the x column
+									 * containing the values 1, 1, 2, 2.
+									 * 
+									 * answer| x
+									 * ----------
+									 * hello | 1
+									 * world | 1
+									 * hello | 2
+									 * world | 2
+									 */
+									ArrayList<Object> expandedColumn = expandColumn(newColumn, previousColumnLength);
+									
+									//add the column
+									columns.add(expandedColumn);
+								}
+								
+								//create the expand and multiply amounts for this new column
+								ArrayList<Integer> expandAndMultiplyAmounts = new ArrayList<Integer>();
+								expandAndMultiplyAmounts.add(previousColumnLength);
+								
+								/*
+								 * add the expand and multiply amounts for this new column 
+								 * to the expand and multiply amounts list
+								 */
+								expandAndMultiplyAmountsList.add(columnIndex, expandAndMultiplyAmounts);
+							} else {
+								//the column size is 0 or 1
+								
+								//we need to update how much we expanded or multiplied the previous columns
+								updateExpandAndMultiplyAmounts(expandAndMultiplyAmountsList, newColumnSize);
+								
+								//add the new column to the columns
+								columns.add(newColumn);
+								
+								//create the expand and multiply amounts for this new column
+								ArrayList<Integer> timesMultipliedList = new ArrayList<Integer>();
+								timesMultipliedList.add(previousColumnLength);
+								
+								/*
+								 * add the expand and multiply amounts for this new column 
+								 * to the expand and multiply amounts list
+								 */
+								expandAndMultiplyAmountsList.add(columnIndex, timesMultipliedList);
+							}
+						} else {
+							//we found a previous column that referenced the same object
+							
+							//loop through all the expand and mulitply values for the related column
+							for(int expandAndMultiplyIndex=0; expandAndMultiplyIndex<relatedColumnExpandAndMultiplyAmounts.size(); expandAndMultiplyIndex++) {
+								//get an expand or multiply value
+								int tempTimesMultiplied = relatedColumnExpandAndMultiplyAmounts.get(expandAndMultiplyIndex);
+								
+								if(expandAndMultiplyIndex == 0) {
+									//the first index value is always the expand value
+									
+									//expand the values in the new column
+									newColumn = expandColumn(newColumn, tempTimesMultiplied);
+								} else {
+									//all index values after the first index value are multiply values
+									
+									//multiply the column
+									newColumn = multiplyColumn(newColumn, tempTimesMultiplied);
+								}
+							}
+							
+							//update the expand and multiply values for the previous columns
+							updateExpandAndMultiplyAmounts(expandAndMultiplyAmountsList, 1);
+							
+							//multiply all the columns
+							columns = multiplyColumns(columns, 1);
+							
+							//add the new column
+							columns.add(newColumn);
+							
+							//create the expand and multiply amounts for this new column
+							ArrayList<Integer> timesMultipliedList = new ArrayList<Integer>();
+							timesMultipliedList.add(1);
+							
+							/*
+							 * add the expand and multiply amounts for this new column 
+							 * to the expand and multiply amounts list
+							 */
+							expandAndMultiplyAmountsList.add(columnIndex, timesMultipliedList);
+						}
+						
+						//add the export column definition to our array of visited export columns
+						visitedExportColumns.put(exportColumn);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		//return all the columns with the student data in them
+		return columns;
+	}
+	
+	/**
+	 * Get the length of the columns. All the columns should be the same length.
+	 * @param columns the columns
+	 * @return the length of the columns
+	 */
+	private int getColumnLength(ArrayList<ArrayList<Object>> columns) {
+		int length = 0;
+		
+		if(columns != null && columns.size() > 0) {
+			//get the first column
+			ArrayList<Object> column = columns.get(0);
+			
+			//get the size of the column. all other columns should be the same length.
+			length = column.size();
+		}
+		
+		return length;
+	}
+	
+	/**
+	 * Update the expand and multiply amounts for all the columns
+	 * @param timesMultiplied the array of column amounts
+	 * @param times the multiply amount to add to the array
+	 * @return the updated array of expand and multiply amounts
+	 */
+	private ArrayList<ArrayList<Integer>> updateExpandAndMultiplyAmounts(ArrayList<ArrayList<Integer>> timesMultiplied, int times) {
+		
+		if(timesMultiplied != null) {
+			//loop through all the columns
+			for(int x=0; x<timesMultiplied.size(); x++) {
+				//get a column's expand and multiply values
+				ArrayList<Integer> timesMultipliedArray = timesMultiplied.get(x);
+				
+				//add the multiply amount to the array
+				timesMultipliedArray.add(times);
+			}			
+		}
+		
+		//return the updated expand and multiply arrays
+		return timesMultiplied;
+	}
+	
+	/**
+	 * Multiply the columns
+	 * @param columns the columns
+	 * @param times the number of times to multiply the columns
+	 * @return the updated columns
+	 */
+	private ArrayList<ArrayList<Object>> multiplyColumns(ArrayList<ArrayList<Object>> columns, int times) {
+		//the array to hold the new columns
+		ArrayList<ArrayList<Object>> newColumns = new ArrayList<ArrayList<Object>>();
+		
+		//loop through all the columns
+		for(int x=0; x<columns.size(); x++) {
+			//get a column
+			ArrayList<Object> column = columns.get(x);
+			
+			//make a new column
+			ArrayList<Object> newColumn = new ArrayList<Object>();
+			
+			//add the new column to our new columns array
+			newColumns.add(x, newColumn);
+			
+			/*
+			 * multiply the column by adding all the values into the new column
+			 * multiple times
+			 */
+			for(int y=0; y<times; y++) {
+				newColumn.addAll(column);				
+			}
+		}
+		
+		//return the new multiplied columns
+		return newColumns;
+	}
+	
+	/**
+	 * Multiply a single column
+	 * @param column the column
+	 * @param times the number of times to multiply the column
+	 * @return the updated column
+	 */
+	private ArrayList<Object> multiplyColumn(ArrayList<Object> column, int times) {
+		//the new column
+		ArrayList<Object> newColumn = new ArrayList<Object>();
+		
+		/*
+		 * multiply the column by adding all the values into the new column
+		 * multiple times
+		 */
+		for(int y=0; y<times; y++) {
+			newColumn.addAll(column);				
+		}
+		
+		return newColumn;
+	}
+	
+	/**
+	 * Expand the column. This means for each element in the column we will
+	 * multiply that element a certain number of times.
+	 * 
+	 * example
+	 * 
+	 * before
+	 * [1, 2, 3]
+	 * 
+	 * if we expand the column elements times 3 we will end up with
+	 * 
+	 * after
+	 * [1, 1, 1, 2, 2, 2, 3, 3, 3]
+	 * 
+	 * @param column the column to expand
+	 * @param times the number of times to expand the elements in the column
+	 * @return the updated column
+	 */
+	private ArrayList<Object> expandColumn(ArrayList<Object> column, int times) {
+		//the new column
+		ArrayList<Object> newColumn = new ArrayList<Object>();
+		
+		//loop through all the columns
+		for(int x=0; x<column.size(); x++) {
+			//get an element in the column
+			Object columnValue = column.get(x);
+			
+			//add the element a certain number of times to the new column
+			for(int y=0; y<times; y++) {
+				newColumn.add(columnValue);
+			}
+		}
+		
+		return newColumn;
 	}
 	
 	/**
@@ -1403,7 +2267,7 @@ public class VLEGetXLS extends VLEServlet {
 			String nodeId) {
 		
 		//get the response
-		String response = getNodeStateResponse(nodeState);
+		String response = getNodeStateResponse(nodeState, nodeId);
 		
 		if(response != null) {
 			//set the response into the cell
@@ -2071,7 +2935,6 @@ public class VLEGetXLS extends VLEServlet {
 			HashMap<String, JSONObject> nodeIdToNodeContent, 
 			String nodeId) {
 
-		
 		//get the node title for the node id
 		String nodeTitle = nodeIdToNodeTitlesMap.get(nodeId);
 		
@@ -3571,7 +4434,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param nodeState the node state
 	 * @return the response
 	 */
-	private String getNodeStateResponse(JSONObject nodeState) {
+	private String getNodeStateResponse(JSONObject nodeState, String nodeId) {
 		String response = null;
 		
 		if(nodeState != null) {
@@ -3586,6 +4449,302 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return response;
+	}
+	
+	/**
+	 * Get the export columns from the step content
+	 * @param nodeId the node id
+	 * @return a JSONArray of export column objects that specify what
+	 * columns to display in the export
+	 */
+	private JSONArray getExportColumns(String nodeId) {
+		JSONArray exportColumns = null;
+		
+		if(nodeId != null) {
+			//get the content for the step
+			JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);	
+			
+			if(nodeContent != null) {
+				//check if export columns were specified in the content
+				if(nodeContent.has("exportColumns") && !nodeContent.isNull("exportColumns")) {
+					
+					try {
+						//get the export columns
+						exportColumns = nodeContent.getJSONArray("exportColumns");
+					} catch(JSONException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		return exportColumns;
+	}
+	
+	/**
+	 * Get the column values for a field in the student data
+	 * @param fieldObject the object that specifies what field to get
+	 * @param studentWork the student data
+	 * @return an array of objects that are found in the specified field
+	 * in the student data. if the field only contains one value, there
+	 * will only be one element in the array.
+	 */
+	private ArrayList<Object> getColumnValuesForField(JSONObject fieldObject, JSONObject studentWork) {
+		//the array to hold the values
+		ArrayList<Object> values = new ArrayList<Object>();
+		
+		if(studentWork != null) {
+			try {
+				if(fieldObject != null) {
+					String field = null;
+					JSONObject childFieldObject = null;
+
+					//get the field
+					if(fieldObject.has("field")) {
+						field = fieldObject.getString("field");
+					}
+					
+					//get the child field
+					if(fieldObject.has("childField")) {
+						childFieldObject = fieldObject.getJSONObject("childField");
+					}
+
+					if(field != null) {
+						if(studentWork.has(field)) {
+							//get the value in the field in the student work
+							Object value = studentWork.get(field);
+
+							if(value != null) {
+								if(value instanceof JSONObject) {
+									//the value is a JSONObject
+									JSONObject jsonObjectValue = (JSONObject) value;
+									
+									if(childFieldObject != null) {
+										//there is a childField specified so we will recursively go deeper into the student work
+										values.addAll(getColumnValuesForField(childFieldObject, jsonObjectValue));							
+									} else {
+										//there is no childField so we have traversed as far as we need to and will get this value 
+										values.add(jsonObjectValue.toString());
+									}
+								} else if(value instanceof JSONArray) {
+									//the value is a JSONArray
+									JSONArray jsonArrayValue = (JSONArray) value;
+									
+									if(childFieldObject != null) {
+										//there is a childField specified so we will recursively go deeper into the student work
+										values.addAll(getValueForField(childFieldObject, jsonArrayValue));							
+									} else {
+										/*
+										 * there is no childField so we have traversed as far as we need to and will get this value.
+										 * since this value is an array we will need to get all the values in the array.
+										 */
+										values.add(getArrayValues(jsonArrayValue));
+									}
+								} else if(value instanceof String) {
+									//the value is a string
+									values.add(value);
+								} else if(value instanceof Boolean) {
+									//the value is a boolean
+									values.add(value);
+								} else if(value instanceof Long) {
+									//the value is a long
+									values.add(value);
+								} else if(value instanceof Integer) {
+									//the value is an integer
+									values.add(value);
+								} else if(value instanceof Double) {
+									//the value is a double
+									values.add(value);
+								} else if(value instanceof Float) {
+									//the value is a Float
+									values.add(value);
+								}
+							}
+						}
+					}
+				}
+				
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return values;
+	}
+	
+	/**
+	 * Get the values for the given field from an array
+	 * @param fieldObject the field object that specifies what work to get
+	 * @param studentWork an array that we will obtain student work values from
+	 * 
+	 * example
+	 * 
+	 * here's an example of the studentWork array that would be passed in
+	 * 
+	 * [
+	 * 	{"text":"hello", "x":1, "y":2},
+	 * 	{"text":"world", "x":3, "y":4}
+	 * ]
+	 * 
+	 * here's an example of a fieldObject to retrieve all the text values
+	 * 
+	 * {
+	 * 	"field":"text"
+	 * }
+	 * 
+	 * given these two arguments we would end up returning an array like this
+	 * 
+	 * [
+	 * 	"hello",
+	 *  "world"
+	 * ]
+	 * 
+	 * @return an array that contains the field value from each element in the array
+	 */
+	private ArrayList<Object> getValueForField(JSONObject fieldObject, JSONArray studentWork) {
+		ArrayList<Object> values = new ArrayList<Object>();
+		
+		if(studentWork != null) {
+			try {
+				if(fieldObject != null) {
+					String field = null;
+					JSONObject childFieldObject = null;
+					
+					//get the field
+					if(fieldObject.has("field")) {
+						field = fieldObject.getString("field");
+					}
+					
+					//get the child field
+					if(fieldObject.has("childField")) {
+						childFieldObject = fieldObject.getJSONObject("childField");
+					}
+
+					if(field != null) {
+						//a field has been provided
+						
+						//loop through all the elements in the array
+						for(int x=0; x<studentWork.length(); x++) {
+							try {
+								//get an element from the array
+								Object arrayElement = studentWork.get(x);
+								Object value = null;
+								
+								if(arrayElement instanceof JSONObject) {
+									JSONObject arrayElementJSONObject = (JSONObject) arrayElement;
+									
+									if(arrayElementJSONObject != null && arrayElementJSONObject.has(field)) {
+										//get the field value from the element
+										value = ((JSONObject) arrayElement).get(field);
+									}
+								}
+								
+								if(value != null) {
+									//we were able to retrieve the field value
+									
+									if(value instanceof JSONObject) {
+										//the value is a JSONObject
+										
+										if(childFieldObject != null) {
+											//there is a child field so we will traverse deeper into the student work
+											values.add(getColumnValuesForField(childFieldObject, (JSONObject) value));							
+										} else {
+											//there is no child field so we will just get the string value of the object
+											values.add(value.toString());
+										}
+									} else if(value instanceof JSONArray) {
+										if(childFieldObject != null) {
+											//there is a child field so we will traverse deeper into the student work
+											values.add(getValueForField(childFieldObject, (JSONArray) value));							
+										} else {
+											//there is no child field so we will just get the string value of the array
+											values.add(value.toString());
+										}
+									} else if(value instanceof String) {
+										//the value is a string
+										values.add(value);
+									} else if(value instanceof Boolean) {
+										//the value is a boolean
+										values.add(value);
+									} else if(value instanceof Long) {
+										//the value is a long
+										values.add(value);
+									} else if(value instanceof Integer) {
+										//the value is an integer
+										values.add(value);
+									} else if(value instanceof Double) {
+										//the value is a double
+										values.add(value);
+									}
+								} else {
+									/*
+									 * we were unable to retrieve the field for this element so we will just
+									 * add an empty value
+									 */
+									values.add("");
+								}
+							} catch(JSONException e) {
+								e.printStackTrace();
+							}
+						}
+					} else {
+						/*
+						 * a field has not been provided so we will just add each element
+						 * of the array
+						 */
+
+						//loop through all the elements in the array
+						for(int x=0; x<studentWork.length(); x++) {
+							//get an element
+							Object arrayElement = studentWork.get(x);
+							
+							//add the element
+							values.add(arrayElement);
+						}
+					}
+				}
+				
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return values;
+	}
+	
+	/**
+	 * Get the values of the array
+	 * @param studentWork a JSONArray of student work
+	 * @return an array of objects
+	 */
+	private ArrayList<Object> getArrayValues(JSONArray studentWork) {
+		//the array to hold the values
+		ArrayList<Object> values = new ArrayList<Object>();
+		
+		if(studentWork != null) {
+			//loop through all the elements in the student work
+			for(int x=0; x<studentWork.length(); x++) {
+				try {
+					//get an element
+					Object arrayElement = studentWork.get(x);
+					
+					if(arrayElement instanceof JSONArray) {
+						/*
+						 * the element is an array so we will add all the individual elements
+						 * of the array
+						 */
+						values.addAll(getArrayValues((JSONArray) arrayElement));
+					} else {
+						//add the element
+						values.add(arrayElement);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return values;
 	}
 	
 	/**
@@ -7071,6 +8230,72 @@ public class VLEGetXLS extends VLEServlet {
 	}
 	
 	/**
+	 * Set the double value into the cell
+	 * 
+	 * @param row the excel row
+	 * @param rowVector the vector that holds the string for the csv output
+	 * @param columnCounter the column index
+	 * @param value the value to set in the cell
+	 * 
+	 * @return the new column index for the next empty cell
+	 */
+	private int setCellValue(Row row, Vector<String> rowVector, int columnCounter, Double value) {
+		if(value == null) {
+			if(rowVector != null) {
+				//set an empty string into the vector
+				rowVector.add("");				
+			}
+		} else {
+			if(row != null) {
+				//set the value into the cell
+				row.createCell(columnCounter).setCellValue(value);
+			}
+			
+			if(rowVector != null) {
+				rowVector.add(value + "");				
+			}
+		}
+		
+		//increment the column counter
+		columnCounter++;
+		
+		return columnCounter;
+	}
+	
+	/**
+	 * Set the float value into the cell
+	 * 
+	 * @param row the excel row
+	 * @param rowVector the vector that holds the string for the csv output
+	 * @param columnCounter the column index
+	 * @param value the value to set in the cell
+	 * 
+	 * @return the new column index for the next empty cell
+	 */
+	private int setCellValue(Row row, Vector<String> rowVector, int columnCounter, Float value) {
+		if(value == null) {
+			if(rowVector != null) {
+				//set an empty string into the vector
+				rowVector.add("");				
+			}
+		} else {
+			if(row != null) {
+				//set the value into the cell
+				row.createCell(columnCounter).setCellValue(value);
+			}
+			
+			if(rowVector != null) {
+				rowVector.add(value + "");				
+			}
+		}
+		
+		//increment the column counter
+		columnCounter++;
+		
+		return columnCounter;
+	}
+	
+	/**
 	 * Set the value in the row at the given column. if the string can be
 	 * converted to a number we will do so. this makes a difference in the
 	 * excel because strings are left aligned and numbers are right aligned.
@@ -7153,7 +8378,7 @@ public class VLEGetXLS extends VLEServlet {
 		
 		if(row != null) {
 			//set the value into the cell
-			row.createCell(columnCounter).setCellValue(value);			
+			row.createCell(columnCounter).setCellValue(value);
 		}
 
 		//increment the column counter
