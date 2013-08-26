@@ -11,6 +11,7 @@
 	height:100%;
 	width:100%;
 	position:relative;
+	background-color: #191D2E;
 }
 
 /* Styles for navigation menu elements */
@@ -166,10 +167,6 @@ a.glue {
 	left:10;
 }
 
-#my_menu {
-	
-}
-
 #my_menu > canvas {
 	position:absolute;
 	top:0;
@@ -184,6 +181,10 @@ svg#chart {
 	position:absolute;
 }
 
+#wrap.zoom {
+	cursor: move;
+}
+
 #mapBgImg {
 	-webkit-transition: opacity .75s ease;
     -moz-transition: opacity .75s ease;
@@ -192,25 +193,28 @@ svg#chart {
 }
 
 #mapBgImg.zoom {
-	opacity:0;
+	/*opacity:0;*/
 }
 
-.item circle, .item image, .item, .seq, .link, .target, .hull {
-	-webkit-transition: all .75s ease;
-    -moz-transition: all .75s ease;
-    -o-transition: all .75s ease;
-    transition: all .75s ease;
+.item circle, .item image, .item, .seq circle, .seq image, .seq, 
+.node circle, .node image, .node, .link, .target, .hull {
+	-webkit-transition: all .75s ease-out;
+    -moz-transition: all .75s ease-out;
+    -o-transition: all .75s ease-out;
+    transition: all .75s ease-out;
 }
 
 .node {
 	opacity:0;
-	display:none;
+	pointer-events:none;
+	/*display:none;*/
 }
 
 .node.active {
 	cursor:pointer;
+	pointer-events:auto;
 	opacity:1;
-	display:block;
+	/*display:block;*/
 }
 
 .node circle {
@@ -241,11 +245,11 @@ svg#chart {
 }
 
 .node image {
-	opacity:0;
+	/*opacity:.1;*/
 }
 
 .node.active image {
-	opacity: 1;
+	/*opacity: 1;*/
 }
 
 .node circle.main.mouseover {
@@ -294,6 +298,32 @@ svg#chart {
 	font-size:4px;
 }
 
+/*.seq text.outline {
+	stroke: #ffc000;
+	fill:none;
+	stroke-width:2;
+}*/
+
+.seq {
+	pointer-events:auto;
+}
+
+.seq.active text {
+	/*display:none;*/
+	opacity: 0;
+}
+
+.seq.inactive {
+	/*display:none;*/
+	opacity: .1;
+	pointer-events:none;
+}
+
+.seq.inactive text {
+	/*display:none;*/
+	opacity: 0;
+}
+
 .seq .icon {
 	cursor:pointer;
 }
@@ -332,7 +362,7 @@ svg#chart {
 	color: #cfff4a;
 	font-family: 'Yanone Kaffeesatz', sans-serif;
 	font-weight: 200;
-	font-size: 1.15em;
+	font-size: 1.05em;
 	margin: 0 .75em;
 	background: transparent url('images/menu-header-blank.png') left center no-repeat;
 	width: 254px;
@@ -350,43 +380,21 @@ svg#chart {
 	width: 20px;
 }
 
-/*.seq text.outline {
-	stroke: #ffc000;
-	fill:none;
-	stroke-width:2;
-}*/
-
-.seq.active {
-	/*display:none;*/
-}
-
-.seq.active text {
-	display:none;
-}
-
-.seq.inactive {
-	display:none;
-}
-
-.seq.inactive text {
-	display:none;
-}
-
 path.link {
     stroke: #8a85d1;
     opacity:0;
-    display:none;
+    /*display:none;*/
     stroke-width:1.5;
 }
 
 path.link.seq {
 	opacity:.6;
-	display:block;
+	/*display:block;*/
 }
 
 path.link.seq.active, path.link.seq.inactive {
-	opacity:0;
-	display:none;
+	opacity:.1;
+	/*display:none;*/
 }
 
 path.link.path.active {
