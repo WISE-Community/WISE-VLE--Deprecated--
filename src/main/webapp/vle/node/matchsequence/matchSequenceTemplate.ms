@@ -21,5 +21,6 @@
       },
       "timeDependent": false
    },
+   "sourceBucketName":"Choices",
    "type": "MatchSequence"
 }

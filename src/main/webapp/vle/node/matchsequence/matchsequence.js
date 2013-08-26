@@ -62,7 +62,9 @@ function MS(node, view) {
 	};
 	
     /* instantiate sourcebucket */
+	var sourceBucketName = (this.content.sourceBucketName != null) ? this.content.sourceBucketName : this.view.getI18NString("choices","MatchSequenceNode");
 	this.sourceBucket = new MSBUCKET(this.view);
+	this.sourceBucket.text = sourceBucketName;
     
     /* instantiate choices */
     for (var i=0; i < this.content.assessmentItem.interaction.choices.length; i++) {
