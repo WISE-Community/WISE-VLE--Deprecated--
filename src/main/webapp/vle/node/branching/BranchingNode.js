@@ -236,7 +236,7 @@ BranchingNode.prototype.onBeforeCreateNavigationHtml = function() {
 	var latestState = this.view.getState().getLatestWorkByNodeId(this.id);
 	if (latestState != null && latestState.response != null && latestState.response.chosenPathId != null) {
 		// student has already been to this branch and has been "branched"
-		if (!this.content.showBranchNodeAfterBranching) {
+		if (!this.content.getContentJSON().showBranchNodeAfterBranching) {
 			// hide this branchnode if needed
 			this.isHidden = true;
 		}
@@ -305,6 +305,85 @@ BranchingNode.prototype.setNodeHidden = function(node, isHidden) {
 		//the node is a step
 		node.isHidden = isHidden;
 	}
+};
+
+
+/**
+ * Override of Node.overridesIsCompleted
+ * Specifies whether the node overrides Node.isCompleted
+ */
+BranchingNode.prototype.overridesIsCompleted = function() {
+	return true;
+};
+
+/**
+ * Override of Node.isCompleted
+ * Get whether the step is completed or not
+ * @return a boolean value whether the step is completed or not
+ */
+BranchingNode.prototype.isCompleted = function() {
+	var minPathCompleteRequiredForStepCompletion = this.content.getContentJSON().minPathCompleteRequiredForStepCompletion;
+	if (minPathCompleteRequiredForStepCompletion == null) {
+		return true;
+	}
+	// check that the student has completed the minimum number of paths required to move on.
+	numBranchPathsCompletedSoFar = 0;
+	var allPathsJSONArray = this.getAllPaths(); // an array of path JSON objects. [ {"identifier": "A","sequenceRef": "seq_3"},{ "identifier": "B","sequenceRef": "seq_4"},...]
+	for (var i=0; i<allPathsJSONArray.length; i++) {
+		if (this.isBranchPathCompleted(allPathsJSONArray[i])) {
+			numBranchPathsCompletedSoFar++;
+		}
+	}
+	return numBranchPathsCompletedSoFar >= minPathCompleteRequiredForStepCompletion;
+};
+
+/**
+ * Returns true iff all of the nodes in the specified branch path are completed for the specified path.
+ */
+BranchingNode.prototype.isBranchPathCompleted = function(branchPath) {
+	var branchPathCompleted = true;
+	
+	//get all the node ids in this activity
+	var nodeIds = this.view.getProject().getNodeIdsInSequence(branchPath.sequenceRef);
+	
+	//loop through all the node ids in the activity
+	for(var x=0; x<nodeIds.length; x++) {
+		//get a node id
+		var tempNodeId = nodeIds[x];
+		
+		//get the node
+		var node = this.view.getProject().getNodeById(tempNodeId);
+		
+		//get the latest work for the step
+		var nodeState = this.view.getState().getLatestWorkByNodeId(tempNodeId);
+		
+		//check if the work is completed
+		if(!node.isCompleted(nodeState)) {
+			branchPathCompleted = false;
+		}
+	}	
+	return branchPathCompleted;
+};
+
+/**
+ * Return the path JSON object that has the specified id.
+ */
+BranchingNode.prototype.getPathJSONByPathId = function(pathId) {
+	var allPathsJSONArray = this.getAllPaths(); // an array of path JSON objects. [ {"identifier": "A","sequenceRef": "seq_3"},{ "identifier": "B","sequenceRef": "seq_4"},...]
+	for (var i=0; i<allPathsJSONArray.length; i++) {
+		if (allPathsJSONArray[i].identifier == pathId) {
+			return allPathsJSONArray[i];
+		}
+	}
+	return null;
+};
+
+
+/**
+ * Determine which path to visit
+ */
+BranchingNode.prototype.getAllPaths = function() {
+	return this.content.getContentJSON().paths;
 };
 
 
