@@ -455,7 +455,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		/* Recursively searches for the given id from the point of the node down and returns the path. */
 		var getPathToNode = function(node, path, id){
 			if(node.id==id){
-				return path;
+				return path + '';
 			} else if(node.type=='sequence'){
 				for(var e=0;e<node.children.length;e++){
 					var pos = getPathToNode(node.children[e], path + '.' + e, id);
