@@ -146,7 +146,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 		//check if the student changed their response
 		if(this.isResponseChanged() || saveAndLock || checkAnswer) {
 			//response was changed so we will create a new state and save it
-			var orState = new OPENRESPONSESTATE([response]);
+			var orState = new OPENRESPONSESTATE(response);
 			
 			//set the cRaterItemId into the node state if this step is a CRater item
 			if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
