@@ -1801,7 +1801,7 @@ Grapher.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalid
 		}
 		
 		result = false;
-	} else if(Number(xMin) >= Number(xMax)) {
+	} else if(xMin != '' && xMax != '' && Number(xMin) >= Number(xMax)) {
 		if(enableAlert) {
 			//x min is greater than x max
 			alert("Error: x min is greater than x max");			
@@ -1816,7 +1816,7 @@ Grapher.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalid
 		}
 		
 		result = false;
-	} else if(Number(yMin) >= Number(yMax)) {
+	} else if(yMin != '' && yMax != '' && Number(yMin) >= Number(yMax)) {
 		if(enableAlert) {
 			//y min is greater than y max
 			alert("Error: y min is greater than y max");			
