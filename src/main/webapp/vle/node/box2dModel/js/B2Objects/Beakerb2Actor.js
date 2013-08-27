@@ -43,6 +43,8 @@
 		this.savedObject.depth_units = depth_units;
 		this.savedObject.init_liquid_volume_perc = init_liquid_volume_perc;
 		this.savedObject.spilloff_volume_perc = spilloff_volume_perc;
+		this.savedObject.liquid_density = liquid.density;
+		this.savedObject.liquid_name = liquid.display_name;
 
 		this.skin = new BeakerShape(this, width_units*GLOBAL_PARAMETERS.SCALE, height_units*GLOBAL_PARAMETERS.SCALE, depth_units*GLOBAL_PARAMETERS.SCALE, init_liquid_volume_perc, spilloff_volume_perc, showRuler, this.savedObject);
 		this.addChild(this.skin.backContainer);
@@ -76,7 +78,6 @@
 		this.viewing_rotation = 0;
 		this.refillElement = null;
 		this.releaseElement = null;
-		
 
 		this.puddles = [];
 		this.constructFixtures();
@@ -136,7 +137,7 @@
 		this.b2world = b2world;
 		this.contents_volume = 0;
 		this.controlledByBuoyancy = false;
-
+	
 		// first destroy any current body on actor
 		if (typeof this.body !== "undefined" && this.body != null) b2world.DestroyBody(this.body);
 		
@@ -219,37 +220,50 @@
 			// add only if within confines of beaker
 			//console.log(actor.y + actor.height_px_below, this.y + this.controller.offset * GLOBAL_PARAMETERS.SCALE, actor.x - actor.width_px_left, this.x - this.width_px_left,actor.x + actor.width_px_right , this.x + this.width_px_right);
 			if (actor.skin.width_px <= this.skin.width_px && actor.y + actor.height_px_below >= this.y - this.height_units * GLOBAL_PARAMETERS.SCALE && actor.y + actor.height_px_below <= this.y && actor.x - actor.width_px_left/2 >= this.x - this.width_px_left && actor.x + actor.width_px_right/2 <= this.x + this.width_px_right){
-				eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
-				if (actor instanceof Scaleb2Actor){
-					this.contents_volume += actor.base.volume;
-					this.controller.MyAddBody(actor.base);
-					this.contents_volume += actor.pan.volume;
-					this.controller.MyAddBody(actor.pan);	
-				} else if (actor instanceof Scaleb2Actor){
-					this.contents_volume += actor.base.volume;
-					this.controller.MyAddBody(actor.base);
-					this.contents_volume += actor.beam.volume;
-					this.controller.MyAddBody(actor.beam);
-					this.contents_volume += actor.leftPan.volume;
-					this.controller.MyAddBody(actor.leftPan);	
-					this.contents_volume += actor.rightPan.volume;
-					this.controller.MyAddBody(actor.rightPan);	
-				}else {
-					this.contents_volume += actor.body.volume;
-					this.controller.MyAddBody(actor.body);	
-				}
+				var body = typeof actor.body !== "undefined"? actor.body : actor.base;
+				var f = body.GetFixtureList();
+				var p1 = new b2Vec2(this.beakerLeftWallFixture.GetAABB().upperBound.x, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
+				var p2 = new b2Vec2(this.beakerRightWallFixture.GetAABB().lowerBound.x, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
+				var ray_in = new Box2D.Collision.b2RayCastInput(p1, p2, 1);
+				var ray_out = new Box2D.Collision.b2RayCastOutput();
+				f.RayCast(ray_out, ray_in);
+				if (ray_out.fraction >= 0 && ray_out.fraction <= 1){
+					eventManager.fire('add-to-beaker',[actor.skin.savedObject, this.savedObject], box2dModel);
+					if (actor instanceof Scaleb2Actor){
+						this.contents_volume += actor.base.volume;
+						this.controller.MyAddBody(actor.base);
+						this.contents_volume += actor.pan.volume;
+						this.controller.MyAddBody(actor.pan);	
+					} else if (actor instanceof Scaleb2Actor){
+						this.contents_volume += actor.base.volume;
+						this.controller.MyAddBody(actor.base);
+						this.contents_volume += actor.beam.volume;
+						this.controller.MyAddBody(actor.beam);
+						this.contents_volume += actor.leftPan.volume;
+						this.controller.MyAddBody(actor.leftPan);	
+						this.contents_volume += actor.rightPan.volume;
+						this.controller.MyAddBody(actor.rightPan);	
+					}else {
+						this.contents_volume += actor.body.volume;
+						this.controller.MyAddBody(actor.body);	
+					}
 
-				// set a reference so we can look for initial contact with this object
-				this.justAddedBodyToBuoyancy = actor.body;
-				actor.controlledByBuoyancy = true;
-				actor.containedWithin = this;
-				this.addChildAt(actor, 1 + this.actors.length);
-				this.actors.push(actor);
-				actor.x = actor.x - this.x;
-				actor.y = actor.y - this.y;
-				this.drawReleaseButton();		
-				this.sortActorsDisplayDepth();	
-			
+					// set a reference so we can look for initial contact with this object
+					this.justAddedBodyToBuoyancy = actor.body;
+					this.justAddedBodyToBuoyancy.bobbing = true;
+					this.justAddedBodyToBuoyancy.stationaryCount = 0;
+					this.justAddedBodyToBuoyancy.prevPosition = new b2Vec2(-10000, -10000);
+					actor.controlledByBuoyancy = true;
+					actor.containedWithin = this;
+					this.addChildAt(actor, 1 + this.actors.length);
+					this.actors.push(actor);
+					actor.x = actor.x - this.x;
+					actor.y = actor.y - this.y;
+					this.drawReleaseButton();		
+					this.sortActorsDisplayDepth();	
+				} else {
+					actor.controlledByBuoyancy = false;
+				}
 			} else {
 				actor.controlledByBuoyancy = false;
 			}
@@ -258,6 +272,7 @@
 
 	/** Remove a single actor from this beaker */
 	p.removeActor = function (actor){
+		eventManager.fire('remove-from-beaker',[actor.skin.savedObject, this.savedObject], box2dModel);
 		if (actor instanceof Scaleb2Actor){
 			this.controller.RemoveBody(actor.base);
 			this.contents_volume -= actor.base.volume;
@@ -299,8 +314,8 @@
 	/** Called from world */
 	p.BeginContact = function (bodyA, bodyB){
 		if (bodyA == this.justAddedBodyToBuoyancy || bodyB == this.justAddedBodyToBuoyancy){
-			bodyA.SetAwake();
-			bodyB.SetAwake();
+			bodyA.SetAwake(true);
+			bodyB.SetAwake(true);
 		}
 	}
 	p.EndContact = function (bodyA, bodyB){
@@ -495,6 +510,7 @@
 		prevx = this.x;
 		prevy = this.y;
 		
+
 		// when we have an active body;
 		if (this.body != null){
 			this.x = (this.body.GetPosition().x) * GLOBAL_PARAMETERS.SCALE - this.parent.x;
@@ -541,6 +557,22 @@
 			if (this.refillElement != null) $("#refill-button-" + this.id).hide();
 			if (this.releaseElement != null) $("#release-button-" + this.id).hide();
 		}
+
+		// is there a just added body which is bobbing?
+		if (this.justAddedBodyToBuoyancy != null && this.justAddedBodyToBuoyancy.bobbing){
+			// is it stationary-ish
+			//console.log("from (", this.justAddedBodyToBuoyancy.prevPosition.x,",",this.justAddedBodyToBuoyancy.prevPosition.y,") to (",this.justAddedBodyToBuoyancy.GetPosition().x,",",this.justAddedBodyToBuoyancy.GetPosition().y,"");
+			if (Math.abs(this.justAddedBodyToBuoyancy.prevPosition.x - this.justAddedBodyToBuoyancy.GetPosition().x) < 0.01 &&
+				Math.abs(this.justAddedBodyToBuoyancy.prevPosition.y - this.justAddedBodyToBuoyancy.GetPosition().y) < 0.01){
+				this.justAddedBodyToBuoyancy.stationaryCount++;
+				if (this.justAddedBodyToBuoyancy.stationaryCount > 5){
+					eventManager.fire('test-in-beaker',[this.justAddedBodyToBuoyancy.GetUserData()['actor'].skin.savedObject, this.savedObject], box2dModel);
+					this.justAddedBodyToBuoyancy.bobbing = false;	
+				}			
+			}
+			this.justAddedBodyToBuoyancy.prevPosition = new b2Vec2(this.justAddedBodyToBuoyancy.GetPosition().x, this.justAddedBodyToBuoyancy.GetPosition().y);	
+		}
+
 	}
 
 	/** Tick function called on every step, if update, redraw */

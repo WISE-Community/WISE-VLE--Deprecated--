@@ -215,7 +215,7 @@ public class VLEAnnotationController extends HttpServlet {
 			
 		} else if (requestedType.equals("flag") || requestedType.equals("inappropriateFlag")) {
 			/*
-			 * get the flags based on the paremeters that were passed in the request.
+			 * get the flags based on the parameters that were passed in the request.
 			 * this will return the flag annotations ordered from oldest to newest
 			 */
 	    	annotationList = Annotation.getByParamMap(request.getParameterMap());
@@ -256,7 +256,11 @@ public class VLEAnnotationController extends HttpServlet {
 			for (Annotation annotationObj : annotationList) {
 				try {
 					//get an annotation
+					
 					JSONObject dataJSONObj = new JSONObject(annotationObj.getData());
+					
+					//get the annotation type
+					String tempAnnotationType = annotationObj.getType();
 					
 					//add the postTime
 					dataJSONObj.put("postTime", annotationObj.getPostTime().getTime());
@@ -265,55 +269,62 @@ public class VLEAnnotationController extends HttpServlet {
 					 * if this is a student making the request we will add the stepWork data
 					 * to each of the flags so they can see the work that was flagged
 					 */
-					if(requestedType.equals("flag") && isStudent) {
-						//get the stepWorkId of the work that was flagged
-						String flagStepWorkId = dataJSONObj.getString("stepWorkId");
+					if("flag".equals(requestedType) && isStudent) {
+						//a student is requesting the flagged work
 						
-						//get the StepWork object
-						StepWork flagStepWork = StepWork.getByStepWorkId(new Long(flagStepWorkId));
-						
-						//get the user info of the work that was flagged
-						UserInfo flaggedWorkUserInfo = flagStepWork.getUserInfo();
-						
-						//get the workgroup id of the work that was flagged
-						Long flaggedWorkgroupId = flaggedWorkUserInfo.getWorkgroupId();
-						
-						//get the period id of the work that was flagged
-						Long flaggedPeriodId = classmateWorkgroupIdToPeriodIdMap.get(flaggedWorkgroupId);
-						
-						//check that the period of the flagged work is the same period that the signed in user is in
-						if(periodId != null && flaggedPeriodId != null && periodId.equals(flaggedPeriodId)) {
-
-							//get the data
-							JSONObject flagStepWorkData = new JSONObject(flagStepWork.getData());
+						//check if the annotation is a flag annotation
+						if("flag".equals(tempAnnotationType)) {
+							//the annotation is a flag annotation
 							
-							//check if the flag value is set to "flagged" as opposed to "unflagged"
-							if(dataJSONObj.has("value") && dataJSONObj.getString("value").equals("flagged")) {
-								
-								//add the data to the flag JSON object
-								dataJSONObj.put("data", flagStepWorkData);
-								
-								//put the flag object into our list
-								flaggedAnnotationsList.add(dataJSONObj);
-							} else {
-								//remove the flag from the list because it was unflagged
+							//get the stepWorkId of the work that was flagged
+							String flagStepWorkId = dataJSONObj.getString("stepWorkId");
+							
+							//get the StepWork object
+							StepWork flagStepWork = StepWork.getByStepWorkId(new Long(flagStepWorkId));
+							
+							//get the user info of the work that was flagged
+							UserInfo flaggedWorkUserInfo = flagStepWork.getUserInfo();
+							
+							//get the workgroup id of the work that was flagged
+							Long flaggedWorkgroupId = flaggedWorkUserInfo.getWorkgroupId();
+							
+							//get the period id of the work that was flagged
+							Long flaggedPeriodId = classmateWorkgroupIdToPeriodIdMap.get(flaggedWorkgroupId);
+							
+							//check that the period of the flagged work is the same period that the signed in user is in
+							if(periodId != null && flaggedPeriodId != null && periodId.equals(flaggedPeriodId)) {
 
-								/*
-								 * loop through all the flagged annotations we have already obtained
-								 * to remove the annotation that was unflagged
-								 */
-								Iterator<JSONObject> flaggedAnnotationsIterator = flaggedAnnotationsList.iterator();
-								while(flaggedAnnotationsIterator.hasNext()) {
-									//get an annotation
-									JSONObject nextFlaggedAnnotation = flaggedAnnotationsIterator.next();
+								//get the data
+								JSONObject flagStepWorkData = new JSONObject(flagStepWork.getData());
+								
+								//check if the flag value is set to "flagged" as opposed to "unflagged"
+								if(dataJSONObj.has("value") && dataJSONObj.getString("value").equals("flagged")) {
 									
-									//check if the annotation fields match
-									if(nextFlaggedAnnotation.has("toWorkgroup") && dataJSONObj.has("toWorkgroup") && nextFlaggedAnnotation.getString("toWorkgroup").equals(dataJSONObj.getString("toWorkgroup")) &&
-											nextFlaggedAnnotation.has("fromWorkgroup") && dataJSONObj.has("fromWorkgroup") && nextFlaggedAnnotation.getString("fromWorkgroup").equals(dataJSONObj.getString("fromWorkgroup")) &&
-											nextFlaggedAnnotation.has("nodeId") && dataJSONObj.has("nodeId") && nextFlaggedAnnotation.getString("nodeId").equals(dataJSONObj.getString("nodeId")) &&
-											nextFlaggedAnnotation.has("stepWorkId") && dataJSONObj.has("stepWorkId") && nextFlaggedAnnotation.getString("stepWorkId").equals(dataJSONObj.getString("stepWorkId")) &&
-											nextFlaggedAnnotation.has("runId") && dataJSONObj.has("runId") && nextFlaggedAnnotation.getString("runId").equals(dataJSONObj.getString("runId"))) {
-										flaggedAnnotationsIterator.remove();
+									//add the data to the flag JSON object
+									dataJSONObj.put("data", flagStepWorkData);
+									
+									//put the flag object into our list
+									flaggedAnnotationsList.add(dataJSONObj);
+								} else {
+									//remove the flag from the list because it was unflagged
+
+									/*
+									 * loop through all the flagged annotations we have already obtained
+									 * to remove the annotation that was unflagged
+									 */
+									Iterator<JSONObject> flaggedAnnotationsIterator = flaggedAnnotationsList.iterator();
+									while(flaggedAnnotationsIterator.hasNext()) {
+										//get an annotation
+										JSONObject nextFlaggedAnnotation = flaggedAnnotationsIterator.next();
+										
+										//check if the annotation fields match
+										if(nextFlaggedAnnotation.has("toWorkgroup") && dataJSONObj.has("toWorkgroup") && nextFlaggedAnnotation.getString("toWorkgroup").equals(dataJSONObj.getString("toWorkgroup")) &&
+												nextFlaggedAnnotation.has("fromWorkgroup") && dataJSONObj.has("fromWorkgroup") && nextFlaggedAnnotation.getString("fromWorkgroup").equals(dataJSONObj.getString("fromWorkgroup")) &&
+												nextFlaggedAnnotation.has("nodeId") && dataJSONObj.has("nodeId") && nextFlaggedAnnotation.getString("nodeId").equals(dataJSONObj.getString("nodeId")) &&
+												nextFlaggedAnnotation.has("stepWorkId") && dataJSONObj.has("stepWorkId") && nextFlaggedAnnotation.getString("stepWorkId").equals(dataJSONObj.getString("stepWorkId")) &&
+												nextFlaggedAnnotation.has("runId") && dataJSONObj.has("runId") && nextFlaggedAnnotation.getString("runId").equals(dataJSONObj.getString("runId"))) {
+											flaggedAnnotationsIterator.remove();
+										}
 									}
 								}
 							}

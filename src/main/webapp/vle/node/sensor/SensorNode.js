@@ -4,6 +4,11 @@ SensorNode.prototype.constructor = SensorNode;
 SensorNode.prototype.parentNode = Node.prototype;
 SensorNode.authoringToolName = "Graph/Sensor";
 SensorNode.authoringToolDescription = "Students plot points on a graph and can use a USB probe to collect data";
+SensorNode.prototype.i18nEnabled = true;
+SensorNode.prototype.i18nPath = "/vlewrapper/vle/node/sensor/i18n/";
+SensorNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 SensorNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},

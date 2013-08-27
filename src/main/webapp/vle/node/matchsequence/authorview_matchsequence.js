@@ -47,7 +47,7 @@ View.prototype.MatchSequenceNode.buildPage = function(){
 	var orderedText = document.createTextNode('Select ordering option:');
 	var orderText = document.createTextNode('Choices have a specific sequential order per Target');
 	var notOrderText = document.createTextNode('Choices are unordered per Target');
-	var addNewButton = createElement(document, 'input', {type: 'button', id: 'addContainerButton', onclick: 'eventManager.fire("msAddContainer")', value: 'Add Container'});
+	var addNewContainerButton = createElement(document, 'input', {type: 'button', id: 'addContainerButton', onclick: 'eventManager.fire("msAddContainer")', value: 'Add Container'});
  	var createNew = createElement(document, 'input', {id: 'addChoiceButton', type: 'button', value: 'Create New Choice', onclick: 'eventManager.fire("msAddChoice")'});
 	var removeChoice = createElement(document, 'input', {id: 'removeChoiceButton', type: 'button', value: 'Remove Choice', onclick: 'eventManager.fire("msRemoveChoice")'});
 	var removeContainerButton = createElement(document, 'input', {type: 'button', id: 'removeContainerButton', onclick: 'eventManager.fire("msRemoveContainer")', value: 'Remove Container'});
@@ -173,8 +173,18 @@ View.prototype.MatchSequenceNode.buildPage = function(){
 	pageDiv.appendChild(challengeText);
 	pageDiv.appendChild(this.generateChallengeSetup());
 	
+	
+	// allow user to change heading title for sources
 	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(addNewButton);
+	var sourceBucketNameTextContainer = createElement(document, 'input', {type: 'text', id: 'sourceBucketName', onchange: 'eventManager.fire("msSourceBucketNameUpdated")'});
+	var sourceBucketText = document.createTextNode('Source Bucket Name: ');
+	sourceBucketNameTextContainer.value = (this.content.sourceBucketName != null) ? this.content.sourceBucketName : this.view.getI18NString("choices","MatchSequenceNode");
+	pageDiv.appendChild(sourceBucketText);
+	pageDiv.appendChild(sourceBucketNameTextContainer);
+
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(addNewContainerButton);
 	pageDiv.appendChild(removeContainerButton);
 	pageDiv.appendChild(createSpace());
 	pageDiv.appendChild(createSpace());
@@ -552,6 +562,16 @@ View.prototype.MatchSequenceNode.clearOtherChoices = function(identifier){
  */
 View.prototype.MatchSequenceNode.containerTextUpdated = function(identifier){
 	this.getField(identifier).name = document.getElementById('textContainer_' + identifier).value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the source bucket name for this match sequence item
+ */
+View.prototype.MatchSequenceNode.sourceBucketNameUpdated = function(){
+	this.content.sourceBucketName = document.getElementById('sourceBucketName').value;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
@@ -1158,13 +1178,13 @@ View.prototype.MatchSequenceNode.generateChallengeSetup = function(){
 	var attemptTH = createElement(document, 'th', {id:'attemptTH'});
 	var scoreTH = createElement(document, 'th', {id:'scoreHeadTH'});
 	var atb = createElement(document, 'tbody', {id:'scoreAttemtpsTableBody'});
-	var addNewButton = createElement(document, 'input', {type:'button', value:'Add new attempt/score', onclick:'eventManager.fire("matchSequenceChallengeAddNew")'});
+	var addNewAttemptScoreButton = createElement(document, 'input', {type:'button', value:'Add new attempt/score', onclick:'eventManager.fire("matchSequenceChallengeAddNew")'});
 	var removeLastButton = createElement(document, 'input', {type:'button', value:'Remove last attempt/score', onclick:'eventManager.fire("matchSequenceChallengeRemoveLast")'});
 	
 	challengeDiv.appendChild(attemptsText);
 	challengeDiv.appendChild(createBreak());
 	challengeDiv.appendChild(attemptsTable);
-	challengeDiv.appendChild(addNewButton);
+	challengeDiv.appendChild(addNewAttemptScoreButton);
 	challengeDiv.appendChild(removeLastButton);
 	
 	attemptsTable.appendChild(ath);

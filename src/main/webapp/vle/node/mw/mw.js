@@ -64,7 +64,7 @@ MW.prototype.setParams = function(context,data,count){
 		}
     }
     else {
-       alert( 'applet failed to load' ); // applet did not start within 40 seconds
+       alert(this.view.getI18NString("applet_failed_to_load","MWNode")); // applet did not start within 40 seconds
     }
 };
 

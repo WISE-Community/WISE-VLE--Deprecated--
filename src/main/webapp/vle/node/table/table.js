@@ -68,6 +68,50 @@ function Table(node) {
 };
 
 /**
+*   A general function for adding unique rows from one table to another, if they are of equal length.
+*   Assumes that the columns represent the same variables in both tables.
+*
+*/
+function addToTable(mainTableData, newTableData) {
+	// if tables don't fit just return main table
+	if (mainTableData.length != newTableData.length) return mainTableData;
+
+	// turn old table into array of row strings
+	var rowstrings = [];
+	for (var row = 0; row < mainTableData[0].length; row++){
+		// create strings from rows to compare
+		rowstring = ""
+		for (var col = 0; col < mainTableData.length; col++){
+			rowstring += " " + mainTableData[col][row].text;
+		}
+		rowstrings.push(rowstring);
+	}
+
+	// just attach unique rows to the old table
+	for (var prow = 0; prow < newTableData[0].length; prow++){
+		// create strings from rows to compare
+		var prowstring = ""
+		for (var pcol = 0; pcol < newTableData.length; pcol++){
+			prowstring += " " + newTableData[pcol][prow].text;
+		}
+		// compare prowstring to each pre-existing table rowstrings
+		var found_value = false;
+		for (var row = 0; row < rowstrings.length; row++){
+			if (rowstrings[row] == prowstring){
+				found_value = true; break;
+			}
+		}
+		if (!found_value){
+			// add new row
+			for (var pcol = 0; pcol < newTableData.length; pcol++){
+				mainTableData[pcol].push(newTableData[pcol][prow]);
+			}
+		}
+	}			
+	return mainTableData;				
+}
+
+/**
  * Populate the work from the previous step if a populatePreviousWorkNodeId has been set
  */
 Table.prototype.populatePreviousWork = function() {
@@ -98,6 +142,8 @@ Table.prototype.populatePreviousWork = function() {
 		}
 	}
 };
+
+
 
 /**
  * This function renders everything the student sees when they visit the step.
@@ -187,6 +233,21 @@ Table.prototype.render = function() {
 		 * is specified work to import so we will use the import work
 		 */
 		latestState = workToImport[workToImport.length - 1];
+		this.tableChanged = true;
+	} else if (latestState != null && workToImport != null && workToImport.length > 0 && typeof workToImport[workToImport.length - 1].tableData !== "undefined" && workToImport[workToImport.length - 1].tableData.length > 0){
+		// In those cases where there is previous work and work to import
+		if (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.overridePreviousWorkHere !== undefined && this.content.graphOptions.overridePreviousWorkHere) {
+			// if overridePreviousWorkHere flag is set to true, do same as if there was no previous work (i.e. latest state)
+			latestState = workToImport[workToImport.length - 1];
+			this.tableChanged = true;
+		} else if (typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.addToPreviousWorkHere !== undefined && this.content.graphOptions.addToPreviousWorkHere){
+			latestState.tableData = addToTable(latestState.tableData, workToImport[workToImport.length - 1].tableData);
+			latestState.tableOptions.numRows = latestState.tableData[0].length;
+			this.tableChanged = true;
+		}
+	} else if (latestState == null && workToImport == null){
+		// there is no prior work or work to import, just save the initial rendering
+		this.tableChanged = true;
 	}
 	
 	//get the number of rows and columns from the content
@@ -273,7 +334,11 @@ Table.prototype.render = function() {
 			cellTextInput.id = 'tableCell_' + x + '-' + y;
 			cellTextInput.name = 'tableCell_' + x + '-' + y;
 			cellTextInput.value = cellText;
-			cellTextInput.size = cellSize;
+			if (y == 0 && typeof this.content.graphOptions !== "undefined" && typeof this.content.graphOptions.autoResizeColumnTitles !== undefined && this.content.graphOptions.autoResizeColumnTitles){
+				cellTextInput.size = Math.max(cellText.length, cellSize);
+			} else {
+				cellTextInput.size = cellSize;
+			}
 			cellTextInput.onchange = studentTableChanged;
 			
 			if(cellUneditable) {
@@ -344,11 +409,14 @@ Table.prototype.render = function() {
 			 */
 			this.graphRendered = false;
 		} else {
+			//the message to tell the student to click the make graph button
+			var click_make_graph = this.view.getI18NString('click_make_graph', 'TableNode');
+			
 			/*
 			 * the graph was not previously rendered so we will suggest
 			 * the student to click "Make Graph"
 			 */
-			this.displayGraphMessage(' <font color="red">Click "Make Graph" to graph the data</font>');
+			this.displayGraphMessage(' <font color="red">' + click_make_graph + '</font>');
 		}
 	} else {
 		//graphing is not enabled
@@ -398,6 +466,8 @@ Table.prototype.render = function() {
 		$('#addRowButton').hide();
 		$('#deleteRowButton').hide();
 	}
+	
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**
@@ -559,6 +629,8 @@ Table.prototype.getLatestState = function() {
  */
 Table.prototype.save = function() {
 	if(this.responseChanged || this.tableChanged || this.graphRendered || this.graphOptionsChanged || this.dropDownTitleChanged) {
+		$('#saveFeedbackDiv').css('visibility', 'visible').fadeIn(350);
+
 		//get the answer the student wrote
 		var response = $('#studentResponseTextArea').val();
 		
@@ -684,8 +756,11 @@ Table.prototype.getStudentTableData = function() {
  * Reset the table back to the original value in the content
  */
 Table.prototype.reset = function() {
+	//the message that asks the student if they are sure they want to reset the table
+	var are_you_sure_you_want_reset = this.view.getI18NString('are_you_sure_you_want_reset', 'TableNode');
+	
 	//ask the student if they are sure they want to reset
-	var answer = confirm('Are you sure you want to reset the table?');
+	var answer = confirm(are_you_sure_you_want_reset);
 	
 	if(answer) {
 		//the student is sure they want to reset
@@ -740,7 +815,8 @@ Table.prototype.reset = function() {
  */
 Table.prototype.studentTableChanged = function() {
 	this.tableChanged = true;
-	
+	this.hideSaveFeedback();
+
 	/*
 	 * the table has changed so we will set this to false so
 	 * the next time the student visits this step it will not
@@ -750,12 +826,15 @@ Table.prototype.studentTableChanged = function() {
 	this.graphRendered = false;
 	
 	if(this.isGraphingEnabled()) {
+		//tell the student that the table has changed so they should click the make graph button
+		var table_has_changed_click_make_graph = this.view.getI18NString('table_has_changed_click_make_graph', 'TableNode');
+		
 		/*
 		 * display the message to tell the student to click the
 		 * 'Make Graph' button to make the graph with the new
 		 * table data
 		 */
-		this.displayGraphMessage(' <font color="red">Table has changed, click "Make Graph" to graph the new data</font>');
+		this.displayGraphMessage(' <font color="red">' + table_has_changed_click_make_graph + '</font>');
 	}
 };
 
@@ -764,6 +843,7 @@ Table.prototype.studentTableChanged = function() {
  */
 Table.prototype.studentResponseChanged = function() {
 	this.responseChanged = true;
+	this.hideSaveFeedback();
 };
 
 /**
@@ -771,7 +851,8 @@ Table.prototype.studentResponseChanged = function() {
  */
 Table.prototype.studentGraphOptionsChanged = function() {
 	this.graphOptionsChanged = true;
-	
+	this.hideSaveFeedback();
+
 	/*
 	 * the graph options have changed so we will set this to false so
 	 * the next time the student visits this step it will not
@@ -782,12 +863,15 @@ Table.prototype.studentGraphOptionsChanged = function() {
 	this.graphRendered = false;
 	
 	if(this.isGraphingEnabled()) {
+		//tell the student the table has changed so they should click the make graph button
+		var table_has_changed_click_make_graph = this.view.getI18NString('table_has_changed_click_make_graph', 'TableNode');
+		
 		/*
 		 * display the message to tell the student to click the
 		 * 'Make Graph' button to make the graph with the new
 		 * table data
 		 */
-		this.displayGraphMessage(' <font color="red">Table has changed, click "Make Graph" to graph the new data</font>');
+		this.displayGraphMessage(' <font color="red">' + table_has_changed_click_make_graph + '</font>');
 	}
 };
 
@@ -879,6 +963,20 @@ Table.prototype.displayGraphOptions = function() {
 		selectYAxis.change({thisTable:this}, function(event) {
 			event.data.thisTable.studentGraphOptionsChanged();
 		});
+
+		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+			var selectCAxis = $('<select id="studentSelectCAxis">');
+			selectCAxis.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+
+			var selectPAxis = $('<select id="studentSelectPAxis">');
+			selectPAxis.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+
+		}
+		
 		
 		//loop through all the columns
 		for(var z=0; z<this.numColumns; z++) {
@@ -888,14 +986,30 @@ Table.prototype.displayGraphOptions = function() {
 			//add this column header to the x and y drop down
 			selectXAxis.append($('<option>').attr('value', z).text(columnHeader));
 			selectYAxis.append($('<option>').attr('value', z).text(columnHeader));
+			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+				selectCAxis.append($('<option>').attr('value', z).text(columnHeader));
+				selectPAxis.append($('<option>').attr('value', z).text(columnHeader));
+			}
 		}
 		
+		var x_axis = this.view.getI18NString('x_axis', 'TableNode');
+		var y_axis = this.view.getI18NString('y_axis', 'TableNode');
+		
 		//add the labels and drop downs for the x and y axis
-		$('#graphOptionsDiv').append('X Axis: ');
+		$('#graphOptionsDiv').append(x_axis + ': ');
 		$('#graphOptionsDiv').append(selectXAxis);
 		$('#graphOptionsDiv').append('<br>');
-		$('#graphOptionsDiv').append('Y Axis: ');
+		$('#graphOptionsDiv').append(y_axis + ': ');
 		$('#graphOptionsDiv').append(selectYAxis);
+
+		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+			$('#graphOptionsDiv').append('<br>');
+			$('#graphOptionsDiv').append('Color by: ');
+			$('#graphOptionsDiv').append(selectCAxis);
+			$('#graphOptionsDiv').append('<br>');
+			$('#graphOptionsDiv').append('Point Size by: ');
+			$('#graphOptionsDiv').append(selectPAxis);
+		}
 		
 		//populate the axis drop downs
 		if(latestState != null) {
@@ -923,6 +1037,10 @@ Table.prototype.displayGraphOptions = function() {
 							} else if(columnAxis == 'y') {
 								//set the y axis drop down to the value the student previously set it to
 								selectYAxis.val(columnIndex);
+							} else if (columnAxis == "c" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
+								selectCAxis.val(columnIndex);
+							} else if (columnAxis == "p" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
+								selectPAxis.val(columnIndex);
 							}
 						}
 					}
@@ -978,18 +1096,23 @@ Table.prototype.displayGraphOptions = function() {
 				//there is already some content in the graphOptionsDiv so we will add a new line
 				$('#graphOptionsDiv').append('<br>');
 			}
+
+			var x_min = this.view.getI18NString('x_min', 'TableNode');
+			var x_max = this.view.getI18NString('x_max', 'TableNode');
+			var y_min = this.view.getI18NString('y_min', 'TableNode');
+			var y_max = this.view.getI18NString('y_max', 'TableNode');
 			
 			//insert the input elements into the div
-			$('#graphOptionsDiv').append('X Min: ');
+			$('#graphOptionsDiv').append(x_min + ': ');
 			$('#graphOptionsDiv').append(xMinInput);
 			$('#graphOptionsDiv').append('<br>');
-			$('#graphOptionsDiv').append('X Max: ');
+			$('#graphOptionsDiv').append(x_max + ': ');
 			$('#graphOptionsDiv').append(xMaxInput);
 			$('#graphOptionsDiv').append('<br>');
-			$('#graphOptionsDiv').append('Y Min: ');
+			$('#graphOptionsDiv').append(y_min + ': ');
 			$('#graphOptionsDiv').append(yMinInput);
 			$('#graphOptionsDiv').append('<br>');
-			$('#graphOptionsDiv').append('Y Max: ');
+			$('#graphOptionsDiv').append(y_max + ': ');
 			$('#graphOptionsDiv').append(yMaxInput);
 			$('#graphOptionsDiv').append('<br>');
 			
@@ -1039,6 +1162,7 @@ Table.prototype.getColumnIndexesToGraph = function(graphOptions) {
 			 */
 			var xColumnIndex = $('#studentSelectXAxis').val();
 			var yColumnIndex = $('#studentSelectYAxis').val();
+
 			
 			//create the object for the x axis
 			var xColumnObject = {
@@ -1051,9 +1175,30 @@ Table.prototype.getColumnIndexesToGraph = function(graphOptions) {
 				columnIndex:yColumnIndex,
 				columnAxis:'y'
 			};
-			
+
 			//put the objects in an array
-			result = [xColumnObject, yColumnObject];
+			result = [xColumnObject, yColumnObject];	
+			
+			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+				var cColumnIndex = $('#studentSelectCAxis').val();
+				if (cColumnIndex != null && cColumnIndex > 0){
+					//create the object for the y axis
+					var cColumnObject = {
+						columnIndex:cColumnIndex,
+						columnAxis:'c'
+					};
+					result.push(cColumnObject);
+				}
+				var pColumnIndex = $('#studentSelectPAxis').val();
+				if (pColumnIndex != null && pColumnIndex > 0){
+					//create the object for the y axis
+					var pColumnObject = {
+						polumnIndex:pColumnIndex,
+						columnAxis:'p'
+					};
+					result.push(pColumnObject);
+				}
+			} 
 		}
 	} else {
 		//the graph options were provided so we will get the columnToAxisMappings from it
@@ -1128,6 +1273,16 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 	
 	//get the graph div id
 	var divId = graphDiv.attr('id');
+
+	// jv - if the graphOptions specify a height or width update the graphDiv
+	if (typeof this.content.graphOptions.width !== "undefined" && !isNaN(this.content.graphOptions.width)){
+		//graphDiv.attr('width', this.content.graphOptions.width);
+		graphDiv.width(this.content.graphOptions.width);
+	}
+	if (typeof this.content.graphOptions.height !== "undefined" && !isNaN(this.content.graphOptions.height)){
+		//graphDiv.attr('height', this.content.graphOptions.height);
+		graphDiv.height(this.content.graphOptions.height);
+	}
 	
 	//get the mode e.g. run, grading, authoring
 	var mode = this.view.config.getConfigParam('mode');
@@ -1138,18 +1293,30 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 	var data = null;
 	
 	try {
-		/*
-		 * get the table data in the format google wants it in.
-		 * we store it in Array[x][y] and google wants it in
-		 * Array[y][x].
-		 */
-		var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
-		
-		//create the data
-		data = google.visualization.arrayToDataTable(dataInGoogleFormat);
+		if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+			var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+			
+			data = this.getGoogleDataTableForSeries(dataInGoogleFormat, graphOptions);
+		} else {
+			/*
+			 * get the table data in the format google wants it in.
+			 * we store it in Array[x][y] and google wants it in
+			 * Array[y][x].
+			 */
+			var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+			
+			//create the data
+			data = google.visualization.arrayToDataTable(dataInGoogleFormat);
+		}
 	} catch(e) {
+		/*
+		 * the message that says there was an error making the graph because
+		 * the data in the table is invalid
+		 */
+		var error_data_in_table_invalid = this.view.getI18NString('error_data_in_table_invalid', 'TableNode');
+		
 		//inform the student that the data in the table is invalid
-		this.displayGraphMessage(' <font color="red">Error: Data in table is invalid, please fix and try again</font>');
+		this.displayGraphMessage(' <font color="red">' + error_data_in_table_invalid + '</font>');
 	}
 	
 	if((mode == null || mode == 'run') && !isRenderGradingView && this.content.graphOptions != null && this.content.graphOptions.graphWhoSetAxesLimitsType == 'studentSelect') {
@@ -1161,8 +1328,11 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		var studentEnteredValidAxesLimits = this.checkStudentEnteredAxesLimits();
 		
 		if(!studentEnteredValidAxesLimits) {
+			//the message that says there was an error so we were unable to draw the chart
+			var error_unable_to_draw_chart = this.view.getI18NString('error_unable_to_draw_chart', 'TableNode');
+			
 			//inform the student that we were unable to draw the chart
-			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
+			this.displayGraphMessage(' <font color="red">' + error_unable_to_draw_chart + '</font>');
 			
 			return;
 		}
@@ -1187,6 +1357,8 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		if(graphType != null) {
 			if(graphType == 'scatterPlot') {
 				chart = new google.visualization.ScatterChart(graphDiv[0]);
+			} else if(graphType == 'scatterPlotbySeries') {
+				chart = new google.visualization.ScatterChart(graphDiv[0]);
 			} else if(graphType == 'lineGraph') {
 				chart = new google.visualization.LineChart(graphDiv[0]);
 			} else if(graphType == 'barGraph') {
@@ -1197,13 +1369,69 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		}
 
 		try {
+			// jv----
+			// in the case where we want square axes, i.e. identical x and y axes, in "auto" mode
+			// we will need to use the data to find mins and maxs and then rewrite our axes limits
+			// In some cases we want to use the identical axes limits for x and y. Use the min and max of each axes
+			if (typeof this.content.graphOptions.useSquareAxesLimits !== "undefined" && this.content.graphOptions.useSquareAxesLimits && graphType != null && (graphType == 'scatterPlot' || graphType == 'scatterPlotbySeries') && typeof this.content.graphOptions.graphWhoSetAxesLimitsType !== "undefined" && this.content.graphOptions.graphWhoSetAxesLimitsType == 'auto' ){
+				var xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
+				// first column is x, top row is header, skip it
+				if (typeof data['K'] !== "undefined"){
+					for (var r = 0; r < data['K'].length; r ++){
+						if (!isNaN(data['K'][r]['c'][0].v) && data['K'][r]['c'][0].v != null){
+							var val = data['K'][r]['c'][0].v;
+							if (val < xMin) xMin = val;
+							if (val > xMax) xMax = val;
+						}
+						if (data['K'][r]['c'].length > 1){
+							// there may be more than one column for y vals iterate starting at 1
+							for (var c = 1; c < data['K'][r]['c'].length; c ++){
+								if (!isNaN(data['K'][r]['c'][c].v && data['K'][r]['c'][c].v != null)){
+									var val = data['K'][r]['c'][c].v;
+									if (val < yMin) yMin = val;
+									if (val > yMax) yMax = val;
+								}
+							}
+						}
+					}
+
+					if (xMin < Infinity || yMin < Infinity){
+						xMin = Math.min(xMin, yMin);
+						yMin = xMin;
+					}
+					if (xMax > -Infinity || yMax > -Infinity){
+						xMax = Math.max(xMax, yMax);
+						yMax = xMax;
+					}
+					// need both to be not infinity, then readjust by 10% (don't go below zero unless there are already vals below zero)
+					if (xMin < Infinity && xMax > -Infinity){
+						var range = xMax - xMin;
+						xMin = xMin >=0 && xMin-0.1*range < 0 ? 0 : xMin-0.1*range;
+						yMin = xMin;
+						xMax = xMax+0.1*range;
+						yMax = xMax;
+						// update options
+						options.hAxis.viewWindow = {};
+						options.hAxis.viewWindow.min = xMin;
+						options.hAxis.viewWindow.max = xMax;
+						options.vAxis.viewWindow = {};
+						options.vAxis.viewWindow.min = yMin;
+						options.vAxis.viewWindow.max = yMax;
+					}
+				}
+			}
+
 			//tell google to draw the graph
 			chart.draw(data, options);
 			this.graphRendered = true;
+			this.hideSaveFeedback();
 			this.clearGraphMessage();
 		} catch(e) {
+			//the message that says there was an error so we were unable to draw the chart
+			var error_unable_to_draw_chart = this.view.getI18NString('error_unable_to_draw_chart', 'TableNode');
+			
 			//inform the student that we were unable to draw the chart
-			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
+			this.displayGraphMessage(' <font color="red">' + error_unable_to_draw_chart + '</font>');
 		}
 	}
 };
@@ -1222,9 +1450,11 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 	
 	//get the column indexes we will graph
 	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
-	
+
 	var hTitle = '';
 	var vTitle = '';
+	var cTitle = '';
+	var pTitle = '';
 	
 	if(columnIndexesToGraph != null) {
 		//loop through all the objects in the array
@@ -1249,7 +1479,13 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 					vTitle += ', ';
 				}
 				vTitle += this.getColumnHeaderByIndex(columnIndex, tableData);
-			}
+			} else if(columnAxis == 'c') {
+				//get the column header for the series to color by
+				cTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
+			} else if(columnAxis == 'p') {
+				//get the column header for the series to color by
+				pTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
+			} 
 		}		
 	}
 	
@@ -1266,9 +1502,10 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 			/*
 			 * create the options to tell google how to display the graph.
 			 * the min/max values will be automatically calculated by google.
+			 *  The title was previously backwards, should be y vs. x (JV)
 			 */
 			options = {
-				title: hTitle + ' vs. ' + vTitle,
+				title: vTitle + ' vs. ' + hTitle,
 				hAxis: {title: hTitle},
 				vAxis: {title: vTitle},
 				forceIFrame: false
@@ -1435,6 +1672,76 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 		 */
 		options.title = this.getDropDownTitleSelected();
 	}
+
+	// if scatter plot by series with color labels apply here
+	if (typeof this.content.graphOptions.graphType !== "undefined" && this.content.graphOptions.graphType == "scatterPlotbySeries"){
+		var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+		var gdata = this.getGoogleDataTableForSeries(dataInGoogleFormat, graphOptions);
+		var series = [];
+		if (typeof this.content.graphOptions.seriesLabels !== "undefined"  && this.content.graphOptions.seriesLabels.length > 0){
+			// loop through column headers
+			for (var h = 1; h < gdata.H.length; h++){
+				var hvalue = gdata.H[h].label;
+				if (cTitle.length > 0) hvalue = hvalue.replace(cTitle + " = ","");
+				if (pTitle.length > 0) hvalue = hvalue.replace(pTitle + " = ","");
+				var lindex = this.content.graphOptions.seriesLabels.indexOf(hvalue);
+				if (lindex > -1){
+					var seriesObj = {};
+					if (this.content.graphOptions.seriesColors[lindex].length > 0) seriesObj['color'] = this.content.graphOptions.seriesColors[lindex];
+					if (this.content.graphOptions.seriesPointSizes[lindex].length > 0) seriesObj['pointSize'] = this.content.graphOptions.seriesPointSizes[lindex];
+					series.push(seriesObj);
+				} else {
+					series.push({});
+				}
+			}
+		} else {
+			var clevels = {};
+			var plevels = {};
+			for (var h = 1; h < gdata.H.length; h++){
+				// do we have multiple series, are they by color pointsize or both?
+				var seriesObj = {};
+				if (cTitle.length > 0 && pTitle.length == 0){
+					seriesObj = {}; 
+				} else if (cTitle.length == 0 && pTitle.length > 0){
+					seriesObj = {'color':"#0000ff", 'pointSize':5*h}; 
+				} else if (cTitle.length > 0 && pTitle.length > 0){
+					var hvalue = gdata.H[h].label;
+					hvalue = hvalue.replace(cTitle + " = ","");
+					hvalue = hvalue.replace(pTitle + " = ","");
+					vals = hvalue.split(" and ");
+					// is the clevel unique
+					var color;
+					if (typeof clevels[vals[0]] === "undefined"){
+						var colors = ['blue','red','green','orange','purple','yellow','black'];
+						if (h-1 < colors.length){
+							color = colors[h-1];
+						} else {
+							color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+						}
+						clevels[vals[0]] = color;
+					} else {
+						color = clevels[vals[0]];
+					}
+					
+					// is the plevel unique
+					var pointSize;
+					if (typeof plevels[vals[0]] === "undefined"){
+						pointSize = 5 * h;
+						plevels[vals[0]] = pointSize;
+					} else {
+						pointSize = plevels[vals[0]];
+					}
+
+					seriesObj = {'color':color, 'pointSize':pointSize}; 
+				} else {
+					seriesObj = {}; 
+				}
+				series.push(seriesObj);
+			}
+		}
+		options.series = series;
+	}
+	
 	
 	return options;
 };
@@ -1454,41 +1761,185 @@ Table.prototype.checkStudentEnteredAxesLimits = function() {
 	var xMinInputVal = $('#studentGraphXMinInput').val();
 	
 	if(xMinInputVal == null || isNaN(parseFloat(xMinInputVal))) {
+		var invalid_x_min = this.view.getI18NString('invalid_x_min', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid X Min value';
+		message += '\n' + invalid_x_min;
 	}
 	
 	//get the x max value the student entered
 	var xMaxInputVal = $('#studentGraphXMaxInput').val();
 	
 	if(xMaxInputVal == null || isNaN(parseFloat(xMaxInputVal))) {
+		var invalid_x_max = this.view.getI18NString('invalid_x_max', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid X Max value';
+		message += '\n' + invalid_x_max;
 	}
 	
 	//get the y min value the student entered
 	var yMinInputVal = $('#studentGraphYMinInput').val();
 	
 	if(yMinInputVal == null || isNaN(parseFloat(yMinInputVal))) {
+		var invalid_y_min = this.view.getI18NString('invalid_y_min', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid Y Min value';
+		message += '\n' + invalid_y_min;
 	}
 	
 	//get the y max value the student entered
 	var yMaxInputVal = $('#studentGraphYMaxInput').val();
 	
 	if(yMaxInputVal == null || isNaN(parseFloat(yMaxInputVal))) {
+		var invalid_y_max = this.view.getI18NString('invalid_y_max', 'TableNode');
+		
 		result = false;
-		message += '\nInvalid Y Max value';
+		message += '\n' + invalid_y_max;
 	}
 	
 	if(message != '') {
-		message = 'Error: you must fix the problems below before we can make the graph\n' + message;
+		//the message that says there were errors that need to be fixed
+		var error_you_must_fix = this.view.getI18NString('error_you_must_fix', 'TableNode');
+		
+		message = error_you_must_fix + '\n' + message;
 		alert(message);
 	}
 	
 	return result;
 };
+
+/**
+ *	When the graph type is a scatter plot by series will reorganize the table
+ *  so that the y-axis variable is split into multiple series, depending on the
+ *	value of the "color" column and/or "pointSize" column, for example
+ *   | time |  distance  |  CTYPE        | PTYPE
+ *   |     1|           3|     a         | x
+ *   |     2|           5|     a         | y
+ *   |     1|           2|     b         | x
+ *   |     4|          10|     b         | y
+ *
+ *   will become:
+ *   | time | distance CTYPE = a and PTYPE = x | distance CTYPE = b and PTYPE = x | distance CTYPE = a and PTYPE = x |distance CTYPE = b and PTYPE = y
+ *   |     1|           3|  null | null | null
+ *   |     2|        null|     5 | null | null
+ *   |     4|        null|  null | 2    | null
+ *   |     5|        null|  null | null | 10
+ *   
+ */
+Table.prototype.getGoogleDataTableForSeries = function(dataInGoogleFormat, graphOptions) {
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', dataInGoogleFormat[0][0])
+	// get unique values of "color" column
+	var clevels = [];
+	if (dataInGoogleFormat[0].length > 2){
+		for (var i = 1; i < dataInGoogleFormat.length; i++){
+			var clevel = dataInGoogleFormat[i][2];
+			// is this level unique, and if we are only using a subset of levels is this level present
+			if (clevels.indexOf(clevel) == -1){
+				clevels.push(clevel)
+			}
+		}
+	}
+	var plevels = [];
+	if (dataInGoogleFormat[0].length > 3){
+		for (var i = 1; i < dataInGoogleFormat.length; i++){
+			var plevel = dataInGoogleFormat[i][3];
+			// is this level unique, and if we are only using a subset of levels is this level present
+			if (plevels.indexOf(plevel) == -1){
+				plevels.push(plevel)
+			}
+		}
+	}
+	// create a column for each level of color column if no pointsize
+	if (clevels.length > 0 && plevels.length == 0){
+		for (var c = 0; c < clevels.length; c++){
+				data.addColumn('number', dataInGoogleFormat[0][2]+" = "+clevels[c]);
+		}
+		// iterate through rows update appropriate cell
+		for (i = 1; i < dataInGoogleFormat.length; i++){
+			// what is series value of this data point?
+			var cval = dataInGoogleFormat[i][2];
+			var cindex = clevels.indexOf(cval);
+			// construct row adding y value at cindex
+			if (!isNaN(dataInGoogleFormat[i][0])){
+				var row = [dataInGoogleFormat[i][0]];
+				var found_value = false;
+				for (c = 0; c < clevels.length; c++){
+					if (c == cindex){
+						if (!isNaN(dataInGoogleFormat[i][1])){
+							row.push(dataInGoogleFormat[i][1]);
+							found_value = true;
+						}
+					} else {
+						row.push(null);
+					}
+				}
+				if (found_value) data.addRow(row);
+			}
+		}
+	} else if (plevels.length > 0 && clevels.length == 0){
+		for (var p = 0; p < plevels.length; p++){
+				data.addColumn('number', dataInGoogleFormat[0][3]+" = "+plevels[p]);
+		}
+		// iterate through rows update appropriate cell
+		for (i = 1; i < dataInGoogleFormat.length; i++){
+			// what is series value of this data point?
+			var pval = dataInGoogleFormat[i][3];
+			var pindex = plevels.indexOf(pval);
+			// construct row adding y value at cindex
+			if (!isNaN(dataInGoogleFormat[i][0])){
+				var row = [dataInGoogleFormat[i][0]];
+				var found_value = false;
+				for (p = 0; p < plevels.length; p++){
+					if (p == pindex){
+						if (!isNaN(dataInGoogleFormat[i][1])){
+							row.push(dataInGoogleFormat[i][1]);
+							found_value = true;
+						}
+					} else {
+						row.push(null);
+					}
+				}
+				if (found_value) data.addRow(row);
+			}
+		}
+	} else if (clevels.length > 0 && plevels.length > 0){ 
+		for (var c = 0; c < clevels.length; c++){
+			for (var p = 0; p < plevels.length; p++){
+				data.addColumn('number',dataInGoogleFormat[0][2]+" = "+clevels[c] + " and " + dataInGoogleFormat[0][3]+" = "+plevels[p]);
+			}
+		}
+		// iterate through rows update appropriate cell
+		for (i = 1; i < dataInGoogleFormat.length; i++){
+			// what is series value of this data point?
+			var cval = dataInGoogleFormat[i][2];
+			var cindex = clevels.indexOf(cval);
+			var pval = dataInGoogleFormat[i][3];
+			var pindex = plevels.indexOf(pval);
+			// construct row adding y value at cindex
+			if (!isNaN(dataInGoogleFormat[i][0])){
+				var row = [dataInGoogleFormat[i][0]];
+				var found_value = false;
+				for (c = 0; c < clevels.length; c++){
+					for (p = 0; p < plevels.length; p++){
+						if (c == cindex && p == pindex){
+							if (!isNaN(dataInGoogleFormat[i][1])){
+								row.push(dataInGoogleFormat[i][1]);
+								found_value = true;
+							}
+						} else {
+							row.push(null);
+						}
+					}
+				}
+				if (found_value) data.addRow(row);
+			}
+		}
+	}
+
+	
+	return data;
+}
 
 /**
  * Get the table data in the format google wants it in.
@@ -1507,7 +1958,7 @@ Table.prototype.checkStudentEnteredAxesLimits = function() {
  * 	[distance, 0, 10, 20]
  * ]
  * 
- * google wants it like this
+ * google wants it like this -- yeah because this makes more sense, can search arr[0] for header (JV)
  * [
  * 	[time, distance],
  * 	[0, 0],
@@ -1528,6 +1979,33 @@ Table.prototype.checkStudentEnteredAxesLimits = function() {
 Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 	//get the columns to graph
 	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
+	/// JV - IMPORTANT
+	// These need to be ordered x, y, c, p (if necessary) or else they will not be printed correctly
+	// put 'x' in front
+	if (columnIndexesToGraph.length > 1){
+		for (var i = 1; i < columnIndexesToGraph.length; i++){
+			if (columnIndexesToGraph[i].columnAxis == "x"){
+				columnIndexesToGraph.splice(0,0,columnIndexesToGraph.splice(i,1)[0]);
+			}
+		}
+	}
+	// put 'y' in second spot if it is not already there
+	if (columnIndexesToGraph.length > 2){
+		for (var i = 2; i < columnIndexesToGraph.length; i++){
+			if (columnIndexesToGraph[i].columnAxis == "y"){
+				columnIndexesToGraph.splice(1,0,columnIndexesToGraph.splice(i,1)[0]);
+			}
+		}
+	}
+
+	// put 'c' in second spot if it is not already there
+	if (columnIndexesToGraph.length > 3){
+		for (var i = 3; i < columnIndexesToGraph.length; i++){
+			if (columnIndexesToGraph[i].columnAxis == "c"){
+				columnIndexesToGraph.splice(2,0,columnIndexesToGraph.splice(i,1)[0]);
+			}
+		}
+	}
 	
 	var numRows = 0;
 	var numColumns = 0;
@@ -1689,7 +2167,6 @@ Table.prototype.getCellValue = function(x, y, tableData) {
  */
 Table.prototype.getGraphOptions = function() {
 	var graphOptions = {};
-	
 	if(this.content.graphOptions != null) {
 		//set the enable graphing value into the graphOptions object
 		graphOptions.enableGraphing = this.content.graphOptions.enableGraphing;
@@ -1723,6 +2200,16 @@ Table.prototype.getGraphOptions = function() {
 			columnToAxisMappings.push(xColumnObject);
 			columnToAxisMappings.push(yColumnObject);
 			
+			if (this.content.graphOptions.graphType == "scatterPlotbySeries"){
+				var cColumnIndex = parseInt($('#studentSelectCAxis').val());
+				//create the object to remember the column for the y axis
+				var cColumnObject = {
+					columnIndex:cColumnIndex,
+					columnAxis:'c'
+				};
+				columnToAxisMappings.push(cColumnObject);
+			}
+
 			//put the array into the graph options object
 			graphOptions.columnToAxisMappings = columnToAxisMappings;
 		} else if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
@@ -1801,7 +2288,8 @@ Table.prototype.processTagMaps = function() {
 	var enableStep = true;
 	var message = '';
 	var workToImport = [];
-	
+	var tableData = [];
+
 	//the tag maps
 	var tagMaps = this.node.tagMaps;
 	
@@ -1826,6 +2314,241 @@ Table.prototype.processTagMaps = function() {
 				} else if(functionName == "showPreviousWork") {
 					//show the previous work in the previousWorkDiv
 					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if (functionName == "importWorkFromNetLogo"){
+					var nlstate = this.node.getWorkToImport(tagName, functionArgs)[0];
+					if (typeof nlstate !== "undefined" && typeof nlstate.data !== "undefined"  && typeof nlstate.data.runs !== "undefined"  && typeof nlstate.data.description !== "undefined"){
+						
+						var description = nlstate.data.description;
+						var runs = nlstate.data.runs;
+						var ptableData = [];
+						// place description in an array
+						// get all keys that are in both description and runs
+						var dkeys = [], rkeys = [];
+						for (var key in description){
+							if (dkeys.indexOf(key) == -1){
+								dkeys.push(key);
+							}
+						}
+						if (runs.length > 0){
+							for (var key in runs[0]){
+								if (rkeys.indexOf(key) == -1 && runs[0][key].length > 0){
+									rkeys.push(key);
+								}
+							}
+						}
+						var keys = dkeys.filter(function(value) { 
+                            return rkeys.indexOf(value) > -1;
+                        });;
+						
+						for (var k = 0; k < keys.length; k++){
+							var key = keys[k];
+							for (var t = 0; t < description[key].length; t++){
+								ptableData.push([{'text':description[key][t].label}]);
+							}						
+						}
+						
+						// for each run add new column to array
+						for (var r = 0; r < runs.length; r++){
+							var col = 0;
+							var run = runs[r];
+							for (var k = 0; k < keys.length; k++){
+								var key = keys[k];
+								for (var t = 0; t < run[key].length; t++){
+									ptableData[col].push({'text':run[key][t]});
+									col++;
+								}
+							}
+						}
+						// must copy all values in table so that we don't change them when we go back to box2d
+						// can pull from more than one step
+						var reuseTable = tableData.length > 0 ? true : false;
+						if (reuseTable){
+							tableData = addToTable(tableData, ptableData);
+						} else {
+							tableData = ptableData;
+						}
+
+						// use only specified column names
+						var arrColumnNamesToUse = functionArgs.length > 0 ? functionArgs[0].split(/ *, */) : [];
+						if (arrColumnNamesToUse.length > 0){
+							var ntableData = [];
+							for (var c = arrColumnNamesToUse.length-1; c >= 0; c--){
+								var colName = arrColumnNamesToUse[c];
+								for (var i = tableData.length-1; i >= 0; i--){
+									if (tableData[i][0].text.match(colName) != null){
+										//console.log(colName,"in?", tableData[i][0].text, "because",tableData[i][0].text.match(colName));
+										ntableData.splice(0, 0, tableData.splice(i,1)[0]);
+									}
+								}
+							}
+							tableData = ntableData;
+						}
+
+						var tableState = {
+							"graphOptions":{},
+							"graphRendered":false,
+							"response":"",
+							"tableData":tableData,
+							"tableOptions":{
+								"numColumns":tableData.length,
+								"numRows":tableData[0].length,
+								"title":null
+							}
+						}
+						workToImport.push(tableState);
+						
+						delete nlstate;
+					}
+				} else if (functionName == "importWorkFromBox2d"){
+					//get the work to import
+					var bstate = this.node.getWorkToImport(tagName, functionArgs)[0];
+					if (typeof bstate !== "undefined" && typeof bstate.response !== "undefined" && typeof bstate.response.tableData !== "undefined"){
+						var ptableData = bstate.response.tableData;
+						// must copy all values in table so that we don't change them when we go back to box2d
+						// can pull from more than one step
+						var reuseTable = tableData.length > 0 ? true : false;
+
+						for (var i = 0; i < ptableData.length; i++){
+							// get the index for this item
+							var index;
+							var index_found = false;
+							var j_start = 0;
+							if (!reuseTable){
+								index = i;
+								tableData[index] = [];	
+								index_found = true;
+							} else {
+								// find index in table
+								for (var t = 0; t < tableData.length; t++){
+									if (tableData[t][0].text == ptableData[i][0].text.replace(/_/g, " ")){
+										index = t; 
+										index_found = true;
+										j_start = 1;
+										break;
+									}
+								}
+							}
+							if (index_found){
+								for (var j = j_start; j < ptableData[i].length; j++){
+									//tableData[i][j] = {};
+									var obj = {};
+									for (var key in ptableData[i][j]){
+										obj[key] = ptableData[i][j][key];  //copy values
+									}
+									tableData[index].push(obj);
+								}
+							}
+						}
+						
+						var showTestedMassValuesOnly = functionArgs[0] == "true" ||  functionArgs[0] == "1" ? true: false;
+						var showTestedLiquidValuesOnly = functionArgs[1] == "true" ||  functionArgs[1] == "1" ? true: false;
+						var arrColumnNamesToUse = functionArgs.length > 2 ? functionArgs[2].split(/ *, */) : [];
+						// if showTestedValuesOnly make any values associated with mass or volume correspond to test on scale or beaker
+						if (showTestedLiquidValuesOnly){
+							var tested_in_any_beaker = [];
+							for (var j = 1; j < tableData[0].length; j++) tested_in_any_beaker[j-1] = false;
+
+							for (var i = tableData.length-1; i >= 0; i--){
+								if (tableData[i][0].text.substr(0,10) == "Tested_in_"){
+									var liquid_name = tableData[i][0].text.substr(10);
+									for (var j = 1; j < tableData[i].length; j++){
+										// if this object was not tested remove values in other columns associated with this liquid
+										if (tableData[i][j].text == 0){
+											for (var k = 0; k < tableData.length; k++){
+												if (tableData[k][0].text.substr(tableData[k][0].text.length - liquid_name.length) == liquid_name && k != i){
+													tableData[k][j].text = "?";
+												}
+											}
+										} else {
+											tested_in_any_beaker[j-1] = true;
+										}
+									}
+								}
+							}
+							// now we know for each row whether object has been tested in any beaker
+							// go through each tested_in_any_beaker and update volume
+							for (var t = 0; t < tested_in_any_beaker.length; t++){
+								j = t + 1;
+								if (tested_in_any_beaker[t] == 0){
+									for (var k = 0; k < tableData.length; k++){
+										if (tableData[k][0].text.substr(tableData[k][0].text.length - 6) == "Volume" || tableData[k][0].text.substr(tableData[k][0].text.length - 7) == "Density"){
+											tableData[k][j].text = "?";
+										}
+									}
+								}
+							}
+						}
+						if (showTestedMassValuesOnly){
+							for (var i = tableData.length-1; i >= 0; i--){
+								if (tableData[i][0].text.substr(0,15) == "Tested_on_Scale"){
+									for (var j = 1; j < tableData[i].length; j++){
+										// if this object was not tested remove values in other columns associated with this liquid
+										if (tableData[i][j].text == 0){
+											for (var k = 0; k < tableData.length; k++){
+												if (tableData[k][0].text.substr(tableData[k][0].text.length - 4) == "Mass" || tableData[k][0].text.substr(tableData[k][0].text.length - 7) == "Density"){
+													tableData[k][j].text = "?";
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						// remove "tested in variables"
+						for (var i = tableData.length-1; i >= 0; i--){
+							if (tableData[i][0].text.substr(0,6) == "Tested"){
+								tableData.splice(i,1);
+							}
+						}
+						// remove "id if we are not showing previous work"
+						if ($("#previousWorkDiv").children().length == 0){
+							for (var i = tableData.length-1; i >= 0; i--){
+								if (tableData[i][0].text=="id"){
+									tableData.splice(i,1);
+								}
+							}
+						}
+						// use spaces instead of underscores
+						for (var i = tableData.length-1; i >= 0; i--){
+							tableData[i][0].text = tableData[i][0].text.replace(/_/g, " ");
+						}
+						// use only specified column names
+						if (arrColumnNamesToUse.length > 0){
+							var ntableData = [];
+							for (var c = arrColumnNamesToUse.length-1; c >= 0; c--){
+								var colName = arrColumnNamesToUse[c];
+								for (var i = tableData.length-1; i >= 0; i--){
+									if (tableData[i][0].text.match(colName) != null){
+										//console.log(colName,"in?", tableData[i][0].text, "because",tableData[i][0].text.match(colName));
+										ntableData.splice(0, 0, tableData.splice(i,1)[0]);
+									}
+								}
+							}
+							tableData = ntableData;
+						}
+
+						// round numbers
+						for (var i = tableData.length-1; i >= 0; i--){
+							for (var j = 1; j < tableData[i].length; j++){
+								if (!isNaN(tableData[i][j].text)){
+									tableData[i][j].text = Math.round(tableData[i][j].text*100)/100;
+								}
+							}
+						}
+						var tableState = {
+							"graphOptions":{},
+							"graphRendered":false,
+							"response":"",
+							"tableData":tableData,
+							"tableOptions":{
+								"numColumns":tableData.length,
+								"numRows":tableData[0].length,
+								"title":null
+							}
+						}
+						workToImport.push(tableState);
+					}
+					delete bstate;
 				}
 			}
 		}
@@ -1894,6 +2617,7 @@ Table.prototype.getDropDownTitleSelected = function() {
  */
 Table.prototype.dropDownTitleHasChanged = function() {
 	this.dropDownTitleChanged = true;
+	this.hideSaveFeedback();
 };
 
 /**
@@ -1967,8 +2691,11 @@ Table.prototype.studentDeleteColumn = function() {
 	 * that were originally authored in the step
 	 */
 	if(this.numColumns > this.content.numColumns) {
+		//the message that asks if they are sure they want to delete the column
+		var are_you_sure_delete_column = this.view.getI18NString('are_you_sure_delete_column', 'TableNode');
+		
 		//ask the student if they are sure they want to delete the column on the right
-		var answer = confirm('Are you sure you want to delete the column on the right?');
+		var answer = confirm(are_you_sure_delete_column);
 		
 		if(answer) {
 			//decrement the number of columns
@@ -1984,8 +2711,11 @@ Table.prototype.studentDeleteColumn = function() {
 			this.render();			
 		}
 	} else {
+		//the message that says they may not delete an original column that was authored
+		var error_may_not_delete_original_columns = this.view.getI18NString('error_may_not_delete_original_columns', 'TableNode');
+		
 		//they are trying to delete a column that was originally authored
-		alert('Error: you may not delete any of the original columns');
+		alert(error_may_not_delete_original_columns);
 	}
 };
 
@@ -2028,8 +2758,11 @@ Table.prototype.studentDeleteRow = function() {
 	 * that were originally authored in the step
 	 */
 	if(this.numRows > this.content.numRows) {
+		//the message that asks if they are sure they want to delete the row
+		var are_you_sure_delete_row = this.view.getI18NString('are_you_sure_delete_row', 'TableNode');
+		
 		//ask the student if they are sure they want to delete the bottom row
-		var answer = confirm('Are you sure you want to delete the bottom row?');
+		var answer = confirm(are_you_sure_delete_row);
 		
 		if(answer) {
 			//decrement the number of rows
@@ -2045,8 +2778,11 @@ Table.prototype.studentDeleteRow = function() {
 			this.render();			
 		}
 	} else {
+		//the message that says they are not allowed to delete an original row that was authored
+		var error_may_not_delete_original_rows = this.view.getI18NString('error_may_not_delete_original_rows', 'TableNode');
+		
 		//they are trying to delete a row that was originally authored
-		alert('Error: you may not delete any of the original rows');
+		alert(error_may_not_delete_original_rows);
 	}
 };
 
@@ -2070,6 +2806,13 @@ Table.prototype.getTableOptions = function() {
 	tableOptions.numColumns = this.numColumns;
 	
 	return tableOptions;
+};
+
+/**
+ * Hide the "Saved!" message
+ */
+Table.prototype.hideSaveFeedback = function() {
+	$('#saveFeedbackDiv').fadeOut(0);
 };
 
 //used to notify scriptloader that this script has finished loading

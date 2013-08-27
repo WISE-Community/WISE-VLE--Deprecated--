@@ -17,6 +17,11 @@
 TableNode.prototype = new Node(); //TODO: rename TemplateNode
 TableNode.prototype.constructor = TableNode; //TODO: rename both occurrences of TableNode
 TableNode.prototype.parentNode = Node.prototype; //TODO: rename TemplateNode
+TableNode.prototype.i18nEnabled = true;
+TableNode.prototype.i18nPath = "/vlewrapper/vle/node/table/i18n/";
+TableNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 /*
  * the name that displays in the authoring tool when the author creates a new step
@@ -31,7 +36,9 @@ TableNode.authoringToolDescription = "Students fill out a table"; //TODO: rename
 
 TableNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
-	{functionName:'showPreviousWork', functionArgs:[]}
+	{functionName:'showPreviousWork', functionArgs:[]},
+	{functionName:'importWorkFromBox2d', functionArgs:['showTestedMassValuesOnly', 'showTestedLiquidValuesOnly','arrColumnNamesToUse']},
+	{functionName:'importWorkFromNetLogo', functionArgs:['arrColumnNamesToUse']}
 ];
 
 /**
@@ -255,8 +262,10 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 		//add the graph div
 		displayStudentWorkDiv.append(graphDiv);
 		
+		var loading = this.view.getI18NString('loading', 'TableNode');
+		
 		//display a loading message in the div, this will be overwritten by the graph
-		$(graphDiv).html("Loading...");
+		$(graphDiv).html(loading);
 		
 		//display a new line
 		displayStudentWorkDiv.append(newLine3Div);
@@ -319,11 +328,16 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 					var yMin = axesLimits.yMin;
 					var yMax = axesLimits.yMax;
 					
+					var x_min = this.view.getI18NString('x_min', 'TableNode');
+					var x_max = this.view.getI18NString('x_max', 'TableNode');
+					var y_min = this.view.getI18NString('y_min', 'TableNode');
+					var y_max = this.view.getI18NString('y_max', 'TableNode');
+					
 					//display the min/max values
-					$(tableGraphOptionsDiv).append('X Min: ' + xMin + '<br>');
-					$(tableGraphOptionsDiv).append('X Max: ' + xMax + '<br>');
-					$(tableGraphOptionsDiv).append('Y Min: ' + yMin + '<br>');
-					$(tableGraphOptionsDiv).append('Y Max: ' + yMax + '<br>');
+					$(tableGraphOptionsDiv).append(x_min + ': ' + xMin + '<br>');
+					$(tableGraphOptionsDiv).append(x_max + ': ' + xMax + '<br>');
+					$(tableGraphOptionsDiv).append(y_min + ': ' + yMin + '<br>');
+					$(tableGraphOptionsDiv).append(y_max + ': ' + yMax + '<br>');
 				}
 			}
 		}

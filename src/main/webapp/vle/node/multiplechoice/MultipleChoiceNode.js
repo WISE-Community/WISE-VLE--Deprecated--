@@ -7,6 +7,11 @@ MultipleChoiceNode.prototype.constructor = MultipleChoiceNode;
 MultipleChoiceNode.prototype.parent = Node.prototype;
 MultipleChoiceNode.authoringToolName = "Multiple Choice";
 MultipleChoiceNode.authoringToolDescription = "Students answer a multiple choice question";
+MultipleChoiceNode.prototype.i18nEnabled = true;
+MultipleChoiceNode.prototype.i18nPath = "/vlewrapper/vle/node/multiplechoice/i18n/";
+MultipleChoiceNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 MultipleChoiceNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
@@ -190,8 +195,10 @@ MultipleChoiceNode.prototype.renderGradingView = function(displayStudentWorkDiv,
 			//get the max score
 			var maxScore = multipleChoice.getMaxPossibleScore();
 			
+			var auto_graded_score = this.view.getI18NString('auto_graded_score', 'MultipleChoiceNode');
+			
 			studentWork += "<br><br>";
-			studentWork += "Auto-Graded Score: " + state.score + "/" + maxScore;
+			studentWork += auto_graded_score + ": " + state.score + "/" + maxScore;
 		}
 	}
 	

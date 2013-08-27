@@ -9,7 +9,7 @@ BrainstormNode.prototype.constructor = BrainstormNode;
 BrainstormNode.prototype.parent = Node.prototype;
 
 BrainstormNode.authoringToolName = "Brainstorm Discussion";
-BrainstormNode.authoringToolDescription = "Students post their answer for everyone in the class to read and discuss";
+BrainstormNode.authoringToolDescription = "Students post comments for everyone in the class to read and discuss";
 BrainstormNode.prototype.i18nEnabled = true;
 BrainstormNode.prototype.i18nPath = "/vlewrapper/vle/node/brainstorm/i18n/";
 BrainstormNode.prototype.supportedLocales = {

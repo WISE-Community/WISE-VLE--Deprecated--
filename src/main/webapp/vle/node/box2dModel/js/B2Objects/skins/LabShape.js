@@ -156,12 +156,13 @@
 		puddleShape.graphics.beginFill(color, 0.4).drawEllipse(-width_px/2, -height_px/2, width_px, height_px).endFill();
 		this.addChild(puddleShape);
 		puddleShape.x = x;
-		puddleShape.y = this.height_px - this.height_from_depth/2;
+		puddleShape.y = this.height_px - this.floor_height_px/2;
 		return puddleShape;
 	}
 
 	p.updatePuddleShape = function (puddleShape, color, width_px, height_px){
 		puddleShape.graphics.clear();
+		if (height_px > this.floor_height_px) height_px = this.floor_height_px;
 		puddleShape.graphics.beginFill(color, 0.4).drawEllipse(-width_px/2, -height_px/2, width_px, height_px).endFill();
 	}
 

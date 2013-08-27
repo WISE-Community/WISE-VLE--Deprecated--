@@ -62,7 +62,9 @@ function MS(node, view) {
 	};
 	
     /* instantiate sourcebucket */
-	this.sourceBucket = new MSBUCKET();
+	var sourceBucketName = (this.content.sourceBucketName != null) ? this.content.sourceBucketName : this.view.getI18NString("choices","MatchSequenceNode");
+	this.sourceBucket = new MSBUCKET(this.view);
+	this.sourceBucket.text = sourceBucketName;
     
     /* instantiate choices */
     for (var i=0; i < this.content.assessmentItem.interaction.choices.length; i++) {
@@ -78,7 +80,7 @@ function MS(node, view) {
     
     /* instantiate target buckets */
     for (var i=0; i < this.content.assessmentItem.interaction.fields.length; i++) {
-      this.buckets.push(new MSBUCKET(this.content.assessmentItem.interaction.fields[i]));
+      this.buckets.push(new MSBUCKET(this.view,this.content.assessmentItem.interaction.fields[i]));
     };
     
     /*
@@ -408,6 +410,8 @@ MS.prototype.render = function() {
     	$('#numberAttemptsDiv').hide();
 	}
     
+    $("#checkAnswerButton").val(this.view.getI18NString("check_answer","MatchSequenceNode"));
+    
     this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
@@ -650,7 +654,7 @@ MS.prototype.getChoiceCopy = function(identifier) {
  */
 MS.prototype.getBucketCopy = function(identifier) {
     var original = this.getBucket(identifier);
-    var copy = new MSBUCKET();
+    var copy = new MSBUCKET(this.view);
     copy.isTargetBucket = original.isTargetBucket;	
     copy.identifier = identifier;
     copy.choices = [];
@@ -755,13 +759,13 @@ MS.prototype.checkAnswer = function() {
 			this.displayPreviousAttemptNumber();
 			
 			var totalNumChoices = numCorrectChoices + numWrongChoices;
-			feedbackDiv.innerHTML = "You have correctly placed "+ numCorrectChoices +" out of "+ totalNumChoices +" choices.";
+			feedbackDiv.innerHTML = this.view.getI18NStringWithParams("correct_feedback",[numCorrectChoices,totalNumChoices],"MatchSequenceNode");
 			
 			if(this.challengeEnabled()) {
 				//display the linkto so the student can visit the associated step
 				if(this.content.assessmentItem.interaction.attempts != null) {
 					var challengeSettings = this.content.assessmentItem.interaction.attempts; 
-					var msg = '<b>Please review ';
+					var msg = '<b>'+this.view.getI18NString("please_review","MatchSequenceNode") + " ";
 					var nodeId = challengeSettings.navigateTo;
 					var linkNode = this.node.view.getProject().getNodeById(challengeSettings.navigateTo);
 					var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(challengeSettings.navigateTo);
@@ -769,10 +773,7 @@ MS.prototype.checkAnswer = function() {
 					/* create the linkTo and add it to the message */
 					var linkTo = {key:this.node.utils.generateKey(),nodeIdentifier:nodeId};
 					this.node.addLink(linkTo);
-					msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">Step ' + stepNumberAndTitle + '</a> before trying again.</b>';
-					
-					//create the message that will display in the alert
-					var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.'
+					msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">'+this.view.getI18NString("please_review_step","MatchSequenceNode") + "&nbsp;"+ stepNumberAndTitle + '</a>&nbsp;' +this.view.getI18NString("please_review_before_trying_again","MatchSequenceNode") +' </b>';
 					
 					//create the args to pass to the tag map constraint
 					var additionalFunctionArgs = {
@@ -789,10 +790,10 @@ MS.prototype.checkAnswer = function() {
 					 * background yellow since we will also be highlighting
 					 * the associated step in the menu yellow
 					 */
-					msg = "<table style='background-color:yellow' align='center'><tr><td>" + msg + "</td></tr></table>";
+					var msgHTML = "<table style='background-color:yellow' align='center'><tr><td>" + msg + "</td></tr></table>";
 					
 					//display the linkto message and link to the student
-					$('#resultMessageDiv').html(msg);
+					$('#resultMessageDiv').html(msgHTML);
 					
 					//disable the check answer button
 					$('#checkAnswerButton').parent().addClass('ui-state-disabled');
@@ -905,13 +906,13 @@ MS.prototype.checkBucketAnswers = function(initialRenderCheck) {
 					removeClassFromElement(bucket.choices[j].identifier, "correct");												
 					removeClassFromElement(bucket.choices[j].identifier, "incorrect");												
 					addClassToElement(bucket.choices[j].identifier, "wrongorder");						
-					feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": Correct box but wrong order.</li>";
+					feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": "+this.view.getI18NString("correct_box_wrong_order","MatchSequenceNode")+"</li>";
 					numWrongChoices++;
 				} else {/* this should never be the case, but it could be that no default feedback was created */
 					removeClassFromElement(bucket.choices[j].identifier, "correct");												
 					removeClassFromElement(bucket.choices[j].identifier, "wrongorder");												
 					addClassToElement(bucket.choices[j].identifier, "incorrect");						
-					feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + "NO FEEDBACK" +"</li>";
+					feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + this.view.getI18NString("no_feedback","MatchSequenceNode") +"</li>";
 					numWrongChoices++;
 				}
 			}
@@ -940,13 +941,13 @@ MS.prototype.checkBucketAnswers = function(initialRenderCheck) {
  */
 MS.prototype.displayCompletionMessage = function() {
 	var resultMessageDiv = document.getElementById("resultMessageDiv");
-	var resultMessage = "Congratulations! You've completed this question.";
+	var resultMessage = this.view.getI18NString("all_completed_msg","MatchSequenceNode");
 	
 	//check if scoring is enabled
 	if(this.isChallengeScoringEnabled()) {
 		//display the score they received
 		var currentScore = this.getScore(this.attempts.length);
-		resultMessage += " You received " + currentScore + " point(s).";
+		resultMessage += this.view.getI18NStringWithParams("you_received_x_points",[currentScore],"MatchSequenceNode");
 	}
 	
 	//set the message into the div
@@ -1161,7 +1162,10 @@ MS.prototype.enableCheckAnswerButton = function() {
 	$('#checkAnswerButton').parent().removeClass('ui-state-disabled');
 	
 	if(this.showFeedback) {
-		displayNumberAttempts("This is your", "attempt", this.attempts);
+		var numberAttemptsMessage = this.view.getI18NStringWithParams("this_is_attempt_x",[this.attempts.length+1],"MatchSequenceNode");
+		$("#numberAttemptsDiv").html(numberAttemptsMessage);
+
+		//displayNumberAttempts("This is your", "attempt", this.attempts);
 	}
 };
 
@@ -1182,7 +1186,10 @@ MS.prototype.canSubmitButtonBeEnabled = function() {
  */
 MS.prototype.displayCurrentAttemptNumber = function() {
 	var numAttempts = this.attempts.length + 1;
-	displayNumberAttemptsMessage("This is your", "attempt", numAttempts);
+	//displayNumberAttemptsMessage("This is your", "attempt", numAttempts);
+	
+	var numberAttemptsMessage = this.view.getI18NStringWithParams("this_is_attempt_x",[numAttempts],"MatchSequenceNode");
+	$("#numberAttemptsDiv").html(numberAttemptsMessage);
 };
 
 /**
@@ -1192,7 +1199,54 @@ MS.prototype.displayCurrentAttemptNumber = function() {
  */
 MS.prototype.displayPreviousAttemptNumber = function() {
 	var numAttempts = this.attempts.length;
-	displayNumberAttemptsMessage("This was your", "attempt", numAttempts);
+	//displayNumberAttemptsMessage("This was your", "attempt", numAttempts);
+	
+	var numberAttemptsMessage = this.view.getI18NStringWithParams("this_was_attempt_x",[numAttempts],"MatchSequenceNode");
+	$("#numberAttemptsDiv").html(numberAttemptsMessage);
+};
+
+
+/**
+ * No longer used. Replaced by "this is attempt #x" format as it's easier to translate.
+ * Displays the number of attempts message e.g.
+ * "This is your 2nd attempt."
+ * @param part1 the beginning of the message e.g. "This is your"
+ * @param part2 the end of the message e.g. "attempt"
+ * @param numAttempts the number of attempts
+ */
+function displayNumberAttemptsMessage(part1, part2, numAttempts) {
+	//get the message
+	var numberAttemptsMessage = getNumberAttemptsMessage(part1, part2, numAttempts);
+	
+	//set the message in the div
+	$("#numberAttemptsDiv").html(numberAttemptsMessage);
+}
+
+/**
+ * Make the number of attempts message e.g.
+ * "This is your 2nd attempt."
+ * @param part1 the beginning of the message e.g. "This is your"
+ * @param part2 the end of the message e.g. "attempt"
+ * @param numAttempts the number of attempts
+ * @returns the number of attempts message string
+ */
+function getNumberAttemptsMessage(part1, part2, numAttempts) {
+	var attemptsMessage = "";
+	
+	if(numAttempts == null) {
+		
+	} else if (numAttempts == 1) {
+		attemptsMessage = "1st";		
+	} else if (numAttempts == 2) {
+		attemptsMessage = "2nd";		
+	} else if (numAttempts == 3) {
+		attemptsMessage = "3rd";		
+	} else {
+		attemptsMessage = numAttempts + "th";		
+	}
+
+	var numAttemptsDivHtml = part1 + " " + attemptsMessage + " " + part2 +".";
+	return numAttemptsDivHtml;
 };
 
 /**

@@ -1231,33 +1231,40 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
 		divIdPrefix = "";
 	}
 
-	var nodeVisitArray = vle.getState().getNodeVisitsByNodeId(this.id);
-	if (nodeVisitArray.length > 0) {
-		var states = [];
-		//get the latest node visit that has student work
-		var latestNodeVisit = vle.getState().getLatestNodeVisitByNodeId(this.id);
-		for (var i = 0; i < nodeVisitArray.length; i++) {
-			var nodeVisit = nodeVisitArray[i];
-			for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
-				states.push(nodeVisit.nodeStates[j]);
-			}
-		}
-		var latestState = states[states.length - 1];
+	//get the latest node visit that has work
+	var latestNodeVisitWithWork = vle.getState().getLatestNodeVisitByNodeId(this.id, false);
+	
+	//get the latest node visit
+	var latestNodeVisit = vle.getState().getLatestNodeVisitByNodeId(this.id, true);
+	
+	if(latestNodeVisit == null && latestNodeVisitWithWork == null) {
+		//the student has not visited the step
 
-		if(latestState!=null){
-			// TODO: i18n
-			showAllWorkHtmlSoFar += "<p class='info lastVisit'>Last visited on ";
-		} else {
-			// TODO: i18n
-			showAllWorkHtmlSoFar += "<p class='info'>Last visited on ";
-		}
+		var you_havent_visited_this_step = vle.getI18NString('you_havent_visited_this_step');
+		showAllWorkHtmlSoFar += "<p class='info'>" + you_havent_visited_this_step + "</p>";
+	} else if(latestNodeVisit != null && latestNodeVisitWithWork == null) {
+		//the student has visited the step but has not submitted any work
 
-		if(latestNodeVisit!=null){
-			showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString() + "</p>";
-
-		};
-
-		if(latestState!=null){
+		//show the last visited time stamp
+		var last_visited_on = vle.getI18NString('last_visited_on');
+		showAllWorkHtmlSoFar += "<p class='info lastVisit'>" + last_visited_on + " ";
+		showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString() + "</p>";
+		
+		//show a message that says they have not submitted work for the step yet
+		var you_havent_submitted_work_for_this_step = vle.getI18NString('you_havent_submitted_work_for_this_step');
+		showAllWorkHtmlSoFar += "<p class='info'>" + you_havent_submitted_work_for_this_step + "</p>";
+	} else if(latestNodeVisit != null && latestNodeVisitWithWork != null) {
+		//the student has submitted work for the step
+		
+		//show the last visited time stamp
+		var last_visited_on = vle.getI18NString('last_visited_on');
+		showAllWorkHtmlSoFar += "<p class='info lastVisit'>" + last_visited_on + " ";
+		showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString() + "</p>";
+		
+		//get the latest state
+		var latestState = latestNodeVisitWithWork.getLatestState();
+		
+		if(latestState!=null) {
 			var divClass = "showallLatestWork";
 			var divStyle = "";
 			if (this.type == "MySystemNode") {
@@ -1270,23 +1277,22 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
 				divStyle = "width:375px; border:1px solid #aaa";
 			} 
 			//create the div id for where we will display the student work
-			var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
+			var divId = divIdPrefix + "latestWork_"+latestNodeVisitWithWork.id;
 			var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
 
+			var latest_work = vle.getI18NString('latest_work');
+			
 			if(this.type == "MySystemNode") {
-				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">' + latest_work + ':' + '</div>' + 
 				'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
 			} else if(this.hasGradingView()) {
-				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">' + latest_work + ':' + '</div>' + 
 				'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\"></div>';
 			} else {
-				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">' + latest_work + ':' + '</div>' + 
 				'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
 			}
-		};
-	}
-	else {
-		showAllWorkHtmlSoFar += "<p class='info'>You haven't visited this step.</p>";
+		}
 	}
 
 	for (var i = 0; i < this.children.length; i++) {

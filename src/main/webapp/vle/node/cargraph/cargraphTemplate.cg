@@ -131,6 +131,7 @@
     }
    ],
    "tickSpacing":1,
+   "tickValues":[],
    "animationTimeScaleFactor":1.0,
    "graphCorrectAnswer": false,
    "runCorrectAnswer": false,

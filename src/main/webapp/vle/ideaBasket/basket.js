@@ -13,7 +13,7 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tags, flag, nodeId,
 	this.workgroupId = null;
 	this.isPublishedToPublic = false;
 	this.wasCopiedFromPublic = false;
-};
+}
 
 function IdeaV2(id, timeCreated, timeLastEdited, text, attributes, nodeId, nodeName, workgroupId) {
 	this.id = id; //unique id (order of creation)
@@ -28,7 +28,7 @@ function IdeaV2(id, timeCreated, timeLastEdited, text, attributes, nodeId, nodeN
 	this.workgroupId = workgroupId;
 	this.isPublishedToPublic = false;
 	this.wasCopiedFromPublic = false;
-};
+}
 
 /**
  * Creates an IdeaBasket instance
@@ -54,8 +54,8 @@ function IdeaBasket(ideaBasketJSONObj, createForStep, node, settings) {
 	// set Idea Manager settings and version
 	if(settings){
 		this.settings = settings;
-		if('version' in settings){
-			this.version = Number(settings.version);
+		if(settings.hasOwnProperty('version')){
+			this.version = parseInt(settings.version, 10);
 		}
 	}
 	
@@ -67,14 +67,14 @@ function IdeaBasket(ideaBasketJSONObj, createForStep, node, settings) {
 		this.view = node.view;
 		this.content = node.getContent().getContentJSON();
 		
-		if(node.studentWork != null) {
+		if(node.studentWork !== null) {
 			this.states = node.studentWork; 
 		} else {
 			this.states = [];  
-		};
+		}
 	}
 
-	if(ideaBasketJSONObj == null) {
+	if(!ideaBasketJSONObj) {
 		//JSON is not provided so we will just initialize the UI
 		this.init(this);
 	} else {
@@ -86,7 +86,7 @@ function IdeaBasket(ideaBasketJSONObj, createForStep, node, settings) {
 		 */
 		this.load(ideaBasketJSONObj, false, null);
 	}
-};
+}
 
 /**
  * Initialize the IdeaBasket turning on tablesorter to allow sorting
@@ -95,12 +95,12 @@ function IdeaBasket(ideaBasketJSONObj, createForStep, node, settings) {
  * @param context
  */
 IdeaBasket.prototype.init = function(context) {
-	var enableStep = true;
-	var message = '';
-	var workToImport = [];
+	var enableStep = true,
+		message = '',
+		workToImport = [];
 	
 	//process the tag maps if we are not in authoring mode
-	if(this.view != null && (this.view.authoringMode == null || !this.view.authoringMode)) {
+	if(this.view && !this.view.authoringMode) {
 		//get the tag map results
 		var tagMapResults = this.processTagMaps();
 		
@@ -111,17 +111,20 @@ IdeaBasket.prototype.init = function(context) {
 	}
 	
 	//allow the ideas and deleted tables to be auto sorted by columns by clicking on the header columns
-	$("#basketIdeas").tablesorter({textExtraction: "complex", sortMultiSortKey:'', widgets:['zebra'], headers:{4:{sorter:false}}});
-	$("#basketDeleted").tablesorter({textExtraction: "complex", sortMultiSortKey:'', headers:{4:{sorter:false}}});
+	var noSort = $("#basketIdeas > thead > tr > th").length - 1;
+	$("#basketIdeas").tablesorter({textExtraction: "complex", sortMultiSortKey:'', widgets:['zebra'], headers:{noSort:{sorter:false}}});
+	$("#basketDeleted").tablesorter({textExtraction: "complex", sortMultiSortKey:'', headers:{noSort:{sorter:false}}});
 	
 	/*
 	 * update the order in our IdeaBasket arrays when the student
 	 * drags and drops rows to manually sort the table
 	 */
-	$("#basketIdeas").bind("sortEnd",function() { 
+	$("#basketIdeas").off("sortEnd");
+	$("#basketIdeas").on("sortEnd",function() { 
 		context.updateOrder(0); 
 	});
-	$("#basketDeleted").bind("sortEnd",function() { 
+	$("#basketDeleted").off("sortEnd");
+	$("#basketDeleted").on("sortEnd",function() { 
 		context.updateOrder(1); 
 	}); 
 
@@ -160,7 +163,7 @@ IdeaBasket.prototype.init = function(context) {
 IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, view, publicIdeaBasketJSONObj) {
 	if(settings){
 		this.settings = settings;
-		this.version = Number(settings.version);
+		this.version = parseInt(settings.version, 10);
 	}
 	
 	if(view){
@@ -168,12 +171,13 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 	}
 	
 	//set the public idea basket if it was provided
-	if(publicIdeaBasketJSONObj != null) {
+	if(publicIdeaBasketJSONObj) {
 		this.setPublicIdeaBasket(publicIdeaBasketJSONObj);
 	}
 	
 	if(this.view){
 		// set text for customizable terms based on settings or default i18n string
+		this.view.insertTranslations();
 		this.ideaTerm = this.view.getI18NString('idea');
 		this.ideaTermPlural = this.view.getI18NString('idea_plural');
 		this.basketTerm = this.view.getI18NString('idea_basket');
@@ -182,25 +186,25 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 		this.privateBasketTerm = this.view.getI18NString('idea_basket_private');
 		this.publicBasketTerm = this.view.getI18NString('idea_basket_public');
 		if(this.version > 1){
-			if('ideaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.ideaTerm)){
+			if(this.settings.hasOwnProperty('ideaTerm') && this.view.utils.isNonWSString(this.settings.ideaTerm)){
 				this.ideaTerm = this.settings.ideaTerm;
 			}
-			if('ideaTermPlural' in this.settings && this.view.utils.isNonWSString(this.settings.ideaTermPlural)){
+			if(this.settings.hasOwnProperty('ideaTermPlural') && this.view.utils.isNonWSString(this.settings.ideaTermPlural)){
 				this.ideaTermPlural = this.settings.ideaTermPlural;
 			}
-			if('basketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.basketTerm)){
+			if(this.settings.hasOwnProperty('basketTerm') && this.view.utils.isNonWSString(this.settings.basketTerm)){
 				this.basketTerm = this.settings.basketTerm;
 			}
-			if('ebTerm' in this.settings && this.view.utils.isNonWSString(this.settings.ebTerm)){
+			if(this.settings.hasOwnProperty('ebTerm') && this.view.utils.isNonWSString(this.settings.ebTerm)){
 				this.ebTerm = this.settings.ebTerm;
 			}
-			if('addIdeaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.addIdeaTerm)){
+			if(this.settings.hasOwnProperty('addIdeaTerm') && this.view.utils.isNonWSString(this.settings.addIdeaTerm)){
 				this.addIdeaTerm = this.settings.addIdeaTerm;
 			}
-			if('privateBasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.privateBasketTerm)){
+			if(this.settings.hasOwnProperty('privateBasketTerm') && this.view.utils.isNonWSString(this.settings.privateBasketTerm)){
 				this.privateBasketTerm = this.settings.privateBasketTerm;
 			}
-			if('publicBasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.publicBasketTerm)){
+			if(this.settings.hasOwnProperty('publicBasketTerm') && this.view.utils.isNonWSString(this.settings.publicBasketTerm)){
 				this.publicBasketTerm = this.settings.publicBasketTerm;
 			}
 		}
@@ -209,7 +213,7 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 	 * ideaBasketJSONObj will be null in authoring preview step in which case
 	 * we do not want to load anything
 	 */
-	if(ideaBasketJSONObj != null) {
+	if(ideaBasketJSONObj) {
 		//set the values from the JSON object we received from the server
 		
 		this.id = ideaBasketJSONObj.id;
@@ -217,15 +221,15 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 		this.workgroupId = ideaBasketJSONObj.workgroupId;
 		this.projectId = ideaBasketJSONObj.projectId;
 		
-		if(ideaBasketJSONObj.nextIdeaId != null) {
+		if(ideaBasketJSONObj.hasOwnProperty('nextIdeaId') && ideaBasketJSONObj.nextIdeaId !== null) {
 			this.nextIdeaId = ideaBasketJSONObj.nextIdeaId;
 		}
 		
-		if(ideaBasketJSONObj.ideas != null) {
+		if(ideaBasketJSONObj.hasOwnProperty('ideas') && ideaBasketJSONObj.ideas !== null) {
 			this.ideas = ideaBasketJSONObj.ideas;
 		}
 		
-		if(ideaBasketJSONObj.deleted != null) {
+		if(ideaBasketJSONObj.hasOwnProperty('deleted') && ideaBasketJSONObj.deleted !== null) {
 			this.deleted = ideaBasketJSONObj.deleted;		
 		}
 
@@ -259,39 +263,42 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 
 /**
  * Creates a label and an input DOM element for the specified idea attribute
- * @param attribtue JS object with the attribute settings
+ * @param attribute Object with the attribute settings
  * @param dialog String specifying which dialog we are adding to (can be 'add' or 'edit')
+ * @param vleview Object representing the VLE view (optional)
  * @returns jQuery DOM element
  */
-IdeaBasket.prototype.createAttributeInput = function(attribute,dialog){
-	if(dialog != 'add' && dialog != 'edit'){
+IdeaBasket.prototype.createAttributeInput = function(attribute,dialog,vleview){
+	if(dialog !== 'add' && dialog !== 'edit'){
 		return '';
 	}
-	var inputContent = '';
-	var type = attribute.type;
-	var labelText = attribute.name, requiredClass = '';
+	
+	var view = vleview ? vleview : this.view,
+		inputContent = '',
+		type = attribute.type,
+		labelText = attribute.name, requiredClass = '';
 	if(attribute.isRequired){
 		labelText += '*';
 		requiredClass = 'required';
 	}
 	var idName = dialog + '_' + type + '_' + attribute.id;
 	var $inputLabel = null, $input = null, $custom = null;
-	if(type=='label' || type=='source'){
+	if(type==='label' || type==='source'){
 		$inputLabel = $('<label for="' + idName + '">' + labelText + ': </label>');
 		$input = $(document.createElement('select')).attr('id', idName).attr('name', idName).addClass(requiredClass);
-		$input.append('<option value="">Choose One:</option>');
+		$input.append('<option value="">' + view.getI18NString('ideaManager_attributeSelectOneLabel') + '</option>');
 		for(var a=0;a<attribute.options.length;a++){
 			var option = '<option value="' + attribute.options[a] + '">' + attribute.options[a] + '</option>';
 			$input.append(option);
 		}
-		if('allowCustom' in attribute && attribute.allowCustom){
-			$input.append('<option value="Other">Other</option>');
+		if(attribute.hasOwnProperty('allowCustom') && attribute.allowCustom){
+			$input.append('<option value="Other">' + view.getI18NString('ideaBasket_customAttributeLabel') + '</option>');
 			$custom = $(document.createElement('div')).attr('id',dialog + '_other_' + attribute.id).addClass('attributeOther');
 			$custom.append('<label for="' + dialog + '_other_' + attribute.id +'">Please specify: </label>');
 			$customInput = $('<input type="text" name="' + dialog + '_other_' + attribute.id +'" class="other required inactive" size="25" minlength="2" maxlength="25" />');
 			$custom.append($customInput);
 			$input.change(function(){
-				if($(this).val() == 'Other'){
+				if($(this).val() === 'Other'){
 					$custom.children().removeClass('inactive');
 					$custom.show();
 				} else {
@@ -300,8 +307,8 @@ IdeaBasket.prototype.createAttributeInput = function(attribute,dialog){
 				}
 			});
 		}
-	} else if (type=='tags') {
-		$inputLabel = $('<div><label for="' + idName + '">' + labelText + ' (select all that apply): </label><div>');
+	} else if (type==='tags') {
+		$inputLabel = $('<div><label for="' + idName + '">' + labelText + ' ' + view.getI18NString('ideaManager_attributeSelectMultiple') + '</label><div>');
 		$input = $(document.createElement('div'));
 		if(attribute.isRequired){
 			requiredClass = 'require-one';
@@ -310,12 +317,12 @@ IdeaBasket.prototype.createAttributeInput = function(attribute,dialog){
 			var option = $('<input type="checkbox" name="' + idName + '" value="' + attribute.options[x] + '" class="' + requiredClass + '" />' + '<span>' + attribute.options[x] + '</span>');
 			$input.append(option);
 		}
-	} else if(type=='icon'){
-		$inputLabel = $('<div><label for="' + idName + '">' + labelText + ' (select one): </label><div>');
+	} else if(type==='icon'){
+		$inputLabel = $('<div><label for="' + idName + '">' + labelText + ' ' + view.getI18NString('ideaManager_attributeSelectOne') + '</label><div>');
 		$input = $(document.createElement('div'));
 		for(var x=0;x<attribute.options.length;x++){
-			var text = 'None';
-			if(attribute.options[x] != 'blank'){
+			var text = view.getI18NString('ideaManager_noIconLabel');
+			if(attribute.options[x] !== 'blank'){
 				text = '<img src="./images/ideaManager/' + attribute.options[x] + '.png" alt="' + attribute.options[x] + '" />';
 			}
 			var option = $('<input type="radio" name="' + idName + '" value="' + attribute.options[x] + '" class="' + requiredClass + '" /><span>' + text + '</span>');
@@ -338,52 +345,66 @@ IdeaBasket.prototype.createAttributeInput = function(attribute,dialog){
  * Idea Manager version and settings object
  */
 IdeaBasket.prototype.processSettingsUI = function(){
-	var context = this;
+	var context = this,
+		view = this.view;
 	
 	if(this.version > 1){
 		// we only need to update the DOM and terminology if using Idea Manager v2 or greater
 		
-		var settings = this.settings;
+		// insert i18n translations
+		$('#addNew').attr('value', this.addIdeaTerm);
+		$('#ideasEmpty').text(view.getI18NStringWithParams('ideaBasket_empty', [this.basketTerm, this.addIdeaTerm, this.ideaTermPlural]));
+		$('#basketTitle').text(this.basketTerm);
 		
-		$('#privateBasketButton').attr('value', this.privateBasketTerm);
-		$('#publicBasketButton').attr('value', this.publicBasketTerm);
-		$('#addNew').attr('value', this.addIdeaTerm + ' +');
-		$('#ideasEmpty').text('Your ' + this.basketTerm + ' is empty.  Click "' + this.addIdeaTerm + '" above to start adding ' + this.ideaTermPlural + '.');
+		$('#deletedIdeaConfirm1').text(view.getI18NStringWithParams('ideaManager_deleteIdea_confirm1', [this.ideaTerm]));
+		$('#deletedIdeaConfirm2').text(view.getI18NString('ideaManager_deleteIdea_confirm2'))
 		
 		// clear add and edit idea forms, idea tables
 		var ideaDialog = $('#ideaForm > fieldset').html('');
 		var editDialog = $('#editForm > fieldset').html('');
 		var ideaTable = $('#basketIdeas > thead > tr').html('');
-		var publicIdeaTable = $('#publicBasketIdeas > thead > tr').html('');
 		var deletedTable = $('#basketDeleted > thead > tr').html('');
 		
 		// insert text input and label for add and edit idea dialogs
-		var ideaText = $(document.createElement('div')).addClass('text');
-		ideaText.append('<div><label for="text">Type your ' + this.ideaTerm + ' here*:</label></div>');
+		var ideaText = $(document.createElement('div')).addClass('text'),
+			ideaTextLabel = view.getI18NStringWithParams('ideaManager_addIdea_textLabel', [this.ideaTerm]);
+		ideaText.append('<div><label for="text">' + ideaTextLabel + '</label></div>');
 		ideaText.append('<div><textarea id="text" name="text" rows="2" class="required" minlength="2" maxlength="150"></textarea></div>');
 		ideaDialog.append(ideaText);
 		
 		var editText = $(document.createElement('div')).addClass('text');
-		editText.append('<div><label for="editText">Type your ' + this.ideaTerm + ' here*:</label></div>');
+		editText.append('<div><label for="editText">' + ideaTextLabel + '</label></div>');
 		editText.append('<div><textarea id="editText" name="editText" rows="2" class="required" minlength="2" maxlength="150"></textarea></div>');
 		editDialog.append(editText);
 		
 		// insert idea text columns for idea tables
-		ideaTable.append("<th class='ideas' title='Click to sort'>Your " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
-		publicIdeaTable.append("<th class='ideas' title='Click to sort'>Public " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
-		deletedTable.append("<th class='ideas' title='Click to sort'>Deleted " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
+		ideaTable.append("<th class='ideas' title='" + view.getI18NString('ideaBasket_clickToSort') + "'>" + view.getI18NStringWithParams('ideaBasket_ideaTableHeader', [this.view.utils.capitalize(this.ideaTermPlural)]) + "</th>");
+		deletedTable.append("<th class='ideas' title='" + view.getI18NString('ideaBasket_clickToSort') + "'>" + view.getI18NStringWithParams('ideaBasket_deletedTableHeader', [this.view.utils.capitalize(this.ideaTermPlural)]) + "</th>");
 		
+		var settings = this.settings;
+		
+		// insert public and private idea button values
+		$('#privateBasketButton').attr('value', this.privateBasketTerm);
+		$('#publicBasketButton').attr('value', this.publicBasketTerm);
+		
+		// clear public idea table
+		var publicIdeaTable = $('#publicBasketIdeas > thead > tr').html('');
+		
+		// insert header for public idea table
+		publicIdeaTable.append("<th class='ideas' title='" + view.getI18NString('ideaBasket_clickToSort') + "'>" + view.getI18NStringWithParams('ideaBasket_public_header', [this.view.utils.capitalize(this.ideaTermPlural)]) + "</th>");
 		if(this.isPublicIdeaBasketEnabled()) {
+			$('#publicIdeasEmpty').text(view.getI18NStringWithParams('ideaBasket_public_empty', [this.publicBasketTerm]));
+			
 			/*
 			 * public idea basket is enabled so we will add the 'Origin' column
 			 * to the private basket and trash basket
 			 */
-			ideaTable.append("<th class='ideas' title='Origin'>Origin</th>");
-			deletedTable.append("<th class='ideas' title='Origin'>Origin</th>");
+			ideaTable.append("<th class='ideas'>"+ view.getI18NString("ideaBasket_public_origin") + "</th>");
+			deletedTable.append("<th class='ideas'>"+ view.getI18NString("ideaBasket_public_origin") + "</th>");
 		}
 		
 		//insert the 'Times Copied' column
-		publicIdeaTable.append("<th class='ideas' title='Times Copied'>Times Copied</th>");
+		publicIdeaTable.append("<th class='ideas'>" + view.getI18NString('ideaBasket_public_timesCopied') + "</th>");
 		
 		// insert attribute inputs for add and edit idea dialogs, as well as table attribute columns based on settings
 		for (var i=0;i<settings.ideaAttributes.length;i++){
@@ -393,20 +414,20 @@ IdeaBasket.prototype.processSettingsUI = function(){
 			ideaDialog.append(addAttr);
 			editDialog.append(editAttr);
 			var name = attribute.name, type = attribute.type;
-			ideaTable.append("<th class='" + type + "' title='Click to sort'>" + name + "</th>");
-			publicIdeaTable.append("<th class='" + type + "' title='Click to sort'>" + name + "</th>");
-			deletedTable.append("<th class='" + type + "' title='Click to sort'>" + name + "</th>");
+			ideaTable.append("<th class='" + type + "' title='" + view.getI18NString('ideaBasket_clickToSort') + "'>" + name + "</th>");
+			publicIdeaTable.append("<th class='" + type + "' title='" + view.getI18NString('ideaBasket_clickToSort') + "'>" + name + "</th>");
+			deletedTable.append("<th class='" + type + "' title='" + view.getI18NString('ideaBasket_clickToSort') + "'>" + name + "</th>");
 		}
 		
-		ideaTable.append('<th class="delete">Delete</th>');
-		publicIdeaTable.append('<th class="delete">Copy</th>');
-		deletedTable.append('<th class="delete">Restore</th>');
+		ideaTable.append('<th class="delete">' + view.getI18NString('ideaBasket_deleteHeader') + '</th>');
+		deletedTable.append('<th class="delete">' + view.getI18NString('ideaBasket_restoreHeader') + '</th>');
+		publicIdeaTable.append('<th class="delete">' + view.getI18NString('ideaBasket_public_copyLinkText') + '</th>');
 		
 		if(this.isPublicIdeaBasketEnabled()) {
 			$('#basketTitle').text(this.privateBasketTerm);
 			//create the buttons to make an idea public or private
-			var makePublicButton = $('<input id="makePublicButton" type="button" name="makePublicButton" value="Make Public"></input>');
-			var makePrivateButton = $('<input id="makePrivateButton" type="button" name="makePrivateButton" value="Make Private"></input>');
+			var makePublicButton = $('<input id="makePublicButton" type="button" name="makePublicButton" value="' + view.getI18NString("ideaBasket_public_makePublic") + '"></input>');
+			var makePrivateButton = $('<input id="makePrivateButton" type="button" name="makePrivateButton" value="' + view.getI18NString("ideaBasket_public_makePrivate") + '"></input>');
 			
 			//create the p that will display whether the idea is public or private
 			var sharingStatusP = $('<p id="sharingStatus" style="display:inline"></p>');
@@ -415,12 +436,10 @@ IdeaBasket.prototype.processSettingsUI = function(){
 			editDialog.append(makePublicButton);
 			editDialog.append(makePrivateButton);
 			editDialog.append(sharingStatusP);
-		} else {
-			$('#basketTitle').text(this.basketTerm);
 		}
 		
 		//set the onclick event when the private idea basket button is clicked
-		$('#privateBasketButton').click(function(){
+		$('#privateBasketButton').on('click', function(){
 			//hide the public basket
 			$('#publicMain').hide();
 			
@@ -448,7 +467,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		$("#ideaForm").validate();
 
 		$('#source').change(function(){
-			if($('#source').val()=='Other'){
+			if($('#source').val()==='Other'){
 				$('#otherSource').show();
 				$('#other').addClass('required');
 			} else {
@@ -459,7 +478,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		});
 
 		$('#editSource').change(function(){
-			if($('#editSource').val()=='Other'){
+			if($('#editSource').val()==='Other'){
 				$('#editOtherSource').show();
 				$('#editOther').addClass('required');
 			} else {
@@ -471,47 +490,54 @@ IdeaBasket.prototype.processSettingsUI = function(){
 	}
 	
 	// set up add idea dialog
-	var title = 'Add New ' + this.view.utils.capitalize(this.ideaTerm);
+	var title = view.getI18NStringWithParams("ideaManager_addIdea_title", [view.utils.capitalize(this.ideaTerm)]);
 	$('#ideaDialog').dialog({title:title, autoOpen:false, modal:true, resizable:false, width:'470',
-		buttons:{
-			"OK": function(){	
-				if($("#ideaForm").validate().form()){
-					if(context.version > 1){
-						var attributes = context.getIdeaAttributes('add');
-						context.addV2($('#text').val(),attributes);
-						
-						$(this).dialog("close");
-						resetForm('ideaForm');
-					} else {
-						var source = $('#source').val();
-						if(source == 'empty'){
-							alert('Please select a source for your idea.');
-						} else {
-							if(source=='Other'){
-								source = 'Other: ' + $('#other').val();
-							}
-							context.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+		buttons:[
+			 {
+				 text: view.getI18NString('ok'),
+				 click: function(){
+					 if($("#ideaForm").validate().form()){
+						if(context.version > 1){
+							var attributes = context.getIdeaAttributes('add');
+							context.addV2($('#text').val(),attributes);
 							
 							$(this).dialog("close");
 							resetForm('ideaForm');
+						} else {
+							var source = $('#source').val();
+							if(source === 'empty'){
+								alert('Please select a source for your ' + context.ideaTerm + '.');
+							} else {
+								if(source==='Other'){
+									source = 'Other: ' + $('#other').val();
+								}
+								context.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+								
+								$(this).dialog("close");
+								resetForm('ideaForm');
+							}
 						}
 					}
-				}
-			}, Cancel: function(){
-				$(this).dialog("close");
-				resetForm('ideaForm');
-			}
-		},
+				 }
+			 },
+			 {
+				 text: view.getI18NString('cancel'),
+				 click: function(){
+					 $(this).dialog("close");
+					resetForm('ideaForm');
+				 }
+			 }
+		],
 		open: function(event, ui){
 			$.validator.addMethod('require-one', function (value) {
-		          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+		          return $('.require-one:checked').size() > 0; }, view.getI18NString("ideaManager_addIdea_required"));
 			var checkboxes = $('#ideaForm .require-one');
 			var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
 
 			$('#ideaForm').validate({
 				groups: { checks: checkbox_names },
 				errorPlacement: function(error, element) {
-		             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+		             if (element.attr("type") === "checkbox" || element.attr('type') === 'radio'){
 		            	 error.insertAfter(element.parent().children(':last'));
 		             } else {
 		            	 error.insertAfter(element);
@@ -530,13 +556,13 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		if($(this).hasClass('visible')){
 			$('#trash').fadeOut();
 			$('#toggleDeleted').removeClass('visible');
-			$('#showDeleted').text('(Click to show)');
+			$('#showDeleted').text(view.getI18NString("ideaBasket_showDeleted"));
 			//$('#toggleDeleted img.arrow').attr('src','images/arrow.png');
 			//return false;
 		} else {
 			$('#trash').fadeIn();
 			$('#toggleDeleted').addClass('visible');
-			$('#showDeleted').text('(Click to hide)');
+			$('#showDeleted').text(view.getI18NString("ideaBasket_hideDeleted"));
 			//$('#toggleDeleted img.arrow').attr('src','images/arrow-down.png');
 			//return false;
 		}
@@ -584,14 +610,14 @@ IdeaBasket.prototype.processSettingsUI = function(){
 IdeaBasket.prototype.getIdeaById = function(ideaId) {
 	//loop through the ideas array
 	for(var i=0;i<this.ideas.length;i++){
-		if(this.ideas[i].id==ideaId){
+		if(this.ideas[i].id === parseInt(ideaId, 10)){
 			return this.ideas[i];
 		}
 	}
 
 	//loop through the deleted array
 	for(var i=0;i<this.deleted.length;i++){
-		if(this.deleted[i].id==ideaId){
+		if(this.deleted[i].id === parseInt(ideaId, 10)){
 			return this.deleted[i];
 		}
 	}
@@ -611,7 +637,7 @@ IdeaBasket.prototype.add = function(text,source,tags,flag) {
 
 	var nodeName = ";"
 	
-	if(parent.frames['ideaBasketIfrm'] != null) {
+	if(parent.frames['ideaBasketIfrm'] !== null) {
 		//we are adding an idea from the idea basket popup
 		
 		//get the values for the current step
@@ -649,7 +675,7 @@ IdeaBasket.prototype.addV2 = function(text,attributes) {
 
 	var nodeName = ";"
 	
-	if(parent.frames['ideaBasketIfrm'] != null) {
+	if(parent.frames['ideaBasketIfrm'] !== null) {
 		//we are adding an idea from the idea basket popup
 		
 		//get the values for the current step
@@ -741,28 +767,30 @@ IdeaBasket.prototype.addIdeaToBasketArrayV2 = function(text,attributes,nodeId,no
  * @return
  */
 IdeaBasket.prototype.addRow = function(target,idea,load){
-	var context = this;
-	var currTable = 'idea';
-	//var table = this.ideaTable;
-	var table = $('#basketIdeas tbody');
-	var link = 'delete';
-	var title = 'Click and drag to re-order, Double click to edit';
-	var linkText = idea.text;
+	var context = this,
+		view = this.view,
+		currTable = 'idea',
+		table = $('#basketIdeas tbody'),
+		link = 'delete',
+		title = view.getI18NString("ideaBasket_ideaTitle"),
+		linkText = idea.text;
 	
 	if(idea.isPublishedToPublic) {
 		//display the fact that this idea is public
-		linkText += ' (Public)';
+		linkText += ' (' + view.getI18NString('ideaBasket_public_publicLabel') + ')';
 	}
 
 	//the link used to open the edit dialog for this idea
-	var editLink = '<span class="editLink" title="Edit ' + this.view.utils.capitalize(this.ideaTerm) + '">Edit</span>';
+	var editLinkText = view.getI18NString("ideaBasket_editLinkText"),
+		editLinkTitle = view.getI18NStringWithParams('ideaBasket_editLinkTitle', [view.utils.capitalize(this.ideaTerm)]),
+		editLink = '<span class="editLink" title="' + editLinkTitle + '">' + editLinkText + '</span>';
 	
 	if (target===1){
 		currTable = 'deleted';
 		//table = this.deletedTable;
 		table = $('#basketDeleted tbody');
 		link = 'restore';
-		title = 'Click on the + icon to take this ' + this.ideaTerm + ' out of the trash';
+		title = view.getI18NStringWithParams('ideaBasket_deletedIdeaTitle', [this.ideaTerm]);
 		linkText = idea.text;
 	}
 	var html = '';
@@ -785,14 +813,14 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 			
 			if(wasCopiedFromPublic) {
 				//the idea was copied from the public basket
-				origin = 'Copied';
+				origin = view.getI18NString('ideaBasket_public_copiedIdea');
 			} else {
 				//the idea was not copied from the public basket
-				origin = 'Me';
+				origin = view.getI18NString('ideaBasket_public_orignalIdea');
 			}
 			
 			//display the origin column
-			html.append('<td><span class="ideaText" title="origin">' + origin + '</span></td>');
+			html.append('<td><span class="ideaText">' + origin + '</span></td>');
 		}
 		
 		for(var i=0;i<imAttributes.length;i++){
@@ -800,12 +828,12 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 			var type = imAttributes[i].type;
 			var newTD = $(document.createElement('td'));
 			for(var a=0;a<idea.attributes.length;a++){
-				if(idea.attributes[a].id == attrId && idea.attributes[a].type == type){
-					if(type == 'label' || type == 'source'){
+				if(idea.attributes[a].id === attrId && idea.attributes[a].type === type){
+					if(type === 'label' || type === 'source'){
 						newTD.append(idea.attributes[a].value); 
-					} else if (type == 'icon'){
+					} else if (type === 'icon'){
 						newTD.append('<span title="' + idea.attributes[a].value +	'" class="' + idea.attributes[a].value + '"></span>');
-					} else if (type == 'tags'){
+					} else if (type === 'tags'){
 						var tagsHtml = '';
 						for(var x=0;x<idea.attributes[a].value.length;x++){
 							tagsHtml += '<span class="tag">' + idea.attributes[a].value[x] + '</span>';
@@ -818,7 +846,7 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 		}
 		html.append('<td><span class="' + link + '" title="' + link + ' ' + this.ideaTerm + '"></span></td>');
 	} else {
-		if(idea.tags && idea.tags != 'undefined'){
+		if(idea.tags){
 			var tags = idea.tags;
 		} else {
 			var tags = '';
@@ -855,28 +883,38 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 
 		$newLink.click(function(){
 			var $clicked = $(this);
-			$('#deleteDialog').dialog({ title:'Move to Trash', modal:true, resizable:false, width:'400', buttons:{
-				'OK': function(){
-				var index = $clicked.parent().parent().attr('id');
-				index = index.replace('idea','');
-				
-				/*
-				 * check if the idea is being used in an explanation builder step,
-				 * if it is, we will display a confirmation popup that asks the
-				 * student if they're sure they want to edit the idea. if the
-				 * idea is not being used in an eb step it will return true
-				 * by default.
-				 */
-				var answer = basket.checkIfIdeaUsed(index);
-				
-				if(answer) {
-					var $tr = $clicked.parent().parent();
-					basket.remove(index,$tr);
-					$(this).dialog("close");					
-				}
-			},
-			Cancel: function(){$(this).dialog("close");}
-			} });
+			$('#deleteDialog').dialog({ title:view.getI18NString("ideaManager_deleteIdea_title"), modal:true, resizable:false, width:'400',
+				buttons:[
+				 	{
+				 		text: view.getI18NString('ok'),
+				 		click: function(){
+				 			var index = $clicked.parent().parent().attr('id');
+							index = index.replace('idea','');
+							
+							/*
+							 * check if the idea is being used in an explanation builder step,
+							 * if it is, we will display a confirmation popup that asks the
+							 * student if they're sure they want to edit the idea. if the
+							 * idea is not being used in an eb step it will return true
+							 * by default.
+							 */
+							var answer = basket.checkIfIdeaUsed(index);
+							
+							if(answer) {
+								var $tr = $clicked.parent().parent();
+								basket.remove(index,$tr);
+								$(this).dialog("close");					
+							}
+				 		}
+				 	},
+				 	{
+				 		text: view.getI18NString('cancel'),
+				 		click: function(){
+				 			$(this).dialog("close");
+				 		}
+				 	}
+				]
+			});
 		});
 	} else {
 		$newLink.click(function(){
@@ -895,7 +933,7 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 	$('#basketDeleted').trigger("applyWidgets");
 
 	var numDeleted = basket.deleted.length;
-	$('#numDeleted').text('Trash (' + numDeleted + ')');
+	$('#numDeleted').text(view.getI18NString("ideaBasket_trashLabel") + ' (' + numDeleted + ')');
 	if(numDeleted>0){
 		$('#deletedEmpty').hide();
 	} else {
@@ -913,11 +951,12 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 };
 
 IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
-	var text = '';
+	var text = '',
+		view = this.view;
 	
 	//populate edit fields
 	for(var i=0;i<basket.ideas.length;i++){
-		if(basket.ideas[i].id==id){
+		if(basket.ideas[i].id === parseInt(id, 10)){
 			var idea = basket.ideas[i];
 			text = idea.text;
 			$('#editText').val(text);
@@ -926,17 +965,17 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 				var attributes = idea.attributes;
 				for(var a=0;a<attributes.length;a++){
 					var attrId = attributes[a].id, type = attributes[a].type;
-					if(type=='source' || type=='label'){
+					if(type==='source' || type==='label'){
 						if(attributes[a].value.match(/^Other: /)){
-							$('#edit_' + type + '_' + attrId).val('Other');
+							$('#edit_' + type + '_' + attrId).val(view.getI18NString('ideaBasket_customAttributeLabel'));
 							$('input[name="edit_other_' + attrId + '"]').val(attributes[a].value.replace(/^Other: /,''));
 							$('#edit_other_' + attrId).show();
 						} else {
 							$('#edit_' + type + '_' + attrId).val(attributes[a].value);
 						}
-					} else if (type=='icon'){
+					} else if (type==='icon'){
 						$('[name=edit_' + type + '_' + attrId + ']').filter('[value="'+attributes[a].value+'"]').prop("checked",true);
-					} else if (type=='tags'){
+					} else if (type==='tags'){
 						for(var x=0;x<attributes[a].value.length;x++){
 							$('[name=edit_' + type + '_' + attrId + ']').filter('[value="'+attributes[a].value[x]+'"]').prop("checked",true);
 						}
@@ -949,11 +988,14 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 				 * idea dialog to pass in the new id. if we did not unbind
 				 * the click would fire all previous functions we bound.
 				 */
-				$('#makePublicButton').unbind('click');
+				$('#makePublicButton').off('click');
+				
+				var publicLabel = view.getI18NString('ideaBasket_public_publicLabel'),
+					privateLabel = view.getI18NString('ideaBasket_public_privateLabel');
 				
 				//bind the function to make the idea public
 				$('#makePublicButton').click({idea:idea, thisView:this.view, id:id}, function(event) {
-					$('#sharingStatus').html('Public');
+					$('#sharingStatus').html(publicLabel);
 				});
 
 				/*
@@ -962,22 +1004,22 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 				 * idea dialog to pass in the new id. if we did not unbind
 				 * the click would fire all previous functions we bound.
 				 */
-				$('#makePrivateButton').unbind('click');
+				$('#makePrivateButton').off('click');
 				
 				//bind the function to make the idea private
 				$('#makePrivateButton').click({idea:idea, thisView:this.view, id:id}, function(event) {
-					$('#sharingStatus').html('Private');
+					$('#sharingStatus').html(privateLabel);
 				});
 				
 				//set the text to show whether this idea is currently public or private
 				if(idea.isPublishedToPublic) {
-					$('#sharingStatus').html('Public');				
+					$('#sharingStatus').html(publicLabel);				
 				} else {
-					$('#sharingStatus').html('Private');
+					$('#sharingStatus').html(privateLabel);
 				}
 			} else {
 				if(basket.ideas[i].source.match(/^Other: /)){
-					$('#editSource').val("Other");
+					$('#editSource').val(view.getI18NString('ideaBasket_customAttributeLabel'));
 					$('#editOther').val(idea.source.replace(/^Other: /,''));
 					$('#editOtherSource').show();
 					$('#editOther').addClass('required');
@@ -988,7 +1030,7 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 				}
 				$('#editTags').val(idea.tags);
 				$("input[name='editFlag']").each(function(){
-					if($(this).attr('value')==idea.flag){
+					if($(this).attr('value')===idea.flag){
 						$(this).attr('checked', true);
 					} else {
 						$(this).attr('checked', false);
@@ -999,59 +1041,16 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 			}
 		}
 	}
-	var title = 'Edit Your ' + this.view.utils.capitalize(this.ideaTerm);
+	var title = view.getI18NStringWithParams('ideaManager_editIdea_title', [view.utils.capitalize(this.ideaTerm)]);
 	$('#editDialog').dialog({ title:title, modal:true, resizable:false, width:'470',
-		buttons:{
-			"OK": function(){
-				var answer = false;
-				if($("#editForm").validate().form()){
-					if(context.version > 1){
-						if($('#editText').val() != text){
-							/*
-							 * if the idea text has changed, check if the idea is being used
-							 * in an explanation builder step, if it is, we will display
-							 * a confirmation popup that asks the students if they're sure
-							 * they want to edit the idea. if the idea is not being used
-							 * in an eb step it will return true by default.
-							 */
-							var answer = basket.checkIfIdeaUsed(id);
-						} else {
-							answer = true;
-						}
-						var idea = null;
-						
-						if(answer) {
-							var attributes = context.getIdeaAttributes('edit');
-							idea = context.editV2(id,$('#editText').val(),attributes,$clicked);
-							$(this).dialog("close");
-							resetForm('editForm');						
-						}
-						
-						if(idea != null) {
-							var workgroupId = null;
-							var ideaId = null;
-							
-							if(idea != null) {
-								workgroupId = idea.workgroupId;
-								ideaId = idea.id;
-							}
-							
-							//save the idea basket back to the server
-							context.save('editPrivateIdea', workgroupId, ideaId);
-						}
-					} else {
-						var idea = null;
-						
-						if($('#editSource').val() == 'empty'){
-							var ideaTerm = this.ideaTerm;
-							
-							if(ideaTerm == null || ideaTerm == '') {
-								ideaTerm = 'idea';
-							}
-							
-							alert('Please select a source for your ' + ideaTerm + '.');
-						} else {
-							if($('#editText').val() != text){
+		buttons:[
+		 	{
+		 		text: view.getI18NString('ok'),
+		 		click: function(){
+		 			var answer = false;
+					if($("#editForm").validate().form()){
+						if(context.version > 1){
+							if($('#editText').val() !== text){
 								/*
 								 * if the idea text has changed, check if the idea is being used
 								 * in an explanation builder step, if it is, we will display
@@ -1063,47 +1062,87 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 							} else {
 								answer = true;
 							}
+							var idea = null;
 							
 							if(answer) {
-								var source = $('#editSource').val();
-								if(source=='Other'){
-									source = 'Other: ' + $('#editOther').val();
-								}
-								idea = basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
+								var attributes = context.getIdeaAttributes('edit');
+								idea = context.editV2(id,$('#editText').val(),attributes,$clicked);
 								$(this).dialog("close");
 								resetForm('editForm');						
 							}
-						}
-						
-						if(idea != null) {
-							var workgroupId = null;
-							var ideaId = null;
 							
-							if(idea != null) {
-								workgroupId = idea.workgroupId;
-								ideaId = idea.id;
+							if(idea !== null) {
+								var workgroupId = idea.workgroupId,
+									ideaId = idea.id;
+								
+								//save the idea basket back to the server
+								context.save('editPrivateIdea', workgroupId, ideaId);
+							}
+						} else {
+							var idea = null;
+							
+							if($('#editSource').val() === 'empty'){
+								var ideaTerm = this.ideaTerm;
+								
+								if(ideaTerm === null || ideaTerm === '') {
+									ideaTerm = 'idea';
+								}
+								
+								alert('Please select a source for your ' + ideaTerm + '.');
+							} else {
+								if($('#editText').val() !== text){
+									/*
+									 * if the idea text has changed, check if the idea is being used
+									 * in an explanation builder step, if it is, we will display
+									 * a confirmation popup that asks the students if they're sure
+									 * they want to edit the idea. if the idea is not being used
+									 * in an eb step it will return true by default.
+									 */
+									var answer = basket.checkIfIdeaUsed(id);
+								} else {
+									answer = true;
+								}
+								
+								if(answer) {
+									var source = $('#editSource').val();
+									if(source === 'Other'){
+										source = 'Other: ' + $('#editOther').val();
+									}
+									idea = basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
+									$(this).dialog("close");
+									resetForm('editForm');						
+								}
 							}
 							
-							//save the idea basket back to the server
-							context.save('editPrivateIdea', workgroupId, ideaId);
+							if(idea !== null) {
+								var workgroupId = idea.workgroupId,
+									ideaId = idea.id;
+								
+								//save the idea basket back to the server
+								context.save('editPrivateIdea', workgroupId, ideaId);
+							}
 						}
 					}
-				}
-			}, Cancel: function(){
-				$(this).dialog("close");
-				resetForm('editForm');
-			}
-		},
+		 		}
+		 	},
+		 	{
+		 		text: view.getI18NString('cancel'),
+		 		click: function(){
+		 			$(this).dialog("close");
+					resetForm('editForm');
+		 		}
+		 	}
+		],
 		open: function(event, ui){
 			$.validator.addMethod('require-one', function (value) {
-		          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+		          return $('.require-one:checked').size() > 0; }, view.getI18NString('ideaManager_addIdea_required'));
 			var checkboxes = $('#editForm .require-one');
 			var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
 
 			$('#editForm').validate({
 				groups: { checks: checkbox_names },
 				errorPlacement: function(error, element) {
-		             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+		             if (element.attr("type") === "checkbox" || element.attr('type') === 'radio'){
 		            	 error.insertAfter(element.parent().children(':last'));
 		             } else {
 		            	 error.insertAfter(element);
@@ -1122,9 +1161,9 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
  */
 IdeaBasket.prototype.getIdeaAttributes = function(mode){
 	var attributes = [], form;
-	if(mode=='edit'){
+	if(mode==='edit'){
 		form = $('#editForm');
-	} else if (mode=='add'){
+	} else if (mode==='add'){
 		form = $('#ideaForm');
 	} else {
 		return attributes;
@@ -1148,14 +1187,15 @@ IdeaBasket.prototype.getIdeaAttributes = function(mode){
 			});
 			attribute.value = tags;
 		}
-		if(type=='label' || type=='source'){
-			if($('#' + mode + '_' + type + '_' + attrId).val() == 'Other'){
+		if(type==='label' || type==='source'){
+			if($('#' + mode + '_' + type + '_' + attrId).val() === 'Other'){
 				attribute.value = 'Other: ' + $('input[name="' + mode + '_other_' + attrId + '"]').val();
 			} else {
 				attribute.value = $('#' + mode + '_' + type + '_' + attrId).val();
 			} 
 		}
-		attribute.id = attrId, attribute.type = type;
+		attribute.id = attrId;
+		attribute.type = type;
 		attributes.push(attribute);
 	});
 	return attributes;
@@ -1168,6 +1208,7 @@ IdeaBasket.prototype.getIdeaAttributes = function(mode){
  * idea is not being used in an eb step it will return true
  * by default.
  * @param id the id of the idea
+ * @param view Object representing the VLE view (optional)
  * @return whether the student confirmed that they still want
  * to edit the idea. if the idea is not being used in an
  * explanation builder step, we will not display the popup
@@ -1180,10 +1221,9 @@ IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
 	var answer = true;
 	
 	//check if this student used this idea in any steps 
-	if(stepsUsedIn != null && stepsUsedIn.length > 0) {
+	if(stepsUsedIn && stepsUsedIn.length > 0) {
 		//the student has used this idea in a step
-		
-		var message = "This " + this.ideaTerm + " is currently used in the following steps\n\n";
+		var stepsUsed = '';
 		
 		//loop through all the steps the student has used this idea in
 		for(var x=0; x<stepsUsedIn.length; x++) {
@@ -1192,7 +1232,7 @@ IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
 			
 			var view = null;
 				
-			if(parent.frames['ideaBasketIfrm'] == null) {
+			if(!parent.frames['ideaBasketIfrm']) {
 				/*
 				 * get the view from this object. this case is used in idea basket 
 				 * steps and explanation builder steps.
@@ -1209,7 +1249,7 @@ IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
 			//get the node
 			var node = view.getProject().getNodeById(nodeId);
 			
-			if(node != null) {
+			if(node !== null) {
 				//get the node position
 				var vlePosition = view.getProject().getVLEPositionById(nodeId);
 				
@@ -1217,12 +1257,11 @@ IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
 				var title = node.title;
 				
 				//add the step to the message
-				message += vlePosition + ": " + title + "\n";
+				stepsUsed += vlePosition + ": " + title + "\n";
 			}
 		}
 		
-		message += "\nIf you change this " + this.ideaTerm + ", you will also change your answer in those steps.";
-		
+		var message = view.getI18NStringWithParams('ideaManager_editIdea_changeConfirm', [this.ideaTerm, stepsUsedIn, this.ideaTerm]);
 		/*
 		 * display the message to the student that notifies them 
 		 * that they will also be changing the idea text in the
@@ -1247,7 +1286,7 @@ IdeaBasket.prototype.remove = function(index,$tr) {
 		$tr.remove();
 	}
 	for(var i=0; i<this.ideas.length; i++){
-		if(this.ideas[i].id == index){
+		if(this.ideas[i].id === parseInt(index, 10)){
 			//this.deleted.push(this.ideas[i]);
 			this.deleted.splice(0,0,this.ideas[i]);
 			var idea = this.ideas[i];
@@ -1288,7 +1327,7 @@ IdeaBasket.prototype.remove = function(index,$tr) {
 	var workgroupId = null;
 	var ideaId = null;
 	
-	if(editedIdea != null) {
+	if(editedIdea !== null) {
 		workgroupId = editedIdea.workgroupId;
 		ideaId = editedIdea.id;
 	}
@@ -1310,7 +1349,7 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
 		$tr.remove();
 	}
 	for(var i=0; i<this.deleted.length; i++){
-		if(this.deleted[i].id == index){
+		if(this.deleted[i].id === parseInt(index, 10)){
 			this.ideas.push(this.deleted[i]);
 			//this.ideas.splice(0,0,this.deleted[i]);
 			var idea = this.deleted[i];
@@ -1332,7 +1371,7 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
 				 * array for that public idea
 				 */
 				var publishers = idea.publishers;
-				if(publishers != null && publishers.length > 0) {
+				if(publishers !== null && publishers.length > 0) {
 					//get the last publisher
 					var publisher = publishers[publishers.length - 1];
 					
@@ -1360,7 +1399,7 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
 	var workgroupId = null;
 	var ideaId = null;
 	
-	if(editedIdea != null) {
+	if(editedIdea !== null) {
 		workgroupId = editedIdea.workgroupId;
 		ideaId = editedIdea.id;
 	}
@@ -1382,7 +1421,7 @@ IdeaBasket.prototype.isIdeaChanged = function(idea, text, source, tags, flag) {
 	var ideaChanged = true;
 	
 	//compare all the fields
-	if(idea.text == text && idea.source == source && idea.tags == tags && idea.flag == flag) {
+	if(idea.text === text && idea.source === source && idea.tags === tags && idea.flag === flag) {
 		ideaChanged = false;
 	}
 	
@@ -1401,7 +1440,7 @@ IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
 	var attributesChanged = false;
 	
 	//compare all the attributes
-	if(attributes.length != idea.attributes.length){
+	if(attributes.length !== idea.attributes.length){
 		attributesChanged = true;
 	} else {
 		var ids = [];
@@ -1412,7 +1451,7 @@ IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
 		
 		//loop through all the basket attributes available for an idea
 		$.each(attributes,function(index,attr){
-			if($.inArray(attr.id,ids) == -1){
+			if($.inArray(attr.id,ids) === -1){
 				//this basket attribute id is not in the attribute ids for the idea
 				attributesChanged = true;
 				return false;
@@ -1421,18 +1460,18 @@ IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
 				for(var i=0;i<idea.attributes.length;i++){
 					var ideaAttribute = idea.attributes[i];
 					
-					if(attr.id==ideaAttribute.id){
-						if(attr.type != ideaAttribute.type){
+					if(attr.id===ideaAttribute.id){
+						if(attr.type !== ideaAttribute.type){
 							attributesChanged = true;
 						} else {
-							if(attr.type=='tags'){
-								if(attr.value.sort().toString() != ideaAttribute.value.sort().toString()){
+							if(attr.type==='tags'){
+								if(attr.value.sort().toString() !== ideaAttribute.value.sort().toString()){
 									attributesChanged = true;
 									break;
 								}
 							} else {
 								//compare the value chosen in the UI with the previous value in the idea 
-								if(attr.value != ideaAttribute.value){
+								if(attr.value !== ideaAttribute.value){
 									attributesChanged = true;
 									break;
 								}
@@ -1450,21 +1489,21 @@ IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
 	var sharingStatus = $('#sharingStatus').html();
 
 	//if sharing status is null it means public basket is not enabled
-	if(sharingStatus != null) {
+	if(sharingStatus !== null) {
 		//get whether the idea was previously public
 		var isPublishedToPublic = idea.isPublishedToPublic;
 		
 		//check if the sharing status is 'Public'
 		var sharingStatusIsPublic = sharingStatus == 'Public';
 		
-		if(isPublishedToPublic != sharingStatusIsPublic) {
+		if(isPublishedToPublic !== sharingStatusIsPublic) {
 			//the sharing status has changed
 			sharingStatusChanged = true;
 		}
 	}
 	
 	//compare text
-	if(idea.text == text && !attributesChanged && !sharingStatusChanged) {
+	if(idea.text === text && !attributesChanged && !sharingStatusChanged) {
 		ideaChanged = false;
 	}
 	
@@ -1482,11 +1521,12 @@ IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
  * @return the edited idea or null of no idea was edited
  */
 IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
-	var context = this;
-	var editedIdea = null;
+	var context = this,
+		editedIdea = null,
+		view = this.view;
 	
 	for(var i=0; i<this.ideas.length; i++){
-		if(this.ideas[i].id == index){
+		if(this.ideas[i].id === parseInt(index, 10)){
 			var idea = this.ideas[i];
 			
 			/*
@@ -1501,7 +1541,7 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 				idea.source = source;
 				idea.tags = tags;
 				idea.flag = flag;
-				var linkText = idea.text +	'<span class="editLink" title="Edit idea">Edit</span>';
+				var linkText = idea.text +	'<span class="editLink" title="' + view.getI18NStringWithParams('ideaBasket_editLinkTitle', [this.ideaTerm]) + '">' + view.getI18NString('ideaBasket_editLinkText') + '</span>';
 				
 				//get the current time
 				var newDate = new Date();
@@ -1510,9 +1550,10 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 				idea.timeLastEdited = time;
 				
 				if($tr){
+					var deleteLinkTitle = view.getI18NStringWithParams('ideaBasket_deleteLinkTitle', [view.utils.capitalize(this.ideaTerm)])
 					$tr.html('<td><div class="ideaText">' + linkText + '</div></td><td>' + idea.source + '</td>' +
 							'<td><div class="ideaTags">' + idea.tags + '</div></td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
-					'<td style="text-align:center;"><span class="delete" title="Delete ' + this.view.utils.capitalize(this.ideaTerm) + '"></span></td>');
+					'<td style="text-align:center;"><span class="delete" title="' + deleteLinkTitle + '"></span></td>');
 
 					$tr.effect("pulsate", { times:1 }, 500);
 				}
@@ -1532,18 +1573,29 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 				});
 				
 				// re-bind delete link click
-				$newLink.click(function(){
-					var $clicked = $(this);
-					$('#deleteDialog').dialog({ title:'Move to Trash', modal:true, resizable:false, width:'400', buttons:{
-						'OK': function(){
-						var index = $clicked.parent().parent().attr('id');
-						index = index.replace('idea','');
-						var $tr = $clicked.parent().parent();
-						basket.remove(index,$tr);
-						$(this).dialog("close");
-					},
-					Cancel: function(){$(this).dialog("close");}
-					} });
+				$newLink.on('click', function(){
+					var $clicked = $(this),
+						title = view.getI18NString('ideaManager_deleteIdea_title');
+					$('#deleteDialog').dialog({ title:title, modal:true, resizable:false, width:'400',
+						buttons:[
+						 	{
+						 		text: view.getI18NString('ok'),
+						 		click: function(){
+						 			var index = $clicked.parent().parent().attr('id');
+									index = index.replace('idea','');
+									var $tr = $clicked.parent().parent();
+									basket.remove(index,$tr);
+									$(this).dialog("close");
+						 		}
+						 	},
+						 	{
+						 		text: view.getI18NString('cancel'),
+						 		click: function(){
+						 			$(this).dialog("close");
+						 		}
+						 	}
+						]
+					});
 					/*if(confirm("Are you sure you want to delete this idea?\n\n(You can always retrieve it from the trash later on if you change your mind.)")){
 						var index = $(this).parent().parent().attr('id');
 						index = index.replace('idea','');
@@ -1551,11 +1603,10 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 						basket.remove(index,$tr);
 					}*/
 				});
-			
+				
 				editedIdea = idea;
+				break;
 			}
-
-			break;
 		}
 	}
 	
@@ -1571,11 +1622,12 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
  * @return the idea that was edited or null of no idea was edited
  */
 IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
-	var context = this;
-	var editedIdea = null;
+	var context = this,
+		view = this.view,
+		editedIdea = null;
 	
 	for(var i=0; i<this.ideas.length; i++){
-		if(this.ideas[i].id == index){
+		if(this.ideas[i].id === parseInt(index, 10)){
 			var idea = this.ideas[i];
 			
 			/*
@@ -1588,7 +1640,7 @@ IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
 				
 				idea.text = text;
 				idea.attributes = attributes;
-				var linkText = idea.text +	'<span class="editLink" title="Edit ' + this.view.utils.capitalize(this.ideaTerm) + '">Edit</span>';
+				var linkText = idea.text +	'<span class="editLink" title="' + view.getI18NStringWithParams('ideaBasket_editLinkTitle', [this.view.utils.capitalize(this.ideaTerm)]) + '">' + view.getI18NString('ideaBasket_editLinkText') + '</span>';
 				var link = 'delete';
 				
 				//get the current time
@@ -1606,12 +1658,12 @@ IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
 						var type = imAttributes[i].type;
 						var newTD = $(document.createElement('td'));
 						for(var a=0;a<idea.attributes.length;a++){
-							if(idea.attributes[a].id == attrId && idea.attributes[a].type == type){
-								if(type == 'label' || type == 'source'){
+							if(idea.attributes[a].id === attrId && idea.attributes[a].type === type){
+								if(type === 'label' || type === 'source'){
 									newTD.append(idea.attributes[a].value); 
-								} else if (type == 'icon'){
+								} else if (type === 'icon'){
 									newTD.append('<span title="' + idea.attributes[a].value +	'" class="' + idea.attributes[a].value + '"></span>');
-								} else if (type == 'tags'){
+								} else if (type === 'tags'){
 									var tagsHtml = '';
 									for(var x=0;x<idea.attributes[a].value.length;x++){
 										tagsHtml += '<span class="tag">' + idea.attributes[a].value[x] + '</span>';
@@ -1642,16 +1694,26 @@ IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
 				// re-bind delete link click
 				$newLink.click(function(){
 					var $clicked = $(this);
-					$('#deleteDialog').dialog({ title:'Move to Trash', modal:true, resizable:false, width:'400', buttons:{
-						'OK': function(){
-						var index = $clicked.parent().parent().attr('id');
-						index = index.replace('idea','');
-						var $tr = $clicked.parent().parent();
-						basket.remove(index,$tr);
-						$(this).dialog("close");
-					},
-					Cancel: function(){$(this).dialog("close");}
-					} });
+					$('#deleteDialog').dialog({ title:view.getI18NString('ideaManager_deleteIdea_title'), modal:true, resizable:false, width:'400',
+						buttons:[
+						 	{
+						 		text: view.getI18NString('ok'),
+						 		click: function(){
+						 			var index = $clicked.parent().parent().attr('id');
+									index = index.replace('idea','');
+									var $tr = $clicked.parent().parent();
+									basket.remove(index,$tr);
+									$(this).dialog("close");
+						 		}
+						 	},
+						 	{
+						 		text: view.getI18NString('cancel'),
+						 		click: function(){
+						 			$(this).dialog("close");
+						 		}
+						 	}
+						]
+					});
 					/*if(confirm("Are you sure you want to delete this idea?\n\n(You can always retrieve it from the trash later on if you change your mind.)")){
 						var index = $(this).parent().parent().attr('id');
 						index = index.replace('idea','');
@@ -1669,7 +1731,7 @@ IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
 				//check if the sharing status is 'Public'
 				var sharingStatusIsPublic = sharingStatus == 'Public';
 				
-				if(isPublishedToPublic != sharingStatusIsPublic) {
+				if(isPublishedToPublic !== sharingStatusIsPublic) {
 					//the sharing status has changed
 					
 					if(sharingStatusIsPublic) {
@@ -1711,9 +1773,9 @@ IdeaBasket.prototype.updateOrder = function(target){
 	table.each(function(){
 		var id = $(this).attr('id');
 		id = id.replace(regex,'');
-		id = parseInt(id);
+		id = parseInt(id, 10);
 		for(var i=0; i<data.length; i++){
-			if (data[i].id == id){
+			if (data[i].id === id){
 				//newOrder.push(data[i]);
 				newOrder.splice(0,0,data[i]);
 				break;
@@ -1786,8 +1848,8 @@ IdeaBasket.prototype.isSameOrder = function(order1, order2) {
 			var order1Idea = order1[x];
 			var order2Idea = order2[x];
 			
-			if(order1Idea != null && order2Idea != null) {
-				if(order1Idea.id != order2Idea.id) {
+			if(order1Idea !== null && order2Idea !== null) {
+				if(order1Idea.id !== order2Idea.id) {
 					sameOrder = false;
 					break;
 				}
@@ -1811,12 +1873,12 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView, action, workgroupId, id
 	 * the ideaBasketIfrm is only used in the idea basket popup. if we are
 	 * on an idea basket step, setting thisView is not required
 	 */
-	if(thisView == null && parent.window.frames['ideaBasketIfrm'] != null) {
+	if(thisView === null && parent.window.frames['ideaBasketIfrm'] !== null) {
 		//if thisView is not passed in to the function, try to retrieve it from the iframe
 		thisView = parent.window.frames['ideaBasketIfrm'].thisView;
 	}
 	
-	if(action == null || action == '') {
+	if(!action) {
 		//set the action to this default value if none is passed in
 		action = "saveIdeaBasket";
 	}
@@ -1846,7 +1908,7 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView, action, workgroupId, id
 	};
 	
 	//check if we are in preview mode
-	if(thisView.config.getConfigParam('mode') != "portalpreview") {
+	if(thisView.config.getConfigParam('mode') !== "portalpreview") {
 		//we are not in preview mode so we will post the idea basket back to the server to be saved
 		thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.saveIdeaBasketCallback, {thisView:thisView, basket:this});
 	}
@@ -1858,7 +1920,7 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView, action, workgroupId, id
 	 * call the function that will fire the 'ideaBasketChanged' event that will
 	 * notify listeners to refresh their ideaBasket to get the latest changes
 	 */
-	if(this.view != null) {
+	if(this.view !== null) {
 		//we are on an idea basket step
 		thisView.ideaBasketChanged(this);		
 	} else {
@@ -1881,7 +1943,7 @@ IdeaBasket.prototype.saveIdeaBasketCallback = function(responseText, responseXML
 	var thisView = args.thisView;
 	var basket = args.basket;
 	
-	if(responseText == "Successfully saved Idea Basket") {
+	if(responseText === "Successfully saved Idea Basket") {
 		//we saved the basket
 		
 		//set this value to false since changes have been saved to the server
@@ -1890,7 +1952,7 @@ IdeaBasket.prototype.saveIdeaBasketCallback = function(responseText, responseXML
 		//we failed to save the basket
 		
 		//display a message to the student
-		thisView.notificationManager.notify("Error: Failed to save.", 3);
+		thisView.notificationManager.notify(thisView.getI18NStringWithParams('ideaBasket_saveError', [basket.basketTerm]), 3);
 		
 		//we received the previous basket revision to rollback to
 		var ideaBasketJSONObj = $.parseJSON(responseText);
@@ -1927,7 +1989,7 @@ IdeaBasket.prototype.isIdeaActive = function(ideaId) {
 
 	//loop through the ideas array
 	for(var i=0;i<this.ideas.length;i++){
-		if(this.ideas[i].id==ideaId){
+		if(this.ideas[i].id === parseInt(ideaId, 10)){
 			ideaActive = true;
 			break;
 		}
@@ -1946,7 +2008,7 @@ IdeaBasket.prototype.isIdeaInTrash = function(ideaId) {
 
 	//loop through the deleted array
 	for(var i=0;i<this.deleted.length;i++){
-		if(this.deleted[i].id==ideaId){
+		if(this.deleted[i].id === parseInt(ideaId, 10)){
 			ideaInTrash = true;
 			break;
 		}
@@ -1997,7 +2059,7 @@ IdeaBasket.prototype.getLatestState = function() {
 	var latestState = null;
 	
 	//check if the states array has any elements
-	if(this.states != null && this.states.length > 0) {
+	if(this.states !== null && this.states.length > 0) {
 		//get the last state
 		latestState = this.states[this.states.length - 1];
 	}
@@ -2026,21 +2088,22 @@ IdeaBasket.prototype.save = function(action, workgroupId, ideaId) {
  * @param settings
  */
 IdeaBasket.prototype.loadIdeaBasket = function() {
-	var settings = null;
+	var settings = null,
+		view = this.view;
 	var projectMeta = this.view.getProjectMetadata();
-	if(projectMeta != null && 'ideaManagerSettings' in projectMeta.tools){
+	if(projectMeta && projectMeta.hasOwnProperty('tools') && projectMeta.tools.hasOwnProperty('ideaManagerSettings')){
 		settings = projectMeta.tools.ideaManagerSettings;
 	}
-	if(this.view.ideaBasket != null) {
+	if(view.ideaBasket !== null) {
 		//generate the JSON string for the idea basket
-		var ideaBasketJSON = $.stringify(this.view.ideaBasket);
+		var ideaBasketJSON = $.stringify(view.ideaBasket);
 		
 		//generate the JSON object for the idea basket
 		var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
 		
 		//load the idea basket into the step
-		loadIdeaBasket(ideaBasketJSONObj, true, this.view, settings);		
-	} else if(this.view.authoringMode) {
+		loadIdeaBasket(ideaBasketJSONObj, true, view, settings);		
+	} else if(view.authoringMode) {
 		/*
 		 * we are in authoring preview step mode so we will just create
 		 * a dummy idea basket
@@ -2053,7 +2116,7 @@ IdeaBasket.prototype.loadIdeaBasket = function() {
 		var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
 		
 		//load the idea basket into the step
-		loadIdeaBasket(ideaBasketJSONObj, true, this.view, settings);	
+		loadIdeaBasket(ideaBasketJSONObj, true, view, settings);	
 	} else {
 		/*
 		 * the vle failed to retrieve the idea basket so we will disable
@@ -2065,7 +2128,7 @@ IdeaBasket.prototype.loadIdeaBasket = function() {
 		$('#main').hide();
 		
 		//set the error message
-		$('#errorMessageDialog').html("Error: Failed to retrieve " + this.basketTerm + ". Refresh the project or visit a different step and then come back to this step to try to load it again.");
+		$('#errorMessageDialog').html(view.getI18NStringWithParams('ideaBasket_loadError', [this.basketTerm]));
 		
 		//display the error message div
 		$('#errorMessageDialog').show();
@@ -2087,16 +2150,16 @@ IdeaBasket.prototype.loadPublicIdeaBasket = function() {
 	//clear out the previous revision of the public idea basket
 	$('#publicBasketIdeas tbody').html('');
 	
-	if(this.publicIdeaBasket != null) {
+	if(typeof this.publicIdeaBasket !== 'undefined' && this.publicIdeaBasket !== null) {
 		//get the public idea basket
 		var publicIdeaBasket = this.publicIdeaBasket;
 		
 		//get the public ideas
 		var publicIdeas = publicIdeaBasket.ideas;
 		
-		if(publicIdeas != null) {
+		if(publicIdeas !== null) {
 			
-			if(publicIdeas.length == 0) {
+			if(publicIdeas.length === 0) {
 				//display the message that says the public idea basket is empty
 				$('#publicIdeasEmpty').show();
 			} else {
@@ -2125,11 +2188,12 @@ IdeaBasket.prototype.loadPublicIdeaBasket = function() {
  * @param publicIdea the public idea
  */
 IdeaBasket.prototype.addPublicRow = function(publicIdea) {
-	var currTable = 'publicIdea';
-	var table = $('#publicBasketIdeas tbody');
-	var link = 'copy';
-	var title = '';
-	var linkText = publicIdea.text;
+	var currTable = 'publicIdea',
+		table = $('#publicBasketIdeas tbody'),
+		link = 'copy',
+		title = '',
+		linkText = publicIdea.text,
+		view = this.view;
 	
 	if(this.version > 1){
 		/*
@@ -2143,7 +2207,7 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 		
 		var numberTimesCopied = 0;
 		
-		if(publicIdea.workgroupIdsThatHaveCopied != null) {
+		if(publicIdea.workgroupIdsThatHaveCopied !== null) {
 			//get the number of times this public idea has been copied
 			numberTimesCopied = publicIdea.workgroupIdsThatHaveCopied.length;
 		}
@@ -2157,12 +2221,12 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 			var type = imAttributes[i].type;
 			var newTD = $(document.createElement('td'));
 			for(var a=0;a<publicIdea.attributes.length;a++){
-				if(publicIdea.attributes[a].id == attrId && publicIdea.attributes[a].type == type){
-					if(type == 'label' || type == 'source'){
+				if(publicIdea.attributes[a].id === attrId && publicIdea.attributes[a].type === type){
+					if(type === 'label' || type === 'source'){
 						newTD.append(publicIdea.attributes[a].value); 
-					} else if (type == 'icon'){
+					} else if (type === 'icon'){
 						newTD.append('<span title="' + publicIdea.attributes[a].value +	'" class="' + publicIdea.attributes[a].value + '"></span>');
-					} else if (type == 'tags'){
+					} else if (type === 'tags'){
 						var tagsHtml = '';
 						for(var x=0;x<publicIdea.attributes[a].value.length;x++){
 							tagsHtml += '<span class="tag">' + publicIdea.attributes[a].value[x] + '</span>';
@@ -2175,7 +2239,7 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 		}
 		
 		//add the copy public idea button
-		html.append('<td><input id="copyPublicIdeaButton_' + publicIdea.id + '" type="button" value="Copy"></input></td>');
+		html.append('<td><input id="copyPublicIdeaButton_' + publicIdea.id + '" type="button" value="' + view.getI18NString('ideaBasket_public_copyLinkText') + '"></input></td>');
 	} else {
 		/*
 		 * we are using the old version of the ideas that have
@@ -2183,13 +2247,13 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 		 */
 		var tags = '';
 		
-		if(publicIdea.tags && publicIdea.tags != 'undefined') {
+		if(publicIdea.tags && publicIdea.tags !== 'undefined') {
 			tags = publicIdea.tags;
 		}
 		html = '<tr id="' + currTable + publicIdea.id + '"><td><div class="ideaText">' + linkText +
 			'</div></td><td>' + publicIdea.source + '</td>' +	'<td><div class="ideaTags">' + tags +
 			'</div></td>' + '<td style="text-align:center;"><span title="' +publicIdea.flag +	'" class="' + publicIdea.flag + '"></span></td>'+
-			'<td style="text-align:center;"><input id="copyPublicIdeaButton_' + publicIdea.id + '" type="button" value="Copy"></input></td></tr>';
+			'<td style="text-align:center;"><input id="copyPublicIdeaButton_' + publicIdea.id + '" type="button" value="' + view.getI18NString('ideaBasket_public_copyLinkText') + '"></input></td></tr>';
 	}
 	
 	//add the public idea row to the public idea basket UI
@@ -2198,28 +2262,25 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 	//get the copy public idea button for this idea
 	var $copyPublicIdeaButton = $('#copyPublicIdeaButton_' + publicIdea.id);
 	
-	var workgroupId = publicIdea.workgroupId;
-	var ideaId = publicIdea.id;
-	var thisBasket = this;
+	var workgroupId = publicIdea.workgroupId,
+		ideaId = publicIdea.id,
+		thisBasket = this,
+		thisView = this.view;
 	
 	//set the onclick event for the copy public idea button for this idea
-	$copyPublicIdeaButton.click({thisView:this.view, thisBasket:thisBasket, workgroupId:workgroupId, ideaId:ideaId}, function(event) {
-		var workgroupId = event.data.workgroupId;
-		var ideaId = event.data.ideaId;
-		var thisView = event.data.thisView;
-		var thisBasket = event.data.thisBasket;
+	$copyPublicIdeaButton.on('click', function(event) {
 		
 		/*
 		 * check if the student is trying to copy their own idea.
 		 * we do not allow students to copy their own idea so if
 		 * they are, we will not change the button text to 'Copied'.
 		 */
-		if(thisBasket != null && thisBasket.workgroupId != workgroupId) {
+		if(thisBasket !== null && thisBasket.workgroupId !== workgroupId) {
 			/*
 			 * student is copying someone else's idea so we will 
 			 * change the button text from 'Copy' to 'Copied'
 			 */
-			$(this).val('Copied');			
+			$(this).val(thisView.getI18NString('ideaBasket_public_copiedIdea'));			
 		}
 		
 		//copy the public idea
@@ -2232,7 +2293,7 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 		 * the student has previously copied this public idea so we 
 		 * will change the button from 'Copy' to 'Copied'
 		 */
-		$('#copyPublicIdeaButton_' + ideaId).val('Copied');
+		$('#copyPublicIdeaButton_' + ideaId).val(thisView.getI18NString('ideaBasket_public_copiedIdea'));
 	}
 };
 
@@ -2240,14 +2301,14 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
  * Set the sharing status to public
  */
 IdeaBasket.prototype.setSharingStatusPublic = function() {
-	$('#sharingStatus').html('Public');
+	$('#sharingStatus').html(this.view.getI18NString('ideaBasket_public_publicLabel'));
 };
 
 /**
  * Set the sharing status to private
  */
 IdeaBasket.prototype.setSharingStatusPrivate = function() {
-	$('#sharingStatus').html('Private');
+	$('#sharingStatus').html(this.view.getI18NString('ideaBasket_public_privateLabel'));
 };
 
 /**
@@ -2272,17 +2333,17 @@ IdeaBasket.prototype.isPublicIdeaInPrivateBasket = function(ideaWorkgroupId, ide
 		//get the publishers of this idea if any
 		var publishers = idea.publishers;
 		
-		if(publishers != null && publishers.length > 0) {
+		if(typeof publishers !== 'undefined' && publishers !== null && publishers.length > 0) {
 			
 			//get the last publisher
 			var lastPublisher = publishers[publishers.length - 1];
 			
-			if(lastPublisher != null) {
+			if(lastPublisher !== null) {
 				//get the workgroup id and idea id
 				var publisherWorkgroupId = lastPublisher.workgroupId;
 				var publisherIdeaId = lastPublisher.ideaId;
 				
-				if(ideaWorkgroupId == publisherWorkgroupId && ideaId == publisherIdeaId) {
+				if(ideaWorkgroupId === publisherWorkgroupId && ideaId === publisherIdeaId) {
 					/*
 					 * we found the workgroup id and idea id which means we have this
 					 * public idea in our idea basket already
@@ -2314,7 +2375,7 @@ IdeaBasket.prototype.isPublicIdeaCopied = function(ideaWorkgroupId, ideaId) {
 	 * the student can't copy their own public idea so if they are the same,
 	 * we do not need to check if the student copied this public idea.
 	 */
-	if(workgroupId != ideaWorkgroupId) {
+	if(workgroupId !== ideaWorkgroupId) {
 		/*
 		 * loop through all the private ideas and check the publishers to
 		 * see if any of the ideas were copied from the given 
@@ -2327,17 +2388,17 @@ IdeaBasket.prototype.isPublicIdeaCopied = function(ideaWorkgroupId, ideaId) {
 			//get the publishers of this idea if any
 			var publishers = idea.publishers;
 			
-			if(publishers != null && publishers.length > 0) {
+			if(publishers && publishers.length > 0) {
 				
 				//get the last publisher
 				var lastPublisher = publishers[publishers.length - 1];
 				
-				if(lastPublisher != null) {
+				if(lastPublisher !== null) {
 					//get the workgroup id and idea id
 					var publisherWorkgroupId = lastPublisher.workgroupId;
 					var publisherIdeaId = lastPublisher.ideaId;
 					
-					if(ideaWorkgroupId == publisherWorkgroupId && ideaId == publisherIdeaId) {
+					if(ideaWorkgroupId === publisherWorkgroupId && ideaId === publisherIdeaId) {
 						/*
 						 * we found the workgroup id and idea id which means we have this
 						 * public idea in our idea basket already
@@ -2404,13 +2465,14 @@ IdeaBasket.prototype.isPublicIdeaBasketEnabled = function() {
  * @param ideaId the id of the idea
  */
 IdeaBasket.prototype.makeIdeaRowPublic = function(ideaId) {
-	if(ideaId != null && ideaId != '') {
+	var view = this.view;
+	if(ideaId !== null && ideaId !== '') {
 		//add the (Public) text to the row idea text
 		var html = $('#ideaText' + ideaId).html();
 		
-		if(html.indexOf('(Public)') == -1) {
+		if(html.indexOf(view.getI18NString('ideaBasket_public_publicRowLabel')) === -1) {
 			//the public text has not been added yet so we will add it
-			html += ' (Public)';
+			html += ' ' + view.getI18NString('ideaBasket_public_publicRowLabel');
 			$('#ideaText' + ideaId).html(html);
 			
 			var context = this;
@@ -2437,10 +2499,11 @@ IdeaBasket.prototype.makeIdeaRowPublic = function(ideaId) {
  * @param ideaId
  */
 IdeaBasket.prototype.makeIdeaRowPrivate = function(ideaId) {
-	if(ideaId != null && ideaId != '') {
+	if(ideaId !== null && ideaId !== '') {
 		//remove the (Public) text from the row idea text
 		var html = $('#ideaText' + ideaId).html();
-		html = html.replace(/ \(Public\)$/, '');
+		var regex = new RegExp(' ' + this.view.getI18NString('ideaBasket_public_publicRowLabel'));
+		html = html.replace(regex, '');
 		$('#ideaText' + ideaId).html(html);
 		
 		var context = this;
@@ -2474,13 +2537,13 @@ IdeaBasket.prototype.processTagMaps = function() {
 	
 	var tagMaps = null;
 	
-	if(this.node != null) {
+	if(typeof this.node !== 'undefined' && this.node !== null) {
 		//get the tag maps
 		tagMaps = this.node.tagMaps;
 	}
 	
 	//check if there are any tag maps
-	if(tagMaps != null) {
+	if(typeof tagMaps !== 'undefined' && tagMaps !== null) {
 		
 		//loop through all the tag maps
 		for(var x=0; x<tagMaps.length; x++) {
@@ -2488,23 +2551,23 @@ IdeaBasket.prototype.processTagMaps = function() {
 			//get a tag map
 			var tagMapObject = tagMaps[x];
 			
-			if(tagMapObject != null) {
+			if(tagMapObject !== null) {
 				//get the variables for the tag map
 				var tagName = tagMapObject.tagName;
 				var functionName = tagMapObject.functionName;
 				var functionArgs = tagMapObject.functionArgs;
 				
-				if(functionName == "showPreviousWork") {
+				if(functionName === "showPreviousWork") {
 					//show the previous work in the previousWorkDiv
 					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
-				} else if(functionName == "checkCompleted") {
+				} else if(functionName === "checkCompleted") {
 					//we will check that all the steps that are tagged have been completed
 					
 					//get the result of the check
 					var result = this.node.checkCompleted(tagName, functionArgs);
 					enableStep = enableStep && result.pass;
 					
-					if(message == '') {
+					if(message === '') {
 						message += result.message;
 					} else {
 						//message is not an empty string so we will add a new line for formatting
@@ -2515,7 +2578,7 @@ IdeaBasket.prototype.processTagMaps = function() {
 		}
 	}
 	
-	if(message != '') {
+	if(message !== '') {
 		//message is not an empty string so we will add a new line for formatting
 		message += '<br>';
 	}
@@ -2531,6 +2594,6 @@ IdeaBasket.prototype.processTagMaps = function() {
 };
 
 /* used to notify scriptloader that this script has finished loading */
-if(typeof eventManager != 'undefined'){
+if(typeof eventManager !== 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/ideaBasket/basket.js');
 }

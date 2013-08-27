@@ -141,6 +141,22 @@ View.prototype.EpigameNode.generatePage = function(view){
 	var settingsSpatialToggle = createElement(document, "input", {id: 'spatialToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
 	var settingsSpatialLabel = $(createElement(document, 'label', {id:'spatialLabel', "for":"spatialToggle"})).text('Use Spatial Interface');
 
+	var rankValue = $(createElement(document, 'label', {id:'rankText', "for":"rankText"})).text('Value');
+
+	var rank1Name = $(createElement(document, 'label', {id:'rank1Name', "for":"rank1Name"})).text('Fluffy');
+	var rank2Name = $(createElement(document, 'label', {id:'rank2Name', "for":"rank2Name"})).text('Planet Hopper');
+	var rank3Name = $(createElement(document, 'label', {id:'rank3Name', "for":"rank3Name"})).text('Stratosplorer');
+	var rank4Name = $(createElement(document, 'label', {id:'rank4Name', "for":"rank4Name"})).text('Solar Rocketeer');
+	var rank5Name = $(createElement(document, 'label', {id:'rank5Name', "for":"rank5Name"})).text('Space Commando');	
+	
+	var rank1Text = createElement(document, "input", {id:'rank1Text', type:"text", onchange:"eventManager.fire('epigameChangeSettings')",size:"5"});
+	var rank2Text = createElement(document, "input", {id:'rank2Text', type:"text", onchange:"eventManager.fire('epigameChangeSettings')",size:"5"});
+	var rank3Text = createElement(document, "input", {id:'rank3Text', type:"text", onchange:"eventManager.fire('epigameChangeSettings')",size:"5"});
+	var rank4Text = createElement(document, "input", {id:'rank4Text', type:"text", onchange:"eventManager.fire('epigameChangeSettings')",size:"5"});
+	var rank5Text = createElement(document, "input", {id:'rank5Text', type:"text", onchange:"eventManager.fire('epigameChangeSettings')",size:"5"});
+
+	var rankValue = $(createElement(document, 'label', {id:'rankText', "for":"rankText"})).text('Rank Values');
+	
 	//get document mode
 	var levelString = "";
 	var customUri = "";
@@ -172,7 +188,10 @@ View.prototype.EpigameNode.generatePage = function(view){
 	
 	settingsDiv.append(createBreak()).append(createBreak()).append(questionSpan).append(createBreak()).append(noTimeToggle).append(noTimeLabel).append(createBreak());
 	settingsDiv.append(testTimeToggle).append(testTimeLabel).append(testTimeBox).append(createBreak());
-	settingsDiv.append(questionTimeToggle).append(questionTimeLabel).append(questionTimeBox);	
+	settingsDiv.append(questionTimeToggle).append(questionTimeLabel).append(questionTimeBox).append(createBreak());
+
+	settingsDiv.append(createBreak()).append(rankValue).append(createBreak());
+	settingsDiv.append(rank1Text).append(rank1Name).append(createBreak()).append(rank2Text).append(rank2Name).append(createBreak()).append(rank3Text).append(rank3Name).append(createBreak()).append(rank4Text).append(rank4Name).append(createBreak()).append(rank5Text).append(rank5Name).append(createBreak());
 
 	//add the authoring components to the page
 	$(pageDiv)
@@ -211,9 +230,6 @@ View.prototype.EpigameNode.generatePage = function(view){
 	'};\n</script>\n';
 	*/
 	//$("#dynamicPage").append(jsFunctions);
-
-	
-
 	 
 	/*
 	// identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
@@ -423,7 +439,12 @@ View.prototype.EpigameNode.updateSettings = function() {
 			testTime: Boolean($("#testTimeToggle").prop("checked")),
 			questionTime: Boolean($("#questionTimeToggle").prop("checked")),
 			testTimeVal: $("#testTimeText").val(),
-			questionTimeVal: $("#questionTimeText").val()			
+			questionTimeVal: $("#questionTimeText").val(),
+			rank1Val: $("#rank1Text").val(),
+			rank2Val: $("#rank2Text").val(),
+			rank3Val: $("#rank3Text").val(),
+			rank4Val: $("#rank4Text").val(),
+			rank5Val: $("#rank5Text").val()				
 		};
 	} else {
 		delete this.content.settings;
@@ -432,6 +453,20 @@ View.prototype.EpigameNode.updateSettings = function() {
 
 View.prototype.EpigameNode.updateSettingsDisplay = function() {
 	if (this.content.settings) {
+	
+		//set default values if there are none
+		if(!this.content.settings.rank1Val)
+			this.content.settings.rank1Val = 0;			
+		if(!this.content.settings.rank2Val)
+			this.content.settings.rank2Val = 1200;
+		if(!this.content.settings.rank3Val)
+			this.content.settings.rank3Val = 3600;
+		if(!this.content.settings.rank4Val)
+			this.content.settings.rank4Val = 7200;
+		if(!this.content.settings.rank5Val)
+			this.content.settings.rank5Val = 11000;
+			
+	
 		//Boolean cast ensures that false is passed if the result is undefined due to JSON tampering
 		$("#explScoreToggle").prop("checked", Boolean(this.content.settings.showExplScore));
 		$("#warpScoreToggle").prop("checked", Boolean(this.content.settings.showWarpScore));
@@ -444,6 +479,11 @@ View.prototype.EpigameNode.updateSettingsDisplay = function() {
 		$("#questionTimeToggle").prop("checked", Boolean(this.content.settings.questionTime));
 		$("#testTimeText").val(this.content.settings.testTimeVal);
 		$("#questionTimeText").val(this.content.settings.questionTimeVal);
+		$("#rank1Text").val(this.content.settings.rank1Val);
+		$("#rank2Text").val(this.content.settings.rank2Val);
+		$("#rank3Text").val(this.content.settings.rank3Val);
+		$("#rank4Text").val(this.content.settings.rank4Val);
+		$("#rank5Text").val(this.content.settings.rank5Val);
 
 		//Settings enabled, so check the checkbox and show UI
 		$("#settingsToggle").prop("checked", true);
@@ -456,6 +496,9 @@ View.prototype.EpigameNode.updateSettingsDisplay = function() {
 };
 
 View.prototype.EpigameNode.toggleSettings = function() {
+
+	console.log("looking to apply default");
+
 	if ($("#settingsToggle").prop("checked")) {
 		//Create default settings
 		this.content.settings = {
@@ -470,8 +513,15 @@ View.prototype.EpigameNode.toggleSettings = function() {
 			testTime: false,
 			questionTime: false,
 			testTimeVal: 30,
-			questionTimeVal: 30			
+			questionTimeVal: 30,
+			rank1Val: 0,
+			rank2Val: 1200,
+			rank3Val: 3600,
+			rank4Val: 7200,
+			rank5Val: 11000
 		};
+		
+		console.log("applying ui settings");
 		
 		//Apply defaults to UI
 		$("#explScoreToggle").prop("checked", this.content.settings.showExplScore);
@@ -485,6 +535,11 @@ View.prototype.EpigameNode.toggleSettings = function() {
 		$("#questionTimeToggle").prop("checked", this.content.settings.questionTime);
 		$("#testTimeText").val(this.content.settings.testTimeVal);
 		$("#questionTimeText").val(this.content.settings.questionTimeVal);
+		$("#rank1Text").val(this.content.settings.rank1Val);
+		$("#rank2Text").val(this.content.settings.rank2Val);
+		$("#rank3Text").val(this.content.settings.rank3Val);
+		$("#rank4Text").val(this.content.settings.rank4Val);
+		$("#rank5Text").val(this.content.settings.rank5Val);
 		
 		//Show UI
 		$("#settingsDiv").show();

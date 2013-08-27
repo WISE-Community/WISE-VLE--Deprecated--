@@ -298,6 +298,20 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, periods, classmateU
 			return classmateUserInfos.sort(sortByUserName);
 		};
 		
+		/**
+		 * Get the user ids for this user
+		 * @return an array containing the user ids in the workgroup
+		 */
+		var getUserIds = function() {
+			var userIds = null;
+			
+			if(myUserInfo != null) {
+				userIds = myUserInfo.userIds;	
+			}
+			
+			return userIds;
+		};
+		
 		return {
 			getWorkgroupId:function() {
 				return getWorkgroupId();
@@ -364,6 +378,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, periods, classmateU
 			},
 			getClassmatesInPeriodId:function(periodId) {
 				return getClassmatesInPeriodId(periodId);
+			},
+			getUserIds:function() {
+				return getUserIds();
 			}
 		};
 	}(myUserInfo, periods, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);

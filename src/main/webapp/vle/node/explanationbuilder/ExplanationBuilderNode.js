@@ -28,6 +28,11 @@ ExplanationBuilderNode.prototype.parentNode = Node.prototype; //xTODO: rename Te
 ExplanationBuilderNode.authoringToolName = "Explanation Builder"; 
 
 ExplanationBuilderNode.authoringToolDescription = "Students use ideas from their Idea Basket to generate a response"; //xTODO: rename TemplateNode
+ExplanationBuilderNode.prototype.i18nEnabled = true;
+ExplanationBuilderNode.prototype.i18nPath = "/vlewrapper/vle/node/explanationbuilder/i18n/";
+ExplanationBuilderNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 ExplanationBuilderNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
@@ -331,7 +336,7 @@ ExplanationBuilderNode.prototype.renderGradingView = function(displayStudentWork
 		}
 		
 		//create a div for the idea that will be displayed as a rectangle
-		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="Click and drag to move; Click to change color" id="' + childDivIdPrefix + 'explanationIdea' 
+		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="' + view.getI18NString('usedIdea_title','ExplanationBuilderNode') + '" id="' + childDivIdPrefix + 'explanationIdea' 
 			+ id + '_' + stepWorkId + '" style="position:absolute; left:' + left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>';
 		
 		//add the idea div to the explanationBuilderIdeasDiv
@@ -434,7 +439,7 @@ ExplanationBuilderNode.prototype.overridesIsCompleted = function(){
  * Adds a new constraint for this explanation if the content specifies that
  * student must complete work before exiting to another step
  */
-ExplanationBuilderNode.prototype.addConstraints = function() {
+/*ExplanationBuilderNode.prototype.addConstraints = function() {
 	var content = this.content.getContentJSON(),
 		project = this.view.getProject();
 	var stepNumAndTitle = project.getStepNumberAndTitle(this.id);
@@ -451,7 +456,7 @@ ExplanationBuilderNode.prototype.addConstraints = function() {
 			message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
 		}
 	}
-};
+};*/
 
 ExplanationBuilderNode.prototype.removeConstraints = function(){
 };

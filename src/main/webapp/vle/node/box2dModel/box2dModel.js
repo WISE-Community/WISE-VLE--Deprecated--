@@ -140,6 +140,7 @@ Box2dModel.prototype.render = function() {
 	
 	var previousModels = [];
 	var density = -2;
+	var tableData = null;
 	//process the tag maps if we are not in authoring mode
 	if(typeof this.view.authoringMode === "undefined" || this.view.authoringMode == null || !this.view.authoringMode) {
 		var tagMapResults = this.processTagMaps();
@@ -158,13 +159,15 @@ Box2dModel.prototype.render = function() {
 		 * would like from the state object (look at box2dModelState.js)
 		 */
 		var latestResponse = latestState.response;
-		if (typeof latestResponse != "undefined") previousModels = previousModels.concat(latestResponse.savedModels);
+		if (typeof latestResponse != "undefined"){
+		 	previousModels = previousModels.concat(latestResponse.savedModels);
+		 	tableData = latestResponse.tableData.slice();
+		 }
 		
 		
 		//set the previous student work into the text area
 		$('#studentResponseTextArea').val(latestResponse); 
 	}
-
 
 	// setup the event logger and feedbacker
 	if (typeof this.content.feedbackEvents != "undefined"){
@@ -175,17 +178,10 @@ Box2dModel.prototype.render = function() {
 	}
 
 	if (typeof tester == "undefined" || tester == null){ 
-		init(box2dModel.content, previousModels.length>0?false:true, density >= 0 ? density : undefined);
+		init(box2dModel.content, previousModels, density >= 0 ? density : undefined, tableData);
 	}
 	//eventManager.fire("box2dInit", [{}], this);
-	this.view.pushStudentWork(this.node.id, {});
-	
-	for (var i = 0; i < previousModels.length; i++)
-	{
-		createObject(previousModels[i]);
-	}
-	
-	
+	//this.view.pushStudentWork(this.node.id, {});
 };
 
 /**
@@ -261,168 +257,65 @@ Box2dModel.prototype.getLatestState = function() {
 
 /**
  * When an event that is exclusive to Box2dModel is fired it is interpreted here.
+ * For each row creates a "row" of the following data, which is then structured into a table
+ * id 	|	total_mass	|	total_volume	| total_density |	enclosed_mass |	enclosed_volume	| enclosed_density 
+ * volume_displaced | sink_or_float | percent_submerged	 | percent_above_ | tested_in_beaker  | tested_on_scale   | tested_on_balance  
  * @param type, args, obj
  * @return 
  */
 Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	var evt = {};
 	evt.type = type;
-	evt.args = args;
 	var d = new Date();
 	evt.time = d.getTime() - this.timestamp;
-	evt.ModelDataDescriptions = {};
-	evt.ModelDataDescriptions.DataSeriesDescription = [];
-	evt.ModelDataDescriptions.ComputationalInputs = [];
-	evt.ModelDataDescriptions.ComputationalOutputs = [];
-	evt.ModelData = {};
-	evt.ModelData.DataSeries = [];
-	evt.ModelData.ComputationalInputValues = [];
-	evt.ModelData.ComputationalOutputValues = [];
-	evt.ObjectProperties = {};
-
-	var mass_on_left, mass_on_right, mass_diff;
-	// for the following types there is a central object, set its properties
-	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance" || evt.type == "add-scale" ||  evt.type == "remove-scale" ||
-		evt.type == "remove-balance"  || evt.type == "add-beaker" || evt.type == "test-scale-1" || evt.type == "test-add-beaker" || evt.type == "remove-beaker" || evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
-		if (typeof evt.args[0].id !== "undefined") evt.ObjectProperties.id = evt.args[0].id;
-		if (typeof evt.args[0].mass !== "undefined") evt.ObjectProperties.mass = evt.args[0].mass;
-		if (typeof evt.args[0].volume !== "undefined") evt.ObjectProperties.volume = evt.args[0].volume;
-		if (typeof evt.args[0].mass !== "undefined" && typeof evt.args[0].volume !== "undefined") evt.ObjectProperties.density = evt.args[0].mass/ evt.args[0].volume;
-		evt.ObjectProperties.is_container = typeof evt.args[0].is_container != "undefined"? evt.args[0].is_container : false;
-		if (evt.ObjectProperties.is_container){
-			if (typeof evt.args[0].liquid_perc_volume !== "undefined") evt.ObjectProperties.liquid_perc_volume = evt.args[0].liquid_perc_volume;
-			if (typeof evt.args[0].liquid_mass !== "undefined") evt.ObjectProperties.liquid_mass = evt.args[0].liquid_mass;
-			if (typeof evt.args[0].liquid_volume !== "undefined") evt.ObjectProperties.liquid_volume = evt.args[0].liquid_volume;
+	evt.model = {};
+	var row = {};
+	row.id = args[0].id;
+	row.Materials = typeof args[0].unique_materials !== "undefined" ? args[0].unique_materials.slice().sort().toString() : "";
+	row.Total_Volume = args[0].total_volume;
+	row.Widths = typeof args[0].widths !== "undefined" ? args[0].widths.toString().replace(/,/g,", ") : undefined;
+	row.Heights = typeof args[0].heights !== "undefined" ? args[0].heights.toString().replace(/,/g,", ") : undefined;
+	row.Depths = typeof args[0].depths !== "undefined" ? args[0].depths.toString().replace(/,/g,", ") : undefined;
+	row.Width = args[0].max_width;
+	row.Height = args[0].max_height;
+	row.Depth = args[0].max_depth;
+	row.Total_Mass = args[0].mass;
+	row.Total_Density = row.Total_Mass / row.Total_Volume;
+	row.Material_Mass = args[0].mass;
+	row.Material_Volume = args[0].material_volume;
+	row.Material_Density = row.Material_Mass / row.Material_Volume;
+	row.Open_Mass = 0;
+	row.Open_Volume = args[0].interior_volume;
+	row.Open_Density = 0;
+	row.Tested_on_Scale = 0;
+	row.Tested_on_Balance = 0;
+	// cycle through each liquid to gather data
+	for (var i = 0; i < GLOBAL_PARAMETERS.liquids_in_world.length; i++){
+		var liquid_name = GLOBAL_PARAMETERS.liquids_in_world[i];
+		var liquid_density = GLOBAL_PARAMETERS.liquids[liquid_name].density;
+		if (row.Total_Density > liquid_density){
+			row["Sink_in_"+liquid_name] = "Yes";
 		} else {
-			if (typeof evt.args[0].liquid_perc_volume !== "undefined") evt.ObjectProperties.liquid_perc_volume = 0;
-			if (typeof evt.args[0].liquid_mass !== "undefined") evt.ObjectProperties.liquid_mass = 0;
-			if (typeof evt.args[0].liquid_volume !== "undefined") evt.ObjectProperties.liquid_volume = 0;
+			row["Sink_in_"+liquid_name] = "No";
 		}
+		row["Percent_Submerged_in_"+liquid_name] = Math.min(1, row.Total_Density / liquid_density);
+		row["Percent_Above_"+liquid_name] = 1 - row["Percent_Submerged_in_"+liquid_name];
+		row["Volume_Displaced_in_"+liquid_name] = row.Total_Volume * row["Percent_Submerged_in_"+liquid_name];
+		row["Mass_Displaced_in_"+liquid_name] = liquid_density * row.Total_Volume * row["Percent_Submerged_in_"+liquid_name];
+		row["Tested_in_"+liquid_name] = 0;
+	}
+	if (evt.type == "add-to-beaker" || evt.type == "test-in-beaker" || evt.type == "remove-from-beaker"){
+		row["Tested_in_"+args[1].liquid_name] = 1;
+	} else if (evt.type == "add-to-scale" || evt.type == "test-on-scale" || evt.type == "remove-from-scale"){
+		row["Tested_on_Scale"] = 1;
+	} else if (evt.type == "add-to-balance" || evt.type == "test-on-balance" || evt.type == "remove-from-balance"){
+		row["Tested_on_Balance"] = 1;
 	}
 
-	// adding or removing a beaker
-	if (evt.type == "add-beaker-world" || evt.type == "remove-beaker-world" || evt.type == "add-balance-world" || evt.type == "remove-balance-world" || evt.type == "add-scale-world" || evt.type == "remove-scale-world"){
+	evt.model = row;
 
-	}
-
-	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
-	if (evt.type == "make-model" || evt.type == "delete-model")
-    {
-    	
-		evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"object-id", "units":"", "min":0, "max":1000},
-			{"label":"object-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-volume", "units":"cm^3", "min":0, "max":100000}		
-		];
-		evt.ModelData.ComputationalInputValues =
-		[evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
-	
-	} else if (evt.type == "test-balance-1to1")
-	{
-		evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-left-id", "units":"", "min":0, "max":1000},
-			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000},
-			{"label":"object-right-id", "units":"", "min":0, "max":1000},
-			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}			
-		];
-		mass_on_left = evt.args[0].mass;
-		mass_on_right = evt.args[1].mass;
-		mass_diff = mass_on_right - mass_on_left;
-		evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
-	
-		evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000},			
-		];
-		evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
- 
-	} else if (evt.type == "test-balance-1toN")
-	{
-		evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-left-id", "units":"", "min":0, "max":1000},
-			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},	
-			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000}	
-		];
-		mass_on_left = evt.args[0].mass;
-		mass_on_right = evt.args[1];
-		mass_diff = mass_on_right - mass_on_left;
-		evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
-	
-		evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
-		]
-		evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff]; 
-	} else if (evt.type == "test-balance-Nto1")
-	{
-		evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-right-id", "units":"", "min":0, "max":1000},
-			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}				
-		];
-		mass_on_left = evt.args[0];
-		mass_on_right = evt.args[1].mass;
-		mass_diff = mass_on_right - mass_on_left;
-		evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
-	
-		evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
-		];
-		evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
- 
-	} else if (evt.type == "test-balance-NtoN")
-	{
-		evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000}		
-		];
-		mass_on_left = evt.args[0];
-		mass_on_right = evt.args[1];
-		mass_diff = mass_on_right - mass_on_left;
-		evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right];
-	
-		evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}			
-		];
-		evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
- 
-	} else if (evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
-		evt.perc_filled_in_spilloff_container = typeof evt.args[1] == "undefined"? 0: evt.args[1].perc_filled_in_spilloff_container;
-	} else if (evt.type == "test-add-beaker"){
-		evt.displacement = evt.args[1].displacement;
-	} else if (evt.type == "gave-feedback"){
-		evt.feedbackEvent = evt.args[0];
-	}
 	var isStepCompleted = true;
 	// delete args
-	delete evt.args;
 	// run event through feedback manager
 	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null && evt.type != "gave-feedback"){
 		 var f = obj.feedbackManager.checkEvent(evt);
@@ -435,9 +328,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		 if (isStepCompleted){this.view.pushStudentWork(this.node.id, {});}
 	}
 
-	// save on a test
-	if (evt.type.substr(0,4) == "test"){
-		obj.save();
+	// save on a test, make, or delete
+	if (evt.type.substr(0,4) == "test" || evt.type == "make-model" || evt.type == "delete-model"){
+		obj.save(evt);
 	}	
 }
 
@@ -453,30 +346,97 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
  * provided as examples. you may create your own html ui elements in
  * the .html file for this step (look at box2dModel.html).
  */
-Box2dModel.prototype.save = function() {
+Box2dModel.prototype.save = function(evt) {
 	//get the answer the student wrote
 	//var response = $('#studentResponseTextArea').val();
-	//if (typeof evt === "undefined") evt = {"type":"server"};
+	if (typeof evt === "undefined") evt = {"type":"server"};
 
 	var response = {};
 	//load with objects from library
-	response.savedModels = [];
-	//response.evt = evt;
-	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
-	//if (evt.type == "make-model" || evt.type == "delete-model")
-    //{
-    	// save all the models stored in the library    
-
-		for (var i = 0; i < GLOBAL_PARAMETERS.objectLibrary.length; i++)
-		{
-			if (response.savedModels.length > 12) break; // just in case
-
-			var o =  GLOBAL_PARAMETERS.objectLibrary[i];
-			if (typeof o.is_deleted == "undefined" || !o.is_deleted)
-			{
-				response.savedModels.push(o);
+	response.images = [];
+	response.savedModels = GLOBAL_PARAMETERS.objects_made.slice();
+	// remove any deleted models
+	for (var i = response.savedModels.length-1; i >= 0; i--){
+		if (typeof response.savedModels[i].is_deleted !== "undefined" && response.savedModels[i].is_deleted) response.savedModels.splice(i,1);
+	}
+	// for each savedModel attach an associated image
+	for (i = 0; i < response.savedModels.length; i++){
+		var id = response.savedModels[i].id;
+		// go through all images looking for this id
+		for (var j = 0; j < GLOBAL_PARAMETERS.images.length; j++){
+			var img = GLOBAL_PARAMETERS.images[j];
+			if (img.id == id){
+				response.images.push(img);
 			}
-		}	
+		}
+	}
+
+	response.tableData = [];
+	var tableData = GLOBAL_PARAMETERS.tableData;
+	//response.evt = evt;
+	// create a new row in tableData if id is not found
+	if (evt.type == "make-model"){
+		var id_found = false;
+		for (var i = 0; i < tableData.length; i++){
+			if (tableData[i][0].text == "id"){
+				for (var j=1; j < tableData[i].length; j++){
+					if (tableData[i][j].text == evt.model.id){
+						id_found = true; break;
+					}
+				}
+				break;
+			}
+		}
+		if (!id_found){
+			for (var i = 0; i < tableData.length; i++){
+				if (typeof evt.model[tableData[i][0].text] !== "undefined"){
+					tableData[i].push({"text":evt.model[tableData[i][0].text], "uneditable":true});
+				} else {
+					tableData[i].push({"text":"", "uneditable":true});
+				}
+			}
+		}
+	}
+	// remove a row
+	if (evt.type == "delete-model"){
+		for (var i = 0; i < tableData.length; i++){
+			if (tableData[i][0].text == "id"){
+				for (var j=1; j < tableData[i].length; j++){
+					if (tableData[i][j].text == evt.model.id){
+						for (var k = 0; k < tableData.length; k++){
+							tableData[k].splice(j, 1)
+						}
+					}
+				}
+			}
+		}
+	}
+	// on test update the "Tested_in" or "Tested_on" column
+	if (evt.type.substr(0,4) == "test" || evt.type.substr(0,7) == "add-to-"){
+		// run through keys of model looking for positive tests, then update column in tableData
+		for (var key in evt.model){
+			if (key.substr(0,6) == "Tested" && evt.model[key] == 1){
+				// find id on table
+				for (var i=0; i < tableData.length; i++){
+					if (tableData[i][0].text == "id"){
+						for (var j=1; j < tableData[i].length; j++){
+							if (tableData[i][j].text == evt.model.id){
+								// search for the column matching the test
+								for (var k=0; k < tableData.length; k++){
+									if (tableData[k][0].text == key){
+										tableData[k][j].text = 1;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	response.tableData = tableData;
+
 	// save event history
 	response.history = this.feedbackManager.getHistory(25000);
 	console.log("---------------------- SAVING appx length -----------------------", (JSON.stringify(response.history).length+JSON.stringify(response.savedModels).length)*2);
@@ -514,6 +474,7 @@ Box2dModel.prototype.save = function() {
 	//push the state object into this or object's own copy of states
 	this.states.push(box2dModelState);
 
+	// we are not returning clear GLOBAL_PA
 	return box2dModelState;
 };
 

@@ -1,9 +1,11 @@
 {
-"maxPathVisitable":1,
-"branchingFunction":"",
-"branchingFunctionParams":[],
-"paths":[],
-"prompt":"",
-"excelExportStringTemplate":"",
-"type": "Branching"
+	"maxPathVisitable":1,
+	"minPathVisitable":1,
+	"branchingFunction":"",
+	"branchingFunctionParams":[],
+	"paths":[],
+	"prompt":"",
+	"excelExportStringTemplate":"",
+	"showBranchNodeAfterBranching":false,
+	"type": "Branching"
 }

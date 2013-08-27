@@ -184,7 +184,7 @@ table#activeIdeas tr.ui-draggable td {
 }
 
 .exIdea .ui-resizable-se {
-	background-color:rgba(200,200,200);
+	background-color:rgb(200,200,200);
 	background-color: rgba(255, 255, 255, 0.5);
     -moz-border-radius: 2px 0 4px 0;
     -webkit-border-radius: 2px 0 4px 0;
@@ -231,12 +231,12 @@ table#activeIdeas tr.ui-draggable td {
 }
 
 #cancel.disabled {
-	cursor:normal;
+	cursor:default;
 	color:#999999;
 }
 
 #saveConfirm {
-	background: none repeat scroll 0 0 rgba(250, 250, 250);
+	background: none repeat scroll 0 0 rgb(250, 250, 250);
 	background: none repeat scroll 0 0 rgba(250, 250, 250, 0.75);
     border: 1px solid #CCCCCC;
     -moz-border-radius: 4px;

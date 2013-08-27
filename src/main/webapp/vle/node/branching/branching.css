@@ -1,3 +1,18 @@
 #promptDiv {
 	font-size:16px
 }
+
+.branchLink {
+	text-decoration:underline;
+	color:blue;	
+	display:block;
+	margin-top:10px;
+}
+
+.branchLink.pathCompleted:before {
+	content: "\2713";
+}
+
+.branchLink:hover {
+	cursor:pointer;
+}

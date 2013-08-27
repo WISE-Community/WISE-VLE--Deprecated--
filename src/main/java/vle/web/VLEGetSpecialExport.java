@@ -514,24 +514,9 @@ public class VLEGetSpecialExport extends VLEServlet {
 					FileUtils.copyFile(sourceViewStudentWorkFile, newViewStudentWorkFile);
 				}
 			} else if(nodeType.equals("mysystem2")) {
-				if(vlewrapperBaseDir != null && vlewrapperBaseDir != "") {
-					//get the lz77.js file from the server
-					File sourcelz77File = new File(vlewrapperBaseDir + "/vle/node/mysystem2/authoring/js/libs/lz77.js");
-
-					//create a lz77.js file in the folder we are creating
-					File newlz77File = new File(zipFolder, "lz77.js");
-					
-					//copy the contents of the lz77.js file into our new file
-					FileUtils.copyFile(sourcelz77File, newlz77File);
-					
-					//get the viewStudentWork.html file for mysystem
-					File sourceViewStudentWorkFile = new File(vlewrapperBaseDir + "/vle/node/mysystem2/viewStudentWork.html");
-					
-					//create a viewStudentWork.html file in the folder we are creating
-					File newViewStudentWorkFile = new File(zipFolder, "viewStudentWork.html");
-					
-					//copy the contents of the viewStudentWork.html file into our new file
-					FileUtils.copyFile(sourceViewStudentWorkFile, newViewStudentWorkFile);
+				if(vlewrapperBaseDir != null && vlewrapperBaseDir != "") { 
+					MySystemExporter myExporter  = new MySystemExporter(vlewrapperBaseDir,zipFolder);
+					myExporter.copyFiles();
 				}
 			} else if(nodeType.equals("sensor")) {
 				if(vlewrapperBaseDir != null && vlewrapperBaseDir != "") {

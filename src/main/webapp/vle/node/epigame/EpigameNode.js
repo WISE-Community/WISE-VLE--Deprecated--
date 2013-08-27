@@ -19,6 +19,8 @@ EpigameNode.authoringToolDescription = "Game step for Surge: The Fuzzy Chronicle
 EpigameNode.tagMapFunctions = [
 	{functionName:"checkCompletedAll", functionArgs:[]},
 	{functionName:"checkCompletedAny", functionArgs:[]},
+	{functionName:"checkCompletedBronze", functionArgs:[]},
+	{functionName:"checkCompletedSilver", functionArgs:[]},	
 	{functionName:"checkStepPerformance", functionArgs:["Score to Unlock"]},
 	{functionName:"checkStepExplanation", functionArgs:["Score to Unlock"]},
 	{functionName:"getTotalPerformance", functionArgs:["Score to Unlock (optional)", "Tag Multipliers (advanced)"]},
@@ -125,6 +127,7 @@ EpigameNode.prototype.onExit = function() {
 	//check if the content panel has been set
 	if (this.contentPanel && this.contentPanel.save) {
 		//tell the content panel to save
+		console.log("onexit node");
 		this.contentPanel.save();
 	}
 };
