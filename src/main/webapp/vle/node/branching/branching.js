@@ -423,6 +423,9 @@ Branching.prototype.save = function() {
 
 	//push the state object into this or object's own copy of states
 	this.states.push(branchingState);
+	
+	// update constraints
+	this.view.updateActiveTagMapConstraints();
 };
 
 //used to notify scriptloader that this script has finished loading

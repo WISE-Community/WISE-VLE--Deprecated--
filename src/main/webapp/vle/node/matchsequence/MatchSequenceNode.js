@@ -152,17 +152,23 @@ MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, 
  * @return whether the student has completed the step or not
  */
 MatchSequenceNode.prototype.isCompleted = function(nodeVisits) {
-	var result = false;
+	var hasCorrectness = (this.content.getContentJSON().hasCorrectness != null) ? this.content.getContentJSON().hasCorrectness : true;
+	
+	var isCompleted = false;
 	
 	var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
 	
-	if(nodeState != null && nodeState != '') {
-		if(nodeState.isCorrect) {
-			result = true;
+	if (hasCorrectness) {
+		if(nodeState != null && nodeState != '') {
+			if(nodeState.isCorrect) {
+				isCompleted = true;
+			}
 		}
+	} else {
+		return nodeState != null; 
 	}
 
-	return result;
+	return isCompleted;
 };
 /**
  * Returns the order in which the branching paths should appear based on student response.

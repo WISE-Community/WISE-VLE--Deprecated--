@@ -42,6 +42,7 @@ function MS(node, view) {
     this.displayLayout = this.content.displayLayout;
     this.logLevel = this.content.logLevel;
     this.showFeedback = true;
+    this.numSubmitsAllowedBeforeLock = (this.content.numSubmitsAllowedBeforeLock != null) ? this.content.numSubmitsAllowedBeforeLock : -1;  // how many times can the student submit before getting locked out?
 
     //set whether to display feedback to the student when they submit their answer
     if(this.content.showFeedback != null) {
@@ -412,6 +413,13 @@ MS.prototype.render = function() {
     
     $("#checkAnswerButton").val(this.view.getI18NString("check_answer","MatchSequenceNode"));
     
+	// check to see if we need to disable the step from further interactivity by checking if student has exhausted number of attempted allowed
+	if (this.numSubmitsAllowedBeforeLock != -1) {
+		if (this.attempts.length == this.numSubmitsAllowedBeforeLock) {
+			this.node.disableInteractivity(true);
+		}
+	}
+    
     this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
@@ -668,8 +676,22 @@ MS.prototype.getBucketCopy = function(identifier) {
  * does not check if the state is correct.
  */
 MS.prototype.checkAnswer = function() {
-	if (//hasClass("checkAnswerButton", "disabledLink")
-		$('#checkAnswerButton').parent().hasClass('ui-state-disabled')) {
+	// check to see if student can check answer, or they've depleted their attempts already
+	if (this.numSubmitsAllowedBeforeLock != -1) {
+		if (this.attempts.length + 1 == this.numSubmitsAllowedBeforeLock) {
+			var doCheckAnswer = window.confirm(this.view.getI18NString("click_ok_to_save","MatchSequenceNode"));
+			if (!doCheckAnswer) {
+				// student has opted to continue working some more before submitting
+				return;
+			}
+		} else if (this.attempts.length + 1 < this.numSubmitsAllowedBeforeLock) {
+			// student still has submit attempts left
+		} else if (this.attemtps.length + 1 > this.numSubmitsAllowedBeforeLock) {
+			// shouldn't get here. student has submitted more than they're allowed. Maybe show a message?
+		}
+	}
+	
+	if ($('#checkAnswerButton').parent().hasClass('ui-state-disabled')) {
 		return;
 	}
 	
@@ -809,11 +831,16 @@ MS.prototype.checkAnswer = function() {
 			this.displayCurrentPossibleScoreTable(numWrongChoices);
 		}
 		
-		var tries = document.getElementById('numberAttemptsDiv');
-		
 		//fire the event to push this state to the global view.states object
 		this.view.pushStudentWork(this.node.id, state.getJsonifiableState());
 	};
+	
+	// check to see if we need to disable the step from further interactivity by checking if student has exhausted number of attempted allowed
+	if (this.numSubmitsAllowedBeforeLock != -1) {
+		if (this.attempts.length == this.numSubmitsAllowedBeforeLock) {
+			this.node.disableInteractivity(true);
+		}
+	}
 };
 
 /**
