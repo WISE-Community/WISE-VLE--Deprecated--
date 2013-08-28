@@ -153,18 +153,13 @@ View.prototype.GrapherNode.generatePage = function(view){
 	pageDiv.appendChild(enableCreatePredictionCheckBox);
 	pageDiv.appendChild(enableCreatePredictionText);
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(predictionDiv);
 	
 	predictionDiv.appendChild(easyPredictionCheckBox);
 	predictionDiv.appendChild(easyPredictionText);
 	predictionDiv.appendChild(createBreak());
 	predictionDiv.appendChild(newSeriesLabelButton);
 	predictionDiv.appendChild(createBreak());
-
-	//populate the require prediction before enter checkbox
-	if(this.content.enableEasyPrediction) {
-		easyPredictionCheckBox.checked = true;
-		this.updateEasyPrediction();
-	}
 
 	if (this.content.seriesLabels == null){
 		this.content.seriesLabels = [""];
@@ -188,7 +183,6 @@ View.prototype.GrapherNode.generatePage = function(view){
 		predictionDiv.appendChild(createBreak());
 	}
 
-	pageDiv.appendChild(predictionDiv);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
@@ -200,6 +194,9 @@ View.prototype.GrapherNode.generatePage = function(view){
 	//populate the easy prediction checkbox
 	if(this.content.enableEasyPrediction) {
 		easyPredictionCheckBox.checked = true;
+		this.updateEasyPrediction(true);
+	} else {
+		this.updateEasyPrediction(false);
 	}
 
 	//populate the easy prediction checkbox
@@ -346,8 +343,6 @@ View.prototype.GrapherNode.generatePage = function(view){
 		showGraphOptionsCheckBox.checked = true;
 	}
 
-	this.updateEasyPrediction();
-	
 	parent.appendChild(pageDiv);
 };
 
@@ -893,14 +888,14 @@ View.prototype.GrapherNode.updateGraphTitle = function() {
 /**
  * Update the easy prediction options
  */
-View.prototype.GrapherNode.updateEasyPrediction = function() {
+View.prototype.GrapherNode.updateEasyPrediction = function(overrideBoolean) {
 	//these options all make it easier to plot
-	this.content.enableEasyPrediction = this.isChecked($('#easyPredictionCheckBox').attr('checked'));
-	this.content.graphParams.easyClickExtremes = this.isChecked($('#easyPredictionCheckBox').attr('checked'));
-	this.content.graphParams.coordsFollowMouse = this.isChecked($('#easyPredictionCheckBox').attr('checked'));
-	this.content.graphParams.allowNonFunctionalData = this.isChecked($('#easyPredictionCheckBox').attr('checked'));
-	this.content.allowDragPoint = this.isChecked($('#easyPredictionCheckBox').attr('checked'));
-	this.content.allowDragDraw = !(this.isChecked($('#easyPredictionCheckBox').attr('checked')));
+	this.content.enableEasyPrediction = typeof overrideBoolean === "undefined" ? this.isChecked($('#easyPredictionCheckBox').attr('checked')) : overrideBoolean;
+	this.content.graphParams.easyClickExtremes = typeof overrideBoolean === "undefined" ? this.isChecked($('#easyPredictionCheckBox').attr('checked')) : overrideBoolean;
+	this.content.graphParams.coordsFollowMouse = typeof overrideBoolean === "undefined" ? this.isChecked($('#easyPredictionCheckBox').attr('checked')) : overrideBoolean;
+	this.content.graphParams.allowNonFunctionalData = typeof overrideBoolean === "undefined" ? this.isChecked($('#easyPredictionCheckBox').attr('checked')) : overrideBoolean;
+	this.content.allowDragPoint = typeof overrideBoolean === "undefined" ? this.isChecked($('#easyPredictionCheckBox').attr('checked')) : overrideBoolean;
+	this.content.allowDragDraw = typeof overrideBoolean === "undefined" ? !(this.isChecked($('#easyPredictionCheckBox').attr('checked'))) : !overrideBoolean;
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');

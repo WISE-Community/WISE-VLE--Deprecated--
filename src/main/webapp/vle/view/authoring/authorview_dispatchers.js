@@ -101,6 +101,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.displayTagView();
 	} else if(type == 'displayImportView') {
 		obj.displayImportView();
+	} else if(type == 'displayIconsView') {
+		obj.displayIconsView();
 	} else if(type == 'populateAddTagSelect') {
 		obj.populateAddTagSelect(args[0]);
 	} else if(type == 'populateAddTagMapSelect') {

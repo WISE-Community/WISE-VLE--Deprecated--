@@ -500,16 +500,41 @@ OpenResponseNode.prototype.getAutoGradedFields = function(stepWorkId, runId, nod
  * @param nodeState the latest node state for the step
  * @return whether the student has completed the step or not
  */
-OpenResponseNode.prototype.isCompleted = function(nodeState) {
+OpenResponseNode.prototype.isCompleted = function(nodeVisits) {
 	var result = false;
 	
-	if(nodeState != null && nodeState != '') {
-		if(nodeState.response != '') {
-			result = true;
-		}
+	if(nodeVisits != null) {
+		//get the latest node state for this step
+		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+		
+		if(nodeState != null && nodeState != '') {
+			if(nodeState.response != null && nodeState.response != '') {
+				//the student has completed this step
+				result = true;
+			}
+		}		
 	}
 	
 	return result;
+};
+
+/**
+ * Process the student work to see if we need to change the node's status
+ * 
+ * @param nodeVisits the node visits for this step
+ */
+OpenResponseNode.prototype.processStudentWork = function(nodeVisits) {
+	if(nodeVisits != null) {
+		if(nodeVisits.length > 0) {
+			//the student has visited this step
+			this.setStatus('isVisited', true);
+		}
+		
+		if(this.isCompleted(nodeVisits)) {
+			//the student has completed this step
+			this.setStatus('isCompleted', true);
+		}
+	}
 };
 
 OpenResponseNode.prototype.getHTMLContentTemplate = function() {

@@ -37,7 +37,8 @@ function Node(nodeType, view){
 		                        {functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
 		                        {functionName:'mustCompleteBeforeExiting', functionArgs:[]},
 		                        {functionName:'mustCompleteXBefore', functionArgs:[]},
-		                        {functionName:'mustVisitXBefore', functionArgs:[]}
+		                        {functionName:'mustVisitXBefore', functionArgs:[]},
+		                        {functionName:'xMustHaveStatusY', functionArgs:['statusType', 'statusValue']}
 		                        ];
 	} else {
 		//node is a step
@@ -45,14 +46,30 @@ function Node(nodeType, view){
 		                        {functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
 		                        {functionName:'mustCompleteBeforeExiting', functionArgs:[]},
 		                        {functionName:'mustCompleteXBefore', functionArgs:[]},
-		                        {functionName:'mustVisitXBefore', functionArgs:[]}
+		                        {functionName:'mustVisitXBefore', functionArgs:[]},
+		                        {functionName:'xMustHaveStatusY', functionArgs:['statusType', 'statusValue']}
 		                        ];
 	}
 	
 	this.constraintStatus = 'enabled';
+	this.statuses = [];
+	this.icons = [];
+	this.constraints = [];
+	this.nodeIdsListening = [];
 };
 
-Node.statuses = [];
+//the status types and possible values for all nodes
+Node.availableStatuses = [
+	{statusType:'isVisible', possibleStatusValues:[true, false]},
+	{statusType:'isVisitable', possibleStatusValues:[true, false]},
+	{statusType:'isVisited', possibleStatusValues:[true, false]},
+	{statusType:'isCompleted', possibleStatusValues:[true, false]}
+];
+
+//The special statuses that can be satisfied by any of the statuses in the group
+Node.specialStatusValues = [
+
+];
 
 Node.prototype.getNodeId = function() {
 	return this.id;
@@ -259,10 +276,10 @@ Node.prototype.preloadContent = function(){
  */
 Node.prototype.render = function(contentPanel, studentWork, disable) {
 	this.studentWork = studentWork;
-
+	
 	/* clean up any disabled panel that might exist from previous render */
-	$('#disabledPanel').remove();
-
+	this.disableInteractivity(false);
+	
 	/*check if the user had clicked on an outside link in the previous step
 	 */
 	if(this.handlePreviousOutsideLink(this, contentPanel)) {
@@ -343,14 +360,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 
 	/* if there is a disable constraint, we want to set a semi-transparent panel over the content div */
 	if(disable==1){
-		/* get the position, height and width of the content panel */
-		var panelPosition = $('#contentDiv').offset();
-		var panelHeight = $('#contentDiv').height() + 2;
-		var panelWidth = $('#contentDiv').width() + 2;
-
-		/* create the disabledPanel and append it to the given document */
-		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
-		$('body').append(dynamicPanel);
+		this.disableInteractivity(true);
 	}
 
 	if(this.view.config.getConfigParam('theme') == 'UCCP') {
@@ -486,7 +496,8 @@ Node.prototype.nodeJSON = function(contentBase){
 				view:this.getView(),
 				tags:this.tags,
 				tagMaps:this.tagMaps,
-				refs:[]
+				refs:[],
+				icons:this.icons
 		};
 
 		/* add children ids to refs */
@@ -533,6 +544,11 @@ Node.prototype.nodeJSON = function(contentBase){
 		//set the associatedAnnotateNode attribute if needed
 		if(this.associatedAnnotateNode != null) {
 			node.associatedAnnotateNode = this.associatedAnnotateNode;
+		}
+		
+		//set the icons from the project content if needed
+		if(this.icons != null) {
+			node.icons = this.icons;
 		}
 
 		/* set class */
@@ -1428,13 +1444,13 @@ Node.prototype.setNotCompleted = function() {
  * Determine whether the student has completed the step or not
  * This function should be overridden by child classes if the
  * child class requires more precise checking.
- * @param nodeState the latest node state for the step
+ * @param nodeVisits an array of node visits for the step
  * @return whether the student has completed the step or not
  */
-Node.prototype.isCompleted = function(nodeState) {
+Node.prototype.isCompleted = function(nodeVisits) {
 	var result = false;
 
-	if(nodeState != null && nodeState != '') {
+	if(nodeVisits != null && nodeVisits.length > 0) {
 		result = true;
 	}
 
@@ -1497,12 +1513,20 @@ Node.prototype.getStudentWorkHtmlView = function(work) {
  * determine whether to display a bronze, silver, or gold
  * star next to the step in the navigation menu. Each step
  * type will need to implement this function on their own.
- * @param studentWork the student work to look at to determine
- * if anything special needs to occur. usually this will be
- * the latest student step state for the given step.
+ * 
+ * @param nodeVisits the node visits for this step to look at to determine
+ * if anything special needs to occur.
  */
-Node.prototype.processStudentWork = function(studentWork) {
-
+Node.prototype.processStudentWork = function(nodeVisits) {
+	if(nodeVisits != null) {
+		if(nodeVisits.length > 0) {
+			//the student has visited this step
+			this.setStatus('isVisited', true);
+			
+			//the student has completed this step
+			this.setStatus('isCompleted', true);
+		}
+	}
 };
 
 /**
@@ -1872,77 +1896,206 @@ Node.prototype.getFeedback = function() {
 };
 
 /**
- * Get the status given the node state. This function should be
- * overriden by child classes.
- * @param nodeState the student work to get the status for
- * @return the status for the node state
+ * Get the step icon to display determined by the step's statuses.
+ * 
+ * @param icons (optional) the icons array that contains the mappings
+ * of icon path to statuses. if this parameter is not passed in, we will
+ * use the icons from the node.
+ * @param statuses (optional) the statuses to determine what step icon
+ * to display. if this parameter is not passed in, we will use the
+ * statuses from the node.
+ * 
+ * @return the icon path for the given statuses. it will return the first
+ * icon that matches.
  */
-Node.prototype.getStatus = function(nodeState) {
-	return null;
-};
-
-/**
- * Get the step icon for the given status. This function should be
- * overriden by child classes.
- * @param status the status to get the step icon for
- * @return the step icon for the given status
- */
-Node.prototype.getStepIconForStatus = function(status) {
-	return null;
-};
-
-/**
- * Get the status step icon from the content.
- * @param status the status to get the step icon for
- * @return the step icon for the given status from the authored
- * step content
- */
-Node.prototype.getStepIconPathForStatusFromContent = function(status) {
+Node.prototype.getIconPathForStatuses = function(icons, statuses) {
 	var iconPath = null;
 	
-	if(status != null) {
-		//get the step content
-		var content = this.content.getContentJSON();
-		
-		if(content != null) {
-			//get the stepIcons object if it is present in this step
-			var stepIcons = content.stepIcons;
+	//use the icons from this node if none were passed in
+	if(icons == null) {
+		icons = this.icons;
+	}
+	
+	//use the statuses from this node if none were passed in
+	if(statuses == null) {
+		statuses = this.statuses;
+	}
+	
+	if(icons != null) {
+		//loop through all the icons
+		for(var x=0; x<icons.length; x++) {
+			//get an icon object
+			var icon = icons[x];
 			
-			if(stepIcons != null) {
-				
-				//loop through all the step icon objects
-				for(var x=0; x<stepIcons.length; x++) {
-					//get a step icon object
-					var stepIconObject = stepIcons[x];
-					
-					if(stepIconObject != null) {
-						//get the status and icon path
-						var tempStatus = stepIconObject.status;
-						var tempIconPath = stepIconObject.iconPath;
-						
-						if(status == tempStatus) {
-							//we have found the status we want
-							iconPath = tempIconPath;
-							break;
-						}
-					}
-				}
+			//get the icon path
+			var tempIconPath = icon.iconPath;
+			
+			//get the statuses that need to be satisfied
+			var tempStatuses = icon.statuses;
+			
+			//check if the statuses match
+			if(this.statusesMatch(tempStatuses, statuses)) {
+				//the statuses match so we will return the icon path
+				iconPath = tempIconPath;
+				break;
 			}
-		}		
+		}
 	}
 	
 	return iconPath;
 };
 
 /**
- * Get the generic statuses for all nodes 
+ * Check if the statuses satisfy the requirements
+ * 
+ * @param statusesToSatisfy the status values that need to be satisfied
+ * @param statuses (optional) the statuses that we will look at to see if
+ * they satisfy the required values. if this parameters is not provided
+ * we will just use the statuses from the node.
+ * 
+ * @return whether the statuses from the step satisfy the requirements
  */
-Node.prototype.getStatuses = function() {
-	var statuses = [];
+Node.prototype.statusesMatch = function(statusesToSatisfy, statuses) {
+	//use the statuses from this node if none were passed in
+	if(statuses == null) {
+		statuses = this.statuses;
+	}
 	
-	statuses = Node.statuses;
+	var result = false;
+	var initializedResult = false;
 	
-	return statuses;
+	//loop through all the status values that we need to satisfy
+	for(var x=0; x<statusesToSatisfy.length; x++) {
+		var tempResult = false;
+		
+		//get a status object that needs to be satisfied
+		var tempStatusMapping = statusesToSatisfy[x];
+		var tempNodeId = tempStatusMapping.nodeId;
+		var tempStatusType = tempStatusMapping.statusType;
+		var tempStatusValueToSatisfy = tempStatusMapping.statusValue;
+		
+		//get the node whose status we need to look at
+		var tempNode = this.view.getProject().getNodeById(tempNodeId);
+		
+		//get the status value for the node
+		var tempNodeStatusValue = tempNode.getStatus(tempStatusType);
+		
+		//check if the value satisfies the requirement
+		if(tempNode.isStatusValueSatisfied(tempStatusType, tempNodeStatusValue, tempStatusValueToSatisfy)) {
+			tempResult = true;
+		} else {
+			tempResult = false;
+		}
+		
+		if(initializedResult) {
+			//this is not the first iteration of the for loop so we will accumulate the result value with && logic
+			result = result && tempResult;
+		} else {
+			//this is the first iteration of the for loop so we will initialize the result value
+			result = tempResult;
+			initializedResult = true;
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Check if the status value satisfies the requirement
+ * 
+ * @param statusValue the status value of the node
+ * @param statusValueToSatisfy the status requirement
+ * 
+ * @return whether the status value satisfies the requirement
+ */
+Node.prototype.isStatusValueSatisfied = function(statusType, statusValue, statusValueToSatisfy) {
+	var result = false;
+	
+	if(statusValue + '' == statusValueToSatisfy + '') {
+		//the status matches the required value
+		result = true;
+	} else if(this.matchesSpecialStatusValue(statusType, statusValue, statusValueToSatisfy)) {
+		result = true;
+	}
+	
+	return result;
+};
+
+/**
+ * Determines if a status value satisfies the status value to satisfy
+ * 
+ * @param statusValue the status value for the node e.g. 'surgeMedal'
+ * @param statusValueToSatisfy the status value to satisfy e.g. 'atLeastBronze'
+ * @param specialStatusValues (optional) the special status. this is
+ * usually the special status values from a child step.
+ * 
+ * @return whether the status value satisfies the status value to satisfy
+ */
+Node.prototype.matchesSpecialStatusValue = function(statusType, statusValue, statusValueToSatisfy, specialStatusValues) {
+	//use the special status values from the generic node if none were passed in
+	if(specialStatusValues == null) {
+		specialStatusValues = Node.specialStatusValues;
+	}
+	
+	//loop through all the special status values
+	for(var x=0; x<specialStatusValues.length; x++) {
+		//get a special status value
+		var tempSpecialStatusValue = specialStatusValues[x];
+		
+		if(tempSpecialStatusValue != null) {
+			//get the status type e.g. 'surgeMedal'
+			var tempStatusType = tempSpecialStatusValue.statusType;
+			
+			//get the status value e.g. 'atLeastBronze'
+			var tempStatusValue = tempSpecialStatusValue.statusValue;
+			
+			//get the possible actual status values that will satisfy the tempStatusValue e.g. ['bronze', 'silver', 'gold']
+			var tempPossibleStatusValues = tempSpecialStatusValue.possibleStatusValues;
+			
+			//check that the status types match and the status values match
+			if(statusType == tempStatusType && statusValueToSatisfy == tempStatusValue) {
+				//we have found the special status entry we want
+				
+				if(tempPossibleStatusValues != null) {
+					//check if the status value the node has is in the array of acceptible status values
+					if(tempPossibleStatusValues.indexOf(statusValue) != -1) {
+						//the status value is in the array so it satisfies the value to satisfy
+						return true;
+					}
+				}
+			}
+		}
+	}
+	
+	return false;
+};
+
+/**
+ * Get the available statuses for all nodes 
+ * @param includeSpecialStatusValues (optional) whether to include the special status
+ * values
+ */
+Node.prototype.getAvailableStatuses = function(includeSpecialStatusValues) {
+	var availableStatuses = [];
+	
+	if(includeSpecialStatusValues) {
+		//include the special status values
+		availableStatuses = this.getAvailableStatusesIncludingSpecialStatusValues();
+	} else {
+		//do not include the special status values
+		availableStatuses = Node.availableStatuses;		
+	}
+	
+	return availableStatuses;
+};
+
+/**
+ * Get the available statuses including special status values
+ */
+Node.prototype.getAvailableStatusesIncludingSpecialStatusValues = function() {
+	var availableStatuses = JSON.parse(JSON.stringify(Node.availableStatuses));
+	
+	return availableStatuses;
 };
 
 /**
@@ -1959,6 +2112,423 @@ Node.prototype.setConstraintStatus = function(constraintStatus) {
 };
 
 /**
+ * Get all the statuses that have been set for the instance of this step
+ */
+Node.prototype.getStatuses = function() {
+	return this.statuses;
+};
+
+/**
+ * Set the status value for the status type
+ * 
+ * @param statusType the status type
+ * @param statusValue the status value
+ */
+Node.prototype.setStatus = function(statusType, statusValue) {
+	var statuses = this.statuses;
+	
+	if(statuses != null) {
+		//get the previous status value to check if the status value is going to change
+		var oldStatusValue = this.getStatus(statusType);
+		
+		if(oldStatusValue != statusValue) {
+			//the status value is going to change
+			
+			//remove the status from the step so we don't end up with multiple instances of the same status type
+			this.removeStatus(statusType);
+			
+			//make the new status object
+			var newStatus = {
+				statusType:statusType,
+				statusValue:statusValue
+			}
+			
+			//add the status object to the array of statuses for this step
+			statuses.push(newStatus);
+
+			//fire a nodeStatusUpdated event so that listeners are notified that a node status has changed
+			eventManager.fire('nodeStatusUpdated', [this.id, statusType, statusValue]);
+		} else {
+			//the status is not changing so we do not need to do anything
+		}
+	}
+};
+
+/**
+ * Get the status value for the given status type for this step
+ * 
+ * @param statusType the status type
+ * @param statuses (optional) an array of status objects
+ * 
+ * @return the status value for the given status type or null
+ * if the status type was not found
+ */
+Node.prototype.getStatus = function(statusType, statuses) {
+	var statusValue = null;
+	
+	if(statuses == null) {
+		//get the statuses array for this step
+		statuses = this.statuses;
+	}
+	
+	if(statuses != null) {
+		//loop through all the statuses
+		for(var x=0; x<statuses.length; x++) {
+			//get a status object
+			var status = statuses[x];
+			
+			if(status != null) {
+				var tempStatusType = status.statusType;
+				
+				if(statusType == tempStatusType) {
+					//the status type matches the one we want so we will get the status value
+					statusValue = status.statusValue;
+				}
+			}
+		}
+	}
+	
+	return statusValue;
+};
+
+/**
+ * Remove the status from the node
+ * 
+ * @param statusType the status type to remove
+ */
+Node.prototype.removeStatus = function(statusType) {
+	//get all the statuses
+	var statuses = this.statuses;
+	
+	if(statuses != null) {
+		//loop through all the statuses
+		for(var x=0; x<statuses.length; x++) {
+			//get a status object
+			var status = statuses[x];
+			
+			if(status != null) {
+				//get the status type for the status object
+				var tempStatusType = status.statusType;
+				
+				if(statusType == tempStatusType) {
+					//the status type matches so we will remove it
+					statuses.splice(x, 1);
+					
+					/*
+					 * decrement the counter to keep searching just in case
+					 * there are duplicates with the same status type
+					 */
+					x--;
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Initialize the statuses for a step
+ * 
+ * @param state all the student work
+ */
+Node.prototype.populateStatuses = function(state) {
+
+	//set the isVisible and isVisitable statues
+	this.setStatus('isVisible', true);
+	this.setStatus('isVisitable', true);
+	
+	//get the latest node visit for the step
+	var latestNodeVisit = state.getLatestNodeVisitByNodeId(this.id, true);
+	
+	if(latestNodeVisit != null && latestNodeVisit != "") {
+		//this step has been visited
+		this.setStatus('isVisited', true);
+	} else {
+		//this step has not been visited
+		this.setStatus('isVisited', false);
+	}
+	
+	//check if the student has completed the step
+	var isCompleted = this.view.isCompleted(this.id);
+	
+	if(isCompleted) {
+		//the student has completed the step
+		this.setStatus('isCompleted', true);
+	} else {
+		//the student has not completed the step
+		this.setStatus('isCompleted', false);
+	}
+};
+
+/**
+ * Initialize the statuses for a sequence
+ * 
+ * @param state all the student work
+ */
+Node.prototype.populateSequenceStatuses = function(state) {
+	
+	//set the isVisible and isVisitable statuses
+	this.setStatus('isVisible', true);
+	this.setStatus('isVisitable', true);
+	
+	//get the node ids for the steps in this sequence
+	var nodeIdsInSequence = this.view.getProject().getNodeIdsInSequence(this.id);
+	
+	/*
+	 * whether the sequence has been visited. this will be true
+	 * if any of the steps in the sequence have been visited.
+	 */
+	var isVisited = false;
+	
+	/*
+	 * whether the sequence has been completed. this will be true
+	 * if all the steps in the sequence have been completed.
+	 */
+	var isCompleted = false;
+	
+	if(nodeIdsInSequence != null) {
+		//loop through all the node ids in the sequence
+		for(var x=0; x<nodeIdsInSequence.length; x++) {
+			//get a node id
+			var nodeIdInSequence = nodeIdsInSequence[x];
+			
+			//get all the node visits for the node id
+			var nodeVisit = state.getLatestNodeVisitByNodeId(nodeIdInSequence);
+			
+			if(nodeVisit != null) {
+				isVisited = true;
+			}
+			
+			//check if the student has completed the step
+			var isNodeInSequenceCompleted = this.view.isCompleted(nodeIdInSequence);
+			
+			if(x == 0) {
+				/*
+				 * this is the first step in the sequence so we will set the 
+				 * isCompleted value to the value for the step
+				 */
+				isCompleted = isNodeInSequenceCompleted;
+			} else {
+				//accumulate the completed values
+				isCompleted = isCompleted && isNodeInSequenceCompleted;
+			}
+		}
+	}
+	
+	//set whether this sequence has been visited
+	if(isVisited) {
+		this.setStatus('isVisited', true);
+	} else {
+		this.setStatus('isVisited', false);
+	}
+	
+	//set whether this sequence has been completed
+	if(isCompleted) {
+		this.setStatus('isCompleted', true);
+	} else {
+		this.setStatus('isCompleted', false);
+	}
+};
+
+/**
+ * Add the constraint to this node.
+ * 
+ * @param constraintObject the constraint to add to this node
+ */
+Node.prototype.addConstraint = function(constraintObject) {
+	//check if this constraint has already been added to this node
+	if(!this.isConstraintAlreadyAdded(constraintObject)) {
+		//the constraint has not been added so we will add it
+		this.constraints.push(constraintObject);
+	}
+	
+	/*
+	 * evaluate the constraints placed on this node to see if we need
+	 * to change this node's status
+	 */
+	this.evaluateConstraints();
+};
+
+/**
+ * Check if the constraint has already been added to this node's constraints
+ * 
+ * @param constraintObject the constraint object to add
+ * 
+ * @return whether the constraint is already added
+ */
+Node.prototype.isConstraintAlreadyAdded = function(constraintObject) {
+	var exists = false;
+	
+	if(constraintObject != null) {
+		if(this.constraints == null) {
+			//create the constraints array if it does not exist
+			this.constraints = [];
+		}
+		
+		//loop through all the active tag map constraints for this step
+		for(var x=0; x<this.constraints.length; x++) {
+			//get an active tag map constraint
+			var tempConstraintObject = this.constraints[x];
+			
+			if(constraintObject === tempConstraintObject) {
+				//the constraint object already exists in this node
+				exists = true;
+			}
+		}
+	}
+	
+	return exists;
+}
+
+/**
+ * Remove the constraint from this node
+ * 
+ * @param constraintObject the constraint object to remove
+ */
+Node.prototype.removeConstraint = function(constraintObject) {
+	if(constraintObject != null) {
+		if(this.constraints == null) {
+			//create the constraints array if it does not exist
+			this.constraints = [];
+		}
+		
+		//loop through all the tag map constraints for this step
+		for(var x=0; x<this.constraints.length; x++) {
+			//get an active tag map constraint
+			var tempConstraintObject = this.constraints[x];
+			
+			if(constraintObject === tempConstraintObject) {
+				//we have found the constraint object so we will remove it
+				this.constraints.splice(x, 1);
+				
+				//decrement the counter to keep searching in case there were multiple instances
+				x--;
+			}
+		}
+	}
+
+	/*
+	 * evaluate the constraints placed on this node to see if we need
+	 * to change this node's status
+	 */
+	this.evaluateConstraints();
+};
+
+/**
+ * Evaluate the constraints on this node
+ */
+Node.prototype.evaluateConstraints = function() {
+	
+	 if(this.constraints == null) {
+		//create the constraints array if it does not exist
+		 this.constraints = [];
+	 }
+	 
+	 if(this.constraints.length == 0) {
+		 //there are no constraints on this node so it is visitable
+		 this.setStatus('isVisitable', true);
+	 } else {
+		 //there is at least one constraint on this node so it is not visitable
+		 this.setStatus('isVisitable', false);
+	 }
+};
+
+/**
+ * Get the constraints that are constraining this node
+ * 
+ * @return the constraints array
+ */
+Node.prototype.getActiveConstraints = function() {
+	if(this.constraints == null) {
+		//create the constraints array if it does not exist
+		this.constraints = [];
+	}
+	
+	return this.constraints;
+};
+
+/**
+ * Find all the nodes that this node depends on. The icons that this
+ * node has specified may depend on the status of other nodes. We will
+ * tell other nodes that this node depends on them by giving them this
+ * node's node id.
+ */
+Node.prototype.populateNodeStatusDependencies = function() {
+	var icons = this.icons;
+	
+	var nodeIds = [];
+	
+	if(icons != null) {
+		
+		//loop through all the icons
+		for(var x=0; x<icons.length; x++) {
+			var icon = icons[x];
+			
+			//get the statuses for this icon
+			var statuses = icon.statuses;
+			
+			if(statuses != null) {
+				
+				//loop through all the statuses
+				for(var y=0; y<statuses.length; y++) {
+					//get a status object
+					var status = statuses[y];
+					
+					//get the node id the status is for
+					var nodeId = status.nodeId;
+					
+					/*
+					 * make sure we don't already have this node id since we need a
+					 * list of unique node ids
+					 */
+					if(nodeIds.indexOf(nodeId) == -1) {
+						nodeIds.push(nodeId);						
+					}
+				}
+			}
+		}
+	}
+	
+	//loop through all the node ids that we have accumulated
+	for(var z=0; z<nodeIds.length; z++) {
+		//get a node id
+		var nodeId = nodeIds[z];
+
+		//get the node
+		var node = this.view.getProject().getNodeById(nodeId);
+		
+		//add this node id to that node's array of nodeIdsListening
+		node.nodeIdsListening.push(this.id);
+	}
+};
+
+/**
+ * Get the score for the node state for this step. This should
+ * be implemented by child nodes if they want to utilize it.
+ * @param nodeState the node state to get the score from
+ */
+Node.prototype.getScore = function(nodeState) {
+	return null;
+};
+
+/**
+ * Disables this node's content panel so students cannot interact with it.
+ */
+Node.prototype.disableInteractivity = function(doDisable) {
+	if (doDisable) {
+		/* get the position, height and width of the content panel */
+		var panelPosition = $('#contentDiv').offset();
+		var panelHeight = $('#contentDiv').height() + 2;
+		var panelWidth = $('#contentDiv').width() + 2;
+
+		/* create the disabledPanel and append it to the given document */
+		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
+		$('body').append(dynamicPanel);	
+	} else {
+		$('#disabledPanel').remove();
+	}
+}
+
+/*
  * Takes in a state JSON object and returns a STATE object. This
  * function should be overriden by child nodes.
  * @param nodeStatesJSONObj a state JSON object

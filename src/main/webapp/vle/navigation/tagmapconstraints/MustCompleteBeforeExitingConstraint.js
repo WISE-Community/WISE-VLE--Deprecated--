@@ -173,7 +173,7 @@ MustCompleteBeforeExitingConstraint.prototype.constrainNavigation = function() {
 				 * the student is currently in the constrained activity so we will
 				 * disable all steps outside of this activity
 				 */
-				this.view.navigationLogic.tagMapConstraintManager.disableAllOtherSteps(this.nodeId);
+				this.view.navigationLogic.tagMapConstraintManager.disableAllOtherSteps(this.nodeId, this);
 			}
 		} else {
 			//the constrained node is a step
@@ -182,7 +182,7 @@ MustCompleteBeforeExitingConstraint.prototype.constrainNavigation = function() {
 				 * the student is currently on the constrained step so we will
 				 * disable all other steps
 				 */ 
-				this.view.navigationLogic.tagMapConstraintManager.disableAllOtherSteps(this.nodeId);			
+				this.view.navigationLogic.tagMapConstraintManager.disableAllOtherSteps(this.nodeId, this);			
 			}		
 		}
 	}

@@ -25,7 +25,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'simulation', nodeClassText:'Molecular Workbench'}
+	{nodeClass:'simulation', nodeClassText:'Molecular Workbench', icon:'node/mw/icons/simulation28.png'}
 ];
 
 var nodeIconPath = 'node/mw/icons/';

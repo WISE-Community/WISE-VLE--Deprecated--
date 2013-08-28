@@ -817,6 +817,14 @@ View.prototype.initializeImportViewDialog = function() {
 };
 
 /**
+ * Create the icons view dialog popup
+ */
+View.prototype.initializeIconsViewDialog = function() {
+	//create the dialog element so we can use it later
+	$('#iconsViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Icons', buttons: {'Close': function(){$(this).dialog("close");}}});
+};
+
+/**
  * Create the find broken links in project dialog popup
  */
 View.prototype.initializeAnalyzeProjectDialog = function() {

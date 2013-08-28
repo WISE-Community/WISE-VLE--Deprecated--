@@ -28,6 +28,18 @@ EpigameNode.tagMapFunctions = [
 	{functionName:"getTotalAdaptive", functionArgs:["Score to Unlock (optional)"]}
 ];
 
+//The statuses that this step can return
+EpigameNode.availableStatuses = [
+	{statusType:'epigameMedal', possibleStatusValues:['bronze', 'silver', 'gold']}
+];
+
+//The special statuses that can be satisfied by any of the statuses in the group
+EpigameNode.specialStatusValues = [
+	{statusType:'epigameMedal', statusValue:'atLeastBronze', possibleStatusValues:['bronze', 'silver', 'gold']},
+	{statusType:'epigameMedal', statusValue:'atLeastSilver', possibleStatusValues:['silver', 'gold']},
+	{statusType:'epigameMedal', statusValue:'atLeastGold', possibleStatusValues:['gold']}
+];
+
 EpigameNode.prototype.getQuizData = function(customURL) {
 	var content = null;
 	
@@ -173,50 +185,86 @@ EpigameNode.prototype.getHTMLContentTemplate = function() {
 };
 
 /**
+ * Determine whether the student has completed the step or not
+ * @param nodeVisits an array of node visits for the step
+ * @return whether the student has completed the step or not
+ */
+EpigameNode.prototype.isCompleted = function(nodeVisits) {
+	var result = false;
+
+	var latestNodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+	
+	if(latestNodeState != null) {
+		result = true;
+	}
+
+	return result;
+};
+
+/**
  * Process the student work to see if we need to display a colored
  * star next to the step in the nav menu
  * @param studentWork the student's epigame state
  */
-EpigameNode.prototype.processStudentWork = function(studentWork) {
-	//Disabled for now...
-	/*
-	if(studentWork != null) {
-		if(studentWork.response != null && studentWork.response != "") {
-			//var className = "";
-			var imgPath = '';
-			var tooltip = '';
-			
-			//get the top score
-			var topScore = studentWork.response.topScore;
-			var scoreAbsolute = studentWork.response.scoreAbsolute;
-			
-			var best;
-			
-			if(topScore > scoreAbsolute || topScore == scoreAbsolute){
-				best = topScore;
-			} else {
-				best = scoreAbsolute;
-			}
-			
-			if(best == 10) {
-				//className = "bronzeStar";
-				imgPath = '/vlewrapper/vle/node/epigame/images/bronzeStar.png';
-				tooltip = "You have earned a bronze medal";
-			} else if(best == 20) {
-				//className = "silverStar";
-				imgPath = '/vlewrapper/vle/node/epigame/images/silverStar.png';
-				tooltip = "You have earned a silver medal";
-			} else if(best == 30) {
-				//className = "goldStar";
-				imgPath = '/vlewrapper/vle/node/epigame/images/goldStar.png';
-				tooltip = "You have earned a gold medal";
-			}
-			
-			//display the star next to the step in the nav menu
-			eventManager.fire('updateStepStatusIcon', [this.id, imgPath, tooltip]);
+EpigameNode.prototype.processStudentWork = function(nodeVisits) {
+	if(nodeVisits != null) {
+		if(nodeVisits.length > 0) {
+			//the student has visited this step
+			this.setStatus('isVisited', true);
 		}
 	}
-	*/
+	
+	if(nodeVisits != null) {
+		//get the latest node state
+		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+		
+		if(nodeState != null) {
+			//the student has completed this step
+			this.setStatus('isCompleted', true);
+			
+			var response = nodeState.response;
+			
+			if(response != null && response != "") {
+				var highScore_explanation = nodeState.response.highScore_explanation;
+				var highScore_performance = nodeState.response.highScore_performance;
+				
+				var highScore_average = (highScore_explanation + highScore_explanation) / 2;
+				
+				if(highScore_average == 100) {
+					statusValue = 'gold';
+				} else if(highScore_average >= 90) {
+					statusValue = 'silver';
+				} else {
+					statusValue = 'bronze';
+				}
+
+				//set the status value
+				this.setStatus('epigameMedal', statusValue);
+			}
+		}
+	}
+};
+
+/**
+ * Check if the status value satisfies the requirement
+ * 
+ * @param statusValue the status value of the node
+ * @param statusValueToSatisfy the status requirement
+ * 
+ * @return whether the status value satisfies the requirement
+ */
+EpigameNode.prototype.isStatusValueSatisfied = function(statusType, statusValue, statusValueToSatisfy) {
+	var result = false;
+	var specialStatusValues = EpigameNode.specialStatusValues;
+	
+	if(statusValue + '' == statusValueToSatisfy + '') {
+		//the status matches the required value
+		result = true;
+	} else if(this.matchesSpecialStatusValue(statusType, statusValue, statusValueToSatisfy, specialStatusValues)) {
+		result = true;
+	}
+	
+	return result;
 };
 
 /**
@@ -246,6 +294,155 @@ EpigameNode.prototype.getTagMapFunctionByName = function(functionName) {
 	};
 	
 	return fun;
+};
+
+/**
+ * Get the available statuses for this step type
+ * @param includeSpecialStatusValues (optional) whether to include the special status
+ * values
+ */
+EpigameNode.prototype.getAvailableStatuses = function(includeSpecialStatusValues) {
+	var availableStatuses = [];
+	
+	if(includeSpecialStatusValues) {
+		//include the special status values
+		availableStatuses = this.getAvailableStatusesIncludingSpecialStatusValues();
+	} else {
+		//do not include the special status values
+		availableStatuses = Node.availableStatuses.concat(EpigameNode.availableStatuses);		
+	}
+	
+	return availableStatuses;
+};
+
+/**
+ * Get all the available statuses including the special status values
+ */
+EpigameNode.prototype.getAvailableStatusesIncludingSpecialStatusValues = function() {
+	//get all the available statuses
+	var availableStatuses = JSON.parse(JSON.stringify(Node.availableStatuses.concat(EpigameNode.availableStatuses)));
+	
+	//get the special status values
+	var specialStatusValues = EpigameNode.specialStatusValues;
+	
+	if(specialStatusValues != null) {
+		//loop through all the special status values
+		for(var x=0; x<specialStatusValues.length; x++) {
+			//get a special status value
+			var specialStatusValue = specialStatusValues[x];
+			
+			if(specialStatusValue != null) {
+				//get the status type and status value
+				var specialStatusType = specialStatusValue.statusType;
+				var specialStatusValue = specialStatusValue.statusValue;
+				
+				/*
+				 * loop through all the available statuses so we can add the 
+				 * special status value
+				 */
+				for(var y=0; y<availableStatuses.length; y++) {
+					//get an available status
+					var availableStatus = availableStatuses[y];
+					
+					if(availableStatus != null) {
+						//get the status type
+						var availableStatusType = availableStatus.statusType;
+						
+						/*
+						 * check if this status type matches the one we want to add
+						 * the special status value to
+						 */
+						if(specialStatusType == availableStatusType) {
+							//we have found the status type to add the special status value to
+							availableStatus.possibleStatusValues.push(specialStatusValue);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return availableStatuses;
+};
+
+/**
+ * Get the explanation high score from the node state
+ * @param nodeState the node state to get the score from
+ * @return the explanation high score or null if there is no
+ * explanation high score
+ */
+EpigameNode.prototype.getHighScoreExplanation = function(nodeState) {
+	var highScoreExplanation = null;
+	
+	if(nodeState != null &&
+			nodeState.response != null && 
+			nodeState.response.highScore_explanation != null) {
+		highScoreExplanation = nodeState.response.highScore_explanation;
+	}
+	
+	return highScoreExplanation;
+};
+
+/**
+ * Get the performance high score from the node state
+ * @param nodeState the node state to get the score from
+ * @return the performance high score or null if there is no
+ * performance high score
+ */
+EpigameNode.prototype.getHighScorePerformance = function(nodeState) {
+	var highScorePerformance = null;
+	
+	if(nodeState != null &&
+			nodeState.response != null &&
+			nodeState.response.highScore_performance != null) {
+		highScorePerformance = nodeState.response.highScore_performance;
+	}
+	
+	return highScorePerformance;
+};
+
+/**
+ * Get the total high score from the node state
+ * @param nodeState the node state to get the score from
+ * @return the total high score or null if there is no
+ * total high score
+ */
+EpigameNode.prototype.getTotalScore = function(nodeState) {
+	var totalScore = null;
+	
+	if(nodeState != null && nodeState.response != null) {
+		
+		//check if there is an explanation high score or performance high score
+		if(nodeState.response.highScore_explanation != null || 
+				nodeState.response.highScore_performance != null) {
+			
+			totalScore = 0;
+			
+			if(nodeState.response.highScore_explanation != null) {
+				//add the explanation high score
+				var highScoreExplanation = nodeState.response.highScore_explanation;
+				totalScore += highScoreExplanation;
+			}
+			
+			if(nodeState.response.highScore_performance != null) {
+				//add the performance high score
+				var highScorePerformance = nodeState.response.highScore_performance;
+				totalScore += highScorePerformance;
+			}
+		}
+	}
+	
+	return totalScore;
+};
+
+/**
+ * Get the score from the node state
+ * @param the node state to get the score from
+ */
+EpigameNode.prototype.getScore = function(nodeState) {
+	var score = this.getTotalScore(nodeState);
+	
+	return score;
 };
 
 EpigameNode.prototype.navHelper = function() {

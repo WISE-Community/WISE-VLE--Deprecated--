@@ -974,7 +974,7 @@ Epigame.prototype.processTagMaps = function() {
 	var perfScore = 0;
 	var explScore = 0;
 	var warpScore = 0;
-	var result;
+	var result = null;
 	
 	var tagMaps = this.node.tagMaps;
 	if (tagMaps) {
@@ -1006,16 +1006,18 @@ Epigame.prototype.processTagMaps = function() {
 					result = this.getTotalAdaptive(tagName, funcArgs);
 				}
 				
-				if (result.pass == false)
-					enableStep = false;
-				if (result.message != "")
-					messages.push(result.message);
-				if (result.highScore_performance)
-					perfScore = result.highScore_performance;
-				if (result.highScore_explanation)
-					explScore = result.highScore_explanation;
-				if (result.finalScore)
-					warpScore = result.finalScore;
+				if(result != null) {
+					if (result.pass == false)
+						enableStep = false;
+					if (result.message != "")
+						messages.push(result.message);
+					if (result.highScore_performance)
+						perfScore = result.highScore_performance;
+					if (result.highScore_explanation)
+						explScore = result.highScore_explanation;
+					if (result.finalScore)
+						warpScore = result.finalScore;
+				}
 			}
 		}
 	}
@@ -1144,23 +1146,17 @@ Epigame.prototype.save = function(st) {
 	}
 	
 	//Push this state to the global view.states object.
-//	eventManager.fire('pushStudentWork', epigameState);
+	//	eventManager.fire('pushStudentWork', epigameState);
 	this.node.view.pushStudentWork(this.node.id, epigameState)  //4.7 switch
 
 	//Push the state object into this or object's own copy of states
 	this.states.push(epigameState);
 	
-	if(epigameState.response) {
-		console.log("pushing state: " + epigameState.response);
-		
-		if(epigameState.response.success)
-			console.log("success ");
-		else
-			console.log("no success");
-	}
+	//get all the node visits for this step
+	var nodeVisits = this.view.getState().getNodeVisitsByNodeId(this.node.id);
 	
 	// Process the student work for nav display
-	this.node.processStudentWork(epigameState);
+	this.node.processStudentWork(nodeVisits);
 	
 	//Post the current node visit to the DB immediately without waiting for exit.
 	this.node.view.postCurrentNodeVisit();

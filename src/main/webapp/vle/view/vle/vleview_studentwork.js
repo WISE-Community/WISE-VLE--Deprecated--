@@ -362,13 +362,13 @@ View.prototype.onWindowUnload = function(logout){
 	/* display splash screen letting user know that saving is occuring */
 	$('#onUnloadSaveDiv').dialog('open');
 
-	/* tell current step to clean up */ 
-	if(this.getCurrentNode()) {
-		this.getCurrentNode().onExit();		
-	}
-
 	/* set the endVisitTime to the current time for the current state */
 	this.getState().endCurrentNodeVisit();
+	
+	/* tell current step to clean up */ 
+	if(this.getCurrentNode()) {
+		this.getCurrentNode().onExit();
+	}
 
 	/* synchronously save any unsaved node visits */
 	this.postAllUnsavedNodeVisits(true);
@@ -921,6 +921,7 @@ View.prototype.getCRaterResponseCallbackFail = function(responseText, responseXM
  */
 View.prototype.studentWorkUpdatedListener = function() {
 	this.updateActiveTagMapConstraints();
+	this.updateSequenceStatuses();
 };
 
 //used to notify scriptloader that this script has finished loading

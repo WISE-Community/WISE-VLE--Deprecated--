@@ -78,7 +78,7 @@ var dependencies = [
  * 'Quiz'
  */
 var nodeClasses = [
-	{nodeClass:'seasons2', nodeClassText:'Seasons2'}
+	{nodeClass:'seasons2', nodeClassText:'Seasons2', icon:'node/season2/icons/seasons28.png'}
 ];
 
 var nodeIconPath = 'node/seasons2/icons/';

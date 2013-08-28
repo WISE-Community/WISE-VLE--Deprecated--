@@ -124,7 +124,7 @@ MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function(
  */
 MustCompleteBeforeAdvancingConstraint.prototype.constrainNavigation = function() {
 	if(this.view.navigationLogic != null && this.view.navigationLogic.tagMapConstraintManager != null) {
-		this.view.navigationLogic.tagMapConstraintManager.disableAllStepsAfter(this.nodeId);		
+		this.view.navigationLogic.tagMapConstraintManager.disableAllStepsAfter(this.nodeId, this);
 	}
 };
 

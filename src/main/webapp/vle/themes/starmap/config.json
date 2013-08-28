@@ -2,23 +2,39 @@
 	"id" : "starmap",
 	"name" : "Star Map",
 	"description" : "Specialized theme using a field of stars to navigate among activities.",
-	"version" : "1.0",
-	"author" : "Dan Troon (Filament Games)",
-	"date" : "Tue, 9 Feb 2011 16:00:00 -0800",
-	"screenshot" : "images/screenshot-wise.png",
-	"thumb" : "images/thumb-wise.png",
+	"version" : "1.1",
+	"author" : "Dan Troon (Filament Games); Jonathan Lim-Breitbart (WISE)",
+	"date" : "Mon, 1 Apr 2013",
+	"screenshot" : "images/screenshot-starmap.png",
+	"thumb" : "images/thumb-starmap.png",
 	"logo" : "images/logo.png",
 	"css" : [
 		"css/theme.css"	
 	],
 	"js" : [],
-	"jqueryui_css" : "css/jquery-ui/jquery-ui-1.8.17.custom.css",
+	"jqueryui_css" : "css/jquery-ui/jquery-ui-1.10.0.custom.css",
 	"nav_modes" : [
 		{
 			"id" : "standard",
 			"name" : "Standard",
 			"description" : "Map access via button at the top of the window",
-			"screenshot" : "images/screenshot-classic.png"
+			"screenshot" : "navigation/map/images/screenshot-starmap-standard.png",
+			"stepIcons": true,
+			"activityIcons": false
+		},
+		{
+			"id" : "map",
+			"name" : "Map",
+			"description" : "Full screen navigation map and maximized step content",
+			"screenshot" : "navigation/map/images/screenshot-starmap-map.png",
+			"stepIcons": true,
+			"activityIcons": false,
+			"activityIconPath":"/navigation/map/images/star-bronze.png",
+			"css": [],
+			"js": [
+				"navigation/map/js/starmap.js",
+				"navigation/map/js/d3.min.js"
+			]
 		}
 	]
 }

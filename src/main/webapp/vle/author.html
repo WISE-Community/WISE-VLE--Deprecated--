@@ -270,6 +270,9 @@ var view;
 	<div id='importTools'>
 		<button id='displayImportView' title='Import' onclick='eventManager.fire("displayImportView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Import</span></button>
 	</div>
+	<div id='iconsTools'>
+		<button id='displayIconsView' title='Icons' onclick='eventManager.fire("displayIconsView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Icons</span></button>
+	</div>
 	<div id='visibiltyNodeTools'>
 		<button id='hideNodesBtn' title='Hide All Steps in Project' onclick='eventManager.fire("hideNodes");'><span class='tool-icon action-icon action-icon-hide'></span><span class='tool-label'>Hide Steps</span></button>
 		<button id='showNodesBtn' title='Show All Steps in Project' onclick='eventManager.fire("unhideNodes");' class='hidden'><span class='tool-icon action-icon action-icon-show'></span><span class='tool-label'>Show Steps</span></button>
@@ -729,6 +732,10 @@ var view;
 
 <div id='importViewDialog' style="display: none;">
 	<div id='importView'></div>
+</div>
+
+<div id='iconsViewDialog' style="display: none;">
+	<div id='iconsView'></div>
 </div>
 
 <div id='analyzeProjectDialog' style="display: none;">

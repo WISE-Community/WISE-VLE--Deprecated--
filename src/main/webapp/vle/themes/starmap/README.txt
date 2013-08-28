@@ -88,8 +88,16 @@ with the following items:
 	"navigation" directory (String)
 2. "name" - A text identifier for the navigation mode; will be displayed when selecting the
 	navigation mode in project authoring and/or run settings (String)
-3. "description" - A short text description of the theme's major features (String)
-4. "screenshot" - Preview screenshot of theme (File path relative to this navigation mode's root folder)
+3. "description" - A short text description of the navigation mode's layout/features (String)
+4. "screenshot" - Preview screenshot of theme (File path relative to theme root)
+5. "stepIcons" - Setting indicating whether the navigation mode displays icons for steps in the project;
+	authoring tool will show or hide step icons selectors depending on this option (Boolean)
+6. "activityIcons" - Setting indicating whether the navigation mode displays icons for activities in the
+	project; authoring tool will show or hide activity icons selectors depending on this option (Boolean)
+7. "activityIconPath" - The default image file to use for activity icons (default step icons are
+	specified by each step type) (File path relative to theme root; optional)
+8. "css" - Extra CSS files required by the navigation mode (Array of file paths relative to theme root)
+9. "js" - Extra Javascript files required by the navigation mode (Array of file paths relative to theme root)
 
 *Every WISE VLE theme MUST include at least 1 (one) navigation mode.*
 
@@ -106,7 +114,7 @@ Each navigation mode folder must include the following:
 	custom events they would like. (See the "nav.js" files included with this theme's navigation modes 
 	for more details.)
 2. "nav.css" file - This file includes any navigation menu specific CSS and theme customizations.
-3. Any other assets (images, for example) that the navigation mode uses
+3. Any other assets (images, Javascript, CSS, for example) that the navigation mode uses
 
 
 **** Internationalization ****

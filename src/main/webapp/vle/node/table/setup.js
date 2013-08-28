@@ -83,7 +83,7 @@ var dependencies = [
  * 'Quiz'
  */
 var nodeClasses = [
-	{nodeClass:'table', nodeClassText:'Table'}
+	{nodeClass:'table', nodeClassText:'Table', icon:'node/table/icons/table28.png'}
 ];
 
 var nodeIconPath = 'node/table/icons/';

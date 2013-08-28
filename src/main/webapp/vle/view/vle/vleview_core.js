@@ -13,21 +13,22 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='scriptsLoaded' && args[0]=='theme'){
 		obj.retrieveThemeLocales();
 	} else if(type=='getUserAndClassInfoCompleted'){
-		obj.renderStartNode();
-		//obj.addGlobalTagMapConstraints();
-		//obj.updateActiveTagMapConstraints();
 		// start the xmpp if xmpp is enabled
 		if (obj.isXMPPEnabled) {
-			obj.startXMPP();
+			//obj.startXMPP();
+			obj.getRunStatus();
 		}
 	} else if(type=='processLoadViewStateResponseCompleted'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
+		eventManager.fire('startVLECompleted');
+	} else if(type=='navigationLoadingCompleted'){
+		obj.populateNodeDependencies();
+		obj.setStatuses();
 		obj.addGlobalTagMapConstraints();
 		obj.updateActiveTagMapConstraints();
-		obj.renderStartNode();
-	} else if(type=='navigationLoadingCompleted'){
-		//obj.renderStartNode();
+		obj.updateSequenceStatuses();
 		obj.processStudentWork();
+		obj.loadGlobalTagMaps();
 	} else if(type=='renderNodeCompleted'){
 		if(args){
 			obj.renderNodeCompletedListener(args[0]);
@@ -60,6 +61,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		var node = obj.getProject().getNodeById(nodeId);
 		
 	} else if (type == 'startVLECompleted') {
+		obj.renderStartNode();
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
 	} else if (type == 'assetCopiedForReference') {
@@ -124,7 +126,6 @@ View.prototype.startVLEFromParams = function(obj){
  * and set and that the config object contains AT LEAST a content url and content base url.
  */
 View.prototype.startVLE = function(){
-	console.log('startVLE');
 	this.model = new StudentModel();
 	this.setState(new VLE_STATE());
 	
@@ -218,7 +219,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 	}
 	
 	if (runInfo.isXMPPEnabled != null && runInfo.isXMPPEnabled && 
-			runInfo.isChatRoomEnabled != null && runInfo.isChatRoomEnabled) {
+			runInfo.isChatRoomEnabled != null && runInfo.isChatRoomEnabled && false) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
@@ -299,7 +300,7 @@ View.prototype.showToolsBasedOnConfigs = function(metadata, runInfo) {
 		}
 	}
 	
-	if (isXMPPEnabled && isChatRoomEnabled) {
+	if (isXMPPEnabled && isChatRoomEnabled && false) {
 		/*
 		 * display chatroom link if run has chatroom enabled
 		 */
@@ -364,7 +365,7 @@ View.prototype.loadTheme = function(themeName){
 		var currentTheme = [themeName.toLowerCase()]; // TODO: remove toLowerCase()
 		
 		// get navMode
-		var navMode = context.getProjectMetadata().navMode;
+		var navMode = view.navMode = context.getProjectMetadata().navMode;
 		if(navMode && context.themeNavModes[themeName].indexOf(navMode)>-1) {
 			// navMode is set and is in active navModes list for specified theme, so add to currentTheme
 			currentTheme.push(navMode);
@@ -442,6 +443,106 @@ View.prototype.processLoadViewStateResponse = function(responseText, responseXML
 
 	view.viewStateLoaded = true;
 	view.eventManager.fire('processLoadViewStateResponseCompleted');
+};
+
+/**
+ * Initialize the statuses for all steps and sequences
+ */
+View.prototype.setStatuses = function() {
+	//get the project
+	var project = this.getProject();
+	
+	//get all the step nodes
+	var leafNodes = project.getLeafNodes();
+	
+	if(leafNodes != null) {
+		//loop through all the step nodes
+		for(var x=0; x<leafNodes.length; x++) {
+			//get the step node
+			var leafNode = leafNodes[x];
+			var leafNodeId = leafNode.id;
+			
+			//check that the step is actually used in the project and not an inactive step
+			if(this.getProject().getVLEPositionById(leafNodeId) != "NaN") {
+				//the step is an active step so we will populate the statuses for this node
+				leafNode.populateStatuses(this.getState());
+			}
+		}		
+	}
+	
+	//get all the sequence nodes
+	var sequenceNodes = project.getSequenceNodes();
+	
+	if(sequenceNodes != null) {
+		//loop through all the sequence nodes 
+		for(var y=1; y<sequenceNodes.length; y++) {
+			//get a sequence node
+			var sequenceNode = sequenceNodes[y];
+			var sequenceNodeId = sequenceNode.id;
+			
+			//check that the sequence is actually used in the project and not an inactive sequence
+			if(this.getProject().getVLEPositionById(sequenceNodeId) != "NaN") {
+				//the sequence is an active sequence so we will populate the statuses for this sequence
+				sequenceNode.populateSequenceStatuses(this.getState());
+			}
+		}
+	}
+	
+	//set this flag to show that the node statuses have been set
+	this.statusesSet = true;
+	
+	if(this.isXMPPEnabled) {
+		//we will send the student status to the teacher
+		var currentNodeId = this.currentNode.id;
+		var previousNodeVisit = this.getState().getLatestCompletedVisit();
+		this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);
+	}
+};
+
+/**
+ * Populate the node dependencies. Nodes may depend on other node's statuses to determine
+ * which icon to display. We need to accumulate all the dependencies for a node so that
+ * a node knows which other nodes depend on it.
+ */
+View.prototype.populateNodeDependencies = function() {
+	//get the project
+	var project = this.getProject();
+	
+	//get all the step nodes
+	var leafNodes = project.getLeafNodes();
+	
+	if(leafNodes != null) {
+		//loop through all the step nodes
+		for(var x=0; x<leafNodes.length; x++) {
+			//get the step node
+			var leafNode = leafNodes[x];
+			var leafNodeId = leafNode.id;
+			
+			//check that the step is actually used in the project and not an inactive step
+			if(this.getProject().getVLEPositionById(leafNodeId) != "NaN") {
+				//the step is an active step so we will populate the status dependencies for this node
+				leafNode.populateNodeStatusDependencies();
+			}
+		}		
+	}
+	
+	//get all the sequence nodes
+	var sequenceNodes = project.getSequenceNodes();
+	
+	if(sequenceNodes != null) {
+		//loop through all the sequence nodes 
+		for(var y=1; y<sequenceNodes.length; y++) {
+			//get a sequence node
+			var sequenceNode = sequenceNodes[y];
+			var sequenceNodeId = sequenceNode.id;
+			
+			//check that the sequence is actually used in the project and not an inactive sequence
+			if(this.getProject().getVLEPositionById(sequenceNodeId) != "NaN") {
+				//the sequence is an active sequence so we will populate the status dependencies for this sequence
+				sequenceNode.populateNodeStatusDependencies();
+			}
+		}
+	}
 };
 
 /**
@@ -530,7 +631,8 @@ View.prototype.onThemeLoad = function(){
 				path += '&isConstraintsDisabled=true';
 				this.notificationManager.notify(this.getI18NString("preview_project_constraint_enabled_message","main") + ' <a href="' + path + '">'+this.getI18NString("common_click_here","main")+'</a>.', 3, 'keepMsg');
 			}
-		//}	
+		//}
+		this.eventManager.fire('startVLECompleted');
 	}
 	
 	if(this.config.getConfigParam('mode') == "portalpreview") {
@@ -541,10 +643,6 @@ View.prototype.onThemeLoad = function(){
 		}
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,imSettings);
 	}
-	
-	this.renderStartNode();
-	
-	this.eventManager.fire('startVLECompleted');
 };
 
 /**
@@ -702,11 +800,12 @@ View.prototype.endCurrentNode = function(){
 		//remove the bubble and remove the highlight for the step the student is now visiting
 		eventManager.fire('removeMenuBubble', [nodeId]);
 		eventManager.fire('unhighlightStepInMenu', [nodeId]);
-		
-		currentNode.onExit();  
+
 		if(this.getState()) {
 			this.getState().endCurrentNodeVisit();  // set endtime, etc.	
 		}
+		
+		currentNode.onExit();
 	};
 	
 	//close the show all work popup
@@ -724,9 +823,16 @@ View.prototype.renderNodeCompletedListener = function(position){
 	
 	/* Set icon in nav bar */
 	if(this.currentNode.getNodeClass() && this.currentNode.getNodeClass()!='null' && this.currentNode.getNodeClass()!=''){
-		var nodeIconPath = this.nodeIconPaths[this.currentNode.type];
-		//document.getElementById('stepIcon').innerHTML = '<img src=\'' + this.iconUrl + this.currentNode.getNodeClass() + '28.png\'/>';
-		document.getElementById('stepIcon').innerHTML = '<img src=\'' + nodeIconPath + this.currentNode.getNodeClass() + '28.png\'/>';
+		//get the node type
+		var nodeType = this.currentNode.type;
+		
+		//get the node class
+		var nodeClass = this.currentNode.getNodeClass();
+		
+		//get the step icon
+		var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+		
+		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconPath + '\' width=\'28px\'/>';
 	}
 	
 	/* set title in nav bar */
@@ -735,7 +841,7 @@ View.prototype.renderNodeCompletedListener = function(position){
     }
     
 	/* get project completion and send to teacher, if xmpp is enabled */
-	if (this.xmpp && this.isXMPPEnabled) {
+	if (this.xmpp && this.isXMPPEnabled && false) {
 		var workgroupId = this.userAndClassInfo.getWorkgroupId();
 		var projectCompletionPercentage = this.getTeamProjectCompletionPercentage();
 		var nodeId = this.currentNode.id;
@@ -754,6 +860,16 @@ View.prototype.renderNodeCompletedListener = function(position){
 			status:this.studentStatus});	
 	}
 	
+	if(this.isXMPPEnabled) {
+		//check if the vle has set the statuses for all the nodes yet
+		if(this.statusesSet) {
+			//the node statuses have been set so we will send the student status to the teacher
+			var currentNodeId = this.currentNode.id;
+			var previousNodeVisit = this.getState().getLatestCompletedVisit();
+			this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);		
+		}
+	}
+	
 	this.displayHint();  // display hint for the current step, if any
 	
 	this.displayNodeAnnotation(this.currentNode.id);  // display annotation for the current step, if any
@@ -768,6 +884,8 @@ View.prototype.renderNodeCompletedListener = function(position){
 			title: title
 		});
 	}
+	
+	this.currentNode.setStatus('isVisited', true);
 	
 	this.eventManager.fire("navNodeRendered",this.currentNode);
 };
@@ -969,12 +1087,12 @@ View.prototype.processStudentWork = function() {
 			//get a node
 			var node = this.getProject().getNodeById(nodeId);
 			
-			//get the latest work for the node
-			var latestWork = this.getState().getLatestWorkByNodeId(nodeId);
+			//get the node visits for the node
+			var nodeVisits = this.getState().getNodeVisitsByNodeId(nodeId);
 			
-			if(latestWork != null && latestWork != "") {
-				//tell the node to process the student work
-				node.processStudentWork(latestWork);
+			if(nodeVisits != null) {
+				//process the student work for the node
+				node.processStudentWork(nodeVisits);
 			}
 		}
 	}
@@ -1065,6 +1183,78 @@ View.prototype.currentNodePositionUpdatedListener = function() {
  */
 View.prototype.nodeLinkClickedListener = function(nodePosition) {
 	this.goToNodePosition(nodePosition)
+};
+
+/**
+ * Listens for the navigationLoadingCompleted event
+ * 
+ * @param type the name of the event
+ * @param args the arguments provided when the event was fired
+ * @param obj the view object
+ */
+View.prototype.navigationLoadingCompletedListener = function(type, args, obj) {
+	
+};
+
+/**
+ * Update the sequence statuses based on the status of the steps
+ * within the sequences
+ */
+View.prototype.updateSequenceStatuses = function() {
+	//get all the sequence nodes
+	var sequenceNodes = this.getProject().getSequenceNodes();
+	
+	//loop through all the sequence nodes except the master sequence
+	for(var x=1; x<sequenceNodes.length; x++) {
+		var isCompleted = false;
+		var isVisited = false;
+		var isVisitable = false;
+		
+		//whether we have initialized the values above
+		var valuesInitialized = false;
+		
+		//get a sequence node
+		var sequenceNode = sequenceNodes[x];
+		
+		//get all the steps in the sequence
+		var nodeIdsInSequence = this.getProject().getNodeIdsInSequence(sequenceNode.id);
+		
+		//loop through all the steps in the sequence
+		for(var y=0; y<nodeIdsInSequence.length; y++) {
+			//get a step
+			var nodeId = nodeIdsInSequence[y];
+			var node = this.getProject().getNodeById(nodeId);
+
+			//get the status values
+			var nodeIsCompleted = node.getStatus('isCompleted');
+			var nodeIsVisited = node.getStatus('isVisited');
+			var nodeIsVisitable = node.getStatus('isVisitable');
+			
+			if(valuesInitialized) {
+				/*
+				 * we have initialized the values for this sequence so we will accumulate
+				 * the values
+				 */
+				isCompleted = isCompleted && nodeIsCompleted;
+				isVisited = isVisited || nodeIsVisited;
+				isVisitable = isVisitable || nodeIsVisitable;
+			} else {
+				/*
+				 * we have not initialized the values for this sequence so we will use
+				 * these values
+				 */
+				isCompleted = nodeIsCompleted;
+				isVisited = nodeIsVisited;
+				isVisitable = nodeIsVisitable;
+				valuesInitialized = true;
+			}
+		}
+		
+		//set the status values
+		sequenceNode.setStatus('isCompleted', isCompleted);
+		sequenceNode.setStatus('isVisited', isVisited);
+		sequenceNode.setStatus('isVisitable', isVisitable);
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

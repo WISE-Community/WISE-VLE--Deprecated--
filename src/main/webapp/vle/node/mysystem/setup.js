@@ -33,7 +33,7 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'mysystem', nodeClassText:'My System'}
+	{nodeClass:'mysystem', nodeClassText:'My System', icon:'node/mysystem/icons/mysystem28.png'}
 ];
 
 var nodeIconPath = 'node/mysystem/icons/';
