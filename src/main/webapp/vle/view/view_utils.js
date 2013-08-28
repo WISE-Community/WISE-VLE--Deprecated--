@@ -939,6 +939,9 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 			//set an array as the feedback. put an empty string into the array for the feedback. 
 			currScoreRule.feedback = [this.createCRaterFeedbackTextObject()];
 			
+			//set the student action
+			currScoreRule.studentAction = 'revise';
+			
 			cRaterScoringRules.push(currScoreRule);
 		}
 		
@@ -952,6 +955,7 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 			zeroScoreRule.rank = "";
 			zeroScoreRule.score = "0";
 			zeroScoreRule.feedback = [this.createCRaterFeedbackTextObject()];
+			zeroScoreRule.studentAction = "revise";
 			
 			//add the scoring rule to the array of scoring rules
 			cRaterScoringRules.push(zeroScoreRule);
