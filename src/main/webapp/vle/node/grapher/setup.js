@@ -151,8 +151,6 @@ var topMenuScripts = [
 
 scriptloader.addScriptToComponent('topMenu', topMenuScripts);
 
-componentloader.addNodeClasses('SensorNode', nodeClasses);
-
 var nodeTemplateParams = [
 	{
 		/*
