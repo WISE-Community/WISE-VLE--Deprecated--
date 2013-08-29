@@ -780,10 +780,11 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 		try {
 			var annotationJSON = JSON.parse(responseText);
 			var nodeId = annotationJSON.nodeId;
-
+			
 			// display feedback immediately, if specified in the content
 			var vle = args[0];
 			var nodeStateId = args[2];
+			
 			// check the step content to see if we need to display the CRater feedback to the student.
 			var cRaterJSON = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater;
 
@@ -869,7 +870,10 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					//popup the message to the student
 					eventManager.fire("showNodeAnnotations",[nodeId]);
 				}
-			}			
+			}
+			
+			//fire the 'cRaterResponseReceived' event
+			eventManager.fire("cRaterResponseReceived",[nodeId, annotationJSON]);
 		} catch(err) {
 			/*
 			 * failed to parse JSON. this can occur if the item id is invalid which

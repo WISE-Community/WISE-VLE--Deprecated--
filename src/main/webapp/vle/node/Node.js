@@ -276,10 +276,10 @@ Node.prototype.preloadContent = function(){
  */
 Node.prototype.render = function(contentPanel, studentWork, disable) {
 	this.studentWork = studentWork;
-
+	
 	/* clean up any disabled panel that might exist from previous render */
-	$('#disabledPanel').remove();
-
+	this.disableInteractivity(false);
+	
 	/*check if the user had clicked on an outside link in the previous step
 	 */
 	if(this.handlePreviousOutsideLink(this, contentPanel)) {
@@ -360,14 +360,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 
 	/* if there is a disable constraint, we want to set a semi-transparent panel over the content div */
 	if(disable==1){
-		/* get the position, height and width of the content panel */
-		var panelPosition = $('#contentDiv').offset();
-		var panelHeight = $('#contentDiv').height() + 2;
-		var panelWidth = $('#contentDiv').width() + 2;
-
-		/* create the disabledPanel and append it to the given document */
-		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
-		$('body').append(dynamicPanel);
+		this.disableInteractivity(true);
 	}
 
 	if(this.view.config.getConfigParam('theme') == 'UCCP') {
@@ -2516,6 +2509,24 @@ Node.prototype.populateNodeStatusDependencies = function() {
 Node.prototype.getScore = function(nodeState) {
 	return null;
 };
+
+/**
+ * Disables this node's content panel so students cannot interact with it.
+ */
+Node.prototype.disableInteractivity = function(doDisable) {
+	if (doDisable) {
+		/* get the position, height and width of the content panel */
+		var panelPosition = $('#contentDiv').offset();
+		var panelHeight = $('#contentDiv').height() + 2;
+		var panelWidth = $('#contentDiv').width() + 2;
+
+		/* create the disabledPanel and append it to the given document */
+		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
+		$('body').append(dynamicPanel);	
+	} else {
+		$('#disabledPanel').remove();
+	}
+}
 
 /*
  * Takes in a state JSON object and returns a STATE object. This

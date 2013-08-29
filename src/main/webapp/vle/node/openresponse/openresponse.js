@@ -322,19 +322,6 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					//the student still has check answer submits available
 					this.setCheckAnswerAvailable();
 				}
-				
-				if(this.content.showPreviousWorkThatHasAnnotation && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) && !this.isLocked()) {
-					/*
-					 * move the current work to the previous work response box
-					 * because we want to display the previous work to the student
-					 * and have them re-write another response after they
-					 * receive the immediate CRater feedback
-					 */
-					this.showPreviousWorkThatHasAnnotation($('#responseBox').val());
-					
-					//clear the response box so they will need to write a new response
-					$('#responseBox').val('');
-				}
 			}
 
 		};
@@ -826,6 +813,121 @@ OPENRESPONSE.prototype.render = function() {
 		//make the save and lock button clickable
 		this.setSaveAndLockAvailable();
 	}
+	
+	if(this.content.cRater != null) {
+		//set the CRater response received listener
+		eventManager.subscribe('cRaterResponseReceived', this.cRaterResponseReceivedListener, this);
+	}
+};
+
+/**
+ * The function that is called when we receive a CRater response
+ * @param type the type of event in this case 'cRaterResponseReceived'
+ * @param args an array containing the node id and CRater annotation
+ * @param obj this openresponse object
+ */
+OPENRESPONSE.prototype.cRaterResponseReceivedListener = function(type, args, obj) {
+	var thisOr = obj;
+	var nodeId = args[0];
+	var annotationJSON = args[1];
+	
+	//call the function to perform any necessary processing with the CRater response
+	thisOr.cRaterResponseReceivedHandler(nodeId, annotationJSON);
+};
+
+/**
+ * Performs any necessary processing on the CRater response
+ * @param nodeId the node id for which the CRater response is for
+ * @param annotationJSON the CRater annotation
+ */
+OPENRESPONSE.prototype.cRaterResponseReceivedHandler = function(nodeId, annotationJSON) {
+	if(this.node.id == nodeId && annotationJSON != null) {
+		
+		/*
+		 * check if we are displaying the score or feedback to the student
+		 * and that the step is not locked
+		 */
+		if((this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) && !this.isLocked()) {
+			//get the value of the annotation
+			var value = annotationJSON.value;
+			
+			if(value != null) {
+				//get the latest value
+				var latestValue = value[value.length - 1];
+				
+				if(latestValue != null) {
+					//get the score
+					var score = latestValue.score;
+					
+					if(score != null) {
+						//get the student action for the given score
+						var studentAction = this.getStudentAction(score);
+						
+						if(studentAction == null) {
+							//do nothing
+						} else if(studentAction == 'rewrite') {
+							/*
+							 * move the current work to the previous work response box
+							 * because we want to display the previous work to the student
+							 * and have them re-write another response after they
+							 * receive the immediate CRater feedback
+							 */
+							this.showPreviousWorkThatHasAnnotation($('#responseBox').val());
+							
+							//clear the response box so they will need to write a new response
+							$('#responseBox').val('');
+						} else if(studentAction == 'revise') {
+							/*
+							 * the student will need to revise their work so we will hide the
+							 * previous response display
+							 */
+							$('#previousResponseDisplayDiv').hide();
+						}
+					}
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Get the student action given the score. If there are multiple feedbacks
+ * with the same score, we will just use the first feedback we find.
+ * @param score the score
+ * @return the student action 'revise' or 'rewrite'
+ */
+OPENRESPONSE.prototype.getStudentAction = function(score) {
+	var studentAction = null;
+	
+	if(this.content != null &&
+			this.content.cRater != null &&
+			this.content.cRater.cRaterScoringRules != null) {
+		//get the CRater scoring rules
+		var cRaterScoringRules = this.content.cRater.cRaterScoringRules;
+		
+		//loop through all the CRater scoring rules
+		for(var x=0; x<cRaterScoringRules.length; x++) {
+			//get a CRater scoring rule
+			var cRaterScoringRule = cRaterScoringRules[x];
+			
+			//get the score
+			var tempScore = cRaterScoringRule.score;
+			
+			//get the action
+			var tempStudentAction = cRaterScoringRule.studentAction;
+			
+			if(score == tempScore) {
+				//we have found the CRater scoring rule with the score we want
+				if(tempStudentAction != null) {
+					//we will return this student action
+					studentAction = tempStudentAction;
+					break;
+				}				
+			}
+		}
+	}
+	
+	return studentAction;
 };
 
 /**

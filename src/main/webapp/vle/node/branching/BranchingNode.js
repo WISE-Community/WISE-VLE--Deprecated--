@@ -354,11 +354,11 @@ BranchingNode.prototype.isBranchPathCompleted = function(branchPath) {
 		//get the node
 		var node = this.view.getProject().getNodeById(tempNodeId);
 		
-		//get the latest work for the step
-		var nodeState = this.view.getState().getLatestWorkByNodeId(tempNodeId);
+		//get the nodevisits for the step
+		var nodeVisits = this.view.getState().getNodeVisitsByNodeId(tempNodeId);
 		
 		//check if the work is completed
-		if(!node.isCompleted(nodeState)) {
+		if(!node.isCompleted(nodeVisits)) {
 			branchPathCompleted = false;
 		}
 	}	

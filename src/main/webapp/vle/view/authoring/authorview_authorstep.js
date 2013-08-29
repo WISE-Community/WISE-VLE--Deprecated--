@@ -1140,6 +1140,15 @@ View.prototype.cleanupStepIcons = function() {
 	this.stepIconsManager.cleanupStepIcons(this);
 };
 
+/**
+ * Update the CRater student action value
+ */
+View.prototype.cRaterStudentActionUpdated = function(args){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].cRaterStudentActionUpdated){
+		this[this.resolveType(this.activeNode.type)].cRaterStudentActionUpdated(args);
+	}
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_authorstep.js');

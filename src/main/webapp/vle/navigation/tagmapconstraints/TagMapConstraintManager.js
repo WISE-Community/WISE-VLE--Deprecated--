@@ -5,6 +5,11 @@
 function TagMapConstraintManager(view) {
 	this.view = view;
 	this.activeTagMapConstraints = [];
+	
+	if (view != null && view.navigationLogic != null && view.navigationLogic.tagMapConstraintManager != null && view.navigationLogic.tagMapConstraintManager.activeTagMapConstraints != null) {
+		// reset activeTagMapConstraints from previous state
+		this.activeTagMapConstraints = view.navigationLogic.tagMapConstraintManager.activeTagMapConstraints;
+	}
 };
 
 //value to turn on console output for debugging purposes
