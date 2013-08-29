@@ -1,7 +1,8 @@
 {
 	"id" : "starmap",
-	"name" : "Star Map",
-	"description" : "Specialized theme using a field of stars to navigate among activities.",
+	"name" : "EPIGAME Star Map",
+	"description" : "Specialized theme using a field of stars to navigate among EPIGAME physics missions.",
+	"notes":"",
 	"version" : "1.1",
 	"author" : "Dan Troon (Filament Games); Jonathan Lim-Breitbart (WISE)",
 	"date" : "Mon, 1 Apr 2013",
@@ -28,8 +29,8 @@
 			"description" : "Full screen navigation map and maximized step content",
 			"screenshot" : "navigation/map/images/screenshot-starmap-map.png",
 			"stepIcons": true,
-			"activityIcons": false,
-			"activityIconPath":"/navigation/map/images/star-bronze.png",
+			"activityIcons": true,
+			"activityIconPath":"navigation/map/images/star-bronze.png",
 			"css": [],
 			"js": [
 				"navigation/map/js/starmap.js",
