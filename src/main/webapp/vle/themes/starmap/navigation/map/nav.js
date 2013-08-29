@@ -287,12 +287,13 @@ NavigationPanel.prototype.render = function(forceReRender) {
 			'<a id="nextAct"><img src="/vlewrapper/vle/themes/starmap/navigation/map/images/arrow-right.png" alt="left"></a>' +
 			'</div>' +
 			'<a id="reset">Zoom Out</a>' +
+			'<a id="export">Export</a>' +
 			'<!-- <a id="toggleView">Student View</a> -->');
 		
 		this.map = starmap() // create map instance
 			.height(528)
 			.width(940)
-			.backgroundImg('themes/starmap/navigation/map/images/background.png')
+			//.backgroundImg('themes/starmap/navigation/map/images/background.png')
 			.view(view);
 	
 		this.currentStepNum = 1;
@@ -315,6 +316,25 @@ NavigationPanel.prototype.render = function(forceReRender) {
 			navPanel = this,
 			map = this.map,
 			projectJSON = project.projectJSON; // TODO: eventually might use project object and not project JSON to generate map
+		
+		// get the project metadata
+		var projectMeta = view.getProjectMetadata(),
+			theme = view.theme,
+			navMode = view.navMode,
+			nodeAttributes = {};
+
+		// create map of project node ids and corresponding layout settings (position, etc.) if any exist in the project metadata
+		if(projectMeta.settings && projectMeta.settings.navSettings) {
+			var navSettings = projectMeta.settings.navSettings,
+				i = navSettings.length-1;
+			for(; i>-1; --i){
+				if(navSettings.themeName === theme && navSettings.navMode === navMode && navSettings[i].nodeSettings){
+					nodeAttributes = navSettings[i].nodeSettings;
+					break;
+				}
+			}
+		}
+		map.attributes(nodeAttributes);
 		map.complete(navPanel.menuLoaded);
 		d3.select('#my_menu')
 			.datum(projectJSON)
@@ -322,6 +342,9 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		
 		$('#reset').on('click', function(){
 			map.reset();
+		});
+		$('#export').on('click', function(){
+			alert(JSON.stringify(map.attributes()));
 		});
 	};
 

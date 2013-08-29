@@ -11,7 +11,9 @@
 	height:100%;
 	width:100%;
 	position:relative;
-	background-color: #191D2E;
+	/*background-color: #191D2E;*/
+	background: url("images/background.png") no-repeat scroll center center #191D2E;
+	background-size: cover;
 }
 
 /* Styles for navigation menu elements */
@@ -449,10 +451,20 @@ path.target.active {
 	position:absolute;
 	left:50px;
 	bottom:50px;
+	display:none;
+}
+#export {
+	position:absolute;
+	left:50px;
+	bottom:25px;
 }
 
 #toggleView {
 	position:absolute;
 	left:50px;
 	top:50px;
+}
+
+#stepHeader {
+	display:none; /* hide the step header - TODO: change so that arrows are hidden/removed but hint and feedback notifications show up somewhere */
 }
