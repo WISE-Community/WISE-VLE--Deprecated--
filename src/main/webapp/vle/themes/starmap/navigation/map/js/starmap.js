@@ -112,7 +112,7 @@ function starmap() {
 					.attr('width', width)
 					.attr('height', height)
 					.attr('id','mapBg')
-					.attr('fill', 'transparent');
+					.attr('fill', 'rgba(255,255,255,.05)');
 			}
 
 			// Update the outer dimensions
@@ -514,7 +514,7 @@ function starmap() {
 						.attr("id",function(d){ return "anchor_" + d.identifier; })
 						.attr("xlink:xlink:href", function(d){
 							if(d.type === "sequence"){
-								return "themes/starmap/navigation/map/images/star-bronze.png"; // TODO: replace with placeholder for default icon as specified in theme config
+								return "themes/starmap/navigation/map/images/star-bronze.png"; // TODO: replace with default icon as specified in theme config
 							} else {
 								return getIcon(d); // item is a step (not an activity), so use step icon
 							}
@@ -691,22 +691,33 @@ function starmap() {
 				});*/
 
 				// constrain items to map bounds
-				g.selectAll("g.seq").each(function(d) { 
-					d.x = Math.max(margin.left, Math.min(width - margin.left, d.x));
-					d.y = Math.max(margin.top, Math.min(height - margin.top, d.y)); 
-				});
-				g.selectAll("g.node").each(function(d) { 
-					d.x = Math.max(margin.left/2, Math.min(width - margin.left/2, d.x));
-					d.y = Math.max(margin.top/2, Math.min(height - margin.top/2, d.y)); 
+				g.selectAll("g.item").each(function(d) {
+					if(d.x === "NaN"){
+						d.x = 0;
+					}
+					if(d.y === "NaN"){
+						d.y = 0;
+					}
+					if(d.master){
+						d.x = Math.max(margin.left, Math.min(width - margin.left, d.x));
+						d.y = Math.max(margin.top, Math.min(height - margin.top, d.y)); 
+					} else {
+						d.x = Math.max(margin.left/2, Math.min(width - margin.left/2, d.x));
+						d.y = Math.max(margin.top/2, Math.min(height - margin.top/2, d.y));
+					}
 				});
 
 				if(!loaded){
-					var q = d3.geom.quadtree(fullNodes.filter(function(d){ return d.master; })),
+					var masters = fullNodes.filter(function(d){ return d.master; }),
+						children = fullNodes.filter(function(d){ return !d.master; }),
+						qm = d3.geom.quadtree(masters),
+						qc = d3.geom.quadtree(children),
 						i = 0,
 						n = fullNodes.length;
 
 					while (++i < n) {
-						q.visit(collide(fullNodes[i]));
+						qm.visit(collide(fullNodes[i]));
+						qc.visit(collide(fullNodes[i]));
 					}
 				}
 
