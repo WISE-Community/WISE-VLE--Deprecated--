@@ -10,12 +10,12 @@ View.prototype.i18n = {
 View.prototype.i18n.defaultLocale = "en_US";
 
 /**
- * Map dictionary of supportedLocales and their equivalent locale codes that WISE knows about.
- * For example, nl_NL and nl_BG are both nederlands, and should map to locale "nl", which WISE knows about.
- * WISE doesn't know about nl_NL and nl_BG translations (yet).
- * This saves us from having to write out two translation files 
- * (unless we want to translate to nl_NL and nl_BG...we can certainly do this also, but probably unlikely. "nl" should
- * be sufficient for both parties)
+ * Map of supportedLocales to their equivalent locale codes that WISE knows about.
+ * For example, nl_NL and nl_BG are both nederlands, and should map to locale "nl", which WISE will use to look up the
+ * translation values for both nl_NL and nl_BG.
+ * 
+ * This saves us from having to write out two translation files.
+ * (unless we want to translate to nl_NL and nl_BG...we can certainly do this also)
  */  
 View.prototype.i18n.supportedLocales = {
 		main: {

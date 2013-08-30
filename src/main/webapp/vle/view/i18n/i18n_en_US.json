@@ -195,6 +195,14 @@
 		"value":"Step",
 		"description":"Default term for a 'step' in a WISE project"
 	},
+	"activityTerm":{
+		"value":"Activity",
+		"description":"Default term for an 'activity' in a WISE project"
+	},
+	"all_steps":{
+		"value":"all steps",
+		"description":"The text for 'all steps' in a WISE project"
+	},	
 	"insertImage":{
 		"value":"Insert Image",
 		"description":"Text 'Insert Image', to use for file upload"
@@ -890,5 +898,42 @@
 	"before_closing": {
 		"value":"before closing",
 		"description":"The end of the message in the hints popup that says the student must view all hints before closing the hints popup"
-	}
+	},
+	"constraint_must_complete_x_before": {
+		"value":"You must complete {0} before you can work on this step",
+		"description":"The message shown to students telling them to complete work on a previous step before working on the current step"
+	},
+	"constraint_must_complete_these_before": {
+		"value":"You must complete these before you can work on this step",
+		"description":"The message shown to students telling them to complete work on multiple steps before working on the current step"
+	},
+	"constraint_must_visit_x_before": {
+		"value":"You must visit {0} before you can work on this step",
+		"description":"The message shown to students telling them to visit a previous step before working on the current step"
+	},
+	"constraint_must_visit_these_before": {
+		"value":"You must visit these before you can work on this step",
+		"description":"The message shown to students telling them to visit multiple steps before working on the current step"
+	},
+	"constraint_must_complete_step_before_advancing": {
+		"value":"You must complete Step {0} before moving ahead",
+		"description":"The message shown to students telling them to complete work on a step before moving on"
+	},	
+	"constraint_must_complete_activity_before_advancing": {
+		"value":"You must complete the steps in Activity {0} before moving ahead",
+		"description":"The message shown to students telling them to complete work on an activity before moving on"
+	},
+
+	"constraint_must_complete_current_activity": {
+		"value":"You must complete all the steps in the current activity before you can move to another activity",
+		"description":"The message shown to students telling them to complete work on current activity before moving on"
+	},
+	"constraint_must_complete_current_step": {
+		"value":"You must complete the current step you are on before you can move to another step",
+		"description":"The message shown to students telling them to complete work on current step before moving on"
+	},
+	"constraint_must_have_status": {
+		"value":"The step below must have '{0}' set to '{1}' before you can work on this step\n\n{2}",
+		"description":"The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the current step"
+	}	
 }

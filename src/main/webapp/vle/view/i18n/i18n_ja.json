@@ -558,5 +558,21 @@
     "authoring_imsettings_terminology_help": {
         "value": "ヘルプはここに表示されます。",
         "description": ""
-    }
+    },
+	"constraint_must_complete_x_before": {
+		"value":"まず　{0} をやってください",
+		"description":"The message shown to students telling them to complete work on a previous step before working on the current step"
+	},
+	"constraint_must_complete_these_before": {
+		"value":"まずこれらを終わらせてください",
+		"description":"The message shown to students telling them to complete work on multiple steps before working on the current step"
+	},
+	"constraint_must_complete_current_step": {
+		"value":"まずこのステップを終わらせてください。",
+		"description":"The message shown to students telling them to complete work on current step before moving on"
+	},
+	"constraint_must_have_status": {
+		"value":"まずこれらのステップの '{0}' で '{1}'を獲得してください。 \n\n{2}",
+		"description":"The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the current step"
+	}				
 }
