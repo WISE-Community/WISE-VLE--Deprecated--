@@ -147,9 +147,9 @@ MustCompleteBeforeExitingConstraint.prototype.getConstraintMessage = function() 
 		var node = this.view.getProject().getNodeById(this.nodeId);
 		
 		if(node.type == 'sequence') {
-			message = 'You must complete all the steps in the current activity before you can move to another activity';
+			message = this.view.getI18NString("constraint_must_complete_current_activity", "main");
 		} else {
-			message = 'You must complete the current step you are on before you can move to another step';		
+			message = this.view.getI18NString("constraint_must_complete_current_step", "main");
 		}		
 	}
 	

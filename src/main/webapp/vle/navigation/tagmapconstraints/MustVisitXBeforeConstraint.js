@@ -278,17 +278,18 @@ MustVisitXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					stepsNumberAndTitlesFailed += 'Activity ' + stepNumberAndTitle + ' (all steps)';
+					stepsNumberAndTitlesFailed += this.view.getI18NString("activityTerm", "main") + stepNumberAndTitle + ' ('+ this.view.getI18NString("all_steps", "main")  +')';
 				} else {
-					stepsNumberAndTitlesFailed += 'Step ' + stepNumberAndTitle;
+					stepsNumberAndTitlesFailed += this.view.getI18NString("stepTerm", "main") + stepNumberAndTitle;
 				}
 			}		
 		}
 		
 		if(nodesFailed.length == 1) {
-			message = 'You must visit ' + stepsNumberAndTitlesFailed + ' before you can work on this step';
+			message = this.view.getI18NStringWithParams("constraint_must_visit_x_before", [stepsNumberAndTitlesFailed], "main");
 		} else if(nodesFailed.length > 1) {
-			message = 'You must visit these before you can work on this step\n\n' + stepsNumberAndTitlesFailed;		
+			message = this.view.getI18NString("constraint_must_visit_these_before", "main");
+			message += "\n\n" + stepsNumberAndTitlesFailed;
 		}
 	}
 	

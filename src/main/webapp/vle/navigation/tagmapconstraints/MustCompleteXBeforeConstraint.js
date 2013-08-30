@@ -202,9 +202,9 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					nodeType = 'Activity';
+					nodeType = this.view.getI18NString("activityTerm", "main");
 				} else {
-					nodeType = 'Step';
+					nodeType = this.view.getI18NString("stepTerm", "main");
 				}
 				
 				stepsNumberAndTitlesFailed += nodeType + ' ' + stepNumberAndTitle;
@@ -212,9 +212,10 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 		}
 		
 		if(nodesFailed.length == 1) {
-			message = 'You must complete ' + stepsNumberAndTitlesFailed + ' before you can work on this step';
+			message = this.view.getI18NStringWithParams("constraint_must_complete_x_before", [stepsNumberAndTitlesFailed], "main");
 		} else if(nodesFailed.length > 1) {
-			message = 'You must complete these before you can work on this step\n\n' + stepsNumberAndTitlesFailed;		
+			message = this.view.getI18NString("constraint_must_complete_these_before", "main");
+			message += "\n\n" + stepsNumberAndTitlesFailed;
 		}
 	}
 	
