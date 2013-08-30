@@ -41,6 +41,31 @@ function OpenResponseNode(nodeType, view) {
 };
 
 /**
+ * Returns the criteria value for this node based on student response.
+ */
+OpenResponseNode.prototype.getCriteriaValue = function() {
+	var result = null;
+	var contentJSON = this.content.getContentJSON();
+	if (this.content.getContentJSON().cRater != null && this.content.getContentJSON().cRater != "") {
+		// if this step is CRater/Henry open response step, return the last score they received from CRater for this step.
+		// the score is stored in the annotation for the step.
+		var nodeAnnotationsArray = this.getNodeAnnotations();
+		if (nodeAnnotationsArray != null) {
+			for (var i=0; i<nodeAnnotationsArray.length; i++) {
+				var nodeAnnotation = nodeAnnotationsArray[i];
+				if (nodeAnnotation.type == "cRater" || nodeAnnotation.type == "henry") {
+					if (nodeAnnotation.value != null && nodeAnnotation.value[0] != null && nodeAnnotation.value[0].score != null) {
+						// get the CRater/Henry score 
+						result = nodeAnnotation.value[0].score;
+					}
+				}
+			}
+		}
+	}
+	return result;
+};
+
+/**
  * Takes in a state JSON object and returns an OPENRESPONSESTATE object
  * @param nodeStatesJSONObj a state JSON object
  * @return an OPENRESPONSESTATE object
