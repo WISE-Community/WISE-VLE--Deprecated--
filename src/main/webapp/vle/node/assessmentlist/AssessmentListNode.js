@@ -7,6 +7,7 @@ AssessmentListNode.prototype.i18nEnabled = true;
 AssessmentListNode.prototype.i18nPath = "/vlewrapper/vle/node/assessmentlist/i18n/";
 AssessmentListNode.prototype.supportedLocales = {
 			"en_US":"en_US",
+			"es":"es",
 			"ja":"ja",
 			"nl":"nl",
 			"nl_GE":"nl",

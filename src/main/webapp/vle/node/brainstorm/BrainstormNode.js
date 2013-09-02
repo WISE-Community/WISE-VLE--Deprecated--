@@ -14,6 +14,7 @@ BrainstormNode.prototype.i18nEnabled = true;
 BrainstormNode.prototype.i18nPath = "/vlewrapper/vle/node/brainstorm/i18n/";
 BrainstormNode.prototype.supportedLocales = {
 			"en_US":"en_US",
+			"es":"es",
 			"ja":"ja"
 };
 

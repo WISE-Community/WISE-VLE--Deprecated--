@@ -20,7 +20,8 @@ TableNode.prototype.parentNode = Node.prototype; //TODO: rename TemplateNode
 TableNode.prototype.i18nEnabled = true;
 TableNode.prototype.i18nPath = "/vlewrapper/vle/node/table/i18n/";
 TableNode.prototype.supportedLocales = {
-	"en_US":"en_US"
+	"en_US":"en_US",
+	"es":"es"	
 };
 
 /*

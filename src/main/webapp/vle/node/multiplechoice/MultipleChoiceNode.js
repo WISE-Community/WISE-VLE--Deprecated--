@@ -10,7 +10,8 @@ MultipleChoiceNode.authoringToolDescription = "Students answer a multiple choice
 MultipleChoiceNode.prototype.i18nEnabled = true;
 MultipleChoiceNode.prototype.i18nPath = "/vlewrapper/vle/node/multiplechoice/i18n/";
 MultipleChoiceNode.prototype.supportedLocales = {
-	"en_US":"en_US"
+	"en_US":"en_US",
+	"es":"es"	
 };
 
 MultipleChoiceNode.tagMapFunctions = [
