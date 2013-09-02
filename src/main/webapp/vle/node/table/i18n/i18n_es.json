@@ -114,5 +114,9 @@
     "loading": {
         "value": "Cargando...",
         "description": "The loading message"
+    },
+    "saved_feedback": {
+        "value": "¡Grabada!",
+        "description": "Notification that the table data was saved"
     }
 }

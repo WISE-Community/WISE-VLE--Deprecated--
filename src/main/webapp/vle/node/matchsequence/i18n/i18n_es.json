@@ -15,10 +15,6 @@
         "value": "Enviar respuesta",
         "description": "The 'Submit Answer' text on the button for students to submit and check their answer"
     },
-    "click_ok_to_save": {
-        "value": "Clic en 'OK' para guardar y bloquear este paso. El trabajo se guardará y no se podrá realizar ningún cambio. Para continuar trabajando en este paso, clic en 'Cancelar'.",
-        "description": "The text to notify the student to click 'OK' to save and lock the step"
-    },    
     "correct_feedback": {
         "value": "Hay {0} de {1} opciones correctas.",
         "description": "Message showing students how many choices they placed correctly"
@@ -62,5 +58,9 @@
     "autograded_score": {
         "value": "Auto-calificación: {0}",
         "description": "Auto graded score that gets displayed in the teacher grading tool."
+    },
+    "click_ok_to_save": {
+        "value": "Clic 'OK' para grabar y sellar este paso. El trabajo se guardará y no se podrán realizar más cambios. Si quieren seguir trabajando en este paso hagan clic en 'Cancelar'.",
+        "description": "The text to notify the student to click 'OK' to save and lock the step"
     }
 }
