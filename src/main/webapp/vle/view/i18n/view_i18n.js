@@ -212,6 +212,8 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 		//component is a node. we're trying to translate strings in the content panel where nodes are rendered
 		if (this.currentNode && this.currentNode.contentPanel && this.currentNode.contentPanel.$) {
 			translatableElements = $(this.currentNode.contentPanel.$.find("[data-i18n], [data-i18n-title], [data-i18n-placeholder]"));			
+		} else if (this.getCurrentNode() && this.getCurrentNode().getType() == "NoteNode") {
+			translatableElements = $($("#notePanel").find("[data-i18n], [data-i18n-title], [data-i18n-placeholder]"));						
 		};
 	}
 	var count = translatableElements.length;

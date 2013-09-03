@@ -15,9 +15,45 @@
 		"value":"SAVE CHANGES",
 		"description":"The text 'SAVE CHANGES' on the button shown at the bottom of the step"
 	},
+	"save_and_close": {
+		"value":"SAVE & CLOSE",
+		"description":"The text 'SAVE & CLOSE' on the button shown at the bottom of the step"
+	},
+	"help": {
+		"value":"help",
+		"description":"The word 'help'"
+	},
+	"tall": {
+		"value":"tall",
+		"description":"The text 'tall' on the button shown at the top of the note step to change the note to be tall"
+	},
+	"wide": {
+		"value":"wide",
+		"description":"The text 'wide' on the button shown at the top of the note step to change the note to be wide"
+	},
+	"basic": {
+		"value":"basic",
+		"description":"The text 'basic' on the button shown at the top of the note step to change the note to be the default basic size"
+	},
+	"large": {
+		"value":"large",
+		"description":"The text 'large' on the button shown at the top of the note step to change the note to be large"
+	},
 	"show_hide": {
 		"value":"show/hide",
 		"description":"The text for the button that shows and hides text"
+	},
+	"original_question": {
+		"value":"Original Question",
+		"description":"The text 'Original Question' to show above the original question for the step in peer-review mode"
+	},
+	"associated_work": {
+		"value":"Associated Work",
+		"description":"The text 'Associated Work' to show above the associated work for the step in peer-review mode"
+	},
+	"annotation": {
+		"value":"Annotation",
+		"description":"The text 'Annotation' to show above the annotation for the step in peer-review mode"
 	},
 	"question_is_hidden": {
 		"value":"Question is hidden",

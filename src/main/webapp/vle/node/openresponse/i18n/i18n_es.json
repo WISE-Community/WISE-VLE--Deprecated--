@@ -15,9 +15,17 @@
         "value": "GRABAR CAMBIOS",
         "description": "The text 'SAVE CHANGES' on the button shown at the bottom of the step"
     },
+	"save_changes": {
+		"value":"GRABAR CAMBIOS",
+		"description":"The text 'SAVE CHANGES' on the button shown at the bottom of the step"
+	},    
     "show_hide": {
         "value": "mostrar/ocultar",
         "description": "The text for the button that shows and hides text"
+    },
+    "help": {
+        "value": "ayuda",
+        "description": "The word 'help'"
     },
     "question_is_hidden": {
         "value": "Pregunta oculta",

@@ -15,6 +15,10 @@
         "value": "セーブ",
         "description": "The text 'SAVE CHANGES' on the button shown at the bottom of the step"
     },
+	"save_changes": {
+		"value":"セーブ＆閉じる",
+		"description":"The text 'SAVE CHANGES' on the button shown at the bottom of the step"
+	},    
     "chances": {
         "value": "チャンス",
         "description": "The text to show the student has x chances left to submit"
