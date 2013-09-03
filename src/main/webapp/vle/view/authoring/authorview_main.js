@@ -270,9 +270,10 @@
 			}
 		}
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-			var nodeIconPath = this.nodeIconPaths[node.type];
-			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
-			mainDiv.innerHTML = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
+			var nodeType = node.type;
+			var nodeClass = node.getNodeClass();
+			var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+			mainDiv.innerHTML = '<img src=\'' + iconPath + '\' width=\'16px\'/> ';
 		} //else {
 			//mainDiv.innerHTML = reviewHtml + tabs;
 			//mainDiv.innerHTML = reviewHtml;
@@ -326,8 +327,18 @@
 			for(var x=0; x<nodeClassesForNode.length; x++) {
 				var nodeClassObj = nodeClassesForNode[x];
 				var opt = createElement(document, 'option');
+				
+				//get the node type
+				var nodeType = node.type;
+				
+				//get the node class
+				var nodeClass = nodeClassObj.nodeClass;
+				
+				//get the icon path
+				var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+				
 				opt.value = nodeClassObj.nodeClass;
-				opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
+				opt.innerHTML = '<img src=\'' + iconPath + '\' width=\'16px\'/> ' + nodeClassObj.nodeClassText;
 				selectDrop.appendChild(opt);
 				if(node.getNodeClass() == nodeClassObj.nodeClass){
 					selectDrop.selectedIndex = x + 1;
@@ -1940,10 +1951,6 @@ View.prototype.editIMSettings = function(){
 			imEnabled = tools.isIdeaManagerEnabled;
 		}
 
-		// initialize idea manager settings object and IM version
-		imSettings = {};
-		imVersion = '1';
-
 		if (this.projectMeta.tools !== null) {
 			var tools = this.projectMeta.tools;
 
@@ -1965,24 +1972,31 @@ View.prototype.editIMSettings = function(){
 			}
 
 			// get Idea Manager version
-			if('ideaManagerVersion' in tools){
+			if(tools.hasOwnProperty('ideaManagerVersion')){
 				imVersion = tools.ideaManagerVersion;
 			}
 
 			// get Idea Manager settings
-			if ('ideaManagerSettings' in tools){
+			if (tools.hasOwnProperty('ideaManagerSettings')){
 				imSettings = tools.ideaManagerSettings;
-				if('version' in tools.ideaManagerSettings){
+				if(tools.ideaManagerSettings.hasOwnProperty('version')){
 					imVersion = tools.ideaManagerSettings.version;
 				}
 			}
 		}
-
-		// get Idea Manager settings
-		if (typeof tools.ideaManagerSettings !== 'undefined'){
-			imSettings = tools.ideaManagerSettings;
-			if(typeof tools.ideaManagerSettings.version !== 'undefined'){
-				imVersion = tools.ideaManagerSettings;
+		
+		if(this.projectHasRun && parseInt(imVersion, 10) < 2){
+			// project has run in classroom and uses older version of Idea Manager, so remove IM v2 settings panel
+			$('#ideaManagerSettings').remove();
+		} else {
+			// since project hasn't run and Idea Manager version hasn't been set < 2, we can use IM v2 for this project
+			imVersion = '2';
+			// set version as attribute of enable IM checkbox (will be read and stored when saving project metadata)
+			$('#enableIdeaManager').attr('data-version',imVersion);
+			
+			// if Idea Manager is enabled, show settings panel
+			if($('#enableIdeaManager').is(':checked')){
+				$('#ideaManagerSettings').show();
 			}
 		}
 	}
@@ -2805,9 +2819,19 @@ View.prototype.nodeTypeSelected = function(){
 		while(++x < nodeClassesForNode.length){
 			var nodeClassObj = nodeClassesForNode[x];
 			var opt = createElement(document, 'option', {name: 'nodeClassOption'});
+			
+			//get the node type
+			var nodeType = val;
+			
+			//get the node class
+			var nodeClass = nodeClassObj.nodeClass;
+			
+			//get the icon path
+			var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
+			
 			opt.value = nodeClassObj.nodeClass;
-			opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
-
+			opt.innerHTML = '<img src=\'' + iconPath + '\' width=\'16px\'/> ' + nodeClassObj.nodeClassText;
+			
 			select.appendChild(opt);
 		}
 

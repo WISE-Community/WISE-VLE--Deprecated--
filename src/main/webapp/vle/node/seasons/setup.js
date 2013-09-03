@@ -35,7 +35,7 @@ var studentVLEScripts = [
   */
 	'vle/node/seasons/seasonsstate.js',
 	'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.custom.min.js'
+	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'
 ];
 
 var authorScripts = [
@@ -78,7 +78,7 @@ var dependencies = [
  * 'Quiz'
  */
 var nodeClasses = [
-	{nodeClass:'seasons', nodeClassText:'Seasons'}
+	{nodeClass:'seasons', nodeClassText:'Seasons', icon:'node/seasons/icons/seasons28.png'}
 ];
 
 var nodeIconPath = 'node/seasons/icons/';

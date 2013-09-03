@@ -70,6 +70,10 @@ FILLIN.prototype.render = function(textInteractionEntryIndex) {
 	var interactiveDiv = document.getElementById('interactiveDiv');
 	interactiveDiv.innerHTML=this.generateInteractiveDivHtml(textInteractionEntryIndex);
 	
+	$("#checkAnswerButton").val(this.view.getI18NString("check_answer","FillinNode"));
+	$("#tryAgainButton").val(this.view.getI18NString("try_again","FillinNode"));
+	$("#nextButton").val(this.view.getI18NString("next_button","FillinNode"));
+	
 	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
@@ -81,8 +85,8 @@ FILLIN.prototype.generateInteractiveDivHtml = function(textInteractionEntryIndex
 	if(textInteractionEntry){
 		var responseId = textInteractionEntry.textInteraction.responseIdentifier;
 		var humanIndex = parseInt(textInteractionEntryIndex)+1;
-		return "<b>Answer for blank #"+humanIndex+": </b><input id=\"responseBox\" type=\"text\"></input>";
 		this.html += "<script type=\"text/javascript\">document.getElementById(\"responseBox\").focus();</script>";
+		return "<b>"+this.view.getI18NStringWithParams('answer_for_blank', [humanIndex], 'FillinNode')+": </b><input id=\"responseBox\" type=\"text\"></input>";
 	};
 };
 
@@ -187,7 +191,7 @@ FILLIN.prototype.checkAnswer = function() {
 			$('#nextButton').parent().removeClass('ui-state-disabled');
 			//removeClassFromElement("nextButton", "disabledLink");
 			
-			feedbackDiv.innerHTML = "Correct.";
+			feedbackDiv.innerHTML = this.view.getI18NString('correct', 'FillinNode');
 			document.getElementsByName("activeBlank")[0].value = studentAnswerText;   // display activeBlank with correctAnswer
 			if (currentTextEntryInteractionIndex+1 < this.textEntryInteractions.length) {
 				// there are more boxes for student to fill in.
@@ -196,7 +200,7 @@ FILLIN.prototype.checkAnswer = function() {
 				fillinState.isCompleted = true;
 				$('#nextButton').parent().addClass('ui-state-disabled');
 				//addClassToElement("nextButton", "disabledLink");
-				feedbackDiv.innerHTML += " You successfully filled all of the blanks.  Impressive work!";			
+				feedbackDiv.innerHTML += this.view.getI18NString('all_correct_msg', 'FillinNode');							
 				feedbackDiv.innerHTML += this.getCorrectText(this.textEntryInteractions.length, this.states.length);			
 			};
 		} else {
@@ -204,7 +208,7 @@ FILLIN.prototype.checkAnswer = function() {
 			//removeClassFromElement("feedbackDiv", "correct");
 			$('#feedbackDiv').removeClass('incorrect');
 			//addClassToElement("feedbackDiv", "incorrect");		
-			feedbackDiv.innerHTML = "Not correct or misspelled";
+			feedbackDiv.innerHTML = this.view.getI18NString('not_correct_msg', 'FillinNode');	
 		};
 	};
 	
@@ -220,18 +224,17 @@ FILLIN.prototype.checkAnswer = function() {
  * given number of blanks and tries
  */
 FILLIN.prototype.getCorrectText = function(blanks, tries){
-	var outStr = " You successfully filled ";
-	
+	var outStr = this.view.getI18NString('successfully_filled_in_part1', 'FillinNode');	
 	if(blanks==1){
-		outStr += "1 blank in ";
+		outStr += this.view.getI18NString('successfully_filled_in_one_blank_in', 'FillinNode');
 	} else {
-		outStr += blanks + " blanks in ";
+		outStr += this.view.getI18NStringWithParams('successfully_filled_in_x_blanks_in', [blanks], 'FillinNode');
 	};
 	
 	if(tries==1){
-		outStr += "1 try.";
+		outStr += this.view.getI18NString('successfully_filled_in_one_try', 'FillinNode');
 	} else {
-		outStr += tries + " tries.";
+		outStr += this.view.getI18NStringWithParams('successfully_filled_in_y_tries', [tries], 'FillinNode');
 	};
 	
 	return outStr;

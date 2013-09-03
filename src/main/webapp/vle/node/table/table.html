@@ -78,7 +78,7 @@
 				 *
 		         * TODO: rename template variable
 		         */
-		         table.save();
+		         if (typeof table !== "undefined") table.save();
 	        }
 
 	        /*
@@ -155,11 +155,11 @@
 		<div id='previousWorkDiv'></div>
 		<div id='promptDiv'></div>
 		<div id='buttonDiv'>
-			<input id='resetButton' type='button' value='Reset Table' onclick='reset()'></input>
-			<input id='addRowButton' type='button' value='Add Row' onclick='studentAddRow()' style='display:none'></input>
-			<input id='deleteRowButton' type='button' value='Delete Row' onclick='studentDeleteRow()' style='display:none'></input>
-			<input id='addColumnButton' type='button' value='Add Column' onclick='studentAddColumn()' style='display:none'></input>
-			<input id='deleteColumnButton' type='button' value='Delete Column' onclick='studentDeleteColumn()' style='display:none'></input>
+			<input id='resetButton' type='button' value='Reset Table' onclick='reset()' data-i18n="reset_table"></input>
+			<input id='addRowButton' type='button' value='Add Row' onclick='studentAddRow()' style='display:none' data-i18n="add_row"></input>
+			<input id='deleteRowButton' type='button' value='Delete Row' onclick='studentDeleteRow()' style='display:none' data-i18n="delete_row"></input>
+			<input id='addColumnButton' type='button' value='Add Column' onclick='studentAddColumn()' style='display:none' data-i18n="add_column"></input>
+			<input id='deleteColumnButton' type='button' value='Delete Column' onclick='studentDeleteColumn()' style='display:none' data-i18n="delete_column"></input>
 		</div>
 		<div id='dropDownTitleDiv'></div>
 		<div id='tableDiv'></div>
@@ -169,8 +169,9 @@
 			<div id="graphDiv" style="width: 700px; height: 400px; display:none"></div>
 		</div>
 		<div id='prompt2Div'></div>
-		<div id='showStarterSentenceDiv'><input type='button' value='Show Starter Sentence' onclick='showStarterSentence()'></input></div>
+		<div id='showStarterSentenceDiv'><input type='button' value='Show Starter Sentence' onclick='showStarterSentence()' data-i18n="show_starter_sentence"></input></div>
 		<div id='responseDiv'><textarea id='studentResponseTextArea' rows='4' cols='80' onchange='studentResponseChanged()'></textarea></div>
-		<div id='saveButtonDiv'><input type='button' value='Save' onclick='save()'></input></div>
+		<div id='saveButtonDiv' style='float: left'><input type='button' value='Save' onclick='save()' data-i18n="save"></input></div>
+		<div id='saveFeedbackDiv' style='float: left; margin-left: 10px; visibility: hidden; color: red;' data-i18n="saved_feedback"></div>
 	</body>
 </html>

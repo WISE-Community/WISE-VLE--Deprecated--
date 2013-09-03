@@ -534,5 +534,45 @@
     "grading_button_special_export_description": {
         "value": "(Zip File に生徒の回答をエクスポートする）",
         "description": "GradingTool: Description next the Special Export button"
-    }
+    },
+    "student_aggregate_view_intro_text": {
+        "value": "{0}のサマリービュー",
+        "description": "Text above where the aggregate view would be displayed"
+    },
+    "student_aggregate_view_preview_mode_default_text": {
+        "value": "このステップの統合ビューはクラスルームランをセットアップした後に表示されます。",
+        "description": "Default text to display for aggregate view when in preview mode."
+    },
+    "project_error_has_no_steps": {
+        "value": "エラーが生じました。このプロジェクトにはステップがありません。",
+        "description": "The error text to be displayed when the project has no steps in it"
+    },
+    "common_click_here": {
+        "value": "ここをクリック",
+        "description": "the common text 'click here'"
+    },
+    "authoring_imsettings_attribute_help": {
+        "value": "ヘルプはここに表示されます。",
+        "description": ""
+    },
+    "authoring_imsettings_terminology_help": {
+        "value": "ヘルプはここに表示されます。",
+        "description": ""
+    },
+	"constraint_must_complete_x_before": {
+		"value":"まず　{0} をやってください",
+		"description":"The message shown to students telling them to complete work on a previous step before working on the current step"
+	},
+	"constraint_must_complete_these_before": {
+		"value":"まずこれらを終わらせてください",
+		"description":"The message shown to students telling them to complete work on multiple steps before working on the current step"
+	},
+	"constraint_must_complete_current_step": {
+		"value":"まずこのステップを終わらせてください。",
+		"description":"The message shown to students telling them to complete work on current step before moving on"
+	},
+	"constraint_must_have_status": {
+		"value":"まずこれらのステップの '{0}' で '{1}'を獲得してください。 \n\n{2}",
+		"description":"The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the current step"
+	}				
 }

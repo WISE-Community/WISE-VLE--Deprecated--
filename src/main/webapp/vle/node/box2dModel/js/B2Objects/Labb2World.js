@@ -124,6 +124,8 @@
 	/** Place an object directly in the world */
 	p.createObjectInWorld = function (savedObject, x, y, rotation, type)
 	{
+		if (GLOBAL_PARAMETERS.objects_made.length >= GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD) return false;
+
 		var compShape;
 		if (typeof savedObject.blockArray3d != "undefined"){
 			if (savedObject.is_container){
@@ -136,8 +138,26 @@
 		} else if (typeof savedObject.rectPrismArrays != "undefined"){
 			compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
 		}
-		
-		savedObject.id = "O" + GLOBAL_PARAMETERS.total_objects_made_in_world;
+
+
+		savedObject.id = "Obj-" + GLOBAL_PARAMETERS.objects_made.length;
+
+		// draw to imgstage
+		if (typeof compShape.shape !== "undefined" && compShape.shape != null){
+			//imgstage.drawQueue.push(compShape);
+			var s = new createjs.Shape(compShape.shape.graphics);
+			s.x = compShape.width_px_left;
+			s.y = 220 - compShape.height_px_below;
+			imgstage.addChild(s);
+			imgstage.update();
+			var png = Canvas2Image.convertToPNG($("#imgcanvas")[0], 220*GLOBAL_PARAMETERS.IMAGE_SCALE, 220*GLOBAL_PARAMETERS.IMAGE_SCALE);
+			png.setAttribute('id', savedObject.id);
+			// simplify object
+			var img = {"id":png.id, "src":png.src, "width":220*GLOBAL_PARAMETERS.IMAGE_SCALE, "height":220*GLOBAL_PARAMETERS.IMAGE_SCALE};
+			GLOBAL_PARAMETERS.images.push(img);
+			imgstage.removeChild(s);
+			imgstage.update();
+		}
 		
 		var actor;
 		if (compShape.is_blockComp){
@@ -150,20 +170,22 @@
 		
 		if (y < 0) y = this.height_units;
 		
+		eventManager.fire('make-model',[actor.skin.savedObject], box2dModel);
 		this.addActor(actor, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		actor.orig_parent = this;
 		if (type == "dynamic"){
 			actor.onPress = this.actorPressHandler.bind(this);
 		}
-		GLOBAL_PARAMETERS.total_objects_made_in_world++;
+		GLOBAL_PARAMETERS.objects_made.push(savedObject)
 
 		return true;
 	}	
 
 	/** Place an interactive beaker in the testing world */
 	p.createBeakerInWorld = function (b, x, y, type){
-		var beaker = new Beakerb2Actor(GLOBAL_PARAMETERS.materials[b.material], GLOBAL_PARAMETERS.liquids[b.liquid], b.width, b.height, b.depth, b.init_liquid_volume_perc, b.spilloff_volume_perc, b.showRuler);
+		var beaker = new Beakerb2Actor(GLOBAL_PARAMETERS.materials[b.material_name], GLOBAL_PARAMETERS.liquids[b.liquid_name], b.width_units, b.height_units, b.depth_units, b.init_liquid_volume_perc, b.spilloff_volume_perc, b.showRuler);
 		if (y < 0) y = this.height_units;
+		eventManager.fire('make-beaker',[beaker.skin.savedObject], box2dModel);
 		this.addBeaker(beaker, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		beaker.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
@@ -176,6 +198,7 @@
 	p.createScaleInWorld = function (x, y, pan_width_units, type){
 		var scale = new Scaleb2Actor(pan_width_units, 0.1);
 		if (y < 0) y = this.height_units;
+		eventManager.fire('make-scale',[scale.skin.savedObject], box2dModel);
 		this.addScale (scale, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		scale.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
@@ -188,6 +211,7 @@
 	p.createBalanceInWorld = function (x, y, height_units, pan_width_units, type){
 		var balance = new Balanceb2Actor(height_units, pan_width_units, 0.1);
 		if (y < 0) y = this.height_units;
+		eventManager.fire('make-balance',[balance.skin.savedObject], box2dModel);
 		this.addBalance (balance, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		balance.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
@@ -198,7 +222,6 @@
 	}
 	
 	p.addActor = function (actor, x, y){
-		eventManager.fire('add-actor-world',[actor.skin.savedObject], box2dModel);
 		
 		this.addChild(actor);
 		if (y < this.shelf_height_units){
@@ -226,7 +249,6 @@
 	}
 
 	p.addBeaker = function (beaker, x, y){
-		eventManager.fire('add-beaker-world',[beaker.skin.savedObject], box2dModel);
 		this.addChild(beaker);
 		if (y < this.shelf_height_units){
 			var point = this.addActorToShelf(beaker, x, y);
@@ -246,7 +268,6 @@
 	}
 
 	p.addScale = function (scale, x, y){
-		eventManager.fire('add-scale-world',[scale.skin.savedObject], box2dModel);
 		this.addChild(scale);
 		if (y < this.shelf_height_units){
 			var point = this.addActorToShelf(scale, x,  y);
@@ -264,7 +285,6 @@
 	}
 
 	p.addBalance = function (balance, x, y){
-		eventManager.fire('add-balance-world',[balance.skin.savedObject], box2dModel);
 		this.addChild(balance);
 		if (y < this.shelf_height_units){
 			var point = this.addActorToShelf(balance, x, y);
@@ -287,8 +307,9 @@
 		if (y < 0){
 			var running_left_x = 0;
 			var placed = false;
+			var o = null;
 			for (var i = 0; i < this.objects_on_shelf.length; i++){
-				var o = this.objects_on_shelf[i];
+				o = this.objects_on_shelf[i];
 				var right_x = o.x - o.width_px_left - GLOBAL_PARAMETERS.SCALE;
 				if (right_x - running_left_x > (actor.width_px_left + actor.width_px_right + GLOBAL_PARAMETERS.SCALE)){
 					x = running_left_x + GLOBAL_PARAMETERS.SCALE;
@@ -297,8 +318,17 @@
 					running_left_x = o.x + o.width_px_right + GLOBAL_PARAMETERS.SCALE;
 				}
 			}
-			if (!placed) x = running_left_x;
-			y = this.shelf_height_units - actor.height_units_below;
+			if (!placed){
+				x = running_left_x;
+				var height_above = 0;
+				if (x > this.width_px){
+					if (o != null && typeof o.height_units_above !== "undefined" && !isNaN(o.height_units_above)) height_above = o.height_units_above + o.height_units_below;
+					x = (this.width_px - actor.width_px_right)  * Math.random();
+				}
+				y = this.shelf_height_units - actor.height_units_below -  height_above;
+			} else {
+				y = this.shelf_height_units - actor.height_units_below;
+			}
 			actor.x = x;
 			x /= GLOBAL_PARAMETERS.SCALE; 
 		}
@@ -317,7 +347,7 @@
 		this.justRemovedActor = actor;
 		this.justAddedActor = null;
 		
-		eventManager.fire('remove-actor-world',[actor.skin.savedObject], box2dModel);
+		eventManager.fire('delete-actor',[actor.skin.savedObject], box2dModel);
 		this.removeActorFromShelf(actor);
 		this.actors.splice(this.actors.indexOf(actor), 1);
 		
@@ -339,7 +369,7 @@
 		this.removeActorFromShelf(beaker);
 		this.beakers.splice(this.beakers.indexOf(beaker), 1);
 		
-		eventManager.fire('remove-beaker-world',[beaker.skin.savedObject], box2dModel);
+		eventManager.fire('delete-beaker',[beaker.skin.savedObject], box2dModel);
 		if (beaker.controlledByBuoyancy){
 			beaker.containedWithin.removeActor(beaker);	
 		}
@@ -352,7 +382,7 @@
 		this.removeActorFromShelf(scale);
 		this.scales.splice(this.scales.indexOf(scale), 1);
 		
-		eventManager.fire('remove-scale-world',[scale.skin.savedObject], box2dModel);
+		eventManager.fire('delete-scale',[scale.skin.savedObject], box2dModel);
 		if (scale.controlledByBuoyancy){
 			scale.containedWithin.removeActor(scale);	
 		}
@@ -364,7 +394,7 @@
 		this.removeActorFromShelf(balance);
 		this.balances.splice(this.balances.indexOf(balance), 1);
 		
-		eventManager.fire('remove-balance-world',[balance.skin.savedObject], box2dModel);
+		eventManager.fire('delete-balance',[balance.skin.savedObject], box2dModel);
 		if (balance.controlledByBuoyancy){
 			balance.containedWithin.removeActor(balance);	
 		}
@@ -656,7 +686,7 @@
 				width_px = puddle.width_px;
 				height_px = puddle.height_px;
 				// don't bother drawing if width is greater than screen
-				if (width_px < 2*$("#canvas").width()){
+				if (width_px < 2*$("#b2canvas").width()){
 					this.skin.updatePuddleShape(puddle.shape, beaker.liquid.fill_color, width_px, height_px);
 				}
 				return;
@@ -715,11 +745,6 @@
 			} 
 			this.actors[i].update();
 		}
-		// are we pouring? if not clear pouring graphics
-		if (!this.pouring){
-			this.skin.drawPour();
-		}
-		this.pouring = false;
 
 		for (i = 0; i < this.scales.length; i++){
 			if (this.scales[i].base.IsAwake()){
@@ -739,9 +764,11 @@
 			this.balances[i].update();
 		}
 
-		for (i = 0; i < this.balances.length; i++){
-			this.balances[i].update();
+		// are we pouring? if not clear pouring graphics
+		if (!this.pouring){
+			this.skin.drawPour();
 		}
+		this.pouring = false;
 
 		this.b2world.Step(1/createjs.Ticker.getFPS(), 10, 10);
 		if (GLOBAL_PARAMETERS.DEBUG) this.b2world.DrawDebugData();

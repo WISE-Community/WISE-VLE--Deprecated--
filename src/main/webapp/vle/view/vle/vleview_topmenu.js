@@ -103,7 +103,9 @@ View.prototype.displayFlaggedWork = function() {
 		//get all the node ids in the project
 		var nodeIds = this.getProject().getNodeIds();
 		
-		flaggedWorkHtml += "<div id='chooseStep'>Choose a step: ";
+		var choose_a_step = this.getI18NString('choose_a_step');
+		
+		flaggedWorkHtml += "<div id='chooseStep'>" + choose_a_step + ": ";
 		
 		//select box for the student to choose which step's flagged work to look at
 		flaggedWorkHtml += "<select id='flagNodeIdSelect' onchange='eventManager.fire(\"displayFlaggedWorkForNodeId\")'>";
@@ -140,14 +142,18 @@ View.prototype.displayFlaggedWork = function() {
 		//div that we will use to display the flagged work
 		flaggedWorkHtml += "<div id='flaggedWorkForNodeIdDiv'></div>";
 	} else {
+		var there_are_no_flagged_items = this.getI18NString('there_are_no_flagged_items');
+		
 		//there are no flagged items
-		flaggedWorkHtml += "There are no flagged items.";
+		flaggedWorkHtml += there_are_no_flagged_items;
 	}
 	
 	//check if the showflaggedwork div exists
     if($('#showflaggedwork').size()==0){
+    	var teacher_flagged_work = this.getI18NString('teacher_flagged_work');
+    	
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'Teacher Flagged Work',zindex:9999});
+    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:teacher_flagged_work,zindex:9999});
     }
     
     //set the html into the div
@@ -190,11 +196,15 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 		
 		//display the prompt for the step
 		if(node.getPrompt() && node.getPrompt() != ''){
-			flaggedWorkHtml += "<div class='panelHeader'>Question/Instructions:</div>";
+			var question_instructions = this.getI18NString('question_instructions');
+			
+			flaggedWorkHtml += "<div class='panelHeader'>" + question_instructions + ":</div>";
 			flaggedWorkHtml += "<div class='dialogSection'><div class='sectionContent showallLatestWork'>" + node.getPrompt() + "</div></div>";
 		}
 		
-		flaggedWorkHtml += "<div class='panelHeader'>Sample Responses:</div><div class='dialogSection'>";
+		var sample_responses = this.getI18NString('sample_responses');
+		
+		flaggedWorkHtml += "<div class='panelHeader'>" + sample_responses + ":</div><div class='dialogSection'>";
 		
 		var flaggedWorkAnswers = "";
 		
@@ -209,8 +219,11 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 			
 			flaggedWorkAnswers += "<div class='stepWork'>";
 			
+			var team = this.getI18NString('team');
+			var anonymous = this.getI18NString('anonymous');
+			
 			//display the flagged work/answer
-			flaggedWorkAnswers += "<div class='sectionHead'>Team " + (y + 1) + " (Anonymous):</div>";
+			flaggedWorkAnswers += "<div class='sectionHead'>" + team + " " + (y + 1) + " (" + anonymous + "):</div>";
 			flaggedWorkAnswers += "<div class='sectionContent'>";
 			if (node.type == "MySystemNode") {
 				var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
@@ -370,17 +383,24 @@ View.prototype.displayShowAllWork = function() {
 		var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100) + "%";
 	    
 		// var closeButton1 = "<a href='#' class='container-close'>Close</a>";
-		// TODO: i18n
+
+		var teacher_score = this.getI18NString('teacher_score');
+		var computer_score = this.getI18NString('computer_score');
+		var total_score = this.getI18NString('total_score');
+		var percent_project_completed = this.getI18NString('percent_project_completed');
+		var my_work_with_teacher_feedback_and_scores = this.getI18NString('my_work_with_teacher_feedback_and_scores');
+		
+		
 	    var scoresDiv1 = "<table class='wisetable'>";
 	    
-	    var scoresDiv2 = "<thead><tr><th>Teacher Score</th><th>Computer Score</th><th>TOTAL SCORE</th><th>% of Project Completed</th></tr></thead>";
+	    var scoresDiv2 = "<thead><tr><th>" + teacher_score + "</th><th>" + computer_score + "</th><th>" + total_score + "</th><th>" + percent_project_completed + "</th></tr></thead>";
 	    	
 	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForProject + "</td><td class='scoreValue'><div class='pValue'>" + teamPercentProjectCompleted + "</div><div id='teamProgress' class='progress'></td></tr></table>";
 	    
 		allWorkHtml = "<div id='showWorkContainer' class='dialogContent'>" + scoresDiv1 + scoresDiv2 + scoresDiv3 + this.getProject().getShowAllWorkHtml(this.getProject().getRootNode(), true) + "</div>";
 		
 	    if($('#showallwork').size()==0){
-	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'My Work (with Teacher Feedback and Scores)'});
+	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:my_work_with_teacher_feedback_and_scores});
 	    }	    
 	    
 	    $('#showallwork').html(allWorkHtml);
@@ -457,8 +477,11 @@ View.prototype.displayShowAllWork = function() {
 		
 		//check if there was any new feeback for the student
 		if(this.getProject().hasNewFeedback()) {
+			var you_have_new_feedback_from_teacher = this.getI18NString('you_have_new_feedback_from_teacher');
+			var new_feedback_labeled_as_new = this.getI18NString('new_feedback_labeled_as_new');
+			
 			//display a popup to notify the student that there is new feedback
-			alert('You have new feedback from your teacher.\n\nThe new feedback is labelled as [New].');
+			alert(you_have_new_feedback_from_teacher + '\n\n' + new_feedback_labeled_as_new);
 		}
 	}
 };
@@ -703,9 +726,9 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
 		var title = this.getI18NString("idea_basket_add_an_idea");
-		if('ideaManagerSettings' in this.getProjectMetadata().tools){
+		if(this.getProjectMetadata().tools.hasOwnProperty('ideaManagerSettings')){
 			var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
-			if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
+			if(imSettings.hasOwnProperty('addIdeaTerm') && this.utils.isNonWSString(imSettings.addIdeaTerm)){
 				title = imSettings.addIdeaTerm;
 			}
 		}
@@ -858,7 +881,7 @@ View.prototype.getIdeaAttributes = function(){
 View.prototype.addIdeaToBasket = function() {
 	var view = this;
 	var imVersion = 1;
-	if('ideaManagerSettings' in this.getProjectMetadata().tools){
+	if(this.getProjectMetadata().tools.hasOwnProperty('ideaManagerSettings')){
 		imVersion = this.getProjectMetadata().tools.ideaManagerSettings.version;
 	}
 	
@@ -1393,14 +1416,15 @@ View.prototype.makeIdeaPublic = function(basket, ideaId) {
 View.prototype.makeIdeaPublicCallback = function(responseText, responseXML, args) {
 	if(responseText != null && responseText != '') {
 		//get our basket
-		var basket = args.basket;
+		var basket = args.basket
+			view = this;
 		
 		//get the public idea basket as a JSON object
 		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display the message in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);
@@ -1461,14 +1485,15 @@ View.prototype.makeIdeaPrivate = function(basket, ideaId) {
 View.prototype.makeIdeaPrivateCallback = function(responseText, responseXML, args) {
 	if(responseText != null && responseText != '') {
 		//get our basket
-		var basket = args.basket;
+		var basket = args.basket,
+			view = this;
 		
 		//get the public idea basket as a JSON object
 		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display it in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);
@@ -1514,7 +1539,8 @@ View.prototype.makeIdeaPrivateCallback = function(responseText, responseXML, arg
  */
 View.prototype.copyPublicIdea = function(basket, ideaWorkgroupId, ideaId) {
 	//get the current workgroup id
-	var workgroupId = this.getUserAndClassInfo().getWorkgroupId();
+	var workgroupId = this.getUserAndClassInfo().getWorkgroupId(),
+		view = this;
 	
 	//check if the idea exists in the private basket
 	var isPublicIdeaInPrivateBasket = basket.isPublicIdeaInPrivateBasket(ideaWorkgroupId, ideaId);
@@ -1524,10 +1550,10 @@ View.prototype.copyPublicIdea = function(basket, ideaWorkgroupId, ideaId) {
 		 * the student is trying to copy their own idea that is in
 		 * the public basket which is not allowed
 		 */ 
-		alert('Error: You are not allowed to copy your own public idea');
+		alert(view.getI18NStringWithParams('ideaBasket_public_copyOwnIdeaError', [basket.ideaTerm]));
 	} else if(isPublicIdeaInPrivateBasket) {
-		//the public idea is already in the private basket 
-		alert('Error: You have already copied this idea');
+		//the public idea is already in the private basket
+		alert(view.getI18NStringWithParams('ideaBasket_public_alreadyCopiedError', [basket.ideaTerm]));
 	} else {
 		//we will copy the public idea into our private basket
 		var ideaBasketParams = {
@@ -1569,7 +1595,7 @@ View.prototype.copyPublicIdeaCallback = function(responseText, responseXML, args
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else {
 			if(publicIdeaBasketJSONObj.errorMessage != null) {
 				//there was an error so we will display it in a popup
@@ -1633,7 +1659,7 @@ View.prototype.copyPublicIdeaCallback = function(responseText, responseXML, args
 					//save the idea basket back to the server
 					basket.saveIdeaBasket(thisView, 'addPrivateIdea', workgroupId, ideaId);
 					
-					alert('Successfully copied Public Idea');
+					alert(view.getI18NStringWithParams('ideaBasket_public_copySuccess', [basket.ideaTerm, basket.publicBasketTerm]));
 				}
 				
 				//update the public idea basket
@@ -1677,14 +1703,15 @@ View.prototype.addWorkgroupToWorkgroupIdsThatHaveCopied = function(basket, ideaW
 View.prototype.addWorkgroupToWorkgroupIdsThatHaveCopiedCallback = function(responseText, responseXML, args) {
 	if(responseText != null && responseText != '') {
 		//get our basket
-		var basket = args.basket;
+		var basket = args.basket,
+			view = this;
 		
 		//get the public idea basket as a JSON object
 		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(view.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display the message in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);
@@ -1769,10 +1796,10 @@ View.prototype.uncopyPublicIdea = function(basket, ideaId) {
  * @param args
  */
 View.prototype.uncopyPublicIdeaCallback = function(responseText, responseXML, args) {
-	var thisView = args.thisView;
-	var workgroupId = args.workgroupId;
-	var ideaId = args.ideaId;
-	var basket = args.basket;
+	var thisView = args.thisView,
+		workgroupId = args.workgroupId,
+		ideaId = args.ideaId,
+		basket = args.basket;
 	
 	if(responseText != null && responseText != '') {
 		//get the public idea basket as a JSON object
@@ -1780,7 +1807,7 @@ View.prototype.uncopyPublicIdeaCallback = function(responseText, responseXML, ar
 		
 		if(publicIdeaBasketJSONObj == null) {
 			//we failed to retrieve the public idea basket
-			alert('Error: Failed to retrieve the public idea basket');
+			alert(thisView.getI18NStringWithParams('ideaBasket_public_loadFailure', [basket.publicBasketTerm]));
 		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
 			//there was an error so we will display the message in a popup
 			alert(publicIdeaBasketJSONObj.errorMessage);

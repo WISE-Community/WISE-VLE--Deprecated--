@@ -44,7 +44,7 @@
 		this.addChild(this.baseShape);
 		g.setStrokeStyle(0.5);
 		g.beginStroke("#AA9900");
-		g.beginLinearGradientFill(["rgba(150,150,50,1.0)", "rgba(200,200,50,1.0)", "rgba(250,250,50,1.0)", "rgba(200,200,50,1.0)", "rgba(150,150,50,1.0)"], [0, 0.25, 0.5, 0.75, 1], -this.base_width_px/2, 0, this.base_width_px/2, 0);
+		g.beginLinearGradientFill(["rgba(150,150,150,1.0)", "rgba(200,200,150,1.0)", "rgba(250,250,150,1.0)", "rgba(200,200,150,1.0)", "rgba(150,150,150,1.0)"], [0, 0.25, 0.5, 0.75, 1], -this.base_width_px/2, 0, this.base_width_px/2, 0);
 		g.moveTo(-this.base_width_top_px/2, -this.base_height_px);
 		g.lineTo(this.base_width_top_px/2, -this.base_height_px);
 		g.lineTo(this.base_width_px/2, 0);
@@ -52,7 +52,7 @@
 		g.lineTo(-this.base_width_top_px/2, -this.base_height_px);
 		g.endFill();
 		g.beginStroke("#AA9900");
-		g.beginLinearGradientFill(["rgba(100,100,25,1.0)", "rgba(150,150,25,1.0)", "rgba(200,200,25,1.0)", "rgba(150,150,25,1.0)", "rgba(100,100,25,1.0)"], [0, 0.25, 0.5, 0.75, 1], -this.base_width_px/2, 0, this.base_width_px/2, 0);
+		g.beginLinearGradientFill(["rgba(100,100,100,1.0)", "rgba(150,150,125,1.0)", "rgba(200,200,150,1.0)", "rgba(150,150,125,1.0)", "rgba(100,100,100,1.0)"], [0, 0.25, 0.5, 0.75, 1], -this.base_width_px/2, 0, this.base_width_px/2, 0);
 		g.moveTo(-this.base_width_top_px/2, -this.base_height_px);
 		g.lineTo(-this.base_width_top_px/2+dw, -this.base_height_px-dh);
 		g.lineTo(this.base_width_top_px/2+dw, -this.base_height_px-dh);
@@ -76,10 +76,19 @@
 		g.endFill();
 		
 		
-		this.massText = new TextContainer("0", "16px Arial", "rgba(100,100,50,1.0)", this.MASS_DISPLAY_WIDTH, this.MASS_DISPLAY_WIDTH, null, null, 0, "center", "center", 0, 0,"rect" ,true)
+		g = this.massTextGraphics= new createjs.Graphics();
+		this.massTextBackground = new createjs.Shape(g);
+		g.setStrokeStyle(4).beginStroke("#000000").beginFill("#FFFFFF")
+			.drawRoundRect(0, 0, this.base_width_px - 30, this.base_height_px/2, 4, 4)
+			.endFill().endStroke();
+		this.addChild(this.massTextBackground);
+		this.massTextBackground.x = -this.base_width_px/2 + 15;
+		this.massTextBackground.y = -this.base_height_px/2+2;
+
+		this.massText = new TextContainer("0", "16px Arial bold", "rgba(100,100,50,1.0)", this.MASS_DISPLAY_WIDTH, this.MASS_DISPLAY_WIDTH, null, null, 0, "center", "center", 0, 0,"rect" ,true)
 		this.addChild(this.massText);
 		this.massText.x = 0;
-		this.massText.y = -this.base_height_px/2;			
+		this.massText.y = -this.base_height_px/4;			
 		
 		
 		// pans
@@ -120,11 +129,15 @@
 	}
 
 	p.redraw = function (pan_y, force){
+		var t = Math.round(force*100)/100;
+		if (GLOBAL_PARAMETERS.SHOW_UNITS_ON_SCALE) t = t + " " + GLOBAL_PARAMETERS.SCALE_UNITS;
+		this.massText.setText(t);
+		
 		pan_y = typeof pan_y === "undefined"? 0 : pan_y;
 		if (pan_y != this.panShape.y){
 			this.panShape.y = pan_y;
 			this.drawPan();
-			this.massText.setText(Math.round(force*100)/100);
+			
 		}
 	}
 

@@ -145,6 +145,35 @@ MustCompleteXBeforeConstraint.prototype.checkConstraint = function(currentNodeId
 };
 
 /**
+ * Get the nodes that this constraint requires the student to complete
+ * but the student has not completed yet.
+ */
+MustCompleteXBeforeConstraint.prototype.getNodesFailed = function() {
+	//array to accumulate the nodes that the student has not completed
+	var nodesFailed = [];
+
+	//the node ids of the steps that come before the next step and have the given tag
+	var previousNodeIds = this.view.getProject().getPreviousNodeIdsByTag(this.tagName, this.nodeId);
+	
+	if(previousNodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<previousNodeIds.length; x++) {
+			//get a node id
+			var previousNodeId = previousNodeIds[x];
+			
+			if(previousNodeId != null) {
+				
+				if(!this.isCompleted(previousNodeId)) {
+					nodesFailed.push(previousNodeId);
+				}
+			}
+		}
+	}
+	
+	return nodesFailed;
+};
+
+/**
  * Get the message to display to the student when this constraint
  * prevents them from moving to the next step they are trying to move to.
  * @param nodesFailed the node ids of the steps that the student has not completed
@@ -173,9 +202,9 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					nodeType = 'Activity';
+					nodeType = this.view.getI18NString("activityTerm", "main");
 				} else {
-					nodeType = 'Step';
+					nodeType = this.view.getI18NString("stepTerm", "main");
 				}
 				
 				stepsNumberAndTitlesFailed += nodeType + ' ' + stepNumberAndTitle;
@@ -183,9 +212,10 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 		}
 		
 		if(nodesFailed.length == 1) {
-			message = 'You must complete ' + stepsNumberAndTitlesFailed + ' before you can work on this step';
+			message = this.view.getI18NStringWithParams("constraint_must_complete_x_before", [stepsNumberAndTitlesFailed], "main");
 		} else if(nodesFailed.length > 1) {
-			message = 'You must complete these before you can work on this step\n\n' + stepsNumberAndTitlesFailed;		
+			message = this.view.getI18NString("constraint_must_complete_these_before", "main");
+			message += "\n\n" + stepsNumberAndTitlesFailed;
 		}
 	}
 	
@@ -211,11 +241,11 @@ MustCompleteXBeforeConstraint.prototype.constrainNavigation = function() {
 				var nodeId = nodeIds[x];
 				
 				//disable the step
-				this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(nodeId);
+				this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(nodeId, this);
 			}
 		} else {
 			//node is a step
-			this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(this.nodeId);			
+			this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(this.nodeId, this);			
 		}
 	}
 };

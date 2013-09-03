@@ -762,6 +762,9 @@ View.prototype.utils.prependContentBaseUrlToAssets = function(contentBaseUrl, st
  * @returns the id with . escaped
  */
 View.prototype.escapeIdForJquery = function(id) {
+	//make sure the id is a string
+	id = id + "";
+	
 	//replace all . with \.
 	id = id.replace(/\./g, '\\.');
 	
@@ -939,6 +942,9 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 			//set an array as the feedback. put an empty string into the array for the feedback. 
 			currScoreRule.feedback = [this.createCRaterFeedbackTextObject()];
 			
+			//set the student action
+			currScoreRule.studentAction = 'revise';
+			
 			cRaterScoringRules.push(currScoreRule);
 		}
 		
@@ -952,6 +958,7 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 			zeroScoreRule.rank = "";
 			zeroScoreRule.score = "0";
 			zeroScoreRule.feedback = [this.createCRaterFeedbackTextObject()];
+			zeroScoreRule.studentAction = "revise";
 			
 			//add the scoring rule to the array of scoring rules
 			cRaterScoringRules.push(zeroScoreRule);
@@ -1930,6 +1937,183 @@ View.prototype.getStepNodeIdsStudentCanVisitHelper = function(nodeIds, currentNo
 	
 	//return the updated array of nodeIds
 	return nodeIds;
+};
+
+/**
+ * Check if the student has completed the node
+ * @param nodeId the node id that needs to be checked for completion.
+ * the node id may be an id of a step or activity. if it is an activity,
+ * the student must have completed all the steps in the activity.
+ * @return whether the student has completed the node
+ */
+View.prototype.isCompleted = function(nodeId) {
+	var completed = false;
+	
+	//get the node
+	var node = this.getProject().getNodeById(nodeId);
+	
+	if(node.type == 'sequence') {
+		//node is an activity
+		
+		//get all the node ids in this activity
+		var nodeIds = this.getProject().getNodeIdsInSequence(nodeId);
+		
+		//loop through all the node ids in the activity
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var tempNodeId = nodeIds[x];
+			
+			//get the node
+			var node = this.getProject().getNodeById(tempNodeId);
+			
+			//get the latest work for the step
+			var nodeVisits = this.getState().getNodeVisitsByNodeId(tempNodeId);
+			
+			//check if the work is completed
+			if(!node.isCompleted(nodeVisits)) {
+				return false;
+			}
+		}
+		
+		completed = true;
+	} else {
+		//node is a step
+
+		//get the latest work for the step
+		var nodeVisits = this.getState().getNodeVisitsByNodeId(nodeId);
+		
+		//check if the work is completed
+		if(node.isCompleted(nodeVisits)) {
+			completed = true;
+		}
+	}
+	
+	return completed;
+};
+
+/**
+ * Get the latest node state that has work from the node visits that
+ * are provided
+ * 
+ * @param nodeVisits the node visits to look in
+ * 
+ * @return a node state with work or null if there are no node states
+ */
+View.prototype.getLatestNodeStateWithWorkFromNodeVisits = function(nodeVisits) {
+	
+	if(nodeVisits != null) {
+		//loop through all the node visits
+		for(var x=nodeVisits.length - 1; x>=0; x--) {
+			//get a node visit
+			var nodeVisit = nodeVisits[x];
+			
+			if(nodeVisit != null) {
+				//get the latest work from the node visit
+				var latestWork = nodeVisit.getLatestWork();
+				
+				if(latestWork != null && latestWork != "") {
+					//return the latest node state
+					return latestWork;					
+				}
+			}
+		}	
+	}
+	
+	return null;
+};
+
+/**
+ * Get the icon path given the node type and node class
+ * 
+ * @param nodeType the node type
+ * @param nodeClass the node class
+ * 
+ * @return the icon path for the node type and node class or null
+ * if none was found
+ */
+View.prototype.getIconPathFromNodeTypeNodeClass = function(nodeType, nodeClass) {
+	var iconPath = null;
+	
+	//get all the node classes for this node type
+	var nodeClassArray = this.nodeClasses[nodeType];
+	
+	if(nodeClassArray != null) {
+		//loop through all the node classes for this node type
+		for(var x=0; x<nodeClassArray.length; x++) {
+			//get a node class object
+			var tempNodeClassObj = nodeClassArray[x];
+			
+			//get the node class
+			var tempNodeClass = tempNodeClassObj.nodeClass;
+			
+			if(nodeClass == tempNodeClass) {
+				/*
+				 * the node class matches the one we want so we will get the
+				 * icon from it
+				 */
+				iconPath = tempNodeClassObj.icon;
+				break;
+			}
+		}
+	}
+	
+	return iconPath;
+};
+
+/**
+ * Get the full node name
+ * @param node id
+ * @return the full step name depending on the navigation used
+ * classic will return something like 'Step 1.1: Introduction'
+ * starmap will return something like '#1: First Galaxy: Bronze'
+ */
+View.prototype.getFullNodeName = function(nodeId) {
+	//get the full step name
+	var fullStepName = this.navigationPanel.getFullNodeName(nodeId);
+
+	return fullStepName;
+};
+
+/**
+ * Get the sequence number of the highest sequence in the hierarchy
+ * not counting the master sequence. This is a recursive function that
+ * calls itself with the parent id.
+ * @param nodeId the node id
+ * @return the sequence number of the highest sequence in the hierarchy
+ * not counting the master sequence.
+ */
+View.prototype.getHighestSequenceNumberInHierarchy = function(nodeId) {
+	var sequenceNumber = '';
+	
+	//check if the 
+	if(nodeId != 'master') {
+		//get the node
+		var node = this.getProject().getNodeById(nodeId);
+		
+		if(node != null) {
+			var parent = node.parent;
+			
+			if(parent != null) {
+				var parentId = parent.id;
+				
+				if(parentId == 'master') {
+					/*
+					 * the parent is the master so we have found the highest sequence
+					 * in the hierarchy
+					 */
+					sequenceNumber = this.getProject().getVLEPositionById(nodeId);
+				} else {
+					/*
+					 * the parent is not the master so we will recursively call this
+					 * function with the parent id
+					 */
+					sequenceNumber = this.getHighestSequenceNumberInHierarchy(parentId);
+				}
+			}
+		}		
+	}
+	
+	return sequenceNumber;
 };
 
 /* used to notify scriptloader that this script has finished loading */

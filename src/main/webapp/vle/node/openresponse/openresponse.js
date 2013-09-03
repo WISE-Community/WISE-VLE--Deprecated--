@@ -146,7 +146,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 		//check if the student changed their response
 		if(this.isResponseChanged() || saveAndLock || checkAnswer) {
 			//response was changed so we will create a new state and save it
-			var orState = new OPENRESPONSESTATE([response]);
+			var orState = new OPENRESPONSESTATE(response);
 			
 			//set the cRaterItemId into the node state if this step is a CRater item
 			if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
@@ -158,16 +158,26 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 * number of check answer submits specified for this step
 					 */
 					
+					/*
+					 * the messsage that says they have x chance(s) to receive feedback, 
+					 * are they sure they want to submit?
+					 */
+					var you_have = this.view.getI18NString('you_have', 'OpenResponseNode');
+					var chances = this.view.getI18NString('chances', 'OpenResponseNode');
+					var chance = this.view.getI18NString('chance', 'OpenResponseNode');
+					var to_receive_feedback = this.view.getI18NString('to_receive_feedback', 'OpenResponseNode');
+					var are_you_ready_to_receive_feedback = this.view.getI18NString('are_you_ready_to_receive_feedback', 'OpenResponseNode');
+					
 					//create the message to display to the student to notify them that there are a limited number of check answers
 					var numChancesLeft = this.content.cRater.maxCheckAnswers - (parseInt(this.getNumberOfCRaterSubmits()));
-					var submitCheckAnswerMessage = 'You have ' + numChancesLeft;
+					var submitCheckAnswerMessage = you_have + ' ' + numChancesLeft;
 					if (numChancesLeft > 1) {
-						submitCheckAnswerMessage += ' chances';
+						submitCheckAnswerMessage += ' ' + chances;
 					} else {
-						submitCheckAnswerMessage += ' chance';
+						submitCheckAnswerMessage += ' ' + chance;
 					}
-					submitCheckAnswerMessage += ' to receive feedback on your answer so this should be your best work!\n\n';	
-					submitCheckAnswerMessage += 'Are you ready to receive feedback on this answer?';
+					submitCheckAnswerMessage += ' ' + to_receive_feedback + '\n\n';	
+					submitCheckAnswerMessage += are_you_ready_to_receive_feedback;
 							
 					//popup a confirm dialog
 					var submitCheckAnswer = confirm(submitCheckAnswerMessage);
@@ -200,15 +210,20 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 * and the student still has check answer submits left so we will display
 					 * a popup to remind them to click the check answer button
 					 */
-					alert("If you are ready to check your answer, click the 'Check Answer' button.");
+					var if_you_are_ready = this.view.getI18NString('if_you_are_ready', 'OpenResponseNode');
+					
+					alert(if_you_are_ready);
 				}
 			}
 
 			var lock = false;
 
 			if(saveAndLock) {
+				//the message that tells the student they will not be able to edit after submitting
+				var you_will_not_be_able_to_make_edits_after = this.view.getI18NString('you_will_not_be_able_to_make_edits_after', 'OpenResponseNode');
+				
 				//display a confirm message to make sure they want to submit and lock
-				lock = confirm("You will not be able to make further edits after submitting this response.  Ready to submit?");
+				lock = confirm(you_will_not_be_able_to_make_edits_after);
 				
 				//check if they answered yes
 				if(lock) {
@@ -272,6 +287,10 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
 						&& this.content.cRater.cRaterItemId != '') {
 					
+					//the message to display while we are auto grading the student's work
+					var please_wait_we_are_checking_your_work = this.view.getI18NString('please_wait_we_are_checking_your_work', 'OpenResponseNode');
+					var seconds = this.view.getI18NString('seconds', 'OpenResponseNode');
+					
 					/*
 					 * lock the screen so the student doesn't move to another step before
 					 * they see the CRater feedback. display a waiting spinner and a message
@@ -280,7 +299,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					var waitTime = 15;
 					var lockScreenObj = {};
 					lockScreenObj.shareType = 'TeacherMessage';
-					lockScreenObj.shareObject = '<p align="center"><img src="images/ajax-loader.gif" /> Please wait, we are checking your work. This waiting screen will disappear within ' + waitTime + ' seconds.</p>';
+					lockScreenObj.shareObject = '<p align="center"><img src="images/ajax-loader.gif" /> ' + please_wait_we_are_checking_your_work + ' ' + waitTime + ' ' + seconds + '</p>';
 					eventManager.fire('lockScreenAndShareWithClass', lockScreenObj);
 					
 					/*
@@ -302,19 +321,6 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				} else {
 					//the student still has check answer submits available
 					this.setCheckAnswerAvailable();
-				}
-				
-				if(this.content.showPreviousWorkThatHasAnnotation && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) && !this.isLocked()) {
-					/*
-					 * move the current work to the previous work response box
-					 * because we want to display the previous work to the student
-					 * and have them re-write another response after they
-					 * receive the immediate CRater feedback
-					 */
-					this.showPreviousWorkThatHasAnnotation($('#responseBox').val());
-					
-					//clear the response box so they will need to write a new response
-					$('#responseBox').val('');
 				}
 			}
 
@@ -597,10 +603,15 @@ OPENRESPONSE.prototype.render = function() {
 		this.setCheckAnswerUnavailable();
 		
 		if (typeof this.content.keepAnnotatedWork == "undefined" || !this.content.keepAnnotatedWork){
+			//the message that tells the student they have successfully reviewed a classmate's work
+			var you_have_successfully_reviewed = this.view.getI18NString('you_have_successfully_reviewed', 'OpenResponseNode');
+			var team_anonymous = this.view.getI18NString('team_anonymous', 'OpenResponseNode');
+			var well_done = this.view.getI18NString('well_done', 'OpenResponseNode');
+			
 			//display this message in the step frame
-			this.onlyDisplayMessage('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
+			this.onlyDisplayMessage('<p>' + you_have_successfully_reviewed + ' <i>' + team_anonymous + '</i>.</p><p>' + well_done + '</p>');
 			return;
-		} 
+		}
 	}
 	
 
@@ -652,33 +663,62 @@ OPENRESPONSE.prototype.render = function() {
 			 * display the appropriate divs that the student would see for peer/teacher review
 			 */
 			if(this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') {
+				//the instructions label
+				var instructions = this.view.getI18NString('instructions', 'OpenResponseNode');
+				
+				//the label for this student's feedback that they need to write
+				var your_feedback_for = this.view.getI18NString('your_feedback_for', 'OpenResponseNode');
+				var team_anonymous = this.view.getI18NString('team_anonymous', 'OpenResponseNode');
+				
+				//the label for the prompt from the first step
+				var prompt_from_the_first_peer_review_step = this.view.getI18NString('prompt_from_the_first_peer_review_step', 'OpenResponseNode');
+				
 				//set more informative labels
-				document.getElementById('promptLabelDiv').innerHTML = 'instructions';
-				document.getElementById('responseLabelDiv').innerHTML = 'your feedback for <i>Team Anonymous</i>:';
+				document.getElementById('promptLabelDiv').innerHTML = instructions;
+				document.getElementById('responseLabelDiv').innerHTML = your_feedback_for + ' <i>' + team_anonymous + '</i>:';
 				
 				//display the prompt
-				document.getElementById('originalPromptTextDiv').innerHTML = '[Prompt from the first peer review step will display here]';
+				document.getElementById('originalPromptTextDiv').innerHTML = '[' + prompt_from_the_first_peer_review_step + ']';
 				$('#originalPromptDisplayDiv').show();
+				
+				//the label for the work from another classmate
+				var work_submitted_by = this.view.getI18NString('work_submitted_by', 'OpenResponseNode');
+				var team_anonymous = this.view.getI18NString('team_anonymous', 'OpenResponseNode');
+				var work_from_a_random_classmate_will_display = this.view.getI18NString('work_from_a_random_classmate_will_display', 'OpenResponseNode');
 				
 				/*
 				 * display the other student's work or a message saying there is no other student work
 				 * available yet
 				 */
-				document.getElementById('associatedWorkLabelDiv').innerHTML = 'work submitted by <i>Team Anonymous</i>:';		
-				document.getElementById('associatedWorkTextDiv').innerHTML = '[Work from a random classmate will display here]';
+				document.getElementById('associatedWorkLabelDiv').innerHTML = work_submitted_by + ' <i>' + team_anonymous + '</i>:';		
+				document.getElementById('associatedWorkTextDiv').innerHTML = '[' + work_from_a_random_classmate_will_display + ']';
 				$('#associatedWorkDisplayDiv').show();
 			} else if(this.node.peerReview == 'revise' || this.node.teacherReview == 'revise') {
+				//the label for the instructions
+				var instructions = this.view.getI18NString('instructions', 'OpenResponseNode');
+				
+				//the label for the student's revised work
+				var your_second_draft = this.view.getI18NString('your_second_draft', 'OpenResponseNode');
+				
+				//the label for the prompt from the first step
+				var prompt_from_the_first_peer_review_step = this.view.getI18NString('prompt_from_the_first_peer_review_step', 'OpenResponseNode');
+				
 				//set more informative labels
-				document.getElementById('promptLabelDiv').innerHTML = 'instructions';
-				document.getElementById('responseLabelDiv').innerHTML = 'your second draft:';
+				document.getElementById('promptLabelDiv').innerHTML = instructions;
+				document.getElementById('responseLabelDiv').innerHTML = your_second_draft + ':';
 				
 				//set the original prompt text and make it visible
-				document.getElementById('originalPromptTextDiv').innerHTML = '[Prompt from the first peer review step will display here]';
+				document.getElementById('originalPromptTextDiv').innerHTML = '[' + prompt_from_the_first_peer_review_step + ']';
 				$('#originalPromptDisplayDiv').show();
 				
+				//the label for the student's first response
+				var your_original_response = this.view.getI18NString('your_original_response', 'OpenResponseNode');
+				var show_hide_text = this.view.getI18NString('show_hide_text', 'OpenResponseNode');
+				var students_work_from_first_peer_review_step = this.view.getI18NString('students_work_from_first_peer_review_step', 'OpenResponseNode');
+				
 				//set the original work text and make it visible
-				document.getElementById('associatedWorkLabelDiv').innerHTML = 'your original response&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">show/hide text';
-				document.getElementById('associatedWorkTextDiv').innerHTML = "[Student's work from first peer review step will display here]";
+				document.getElementById('associatedWorkLabelDiv').innerHTML = your_original_response + '&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">' + show_hide_text + '</a>';
+				document.getElementById('associatedWorkTextDiv').innerHTML = "[" + students_work_from_first_peer_review_step + "]";
 				$('#associatedWorkDisplayDiv').show();
 				
 				//hide the original work
@@ -687,9 +727,14 @@ OPENRESPONSE.prototype.render = function() {
 				//display the div that says "text is hidden"
 				$('#associatedWorkTextDiv2').show();
 				
+				//the text for the feedback this student has received
+				var team_anonymous = this.view.getI18NString('team_anonymous', 'OpenResponseNode');
+				var has_given_you_the_following_feedback = this.view.getI18NString('has_given_you_the_following_feedback', 'OpenResponseNode');
+				var feedback_from_classmate_or_teacher = this.view.getI18NString('feedback_from_classmate_or_teacher', 'OpenResponseNode');
+				
 				//set the annotation text and make it visible
-				document.getElementById('annotationLabelDiv').innerHTML = '<i>Team Anonymous</i> has given you the following feedback:';
-				document.getElementById('annotationTextDiv').innerHTML = '[Feedback from classmate or teacher will display here]';
+				document.getElementById('annotationLabelDiv').innerHTML = '<i>' + team_anonymous + '</i> ' + has_given_you_the_following_feedback + ':';
+				document.getElementById('annotationTextDiv').innerHTML = '[' + feedback_from_classmate_or_teacher + ']';
 				$('#annotationDisplayDiv').show();
 			}
 		}
@@ -768,6 +813,121 @@ OPENRESPONSE.prototype.render = function() {
 		//make the save and lock button clickable
 		this.setSaveAndLockAvailable();
 	}
+	
+	if(this.content.cRater != null) {
+		//set the CRater response received listener
+		eventManager.subscribe('cRaterResponseReceived', this.cRaterResponseReceivedListener, this);
+	}
+};
+
+/**
+ * The function that is called when we receive a CRater response
+ * @param type the type of event in this case 'cRaterResponseReceived'
+ * @param args an array containing the node id and CRater annotation
+ * @param obj this openresponse object
+ */
+OPENRESPONSE.prototype.cRaterResponseReceivedListener = function(type, args, obj) {
+	var thisOr = obj;
+	var nodeId = args[0];
+	var annotationJSON = args[1];
+	
+	//call the function to perform any necessary processing with the CRater response
+	thisOr.cRaterResponseReceivedHandler(nodeId, annotationJSON);
+};
+
+/**
+ * Performs any necessary processing on the CRater response
+ * @param nodeId the node id for which the CRater response is for
+ * @param annotationJSON the CRater annotation
+ */
+OPENRESPONSE.prototype.cRaterResponseReceivedHandler = function(nodeId, annotationJSON) {
+	if(this.node.id == nodeId && annotationJSON != null) {
+		
+		/*
+		 * check if we are displaying the score or feedback to the student
+		 * and that the step is not locked
+		 */
+		if((this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) && !this.isLocked()) {
+			//get the value of the annotation
+			var value = annotationJSON.value;
+			
+			if(value != null) {
+				//get the latest value
+				var latestValue = value[value.length - 1];
+				
+				if(latestValue != null) {
+					//get the score
+					var score = latestValue.score;
+					
+					if(score != null) {
+						//get the student action for the given score
+						var studentAction = this.getStudentAction(score);
+						
+						if(studentAction == null) {
+							//do nothing
+						} else if(studentAction == 'rewrite') {
+							/*
+							 * move the current work to the previous work response box
+							 * because we want to display the previous work to the student
+							 * and have them re-write another response after they
+							 * receive the immediate CRater feedback
+							 */
+							this.showPreviousWorkThatHasAnnotation($('#responseBox').val());
+							
+							//clear the response box so they will need to write a new response
+							$('#responseBox').val('');
+						} else if(studentAction == 'revise') {
+							/*
+							 * the student will need to revise their work so we will hide the
+							 * previous response display
+							 */
+							$('#previousResponseDisplayDiv').hide();
+						}
+					}
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Get the student action given the score. If there are multiple feedbacks
+ * with the same score, we will just use the first feedback we find.
+ * @param score the score
+ * @return the student action 'revise' or 'rewrite'
+ */
+OPENRESPONSE.prototype.getStudentAction = function(score) {
+	var studentAction = null;
+	
+	if(this.content != null &&
+			this.content.cRater != null &&
+			this.content.cRater.cRaterScoringRules != null) {
+		//get the CRater scoring rules
+		var cRaterScoringRules = this.content.cRater.cRaterScoringRules;
+		
+		//loop through all the CRater scoring rules
+		for(var x=0; x<cRaterScoringRules.length; x++) {
+			//get a CRater scoring rule
+			var cRaterScoringRule = cRaterScoringRules[x];
+			
+			//get the score
+			var tempScore = cRaterScoringRule.score;
+			
+			//get the action
+			var tempStudentAction = cRaterScoringRule.studentAction;
+			
+			if(score == tempScore) {
+				//we have found the CRater scoring rule with the score we want
+				if(tempStudentAction != null) {
+					//we will return this student action
+					studentAction = tempStudentAction;
+					break;
+				}				
+			}
+		}
+	}
+	
+	return studentAction;
 };
 
 /**
@@ -1005,8 +1165,12 @@ OPENRESPONSE.prototype.displayTeacherWork = function() {
 	if(!isOriginalNodeLocked) {
 		//original step is not locked
 		
+		//the message to tell the student they need to submit a previous step
+		var to_start_this_step = this.view.getI18NString('to_start_this_step', 'OpenResponseNode');
+		var link = this.view.getI18NString('link', 'OpenResponseNode');
+		
 		//display message telling student to go back and submit that original step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>' + to_start_this_step + ' <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (' + link + ').</p>');
 	} else {
 		//original step is locked
 		
@@ -1020,16 +1184,24 @@ OPENRESPONSE.prototype.displayTeacherWork = function() {
 		this.showDefaultDivs();
 		this.showDefaultValues();
 
+		//the instructions label
+		var instructions = this.view.getI18NString('instructions', 'OpenResponseNode');
+		
+		//the label for this student's feedback to another student
+		var your_feedback_for = this.view.getI18NString('your_feedback_for', 'OpenResponseNode');
+		var team_anonymous = this.view.getI18NString('team_anonymous', 'OpenResponseNode');
+		var work_submitted_by = this.view.getI18NString('work_submitted_by', 'OpenResponseNode');
+		
 		//set more informative labels
-		document.getElementById('promptLabelDiv').innerHTML = 'instructions';
-		document.getElementById('responseLabelDiv').innerHTML = 'your feedback for <i>Team Anonymous</i>:';
+		document.getElementById('promptLabelDiv').innerHTML = instructions;
+		document.getElementById('responseLabelDiv').innerHTML = your_feedback_for + ' <i>' + team_anonymous + '</i>:';
 		
 		//display the original prompt
 		document.getElementById('originalPromptTextDiv').innerHTML = this.associatedStartNode.getPeerReviewPrompt();
 		$('#originalPromptDisplayDiv').show();
 		
 		//display the authored work for the student to review
-		document.getElementById('associatedWorkLabelDiv').innerHTML = 'work submitted by <i>Team Anonymous</i>:' ;		
+		document.getElementById('associatedWorkLabelDiv').innerHTML = work_submitted_by + ' <i>' + team_anonymous + '</i>:' ;		
 		document.getElementById('associatedWorkTextDiv').innerHTML = teacherWorkText;
 		$('#associatedWorkDisplayDiv').show();
 		
@@ -1079,11 +1251,19 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 	}
 	
 	if(!isOriginalNodeLocked) {
+		//the message that says they need to work on a previous step
+		var to_start_this_step = this.view.getI18NString('to_start_this_step', 'OpenResponseNode');
+		var link = this.view.getI18NString('link', 'OpenResponseNode');
+		
 		//student still needs to submit work for the original step before they can work on this step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>' + to_start_this_step + ' <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (' + link + ').</p>');
 	} else if(!isAnnotateNodeLocked){
+		//the message that says they need to work on a previous step
+		var to_start_this_step = this.view.getI18NString('to_start_this_step', 'OpenResponseNode');
+		var link = this.view.getI18NString('link', 'OpenResponseNode');
+		
 		//student still needs to submit work for the annotate step before they can work on this step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + this.view.getProject().getPositionById(this.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>' + to_start_this_step + ' <a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + this.view.getProject().getPositionById(this.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a></b> (' + link + ').</p>');
 	} else {
 		/*
 		 * student has submitted work for original and annotate step
@@ -1104,11 +1284,16 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 			
 			//check if there was an annotation
 			if(latestCommentAnnotationForStep == null) {
+				//the message that tells the student the teacher has not given them feedback yet
+				var your_teacher_has_not_yet = this.view.getI18NString('your_teacher_has_not_yet', 'OpenResponseNode');
+				var yet = this.view.getI18NString('yet', 'OpenResponseNode');
+				var please_return_later = this.view.getI18NString('please_return_later', 'OpenResponseNode');
+				
 				/*
 				 * teacher has not given an annotation to the student's work so
 				 * they can't work on this step yet
 				 */
-				this.onlyDisplayMessage('<p>Your teacher has not yet reviewed the response you submitted in step <b>"' + startNodeTitle + '"</b> yet.</p><p>Please return to this step again later.</p>');
+				this.onlyDisplayMessage('<p>' + your_teacher_has_not_yet + ' <b>"' + startNodeTitle + '"</b> ' + yet + '</p><p>' + please_return_later + '</p>');
 				
 				/*
 				 * perform any final tasks after we have finished retrieving
@@ -1136,16 +1321,28 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 		this.showDefaultDivs();
 		this.showDefaultValues();
 		
+		//the instructions label
+		var instructions = this.view.getI18NString('instructions', 'OpenResponseNode');
+		
+		//the label for the revision textarea
+		var your_second_draft = this.view.getI18NString('your_second_draft', 'OpenResponseNode');
+		
+		//the label for the first revision
+		var your_first_response = this.view.getI18NString('your_first_response', 'OpenResponseNode');
+		
+		//the text for the show/hide text button
+		var show_hide_text = this.view.getI18NString('show_hide_text', 'OpenResponseNode');
+		
 		//set more informative labels
-		document.getElementById('promptLabelDiv').innerHTML = 'instructions';
-		document.getElementById('responseLabelDiv').innerHTML = 'your second draft:';
+		document.getElementById('promptLabelDiv').innerHTML = instructions;
+		document.getElementById('responseLabelDiv').innerHTML = your_second_draft + ':';
 		
 		//set the original prompt text and make it visible
 		document.getElementById('originalPromptTextDiv').innerHTML = this.associatedStartNodeContent.assessmentItem.interaction.prompt;
 		$('#originalPromptDisplayDiv').show();
 		
 		//set the original work text and make it visible
-		document.getElementById('associatedWorkLabelDiv').innerHTML = 'your first response to the question&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">show/hide text';
+		document.getElementById('associatedWorkLabelDiv').innerHTML = your_first_response + '&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">' + show_hide_text;
 		document.getElementById('associatedWorkTextDiv').innerHTML = latestWorkForassociatedStartNodeHtml;
 		$('#associatedWorkDisplayDiv').show();
 		
@@ -1155,8 +1352,15 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 		//display the div that says "text is hidden"
 		$('#associatedWorkTextDiv2').show();
 		
+		//the label for the teacher feedback
+		var teacher_feedback = this.view.getI18NString('teacher_feedback', 'OpenResponseNode');
+		
+		//the text to show this is your x revision
+		var this_is_your = this.view.getI18NString('this_is_your', 'OpenResponseNode');
+		var revision = this.view.getI18NString('revision', 'OpenResponseNode');
+		
 		//set the teacher annotation text and make it visible
-		document.getElementById('annotationLabelDiv').innerHTML = 'teacher feedback';
+		document.getElementById('annotationLabelDiv').innerHTML = teacher_feedback;
 		document.getElementById('annotationTextDiv').innerHTML = latestCommentAnnotationForStep;
 		$('#annotationDisplayDiv').show();
 		
@@ -1165,12 +1369,15 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 			//set their previous revision to when they last worked on this step
 			document.getElementById('responseBox').value = this.states[this.states.length - 1].response;
 			this.setSaveUnavailable();
-			displayNumberAttempts("This is your", "revision", this.states);
+			displayNumberAttempts(this_is_your, revision, this.states);
 			
 			//tell the node that the student has completed it
 			this.node.setCompleted();
 		} else {
-			document.getElementById("numberAttemptsDiv").innerHTML = "This is your first revision.";
+			//the message that says this is your first revision
+			var this_is_your_first_revision = this.view.getI18NString('this_is_your_first_revision', 'OpenResponseNode');
+			
+			document.getElementById("numberAttemptsDiv").innerHTML = this_is_your_first_revision;
 			
 			if(latestWorkForassociatedStartNode != null && latestWorkForassociatedStartNode != '') {
 				//set the latest work from the original step in the responseBox so the student can revise it
@@ -1272,8 +1479,12 @@ OPENRESPONSE.prototype.retrieveOtherStudentWorkCallback = function(text, xml, ar
 		//handle error cases
 		if(peerWorkToReview.error) {
 			if(peerWorkToReview.error == 'peerReviewUserHasNotSubmittedOwnWork') {
+				//the message that says they must submit work from a previous step
+				var to_start_this_step = thisOr.view.getI18NString('to_start_this_step', 'OpenResponseNode');
+				var link = thisOr.view.getI18NString('link', 'OpenResponseNode');
+				
 				//the user has not submitted work for the original step
-				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (link).</p>');
+				thisOr.onlyDisplayMessage('<p>' + to_start_this_step + ' <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (' + link + ').</p>');
 			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork' || peerWorkToReview.error == 'peerReviewNotOpen') {
 				/*
 				 * server was unable to assign student any work to review, most likely because there was no available work to assign
@@ -1285,8 +1496,14 @@ OPENRESPONSE.prototype.retrieveOtherStudentWorkCallback = function(text, xml, ar
 					//use the custom authored message
 					thisOr.onlyDisplayMessage(thisOr.stepNotOpenCustomMessage.replace(/associatedStartNode.title/g, startNodeTitle));
 				} else {
+					//the message that says this step is not available yet and they should come back later
+					var this_step_not_available_yet = thisOr.view.getI18NString('this_step_not_available_yet', 'OpenResponseNode');
+					var more_of_your_peers_need_to_submit = thisOr.view.getI18NString('more_of_your_peers_need_to_submit', 'OpenResponseNode');
+					var you_will_then_be_assigned = thisOr.view.getI18NString('you_will_then_be_assigned', 'OpenResponseNode');
+					var please_return_in_a_few_minutes = thisOr.view.getI18NString('please_return_in_a_few_minutes', 'OpenResponseNode');
+					
 					//use the default message
-					thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + startNodeTitle + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');	
+					thisOr.onlyDisplayMessage('<p>' + this_step_not_available_yet + '</p></p><p>' + more_of_your_peers_need_to_submit + ' <b>"' + startNodeTitle + '"</b>. <br/>' + you_will_then_be_assigned + '</p><p>' + please_return_in_a_few_minutes + '</p>');	
 				}
 			}
 			
@@ -1314,9 +1531,17 @@ OPENRESPONSE.prototype.retrieveOtherStudentWorkCallback = function(text, xml, ar
 		thisOr.showDefaultDivs();
 		thisOr.showDefaultValues();
 		
+		//the instructions label
+		var instructions = thisOr.view.getI18NString('instructions', 'OpenResponseNode');
+		
+		//the label for the feedback textarea the student needs to fill out to give feedback to another classmate
+		var your_feedback_for = thisOr.view.getI18NString('your_feedback_for', 'OpenResponseNode');
+		var team_anonymous = thisOr.view.getI18NString('team_anonymous', 'OpenResponseNode');
+		var work_submitted_by = thisOr.view.getI18NString('work_submitted_by', 'OpenResponseNode');
+		
 		//set more informative labels
-		document.getElementById('promptLabelDiv').innerHTML = 'instructions';
-		document.getElementById('responseLabelDiv').innerHTML = 'your feedback for <i>Team Anonymous</i>:';
+		document.getElementById('promptLabelDiv').innerHTML = instructions;
+		document.getElementById('responseLabelDiv').innerHTML = your_feedback_for + ' <i>' + team_anonymous + '</i>:';
 		
 		//display the prompt
 		document.getElementById('originalPromptTextDiv').innerHTML = thisOr.associatedStartNode.getPeerReviewPrompt();
@@ -1326,7 +1551,7 @@ OPENRESPONSE.prototype.retrieveOtherStudentWorkCallback = function(text, xml, ar
 		 * display the other student's work or a message saying there is no other student work
 		 * available yet
 		 */
-		document.getElementById('associatedWorkLabelDiv').innerHTML = 'work submitted by <i>Team Anonymous</i>:';		
+		document.getElementById('associatedWorkLabelDiv').innerHTML = work_submitted_by + ' <i>' + team_anonymous + '</i>:';		
 		document.getElementById('associatedWorkTextDiv').innerHTML = peerWorkText;
 		$('#associatedWorkDisplayDiv').show();
 		
@@ -1403,14 +1628,29 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 		//handle error cases
 		if(annotationAndWork.error) {
 			if(annotationAndWork.error == 'peerReviewUserHasNotSubmittedOwnWork') {
+				//the message that says they need to submit work on a previous step to work on this step
+				var to_start_this_step = thisOr.view.getI18NString('to_start_this_step', 'OpenResponseNode');
+				var link = thisOr.view.getI18NString('link', 'OpenResponseNode');
+				
 				//the user has not submitted work for the original step
-				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (link).</p>');
+				thisOr.onlyDisplayMessage('<p>' + to_start_this_step + ' <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (' + link + ').</p>');
 			} else if(annotationAndWork.error == 'peerReviewUserHasNotBeenAssignedToClassmateWork') {
+				//the message that says this step isn't available yet and that they should come back later
+				var this_step_not_available_yet = thisOr.view.getI18NString('this_step_not_available_yet', 'OpenResponseNode');
+				var more_of_your_peers_need_to_submit = thisOr.view.getI18NString('more_of_your_peers_need_to_submit', 'OpenResponseNode');
+				var you_will_then_be_assigned = thisOr.view.getI18NString('you_will_then_be_assigned', 'OpenResponseNode');
+				var please_return_to_step = thisOr.view.getI18NString('please_return_to_step', 'OpenResponseNode');
+				var in_a_few_minutes = thisOr.view.getI18NString('in_a_few_minutes', 'OpenResponseNode');
+				
 				//user has not been assigned to any classmate work yet, most likely because there is no available work to assign
-				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + startNodeTitle + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to step "' + annotateNodeTitle + '" in a few minutes.</p>');
+				thisOr.onlyDisplayMessage('<p>' + this_step_not_available_yet + '</p></p><p>' + more_of_your_peers_need_to_submit + ' <b>"' + startNodeTitle + '"</b>. <br/>' + you_will_then_be_assigned + '</p><p>' + please_return_to_step + ' "' + annotateNodeTitle + '" ' + in_a_few_minutes + '</p>');
 			} else if(annotationAndWork.error == 'peerReviewUserHasNotAnnotatedClassmateWork') {
+				//the message that says they need to submit work on a previous step to work on this step
+				var to_start_this_step = thisOr.view.getI18NString('to_start_this_step', 'OpenResponseNode');
+				var link = thisOr.view.getI18NString('link', 'OpenResponseNode');
+				
 				//the user has not reviewed the assigned classmate work yet
-				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a></b> (link).</p>');
+				thisOr.onlyDisplayMessage('<p>' + to_start_this_step + ' <a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a></b> (' + link + ').</p>');
 			} else if(annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAssignedToClassmate' || annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAnnotatedByClassmate') {
 				/*
 				 * the user's work has not been assigned to a classmate yet
@@ -1422,8 +1662,15 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 					//use the custom authored message
 					thisOr.onlyDisplayMessage(thisOr.stepNotOpenCustomMessage.replace(/associatedStartNode.title/g, startNodeTitle).replace(/associatedAnnotateNode.title/g, annotateNodeTitle));
 				} else {
+					//the message that says this step isn't available yet and that they should come back later
+					var this_step_not_available_yet = thisOr.view.getI18NString('this_step_not_available_yet', 'OpenResponseNode');
+					var your_response_in_step = thisOr.view.getI18NString('your_response_in_step', 'OpenResponseNode');
+					var has_not_been_reviewed = thisOr.view.getI18NString('has_not_been_reviewed', 'OpenResponseNode');
+					var more_of_your_peers_need_to_submit = thisOr.view.getI18NString('more_of_your_peers_need_to_submit', 'OpenResponseNode');
+					var please_return_in_a_few_minutes = thisOr.view.getI18NString('please_return_in_a_few_minutes', 'OpenResponseNode');
+					
 					//use the default message
-					thisOr.onlyDisplayMessage('<p>This step is not available yet.</p><p>Your response in step <b>"' + startNodeTitle + '"</b> has not been reviewed by a peer yet.</p><p>More of your peers need to submit a response for step <b>"' + annotateNodeTitle + '"</b>.</p><p>Please return to this step in a few minutes.</p>');
+					thisOr.onlyDisplayMessage('<p>' + this_step_not_available_yet + '</p><p>' + your_response_in_step + ' <b>"' + startNodeTitle + '"</b> ' + has_not_been_reviewed + '</p><p>' + more_of_your_peers_need_to_submit + ' <b>"' + annotateNodeTitle + '"</b>.</p><p>' + please_return_in_a_few_minutes + '</p>');
 				}
 			}
 			
@@ -1443,8 +1690,11 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 					//show the authored review
 					annotationText = thisOr.content.authoredReview;
 				} else {
+					//the message that says they need to submit work on a previous step to work on this step
+					var to_start_this_step = thisOr.view.getI18NString('to_start_this_step', 'OpenResponseNode');
+					
 					//the user has not reviewed the authored work yet
-					thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a>.</p>');
+					thisOr.onlyDisplayMessage('<p>' + to_start_this_step + ' <a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a>.</p>');
 					return;
 				}
 			} else {
@@ -1479,16 +1729,26 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 		thisOr.showDefaultDivs();
 		thisOr.showDefaultValues();
 		
+		//the instructions label
+		var instructions = thisOr.view.getI18NString('instructions', 'OpenResponseNode');
+		
+		//the label for the revision textarea
+		var your_second_draft = thisOr.view.getI18NString('your_second_draft', 'OpenResponseNode');
+		
 		//set more informative labels
-		document.getElementById('promptLabelDiv').innerHTML = 'instructions';
-		document.getElementById('responseLabelDiv').innerHTML = 'your second draft:';
+		document.getElementById('promptLabelDiv').innerHTML = instructions;
+		document.getElementById('responseLabelDiv').innerHTML = your_second_draft + ':';
 		
 		//set the original prompt text and make it visible
 		document.getElementById('originalPromptTextDiv').innerHTML = thisOr.associatedStartNodeContent.assessmentItem.interaction.prompt;
 		$('#originalPromptDisplayDiv').show();
 		
+		//the label for the original response
+		var your_original_response = thisOr.view.getI18NString('your_original_response', 'OpenResponseNode');
+		var show_hide_text = thisOr.view.getI18NString('show_hide_text', 'OpenResponseNode');
+		
 		//set the original work text and make it visible
-		document.getElementById('associatedWorkLabelDiv').innerHTML = 'your original response&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">show/hide text';
+		document.getElementById('associatedWorkLabelDiv').innerHTML = your_original_response + '&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">' + show_hide_text;
 		document.getElementById('associatedWorkTextDiv').innerHTML = latestWorkHtml;
 		$('#associatedWorkDisplayDiv').show();
 		
@@ -1498,21 +1758,32 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 		//display the div that says "text is hidden"
 		$('#associatedWorkTextDiv2').show();
 		
+		//the label for the feedback another classmate has given them
+		var team_anonymous = thisOr.view.getI18NString('team_anonymous', 'OpenResponseNode');
+		var has_given_you_the_following_feedback = thisOr.view.getI18NString('has_given_you_the_following_feedback', 'OpenResponseNode');
+		
 		//set the annotation text and make it visible
-		document.getElementById('annotationLabelDiv').innerHTML = '<i>Team Anonymous</i> has given you the following feedback:';
+		document.getElementById('annotationLabelDiv').innerHTML = '<i>' + team_anonymous + '</i> ' + has_given_you_the_following_feedback + ':';
 		document.getElementById('annotationTextDiv').innerHTML = annotationText;
 		$('#annotationDisplayDiv').show();
 		
 		/* set value of text area base on previous work, if any */
 		if (thisOr.states!=null && thisOr.states.length > 0) {
+			//the message that says this is your x revision
+			var this_is_your = thisOr.view.getI18NString('this_is_your', 'OpenResponseNode');
+			var revision = thisOr.view.getI18NString('revision', 'OpenResponseNode');
+			
 			document.getElementById('responseBox').value = thisOr.states[thisOr.states.length - 1].response;
 			thisOr.setSaveUnavailable();
-			displayNumberAttempts("This is your", "revision", thisOr.states);
+			displayNumberAttempts(this_is_your, revision, thisOr.states);
 			
 			//tell the node that the student has completed it
 			thisOr.node.setCompleted();
 		} else {
-			document.getElementById("numberAttemptsDiv").innerHTML = "This is your first revision.";
+			//the message that says this is your first revision
+			var this_is_your_first_revision = thisOr.view.getI18NString('this_is_your_first_revision', 'OpenResponseNode');
+			
+			document.getElementById("numberAttemptsDiv").innerHTML = this_is_your_first_revision;
 			
 			if(latestWork != null && latestWorkText != null) {
 				if(thisOr.richTextEditor != null) {
@@ -1550,7 +1821,10 @@ OPENRESPONSE.prototype.showStarter = function(){
 			this.richTextEditor.setContent(this.content.starterSentence.sentence + '<br/><br/>' + this.richTextEditor.getContent());
 		};
 	} else {
-		this.node.view.notificationManager.notify("There is no starter sentence specified for this step", 3);
+		//the message that says there is no starter sentence
+		var there_is_no_starter_sentence = this.view.getI18NString('there_is_no_starter_sentence', 'OpenResponseNode');
+		
+		this.node.view.notificationManager.notify(there_is_no_starter_sentence, 3);
 	};
 };
 
@@ -1587,8 +1861,12 @@ OPENRESPONSE.prototype.getPeerReviewOtherStudentWork = function(otherStudentWork
 			peerReviewOtherStudentWork += response;
 		}
 	} else {
+		//the message that says there is no classmate work yet so they should return later
+		var responses_from_peers_not_available = this.view.getI18NString('responses_from_peers_not_available', 'OpenResponseNode');
+		var please_return_later = this.view.getI18NString('please_return_later', 'OpenResponseNode');
+		
 		//display this message if there was no other student work
-		peerReviewOtherStudentWork += "<p>Responses from your peers are not available yet.</p><p>Please return to this step later.</p>";
+		peerReviewOtherStudentWork += "<p>" + responses_from_peers_not_available + "</p><p>" + please_return_later + "</p>";
 	}
 	
 	return peerReviewOtherStudentWork;
@@ -1601,7 +1879,7 @@ OPENRESPONSE.prototype.lockResponseBox = function() {
 	document.getElementById('responseBox').disabled = true;
 
 	//check if this step uses the tinymce editor
-	if(tinymce != null && tinymce.activeEditor != null && tinymce.activeEditor.getBody() != null) {
+	if(typeof tinymce != 'undefined' && tinymce != null && tinymce.activeEditor != null && tinymce.activeEditor.getBody() != null) {
 		//make the tinymce editor uneditable
 		tinymce.activeEditor.getBody().setAttribute('contenteditable', false);		
 	}
@@ -1664,11 +1942,18 @@ OPENRESPONSE.prototype.appendResponse = function(response) {
 OPENRESPONSE.prototype.setResponse = function() {
 	/* set value of text area base on previous work, if any */
 	if (this.states!=null && this.states.length > 0) {
+		//the message that says this is your x revision
+		var this_is_your = this.view.getI18NString('this_is_your', 'OpenResponseNode');
+		var revision = this.view.getI18NString('revision', 'OpenResponseNode');
+		
 		document.getElementById('responseBox').value = this.states[this.states.length - 1].response;
 		this.setSaveUnavailable();
-		displayNumberAttempts("This is your", "revision", this.states);
+		displayNumberAttempts(this_is_your, revision, this.states);
 	} else {
-		document.getElementById("numberAttemptsDiv").innerHTML = "This is your first revision.";
+		//the message that says this is your first revision
+		var this_is_your_first_revision = this.view.getI18NString('this_is_your_first_revision', 'OpenResponseNode');
+		
+		document.getElementById("numberAttemptsDiv").innerHTML = this_is_your_first_revision;
 		document.getElementById('responseBox').value = "";
 	 	this.setSaveAvailable();
 	 	
@@ -1853,6 +2138,21 @@ OPENRESPONSE.prototype.importWork = function(workToImport) {
 						
 						//append the response
 						response += nodeState.response;
+					} else if(type == 'ExplanationBuilderState') {
+						//the work is from an explanation builder step
+						
+						//get the text answer the student submitted in the explanation builder step
+						var answer = nodeState.answer;
+						
+						if(answer != null && answer != '') {
+							if(response != '') {
+								//separate work with a blank line
+								response += '\n\n';
+							}
+							
+							//append the answer
+							response += answer;							
+						}
 					}
 				}
 			}

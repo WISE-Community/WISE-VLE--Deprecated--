@@ -9,6 +9,8 @@
 <header>
 	<!-- SUGGESTED/OPTIONAL ELEMENT - VLE logo (specified in config.json) is inserted here (Okay to move/style) -->
 	<div id="logo"></div>
+	<!-- SUGGESTED ELEMENT - Project run name/title is inserted here (Okay to move/style) -->
+	<span id="runTitle"></span>
 	
 	<div id="projectTools" class="toolbar gradient">
 		<ul>
@@ -33,18 +35,9 @@
 </header>
 
 <div id="projectContent">
-	<aside id="vleSidebar" class="sidebarLeft sidePanel">
-		<!-- SUGGESTED ELEMENT - Project run name/title is inserted here (Okay to move/style) -->
-		<div id="runTitle" class="panelHeader centerContent"></div>
-		
-		<!-- SUGGESTED ELEMENT - Workgroup/user names are inserted here (Okay to move/style) -->
-		<div id="userNames" class="panelContent centerContent"></div>
-		
-		<!-- REQUIRED ELEMENT - project navigation container; selected project navigation mode UI is loaded here - DO NOT EDIT (Okay to move/style) -->
-		<nav id="navigation" class="panelContent"></nav>
-	</aside>
 	
-	<section id="stepContent" class="contentPanel contentRight">
+	<!-- REQUIRED ELEMENT - project navigation container; selected project navigation mode UI is loaded here - DO NOT EDIT (Okay to move/style) -->
+	<section id="stepContent" class="contentPanel">
 		<!-- REQUIRED ELEMENTS - step content is loaded in the iframe - DO NOT EDIT (Okay to move/style)-->
 		<div id="contentDiv">
 			<iframe id="ifrm" name="ifrm" style="border:none;" width="100%" onload='(typeof eventManager != "undefined" ? eventManager.fire("ifrmLoaded") : false)'>
@@ -73,9 +66,14 @@
 			</ul>
 			
 			<!-- SUGGESTED ELEMENT - links to quickly navigate forward and backward through project steps are inserted here (Okay to move/style) -->
-			<!--div id="stepNav"></div-->
+			<div id="stepNav"></div>
 		</div>
 	</section>
+	
+	<nav id="navigation" class="contentPanel"></nav>
 </div>
 
-<footer id="footer"></footer>
+<footer id="footer">
+	<!-- SUGGESTED ELEMENT - Workgroup/user names are inserted here (Okay to move/style) -->
+	<div id="userNames"></div>
+</footer>

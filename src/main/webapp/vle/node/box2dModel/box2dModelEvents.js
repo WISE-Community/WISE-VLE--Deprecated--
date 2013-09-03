@@ -36,37 +36,7 @@ var events =
 	 * TODO: rename box2dModelUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */
-	'box2dModelUpdatePrompt',
-	'box2dInit',
-	'make-model',
-	'delete-model',
-	'duplicate-model',
-	'add-balance-world',
-	'add-balance',
-	'remove-balance-world',
-	'remove-balance',
-	'add-scale-world',
-	'add-scale',
-	'remove-scale-world',
-	'remove-scale',
-	'add-beaker-world',
-	'add-beaker',
-	'add-beaker-spilloff',
-	'remove-beaker-world',
-	'remove-beaker',
-	'remove-spilloff',
-	'press-release-beaker',
-	'press-release-beaker',
-	'test-balance-1to1',
-	'test-balance-1toN',
-	'test-balance-Nto1',
-	'test-balance-NtoN',
-	'test-scale-1',
-	'test-scale-N',
-	'test-add-beaker',
-	'test-release-beaker',
-	'gave-feedback',
-	'revise-model'
+	'make-model', 'delete-model', 'make-beaker', 'delete-beaker', 'make-scale', 'delete-scale', 'make-beaker', 'delete-beaker', 'add-to-beaker', 'add-to-scale', 'add-to-balance', 'remove-from-beaker', 'remove-from-scale', 'remove-from-balance', 'test-in-beaker', 'test-on-scale', 'test-on-balance','gave-feedback'
 ];
 
 

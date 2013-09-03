@@ -5,6 +5,11 @@
 function TagMapConstraintManager(view) {
 	this.view = view;
 	this.activeTagMapConstraints = [];
+	
+	if (view != null && view.navigationLogic != null && view.navigationLogic.tagMapConstraintManager != null && view.navigationLogic.tagMapConstraintManager.activeTagMapConstraints != null) {
+		// reset activeTagMapConstraints from previous state
+		this.activeTagMapConstraints = view.navigationLogic.tagMapConstraintManager.activeTagMapConstraints;
+	}
 };
 
 //value to turn on console output for debugging purposes
@@ -143,50 +148,38 @@ TagMapConstraintManager.prototype.addTagMapConstraintsForNode = function(nodeId)
  * are not allowed to move
  */
 TagMapConstraintManager.prototype.processTagMapConstraints = function(nextNodeId) {
+	//create the results object that we will return
 	var results = {
 		canMove:true,
 		message:''
 	};
-
-	if(nextNodeId != null && nextNodeId != '') {
-		//get the current node the student is on
-		var currentNode = this.view.getCurrentNode();
+	
+	//get the next node the student is trying to move to
+	var node = this.view.getProject().getNodeById(nextNodeId);
+	
+	//get all the active constraints that are constraining the node the student is trying to move to
+	var activeConstraints = node.getActiveConstraints();
+	
+	//loop through all the active constraints that are on the step the student is trying to move to
+	for(var x=0; x<activeConstraints.length; x++) {
+		//get an active constraint
+		var activeConstraint = activeConstraints[x];
 		
-		//get the current node id
-		var currentNodeId = currentNode.id;
+		//get all the nodes that have not satisfied the requirements for this constraint
+		var nodesFailed = activeConstraint.getNodesFailed();
 		
-		if(this.activeTagMapConstraints == null) {
-			//create the active tag map constraints array if it does not exist
-			this.activeTagMapConstraints = [];
+		//get the message to display to the student
+		var message = activeConstraint.getConstraintMessage(nodesFailed);
+		
+		if(results.message != '') {
+			results.message += '\n\n';
 		}
 		
-		//loop through all the active tag map constraints
-		for(var z=0; z<this.activeTagMapConstraints.length; z++) {
-			//get a tag map constraint
-			var activeTagMapConstraint = this.activeTagMapConstraints[z];
-			
-			if(activeTagMapConstraint != null) {
-				//check the constraint to see if it should still be enforced
-				var tempResults = activeTagMapConstraint.checkConstraint(currentNodeId, nextNodeId);
-				
-				if(tempResults.canMove == false) {
-					//get whether the student is allowed to move
-					results.canMove = false;
-				}
-				
-				if(tempResults.message != '') {
-					//get the message to display to the student if they are not allowed to move
-					
-					if(results.message != '') {
-						//separate messages from different constraints with newlines
-						results.message += '\n\n';
-					}
-					
-					//append the message for the constraint
-					results.message += tempResults.message;
-				}
-			}
-		}
+		//append the message in case there are multiple constraints constraining the node
+		results.message += message;
+		
+		//the student is not allowed to move to the step they are trying to move to
+		results.canMove = false;
 	}
 	
 	return results;
@@ -203,15 +196,6 @@ TagMapConstraintManager.prototype.updateActiveTagMapConstraints = function() {
 		canMove:true,
 		message:''
 	};
-	
-	if(this.view.navigationPanel != null) {
-		/*
-		 * enable all the steps in the navigation menu because
-		 * we will re-apply all the constraints which will grey 
-		 * out the steps that are not allowed to be visited
-		 */
-		this.enableAllSteps();
-	}
 
 	//get the current node the student is on
 	var currentNode = this.view.getCurrentNode();
@@ -244,6 +228,9 @@ TagMapConstraintManager.prototype.updateActiveTagMapConstraints = function() {
 				 */
 				this.activeTagMapConstraints.splice(x, 1);
 				
+				//remove this constraint from all nodes
+				this.removeConstraintFromNodes(activeTagMapConstraint);
+				
 				//move the counter back one since we just removed an element in the array
 				x--;
 			} else {
@@ -260,6 +247,31 @@ TagMapConstraintManager.prototype.updateActiveTagMapConstraints = function() {
 	TagMapConstraintManager.debugOutput('updateActiveTagMapConstraints active constraint count after:' + this.activeTagMapConstraints.length);
 	
 	return results;
+};
+
+/**
+ * Remove the constraint from all the nodes
+ * 
+ * @param constraint the constraint to remove from all the nodes
+ */
+TagMapConstraintManager.prototype.removeConstraintFromNodes = function(constraint) {
+	var onlyGetNodesWithGradingView = false
+	var includeSequenceNodeIds = true;
+	
+	//get all the node ids including sequence node ids
+	var nodeIds = this.view.getProject().getNodeIds(onlyGetNodesWithGradingView, includeSequenceNodeIds);
+	
+	//loop through all the node ids
+	for(var x=0; x<nodeIds.length; x++) {
+		//get a node id
+		var nodeId = nodeIds[x];
+		
+		//get a node
+		var node = this.view.getProject().getNodeById(nodeId);
+		
+		//remove the constraint from the node
+		node.removeConstraint(constraint);
+	}
 };
 
 /**
@@ -465,9 +477,11 @@ TagMapConstraintManager.prototype.removeActiveTagMapConstraint = function(nodeId
 /**
  * Set the constraint status to disabled for all the steps that come after the given node id.
  * If the node id is for a sequence, we will disable all steps after the sequence.
+ * 
  * @param nodeId the node id to disable all steps after
+ * @param constraint the constraint to add to all steps after
  */
-TagMapConstraintManager.prototype.disableAllStepsAfter = function(nodeId) {
+TagMapConstraintManager.prototype.disableAllStepsAfter = function(nodeId, constraint) {
 	//get all the node ids that come after this one
 	var nodeIdsAfter = this.view.getProject().getNodeIdsAfter(nodeId);
 
@@ -480,16 +494,18 @@ TagMapConstraintManager.prototype.disableAllStepsAfter = function(nodeId) {
 		var node = this.view.getProject().getNodeById(nodeIdAfter);
 
 		//set the constraint status to disabled
-		node.setConstraintStatus('disabled');
+		node.addConstraint(constraint);
 	}
 };
 
 /**
  * Set the constraint status to disabled for all the steps except for the given node id.
  * If the node id is for a sequence, we will disable all steps outside of the sequence.
+ * 
  * @param nodeId the node id to not disable
+ * @param constraint the constraint to add to all other steps
  */
-TagMapConstraintManager.prototype.disableAllOtherSteps = function(nodeId) {
+TagMapConstraintManager.prototype.disableAllOtherSteps = function(nodeId, constraint) {
 
 	//get the node
 	var node = this.view.getProject().getNodeById(nodeId);
@@ -517,13 +533,13 @@ TagMapConstraintManager.prototype.disableAllOtherSteps = function(nodeId) {
 				//the temp node id is not in our sequence so we will disable it
 
 				//set the constraint status to disabled
-				tempNode.setConstraintStatus('disabled');
+				tempNode.addConstraint(constraint);
 			}
 		} else {
 			//the node that we want to keep enabled is a step
 			if(nodeId != tempNodeId) {
 				//set the constraint status to disabled
-				tempNode.setConstraintStatus('disabled');
+				tempNode.addConstraint(constraint);
 			}
 		}
 	}
@@ -531,9 +547,11 @@ TagMapConstraintManager.prototype.disableAllOtherSteps = function(nodeId) {
 
 /**
  * Set the constraint status to disabled for the given node id
+ * 
  * @param nodeId the node id to disable
+ * @param constraint the constraint to add to this step or activity
  */
-TagMapConstraintManager.prototype.disableStepOrActivity = function(nodeId) {
+TagMapConstraintManager.prototype.disableStepOrActivity = function(nodeId, constraint) {
 	//get the node
 	var node = this.view.getProject().getNodeById(nodeId);
 
@@ -552,7 +570,7 @@ TagMapConstraintManager.prototype.disableStepOrActivity = function(nodeId) {
 			var tempNode = this.view.getProject().getNodeById(tempNodeId);
 
 			//set the constraint status to disabled
-			tempNode.setConstraintStatus('disabled');
+			tempNode.addConstraint(constraint);
 		}
 	} else {
 		//the node is a step
@@ -561,7 +579,7 @@ TagMapConstraintManager.prototype.disableStepOrActivity = function(nodeId) {
 		var node = this.view.getProject().getNodeById(nodeId);
 
 		//set the constraint status to disabled
-		node.setConstraintStatus('disabled');
+		node.addConstraint(constraint);
 	}
 };
 
@@ -581,7 +599,7 @@ TagMapConstraintManager.prototype.enableAllSteps = function() {
 		var node = this.view.getProject().getNodeById(nodeId);
 
 		//set the constraint status to disabled
-		node.setConstraintStatus('enabled');
+		node.removeConstraint(constraint);
 	}
 };
 

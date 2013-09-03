@@ -5,6 +5,7 @@ function NavigationPanel(view) {
 	this.stepLevelNumbering = this.view.getProject().useStepLevelNumbering(); //boolean value whether to use tree level numbering e.g. 1, 1.1, 1.1.2
 	this.stepTerm = this.view.getProject().getStepTerm(); //The term to precede a step (i.e. Step or Page) when autoStep=true
 	this.currentStepNum;
+	this.navigationPanelLoaded = false;
 };
 
 

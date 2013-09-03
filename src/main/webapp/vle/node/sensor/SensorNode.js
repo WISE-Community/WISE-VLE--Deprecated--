@@ -4,6 +4,12 @@ SensorNode.prototype.constructor = SensorNode;
 SensorNode.prototype.parentNode = Node.prototype;
 SensorNode.authoringToolName = "Graph/Sensor";
 SensorNode.authoringToolDescription = "Students plot points on a graph and can use a USB probe to collect data";
+SensorNode.prototype.i18nEnabled = true;
+SensorNode.prototype.i18nPath = "/vlewrapper/vle/node/sensor/i18n/";
+SensorNode.prototype.supportedLocales = {
+	"en_US":"en_US",
+	"es":"es"	
+};
 
 SensorNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
@@ -219,7 +225,9 @@ SensorNode.prototype.overridesIsCompleted = function() {
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
  */
-SensorNode.prototype.isCompleted = function(sensorState) {
+SensorNode.prototype.isCompleted = function(nodeVisits) {
+	var sensorState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+	
 	if (typeof this.tagMaps == "undefined") return true;
 	if (typeof sensorState === "undefined") sensorState = this.view.getState().getLatestWorkByNodeId(this.id);
 	// cycle through tag maps, if I get a custom tag map check student work to complete

@@ -396,7 +396,9 @@ var scriptloader = function(){
 			      'vle/view/vle/vleview_utils.js',
 			      'vle/view/vle/vleview_studentwork.js',
 			      'vle/view/vle/vleview_model.js',
-	              'vle/util/swfobject/swfobject.js'],
+	              'vle/util/swfobject/swfobject.js',
+			      'vle/view/vle/vleview_globaltagmaps.js',
+			      'vle/navigation/GlobalTagMap.js'],
         author: ['vle/util/icon.js',
                  'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js',
                  'vle/jquery/jquery-tipTip/jquery.tipTip.minified.js',
@@ -426,6 +428,7 @@ var scriptloader = function(){
                  'vle/view/authoring/authorview_authorstep.js',
                  'vle/view/authoring/authorview_tags.js',
                  'vle/view/authoring/authorview_import.js',
+                 'vle/view/authoring/authorview_icons.js',
                  'vle/view/authoring/cleaning/authorview_clean_main.js',
                  'vle/view/authoring/cleaning/authorview_clean_parts.js',
                  'vle/view/authoring/cleaning/authorview_clean_problem.js',
@@ -451,6 +454,10 @@ var scriptloader = function(){
 	              'vle/jquery/js/jquery.editinplace.js',
 	              'vle/view/grading/gradingview_model.js',
 	              'vle/util/swfobject/swfobject.js'],
+	    studentWebSocket: ['vle/webSocket/studentWebSocket.js'],
+	    teacherWebSocket: ['vle/webSocket/teacherWebSocket.js',
+	                       'vle/view/classroomMonitor/classroomMonitorView_model.js',
+	                       'vle/view/classroomMonitor/classroomMonitorView_main.js'],
 	    grading_min: ['vle/minified/grading_min.js'],
 	    user: ['vle/user/userandclassinfo.js'],	    
 	    config: ['vle/config/config.js'],
@@ -489,7 +496,8 @@ var scriptloader = function(){
 		            'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js',
 		            'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js',
 		            'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js',
-		            'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js'],
+		            'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js',
+		            'vle/navigation/tagmapconstraints/XMustHaveStatusYConstraint.js'],
 		uicontrol:['vle/view/vle/vleview_uicontrol.js'],
 		audio:['vle/sound/AudioManager.js',
 		       'vle/sound/md5.js',
@@ -598,7 +606,8 @@ var scriptloader = function(){
         'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
         'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
         'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
-        'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js']
+        'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/XMustHaveStatusYConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js']
     };
 	
 	// add jQuery UI/jQuery core dependency
@@ -770,7 +779,9 @@ var scriptloader = function(){
 		 * passed into this function can be found in setupNodes.js
 		 */
 		insertSetupPaths:function(setupFiles) {
-			if(document.location.pathname.indexOf('vle.html') != -1 || document.location.pathname.indexOf('gradework.html') != -1) {
+			if(document.location.pathname.indexOf('vle.html') != -1 || 
+					document.location.pathname.indexOf('gradework.html') != -1 ||
+					document.location.pathname.indexOf('classroomMonitor.html') != -1) {
 				/*
 				 * we are loading the vle or grading tool so we only need to
 				 * load certain step types. we will try to obtain the project.json

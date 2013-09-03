@@ -1,9 +1,9 @@
 (function (window)
 {
 	/** Creates a menu with the names of the materials */
-	function MaterialsMenu (width_px, height_px)
+	function MaterialsMenu (materials_available, width_px, height_px)
 	{
-		this.initialize(width_px, height_px);
+		this.initialize(materials_available, width_px, height_px);
 	}
 	var p = MaterialsMenu.prototype = new createjs.Container();
 	p.Container_initialize = MaterialsMenu.prototype.initialize;
@@ -12,7 +12,7 @@
 	p.UNSELECTED_COLOR = "rgba(200,200,255,1.0)";
 	p.TEXT_COLOR = "rgba(0, 0, 200, 1.0)";
 
-	p.initialize = function(width_px, height_px)
+	p.initialize = function(materials_available, width_px, height_px)
 	{
 		this.Container_initialize();
 		this.width_px = width_px;
@@ -31,15 +31,15 @@
 		this.g.endFill();
 
 		//for (var key in GLOBAL_PARAMETERS.materials)
-		for (var i = 0; i < GLOBAL_PARAMETERS.materials_available.length; i++)
+		for (var i = 0; i < materials_available.length; i++)
 		{
-			var key = GLOBAL_PARAMETERS.materials_available[i];
+			var key = materials_available[i];
 			if (i == 0) this.default_material_name = key;
 			this.display_names[key] = GLOBAL_PARAMETERS.materials[key].display_name;
 			this.rev_materialNameDisplayMapping[this.display_names[key]] = key;
-			var tab = new TextContainer(this.display_names[key], "20px Arial", this.TEXT_COLOR, this.width_px, this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT, this.UNSELECTED_COLOR, this.SELECTED_COLOR, 2, "center", "center");
+			var tab = new TextContainer(this.display_names[key], "20px Arial", this.TEXT_COLOR, this.width_px, this.height_px/materials_available.length, this.UNSELECTED_COLOR, this.SELECTED_COLOR, 2, "center", "center");
 			tab.x = 0;
-			tab.y = i * (this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT) + (this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT-tab.height_px)/2;
+			tab.y = i * (this.height_px/materials_available.length) + (this.height_px/materials_available.length-tab.height_px)/2;
 			tab.onClick = this.clickHandler.bind(this);
 			this.tabArray[key] = tab;
 			this.addChild(tab);
@@ -54,7 +54,7 @@
 
 		this.projectedTextOutlineGraphics.setStrokeStyle(2);
 		this.projectedTextOutlineGraphics.beginStroke(this.TEXT_COLOR);
-		this.projectedTextOutlineGraphics.drawRect(0, 0, this.width_px, this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT);
+		this.projectedTextOutlineGraphics.drawRect(0, 0, this.width_px, this.height_px/materials_available.length);
 			
 		// select
 		this.current_material_name = this.default_material_name;

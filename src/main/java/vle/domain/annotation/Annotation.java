@@ -319,6 +319,28 @@ public class Annotation extends PersistableDomain {
 	}
 	
 	/**
+	 * Returns a list of Annotations that are for the specified run id and
+	 * have the specific annotation type
+	 * @param runId the id of the run we want annotations for
+	 * @param type the type of annotation we want
+	 * @param clazz this Annotation.class
+	 * @return a list of Annotation
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<? extends Annotation> getByRunIdAndType(Long runId, String type, Class<?> clazz) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        List<Annotation> result = 
+        	session.createCriteria(clazz)
+        		.add(Restrictions.eq("runId", runId))
+        		.add(Restrictions.eq("type", type))
+        		.list();
+        session.getTransaction().commit();
+        return result;
+	}
+	
+	/**
 	 * @param userInfo User who did the annotation
 	 * @param stepWork stepWork that was annotated
 	 * @return
@@ -634,7 +656,7 @@ public class Annotation extends PersistableDomain {
 	}
 	
 	/**
-	 * Returns a list of Annotation based on the request parameters
+	 * Returns a list of Annotations based on the request parameters
 	 * @param map
 	 * @return
 	 */
@@ -643,28 +665,37 @@ public class Annotation extends PersistableDomain {
 		//obtain the parameters
     	String runId = null;
     	String nodeId = null;
-    	List<Annotation> result = new ArrayList<Annotation>();
-    	if (map.containsKey("runId") && map.containsKey("nodeId")) {
-    		// get all the flagged items for the specified runId and nodeId
+    	String type = null;
+    	
+    	if(map.containsKey("runId")) {
+    		//get the run id
     		runId = map.get("runId")[0];
+    	}
+    	
+    	if(map.containsKey("nodeId")) {
+    		//get the node id
     		nodeId = map.get("nodeId")[0];
+    	}
+    	
+    	if(map.containsKey("type")) {
+    		//get the annotaiton type
+    		type = map.get("type")[0];
+    	}
+    	
+    	List<Annotation> result = new ArrayList<Annotation>();
+    	
+    	if(runId != null && nodeId != null) {
+    		//get all the annotations for a run id and node id
         	Node node = Node.getByNodeIdAndRunId(nodeId, runId, true);
         	List<StepWork> stepWorkList = StepWork.getByNodeId(node.getId());
         	result = getByStepWorkList(stepWorkList);
-    	} else if (map.containsKey("runId")) {
-    		// get all the flagged items for all of the nodes for the specified runId
-    		runId = map.get("runId")[0];
+    	} else if(runId != null && type != null) {
+    		//get all the annotations for a run id and annotation type
+    		result = (List<Annotation>) getByRunIdAndType(Long.parseLong(runId), type, Annotation.class);
+    	} else if(runId != null) {
+    		//get all the annotations for a run id
     		result = (List<Annotation>) getByRunId(Long.parseLong(runId), Annotation.class);
-    		
-    		/*
-    		List<Node> nodeList = Node.getByRunId(runId);
-    		List<StepWork> stepWorkList = new ArrayList<StepWork>();
-    		for (Node node: nodeList) {
-    			stepWorkList.addAll(StepWork.getByNodeId(node.getId()));
-    		}
-        	result = getByStepWorkList(stepWorkList);
-        	*/
-    	} 
+    	}
 		return result;
 	}
 

@@ -86,12 +86,18 @@ function SENSOR(node) {
 	 */
 	this.graphChanged = false;
 	
+	//the labels for the graph legends
+	var distance = this.view.getI18NString('distance', 'SensorNode');
+	var velocity = this.view.getI18NString('velocity', 'SensorNode');
+	var acceleration = this.view.getI18NString('acceleration', 'SensorNode');
+	var temperature = this.view.getI18NString('temperature', 'SensorNode');
+	
 	//the names for the different types of graphs
 	this.graphNames = {
-			distance:"distance",
-			velocity:"velocity",
-			acceleration:"acceleration",
-			temperature:"temperature"
+			distance:distance,
+			velocity:velocity,
+			acceleration:acceleration,
+			temperature:temperature
 	};
 	
 	//the units for the different types of graphs
@@ -126,21 +132,28 @@ function SENSOR(node) {
 			temperature:2,
 			prediction:3
 	};
-
+	
 	//insert the prediction name and unit values into the graphNames and graphUnits arrays
 	if(this.sensorType == "motion") {
-		var graphName = "distance prediction";
+		//the text for the distance prediction graph
+		var distance_prediction = this.view.getI18NString('distance_prediction', 'SensorNode');
+		var graphName = distance_prediction;
 		this.graphNames.prediction = graphName;
 		this.graphUnits[graphName] = "m";
 	} else if(this.sensorType == "temperature") {
-		var graphName = "temperature prediction";
+		//the text for the temperature prediction graph
+		var temperature_prediction = this.view.getI18NString('temperature_prediction', 'SensorNode');
+		var graphName = temperature_prediction;
 		this.graphNames.prediction = graphName;
 		this.graphUnits[graphName] = "C";
 	} else {
 		if (typeof this.content.useCustomUnitsAndGraphLabel != "undefined" && this.content.useCustomUnitsAndGraphLabel){
-    		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : "prediction";
-			this.graphNames.prediction = graphName + " prediction";
-			this.graphUnits[graphName + " prediction"] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
+			//the text for the prediction graph
+			var prediction = this.view.getI18NString('prediction', 'SensorNode');
+			
+    		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : prediction;
+			this.graphNames.prediction = graphName + " " + prediction;
+			this.graphUnits[graphName + " " + prediction] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
     	} else {
 			var graphName = "";
 			this.graphNames.prediction = graphName;
@@ -224,8 +237,12 @@ SENSOR.prototype.render = function() {
 		var prevWorkNodeId = this.node.prevWorkNodeIds[0];
 		var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
 		
+		//the text that says you must make a prediction on a previous step before they can work on this step
+		var you_must_make_a_prediction = this.view.getI18NString('you_must_make_a_prediction', 'SensorNode');
+		var before_you_can_work = this.view.getI18NString('before_you_can_work', 'SensorNode');
+		
 		//display the message to tell the student to create a prediction in the previously associated step
-		$('#promptDiv').html("You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.");
+		$('#promptDiv').html(you_must_make_a_prediction + " <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> " + before_you_can_work);
 		this.hideAllInputFields();
 	} else {
 		//set the prompt into the step
@@ -349,6 +366,8 @@ SENSOR.prototype.render = function() {
 			$(".activeAnnotationToolTip").show();
 		}));
 	}
+	
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**
@@ -447,7 +466,9 @@ SENSOR.prototype.startCollecting = function() {
 		 * data and it has not been locked yet. we will ask the student if they are
 		 * sure they want to start collecting data.
 		 */
-		var startCollection = confirm('Are you sure you want to start collecting data? You will not be able to change your prediction once you start.');
+		var are_you_sure = this.view.getI18NString('are_you_sure', 'SensorNode');
+		
+		var startCollection = confirm(are_you_sure);
 		
 		if(startCollection) {
 			//they want to start collecting data
@@ -1689,8 +1710,11 @@ SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dataT
 	//add the text input where the student can type
 	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationInputText' type='text' class='predictionTextInput' value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + x + ")' size='50' " + enableEditing + "/>";
 	
+	//the label for the delete button
+	var deleteText = this.view.getI18NString('delete', 'SensorNode');
+	
 	//add the delete button to delete the annotation
-	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationDeleteButton' type='button' class='predictionDeleteButton' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ", " + x + ")' " + enableEditing + "/>";
+	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationDeleteButton' type='button' class='predictionDeleteButton' value='" + deleteText + "' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ", " + x + ")' data-i18n='delete' " + enableEditing + "/>";
 	annotationHtml += "</div>";
 	
 	//add the annotation html to the div where we put all the annotations
@@ -1867,8 +1891,12 @@ SENSOR.prototype.editAnnotation = function(seriesName, x, annotationText) {
  * @return
  */
 SENSOR.prototype.insertApplet = function() {
+	//the loading message that tells the student to click allow, run, or trust, when prompted
+	var loading = this.view.getI18NString('loading', 'SensorNode');
+	var click_allow_run_trust = this.view.getI18NString('click_allow_run_trust', 'SensorNode');
+	
 	//display the loading message on the graph
-	this.showGraphMessage('Loading...<br>(Click "Allow", "Run", or "Trust" if you see a popup. If this message does not change in 1 minute, quit your browser, open it back up, and try again.)', 'red');
+	this.showGraphMessage(loading + '<br>' + click_allow_run_trust, 'red');
 	
 	//the otml file determines what type of sensor the applet expects
 	var otmlFileName = "";
@@ -1952,6 +1980,10 @@ SENSOR.prototype.insertApplet = function() {
 	'</applet>';
 	*/
 	
+	//the message to display when applets are disabled
+	var error_applets_are_disabled = this.view.getI18NString('error_applets_are_disabled', 'SensorNode');
+	var here = this.view.getI18NString('here', 'SensorNode');
+	var to_enable_applets = this.view.getI18NString('to_enable_applets', 'SensorNode');
 	
 	//var appletHtml = '<applet id="sensorApplet" codebase="http://localhost:8080/jnlp" ' +
 	var appletHtml = '<applet id="sensorApplet" codebase="' + host + '/jnlp" ' +
@@ -1970,7 +2002,7 @@ SENSOR.prototype.insertApplet = function() {
 	'<param name="resource" value="' + otmlFileName + '"/> ' + 
 	'<param name="name" value="sensor"/> ' +
 	'<param name="listenerPath" value="jsListener"/> ' +
-	'<param name="MAYSCRIPT" value="true"/><font color="red" style="font-family:arial">Error: Applets are disabled in your browser. Please read the instructions <a href="http://java.com/en/download/help/enable_browser.xml" target="_blank">here</a> to enable applets in your browser.</font>' +
+	'<param name="MAYSCRIPT" value="true"/><font color="red" style="font-family:arial">' + error_applets_are_disabled + ' <a href="http://java.com/en/download/help/enable_browser.xml" target="_blank">' + here + '</a> ' + to_enable_applets + '</font>' +
 	'</applet>';
 	
 	
@@ -2170,8 +2202,10 @@ SENSOR.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidV
 	
 	if(isNaN(Number(xMin))) {
 		if(enableAlert) {
+			var error_x_min_is_not_a_number = this.view.getI18NString('error_x_min_is_not_a_number', 'SensorNode');
+			
 			//x min is not a number
-			alert("Error: x min is not a number");			
+			alert(error_x_min_is_not_a_number);			
 		}
 		
 		if(resetInvalidValues) {
@@ -2182,8 +2216,10 @@ SENSOR.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidV
 		result = false;
 	} else if(isNaN(Number(xMax))) {
 		if(enableAlert) {
+			var error_x_max_is_not_a_number = this.view.getI18NString('error_x_max_is_not_a_number', 'SensorNode');
+			
 			//x max is not a number
-			alert("Error: x max is not a number");			
+			alert(error_x_max_is_not_a_number);			
 		}
 
 		if(resetInvalidValues) {
@@ -2194,8 +2230,9 @@ SENSOR.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidV
 		result = false;
 	} else if(isNaN(Number(yMin))) {
 		if(enableAlert) {
+			var error_y_min_is_not_a_number = this.view.getI18NString('error_y_min_is_not_a_number', 'SensorNode');
 			//y min is not a number
-			alert("Error: y min is not a number");			
+			alert(error_y_min_is_not_a_number);			
 		}
 		
 		if(resetInvalidValues) {
@@ -2206,8 +2243,10 @@ SENSOR.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidV
 		result = false;
 	} else if(isNaN(Number(yMax))) {
 		if(enableAlert) {
+			var error_y_max_is_not_a_number = this.view.getI18NString('error_y_max_is_not_a_number', 'SensorNode');
+			
 			//y max is not a number
-			alert("Error: y max is not a number");			
+			alert(error_y_max_is_not_a_number);			
 		}
 		
 		if(resetInvalidValues) {
@@ -2218,8 +2257,10 @@ SENSOR.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidV
 		result = false;
 	} else if(xMin != '' && xMax != '' && Number(xMin) >= Number(xMax)) {
 		if(enableAlert) {
+			var error_x_min_greater_than_x_max = this.view.getI18NString('error_x_min_greater_than_x_max', 'SensorNode');
+			
 			//x min is greater than x max
-			alert("Error: x min is greater than x max");			
+			alert(error_x_min_greater_than_x_max);			
 		}
 		
 		if(resetInvalidValues) {
@@ -2233,8 +2274,10 @@ SENSOR.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidV
 		result = false;
 	} else if(yMin != '' && yMax != '' && Number(yMin) >= Number(yMax)) {
 		if(enableAlert) {
+			var error_y_min_greater_than_y_max = this.view.getI18NString('error_y_min_greater_than_y_max', 'SensorNode');
+			
 			//y min is greater than y max
-			alert("Error: y min is greater than y max");			
+			alert(error_y_min_greater_than_y_max);			
 		}
 		
 		if(resetInvalidValues) {
@@ -3046,8 +3089,12 @@ SENSOR.prototype.sensorReady = function() {
 		 */
 		this.hideGraphMessage();
 	} else {
+		//we are done loading the applet so we will tell the student to click start to begin
+		var done_loading = this.view.getI18NString('done_loading', 'SensorNode');
+		var click_start_to_begin = this.view.getI18NString('click_start_to_begin', 'SensorNode');
+		
 		//display the done loading message on the graph
-		this.showGraphMessage('Done Loading<br>(Click the "Start" button to begin)', 'yellow');
+		this.showGraphMessage(done_loading + '<br>' + click_start_to_begin, 'yellow');
 		
 		//remove the done loading message after 5 seconds
 		setTimeout("$('#graphMessageDiv').hide();", 5000);
@@ -3204,7 +3251,9 @@ SENSOR.prototype.processTagMaps = function() {
 						message += '<br>' + result.message;
 					}
 				} else if (functionName == "mustSpanDomainBeforeAdvancing"){
-					this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null,"Your graph doesn't cover the entire x-axis."]);
+					var your_graph_doesnt_cover_entire_x_axis = this.view.getI18NString('your_graph_doesnt_cover_entire_x_axis', 'SensorNode');
+					
+					this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null,your_graph_doesnt_cover_entire_x_axis]);
 				}
 			}
 		}

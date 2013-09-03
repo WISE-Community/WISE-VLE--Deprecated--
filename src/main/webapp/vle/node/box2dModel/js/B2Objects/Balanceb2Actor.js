@@ -46,7 +46,7 @@
 		
 		this.savedObject.pan_width_units = pan_width_units;
 		
-		this.skin = new BalanceShape(this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.pan_height_units * GLOBAL_PARAMETERS.SCALE, this.pan_dy_units * GLOBAL_PARAMETERS.SCALE, this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.base_height_units * GLOBAL_PARAMETERS.SCALE, this.base_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.stem_width_units * GLOBAL_PARAMETERS.SCALE, this.stem_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_x_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_y_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.savedObject);
+		this.skin = new BalanceShape(this.pan_width_units * GLOBAL_PARAMETERS.SCALE, this.pan_height_units * GLOBAL_PARAMETERS.SCALE, this.pan_dy_units * GLOBAL_PARAMETERS.SCALE, this.pan_width_units * GLOBAL_PARAMETERS.SCALE, 0.2 * GLOBAL_PARAMETERS.SCALE, 0.2 * GLOBAL_PARAMETERS.SCALE, this.stem_width_units * GLOBAL_PARAMETERS.SCALE, this.stem_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_x_units * GLOBAL_PARAMETERS.SCALE, this.beam_length_y_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_units * GLOBAL_PARAMETERS.SCALE, this.beam_height_edge_units * GLOBAL_PARAMETERS.SCALE, this.savedObject);
 		this.addChild(this.skin);
 		this.height_px_below = this.skin.height_px_below;
 		this.height_px_above = this.skin.height_px_above;
@@ -67,7 +67,8 @@
 		bodyDef.userData = {"actor":this}
 		
 		this.viewing_rotation = 0;
-		
+		this.justAddedBody = null;
+	
 		this.constructFixtures();
 	}
 
@@ -371,26 +372,33 @@
 
 		if ((bodyA == pan) || (bodyB == pan)){
 			var obody = bodyA == pan ? bodyB : bodyA;
-			if (contactedBodies.indexOf(obody) == -1){
+			if (contactedBodies.indexOf(obody) == -1 && obody.GetUserData() != null && typeof obody.GetUserData().actor !== "undefined"){
 				contactedBodies.push(obody);
 				massOnPan += obody.GetMass();
 				obody[contactLinkToPan] = pan;
+				//console.log(obody);
+				this.justAddedBody = obody;
+				just_added = true;
 			}
 		} else {
 			// are either body touching a body that is in the contact list?
 			for (var i = 0; i < contactedBodies.length; i++){
 				if (contactedBodies[i] == bodyA){
-					if (contactedBodies.indexOf(bodyB) == -1){
+					if (contactedBodies.indexOf(bodyB) == -1 && bodyB.GetUserData() != null && typeof bodyB.GetUserData().actor !== "undefined"){
 						contactedBodies.push(bodyB);
 						massOnPan += bodyB.GetMass();
 						bodyB[contactLinkToPan] = bodyA;
+						this.justAddedBody = bodyB;
+						just_added = true;
 					}
 					break;
 				} else if (contactedBodies[i] == bodyB){
-					if (contactedBodies.indexOf(bodyA) == -1){
+					if (contactedBodies.indexOf(bodyA) == -1 && bodyA.GetUserData() != null && typeof bodyA.GetUserData().actor !== "undefined"){
 						contactedBodies.push(bodyA);
 						massOnPan += bodyA.GetMass();
 						bodyA[contactLinkToPan] = bodyB;
+						this.justAddedBody = bodyA;
+						just_added = true;
 					} 
 					break;
 				}
@@ -399,6 +407,13 @@
 		// mass doesn't change by reference
 		if (leftOrRight == "left"){this.massOnLeftPan = massOnPan;}
 		else {this.massOnRightPan = massOnPan;}
+
+		if (just_added){
+			this.justAddedBody.bobbing = true;
+			this.justAddedBody.stationaryCount = 0;
+			this.justAddedBody.prevPosition = new b2Vec2(-10000, -10000);
+			eventManager.fire('add-to-balance',[this.justAddedBody.GetUserData()['actor'].skin.savedObject], box2dModel);
+		}
 	}
 	p.PanEndContact = function (leftOrRight, bodyA, bodyB){
 		var pan;
@@ -424,6 +439,8 @@
 				contactedBodies.splice(index, 1);
 				massOnPan -= obody.GetMass();
 				obody[contactLinkToPan] = null;
+				if (obody == this.justAddedBody) this.justAddedBody = null;
+				eventManager.fire('remove-from-balance',[obody.GetUserData()['actor'].skin.savedObject], box2dModel);
 			}
 		} else {
 			// if both are on contact list then remove one
@@ -434,10 +451,14 @@
 					contactedBodies.splice(indexA, 1);
 					massOnPan -= bodyA.GetMass();
 					bodyA[contactLinkToPan] = null;
+					if (bodyA == this.justAddedBody) this.justAddedBody = null;
+					eventManager.fire('remove-from-balance',[bodyA.GetUserData()['actor'].skin.savedObject], box2dModel);
 				} else if (bodyB[contactLinkToPan] == bodyA){
 					contactedBodies.splice(indexB, 1);
 					massOnPan -= bodyB.GetMass();
 					bodyB[contactLinkToPan] = null;
+					if (bodyB == this.justAddedBody) this.justAddedBody = null;
+					eventManager.fire('remove-from-balance',[bodyB.GetUserData()['actor'].skin.savedObject], box2dModel);
 				}				
 			}
 		}
@@ -484,7 +505,7 @@
 				//console.log(lrF, rrF, rrF-lrF, lrF-rrF, rrF - lrF > 0.01, lrF - rrF > 0.01);
 				this.beamAngle = this.beam.GetAngle(); 
 				if (true){
-					console.log(this.massOnLeftPan, this.massOnRightPan);
+					//console.log(this.massOnLeftPan, this.massOnRightPan);
 					if (this.massOnRightPan - this.massOnLeftPan > 0.3){
 						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,"#CC9999", "#99CC99");
 					} else if (this.massOnLeftPan - this.massOnRightPan > 0.3){
@@ -503,6 +524,20 @@
 						this.skin.redraw(this.beamAngle, leftPanPoint, rightPanPoint,  "#CCCCCC",  "#CCCCCC");
 					}
 				}
+			}
+			// is there a just added body which is bobbing?
+			if (this.justAddedBody != null && this.justAddedBody.bobbing){
+				// is it stationary-ish
+				//console.log("from (", this.justAddedBody.prevPosition.x,",",this.justAddedBody.prevPosition.y,") to (",this.justAddedBody.GetPosition().x,",",this.justAddedBody.GetPosition().y,"");
+				if (Math.abs(this.justAddedBody.prevPosition.x - this.justAddedBody.GetPosition().x) < 0.01 &&
+					Math.abs(this.justAddedBody.prevPosition.y - this.justAddedBody.GetPosition().y) < 0.01){
+					this.justAddedBody.stationaryCount++;
+					if (this.justAddedBody.stationaryCount > 5){
+						eventManager.fire('test-on-balance',[this.justAddedBody.GetUserData()['actor'].skin.savedObject, this.savedObject], box2dModel);
+						this.justAddedBody.bobbing = false;	
+					}			
+				}
+				this.justAddedBody.prevPosition = new b2Vec2(this.justAddedBody.GetPosition().x, this.justAddedBody.GetPosition().y);	
 			}
 		}
 	}

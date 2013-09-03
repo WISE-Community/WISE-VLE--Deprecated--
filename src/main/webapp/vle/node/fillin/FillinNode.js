@@ -7,6 +7,14 @@ FillinNode.prototype.constructor = FillinNode;
 FillinNode.prototype.parent = Node.prototype;
 FillinNode.authoringToolName = "Fill In";
 FillinNode.authoringToolDescription = "Students fill in the missing text blanks in a body of text";
+FillinNode.prototype.i18nEnabled = true;
+FillinNode.prototype.i18nPath = "/vlewrapper/vle/node/fillin/i18n/";
+FillinNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"es":"es"
+};
+
 
 FillinNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
@@ -108,9 +116,9 @@ FillinNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVis
 					var isCorrectText = '';
 					
 					if(isCorrect) {
-						isCorrectText = 'correct';
+						isCorrectText = this.view.getI18NString("correct","FillinNode");
 					} else {
-						isCorrectText = 'incorrect';
+						isCorrectText = this.view.getI18NString("incorrect","FillinNode");
 					}
 					
 					//display the index, student work, and whether the student answer was correct
@@ -137,11 +145,10 @@ FillinNode.prototype.overridesIsCompleted = function() {
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
  */
-FillinNode.prototype.isCompleted = function() {
-	var nodeVisitsForThisNode = this.view.getState().getNodeVisitsByNodeId(this.id);
-	if (nodeVisitsForThisNode != null) {
-		for (var i=0; i < nodeVisitsForThisNode.length; i++) {
-			var nodeVisitForThisNode = nodeVisitsForThisNode[i];
+FillinNode.prototype.isCompleted = function(nodeVisits) {
+	if (nodeVisits != null) {
+		for (var i=0; i < nodeVisits.length; i++) {
+			var nodeVisitForThisNode = nodeVisits[i];
 			if (nodeVisitForThisNode.nodeStates != null) {
 				for (var k=0;k<nodeVisitForThisNode.nodeStates.length;k++) {
 					var nodeState = nodeVisitForThisNode.nodeStates[k];

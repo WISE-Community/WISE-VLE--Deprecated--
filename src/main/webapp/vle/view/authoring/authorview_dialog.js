@@ -570,7 +570,7 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 	});
 	
 	var updateProjectMetadata = function(){
-		var imVersion = $('#enableIdeaManager').attr('version');
+		var imVersion = $('#enableIdeaManager').attr('data-version');
 		
 		view.projectMeta.title = $('#projectMetadataTitle').val();
 		view.projectMeta.author = $('#projectMetadataAuthor').val();
@@ -908,6 +908,14 @@ View.prototype.initializeTagViewDialog = function() {
 View.prototype.initializeImportViewDialog = function() {
 	//create the dialog element so we can use it later
 	$('#importViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Import', buttons: {'Close': function(){$(this).dialog("close");}}});
+};
+
+/**
+ * Create the icons view dialog popup
+ */
+View.prototype.initializeIconsViewDialog = function() {
+	//create the dialog element so we can use it later
+	$('#iconsViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Icons', buttons: {'Close': function(){$(this).dialog("close");}}});
 };
 
 /**

@@ -77,14 +77,30 @@ HtmlNode.prototype.hasGradingView = function() {
 	return false;
 };
 
-HtmlNode.prototype.isCompleted = function(nodeState) {
-	var result = true;
-	/*
-	if(nodeState != null && nodeState != '') {
+/**
+ * Determine if the student has completed this step. To complete
+ * an html step the student just needs to visit it.
+ * 
+ * @param nodeVisits the node visits for this step
+ * 
+ * @return whether the student has completed this step
+ */
+HtmlNode.prototype.isCompleted = function(nodeVisits) {
+	var result = false;
+	
+	if(nodeVisits != null && nodeVisits.length > 0) {
 		result = true;
 	}
-	*/
+	
 	return result;
+};
+
+/**
+ * This is called when a node is exited
+ */
+HtmlNode.prototype.onExit = function() {
+	//set this node as completed
+	this.setStatus('isCompleted', true);
 };
 
 NodeFactory.addNode('HtmlNode', HtmlNode);

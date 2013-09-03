@@ -22,7 +22,7 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'www', nodeClassText:'WWW Page'}
+	{nodeClass:'www', nodeClassText:'WWW Page', icon:'node/outsideurl/icons/www28.png'}
 ];
 
 var nodeIconPath = 'node/outsideurl/icons/';

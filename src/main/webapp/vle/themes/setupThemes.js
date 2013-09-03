@@ -15,7 +15,7 @@ SetupThemes.activeThemes = [
 	},
 	{
 		themeName:"starmap",
-		themeNavModes: ["standard"]
+		themeNavModes: ["standard","map"]
 	}
 ];
 
@@ -27,4 +27,4 @@ for(var i=0;i<SetupThemes.activeThemes.length;i++){
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/themes/setupThemes.js');
-};
+}

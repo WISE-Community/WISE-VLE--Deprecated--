@@ -30,7 +30,7 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'simulation', nodeClassText:'Flash'}
+	{nodeClass:'simulation', nodeClassText:'Flash', icon:'node/flash/icons/simulation28.png'}
 ];
 
 var nodeIconPath = 'node/flash/icons/';

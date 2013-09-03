@@ -52,11 +52,11 @@ var css = [
 ];
 
 var openResponseNodeClasses = [
-	{nodeClass:'openresponse', nodeClassText:'Open Response'}
+	{nodeClass:'openresponse', nodeClassText:'Open Response', icon:'node/openresponse/icons/openresponse28.png'}
 ];
 
 var noteNodeClasses = [
-	{nodeClass:'note', nodeClassText:'Reflection Note (popup)'}
+	{nodeClass:'note', nodeClassText:'Reflection Note (popup)', icon:'node/openresponse/icons/note28.png'}
 ];
 
 var nodeIconPath = 'node/openresponse/icons/';

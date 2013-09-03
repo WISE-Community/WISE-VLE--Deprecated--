@@ -38,7 +38,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'fillblank', nodeClassText:'Fill the Blank'}
+	{nodeClass:'fillblank', nodeClassText:'Fill the Blank', icon:'node/fillin/icons/fillblank28.png'}
 ];
 
 var nodeIconPath = 'node/fillin/icons/';

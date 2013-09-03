@@ -98,9 +98,9 @@ var nodeIconPath = 'node/template/icons/';
 /*
  * TODO: rename template
  * For example if you are creating a quiz node and you want to use custom icons,
- * you would change it to 'quiz' and replace the 'template16.png' and 'template28.png'
- * files in the node's 'icons' directory with 'quiz16.png' and 'quiz28.png' 
- * (the icons should be png files with 16x16 and 28x28 pixels respectively)
+ * you would change it to 'quiz' and replace the 'template28.png'
+ * file in the node's 'icons' directory with 'quiz28.png' 
+ * (the icon should be a png file with 28x28 pixels)
  * 
  * TODO: rename Template
  * For example if you are creating a quiz node you would change it to
@@ -111,7 +111,7 @@ var nodeIconPath = 'node/template/icons/';
  * (using that nodeClass in the filenames) to the 'icons' directory
  */
 var nodeClasses = [
-	{nodeClass:'template', nodeClassText:'Template'}
+	{nodeClass:'template', nodeClassText:'Template', icon:'node/template/icons/template28.png'}
 ];
 
 /* 

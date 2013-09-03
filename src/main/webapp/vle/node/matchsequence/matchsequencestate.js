@@ -73,6 +73,17 @@ MSSTATE.prototype.getJsonifiableState = function() {
 		}
 	}
 	
+	msState.sourceBucket = this.sourceBucket;
+	//loop through all the choices that are in the source bucket
+	for(var i=0; i<msState.sourceBucket.choices.length; i++) {
+		//get a choice in the source bucket
+		var sourceBucketChoice = msState.sourceBucket.choices[i];
+		
+		//remove the reference to the bucket
+		sourceBucketChoice.bucket = null;
+	}
+
+	
 	if(this.score != null) {
 		//set the score if available
 		msState.score = this.score;
@@ -98,7 +109,10 @@ MSSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 
 	//get the buckets from the json
 	msState.buckets = stateJSONObj.buckets;
-	
+
+	//get the source bucket from the json
+	msState.sourceBucket = stateJSONObj.sourceBucket;
+
 	//get the score from the json
 	msState.score = stateJSONObj.score;
 	
