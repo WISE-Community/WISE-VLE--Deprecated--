@@ -82,7 +82,7 @@ View.prototype.displayHint = function(){
 
 		//check if the hintsDiv div exists
 	    if($('#hintsPanel').size()==0){
-	    	//the show hintsDiv does not exist so we will create it
+	    	//the hintsDiv does not exist so we will create it
 	    	$('<div id="hintsPanel"></div>').dialog(
 			{	autoOpen:false,
 				closeText:'Close',
