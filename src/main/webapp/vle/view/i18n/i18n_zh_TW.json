@@ -1,17 +1,17 @@
 {
-    "file_button_text": {
+    "vle_toolbar_files": {
         "value": "檔案",
         "description": "Text on the File Manager button on Top Toolbar"
     },
-    "ideas_button_text": {
+    "vle_toolbar_ideaBasket": {
         "value": "想法",
         "description": "Text on the Idea Manager button on Top Toolbar"
     },
-    "addidea_button_text": {
+    "vle_toolbar_newIdea": {
         "value": "新增想法",
         "description": "Text on the Add Idea button on Top Toolbar"
     },
-    "mywork_button_text": {
+    "vle_toolbar_myWork": {
         "value": "我的作業",
         "description": "Text on the My Work button on Top Toolbar"
     },
@@ -431,11 +431,11 @@
         "value": "點子",
         "description": "The default text for 'ideas' in the Idea Manager tool."
     },
-    "display_chat_room": {
+    "vle_toolbar_chat": {
         "value": "開啟聊天室",
         "description": "Text on the Chat Room button for Student VLE"
     },
-    "mywork_button_title": {
+    "vle_toolbar_myWorkTitle": {
         "value": "複習我的工作",
         "description": "Text for mouse hover title on the My Work button"
     },

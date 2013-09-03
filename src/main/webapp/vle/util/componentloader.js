@@ -353,6 +353,7 @@ var componentloader = function(em, sl){
 				'disengageSelectMode':[null,null],
 				'processChoice':[null,null], 
 				'editProjectFile':[null,null],
+				'editProjectStructure':[null,null],
 				'editProjectMetadata':[null,null],
 				'editIMSettings':[null,null],
 				'saveStep':[null,null], 
@@ -584,6 +585,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe("premadeCommentWindowLoaded", view.authoringToolPremadeCommentsDispatcher, view);
 					view.eventManager.subscribe("premadeCommentLabelClicked", view.authoringToolPremadeCommentsDispatcher, view);
 					view.eventManager.subscribe("gotoDashboard", view.authorDispatcher, view);
+					view.eventManager.subscribe('editProjectStructure', view.authorDispatcher, view);
 					
 					if (window.parent && window.parent.portalAuthorUrl) {
 						window.parent.loaded();
@@ -617,6 +619,7 @@ var componentloader = function(em, sl){
 					view.initializeAnalyzeProjectDialog();
 					view.initializeEditTitleDialog();
 					view.initializeEditIMSettingsDialog();
+					view.initializeEditProjectStructureDialog();
 										
 					window.onunload = env.onWindowUnload;
 				}

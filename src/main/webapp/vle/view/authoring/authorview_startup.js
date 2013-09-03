@@ -286,7 +286,7 @@ View.prototype.onAuthoringToolReady = function(){
 	
 	// set validator item required message
 	$.extend(jQuery.validator.messages, {
-	  required: ' ' + view.getI18NString('validator_item_required')
+	  required: ' ' + view.getI18NString('validator_itemRequired')
 	});
 	
 	// bind general (non-changing) click events
@@ -410,6 +410,9 @@ View.prototype.bindGeneralEvents = function(){
 	});
 	$('#previewProject').on('click',function(){
 		eventManager.fire('previewProject');
+	});
+	$('#editOrder').on('click',function(){
+		eventManager.fire('editProjectStructure');
 	});
 	
 	// project metadata feature toggles

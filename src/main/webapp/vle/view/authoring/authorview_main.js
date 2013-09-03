@@ -398,9 +398,11 @@ View.prototype.generateAuthoring = function(){
 
 	//remove any old elements and clear variables
 	var activeContainer = $('#activeContainer').empty(),
-	inactiveContainer = $('#inactiveContainer').empty();
+		inactiveContainer = $('#inactiveContainer').empty();
+	$('#activeContent, #inactiveContent').empty();
 	this.currentStepNum = 1;
 	this.currentSeqNum = 1;
+	this.currentInactiveSeqNum = 1;
 
 	if(this.getProject().getRootNode()){
 		this.generateNodeElement(this.getProject().getRootNode(), null, activeContainer, 0, 0);
@@ -415,17 +417,18 @@ View.prototype.generateAuthoring = function(){
 	if(unusedNodes.length>0){
 		var stepTerm = view.getI18NString('step');
 		if(unusedNodes.length>1){
-			stepTerm = view.getI18NString('step_plural');
+			stepTerm = view.getI18NString('stepPlural');
 		}
-		var unusedEl = $('<li id="unusedNodes" class="projectNode seq inactive">' +
+		var unusedEl = $('<li id="unusedNodes" class="projectNode seq inactive unused">' +
 				'<div class="seqWrap"><div class="sequenceTitle ui-widget-header">' +
 				'<div class="title">' + view.getI18NString('authoring_project_content_inactive_steps') + '</div>' + 
 				'</div><ul class="sequence"></ul>' +
-				'<div class="sequenceInfo"><span class="nodeCount">' + unusedNodes.length + ' ' + stepTerm + ' +</span>' +
+				'<div class="sequenceInfo"><a class="nodeCount">' + unusedNodes.length + ' ' + stepTerm + ' +</a>' +
 				'</div></li>');
 		inactiveContainer.append(unusedEl);
+		var unusedContainer = $('ul.sequence',unusedEl);
 		for(var e=0;e<unusedNodes.length;e++){
-			this.generateNodeElement(unusedNodes[e], null, $('ul.sequence',unusedEl), 0, 0);
+			this.generateNodeElement(unusedNodes[e], null, unusedContainer, 0, 0);
 		}
 	}
 	
@@ -440,10 +443,14 @@ View.prototype.generateAuthoring = function(){
 	}
 
 	// make sequences sortable
-	$('#activeContainer').sortable({
+	$('#activeContainer, #inactiveContainer').sortable({
 		placeholder:'dragTarget',
 		//revert:100,
 		helper:'clone',
+		tolerance: 'pointer',
+		handle: '.sequenceTitle',
+		//connectWith: '.sequenceContainer',
+		items: "li.seq:not(.unused)",
 		start: function(event,ui){
 			// remove "selected" class from all activities
 			$('.seq').removeClass('selected');
@@ -455,8 +462,12 @@ View.prototype.generateAuthoring = function(){
 			var position = ui.item.index(),
 			target = {after:true, id:''};
 			if(position===0){
-				// new position is first activity in project, so set target as root/master node
-				target.id = view.getProject().getRootNode().id;
+				// new position is first activity in section, so set target as root node or unused sequences
+				if(ui.item.parent().attr('id')==='activeContainer'){
+					target.id = view.getProject().getRootNode().id;
+				} else {
+					target = 'uSeq';
+				}
 			} else {
 				// set target as previous activity in project
 				target.id = ui.item.prev().data('absid');
@@ -471,6 +482,53 @@ View.prototype.generateAuthoring = function(){
 			}
 		}
 	});
+	
+	// make sequences in the project structure editor sortable
+	$('#activeContent, #inactiveContent').sortable({
+		placeholder: 'placeholder',
+		opacity: 0.9,
+		revert: 100,
+		//helper: 'clone',
+		items: '> li',
+		handle: 'div.item',
+		tolerance: 'pointer',
+		toleranceElement: 'div.item',
+		start: function(event,ui){
+			// add toMove class to item being dragged
+			//ui.item.addClass('toMove');
+			//ui.item.data('position',ui.item.index());
+			$('#projectContent ul.sequence').hide();
+		},/*
+		update: function(event,ui){
+			var position = ui.item.index(),
+			target = {after:true, id:''};
+			if(position===0){
+				// new position is first step in activity, so set activity node as target and "after" to false
+				target.id = ui.item.parent().data('absid');
+				target.after = false;
+			} else {
+				// set target as previous step in activity
+				target.id = ui.item.prev().data('absid');
+			}
+			view.moveNodes(target,'toMove'); // move the step to new position within the activity
+		},*/
+		stop: function(event,ui){
+			/*if(ui.item.index() === ui.item.data('position')){
+				// remove selected class
+				ui.item.removeClass('toMove');
+				ui.item.data('position','');
+			}*/
+			$('#projectContent ul.sequence').slideDown('fast');
+		}
+	}).disableSelection();
+	
+	// make sequences in the project structure editor sortable
+	$('#projectContent ul.sequence').sortable({
+		placeholder: 'placeholder',
+		opacity: 0.9,
+		revert: 100,
+		contectWith: '.sequence'
+	}).disableSelection();
 
 	// initialize each sequence
 	$('#dynamicProject .seq').each(function(){
@@ -544,35 +602,57 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	//mainTD.appendChild(mainDiv);
 
 	if(node.type==='sequence' && (this.getProject().getRootNode() && node.id!==this.getProject().getRootNode().id)){
-		var isActive = ($(el).attr('id')==='activeContainer');
-
+		// node is a sequence
+		var isActive = ($(el).attr('id')==='activeContainer'); // check if sequence is active
+		
+		// create sequence element in project content panel
 		var sequenceEl = createElement(document, 'li', {id: node.id, 'class': 'projectNode seq'}),
-		sequenceWrap = createElement(document, 'div', {'class': 'seqWrap'}),
-		seqTitleEl = createElement(document, 'div', {'class': 'sequenceTitle ui-widget-header'});
-
-		var activityTerm = view.getProject().getActivityTerm();
-		var titleText = view.utils.isNonWSString(activityTerm) ? activityTerm + ' ' : '';
+			sequenceWrap = createElement(document, 'div', {'class': 'seqWrap'}),
+			seqTitleEl = createElement(document, 'div', {'class': 'sequenceTitle ui-widget-header'});
+		
+		// create sequence entry in project structure dialog
+		var sequenceItem = createElement(document, 'li', {'class': 'projectNode seq'}),
+			sequenceList = createElement(document, 'ul', {id: 'item_' + node.id, 'data-absid': absId, 'class': 'sequence'});
+		var sequenceEls = $(sequenceEl).add(sequenceItem);
+		
+		// set sequence title and position info
+		var activityTerm = view.getProject().getActivityTerm(),
+			titleText = view.utils.isNonWSString(activityTerm) ? activityTerm + '' : '';
+			dragIcon = '<span class="ui-icon ui-icon-grip-dotted-vertical move"></span>';
 		if(isActive){
-			titleText += this.currentSeqNum + ': ';
-			$(sequenceEl).attr('data-pos',this.currentSeqNum).attr('data-absid',absId);
-			this.currentSeqNum++;
-			$(seqTitleEl).append('<span class="ui-icon ui-icon-grip-dotted-vertical move"></span>');
+			titleText += ' ' + this.currentSeqNum + ': ';
+			sequenceEls.attr('data-pos',this.currentSeqNum).attr('data-absid',absId);
+			$(seqTitleEl).append(dragIcon).attr('title',view.getI18NString('authoring_project_content_sequenceTitleHover'));
+			++this.currentSeqNum;
 		} else {
 			titleText += ': ';
 			$(sequenceEl).addClass('inactive');
-			$(sequenceEl).attr('data-absid',absId);
+			$(seqTitleEl).append(dragIcon).attr('title',view.getI18NString('authoring_project_content_sequenceTitleHover'));
+			sequenceEls.attr('data-pos',this.currentInactiveSeqNum).attr('data-absid',absId);
+			++this.currentInactiveSeqNum;
 		}
-		titleText += ' ' + title;
-		var seqTitleDiv = $(createElement(document, 'div', {'class': 'title'})).html(titleText);
+		var seqTitleDiv = $(createElement(document, 'div', {'class': 'title'})).html(titleText + ' ' + title);
 		$(seqTitleEl).append(seqTitleDiv);
 		$(sequenceWrap).append(seqTitleEl);
-		var seqUl = createElement(document, 'ul', {'class': 'sequence'});
+		var seqItemTitle = $(createElement(document, 'div', {'class': 'item ui-widget-header'})).html(dragIcon + '<span class="seqTitle">' + titleText + '</span><span>' + title + '</span>');
+		if(!isActive){
+			seqItemTitle.addClass('inactive');
+		}
+		$(sequenceItem).append(seqItemTitle).append(sequenceList);
+		
+		// add sequence elements to DOM
+		var seqUl = createElement(document, 'ul', {'class': 'sequence', 'data-absid': absId});
 		$(sequenceWrap).append(seqUl);
 		$(sequenceEl).append(sequenceWrap);
 		$(el).append(sequenceEl);
+		if(isActive){
+			$('#activeContent').append(sequenceItem);
+		} else {
+			$('#inactiveContent').append(sequenceItem);
+		}
 		
-		// attach node data to element
-		$(sequenceEl).data('node',node);
+		// attach node data to sequence elements
+		sequenceEls.data('node',node);
 		
 		//var choiceDiv = createElement(document, 'div', {id: 'choiceDiv_' + absId});
 		
@@ -598,10 +678,21 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		
 		targetEl = seqUl;
 	} else if(!absId.match(/null--startsequence/) && !absId.match(/null--master/)) {
+		// node is a step
+		
+		// create step element in project content panel
 		var nodeEl = createElement(document, 'li', {'class': 'projectNode node'}),
 			nodeTitleEl = createElement(document, 'span', {'class': 'title'}),
-			nodeTitleTextEl = createElement(document, 'span'),
+			nodeTitleTextEl = createElement(document, 'span', {'class': 'stepTitle'}),
 			nodeTypeEl = createElement(document, 'span', {'class': 'type'});
+		
+		// create step element in project structure dialog
+		var nodeItem = createElement(document, 'li', {'class': 'projectNode node'}),
+			nodeItemTitle = createElement(document, 'span', {'class': 'title'}),
+			nodeItemTitleText = createElement(document, 'span', {'class': 'stepTitle'}),
+			nodeItemType = createElement(document, 'span', {'class': 'type'});
+		
+		var nodeEls = $(nodeEl).add(nodeItem);
 		
 		//the html for the review html
 		var reviewHtml = "",
@@ -653,7 +744,9 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		var nodeIconPath = null;
 		if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
 			nodeIconPath = this.nodeIconPaths[node.type];
-			$(nodeEl).append('<img class="nodeIcon" src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/>');
+			var iconEl = '<img class="nodeIcon" src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/>';
+			$(nodeEl).append(iconEl);
+			$(nodeItem).append(iconEl);
 			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
 			//mainDiv.innerHTML = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
 		} //else {
@@ -687,13 +780,14 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 				}
 			}
 		}
-		$(nodeTitleTextEl).text(titleText);
+		$(nodeTitleTextEl).add(nodeItemTitleText).text(titleText);
 		
 		var nodeType = '(' + view.utils.getAuthoringNodeName(node.type) + ')';
-		$(nodeTypeEl).text(nodeType);
+		$(nodeTypeEl).add(nodeItemType).text(nodeType);
 		
-		$(nodeTitleEl).text(title);
+		$(nodeTitleEl).add(nodeItemTitle).text(title);
 		$(nodeEl).append(nodeTitleTextEl).append(nodeTitleEl).append(nodeTypeEl);
+		$(nodeItem).append(nodeItemTitleText).append(nodeItemTitle).append(nodeItemType);
 		
 		//mainDiv.appendChild(titleInput);
 		//mainDiv.className = 'projectNode node';
@@ -739,9 +833,11 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		mainDiv.appendChild(editInput);*/
 		
 		$(el).append(nodeEl);
+		var seqItem = $('#item_' + $(el).parent().parent().attr('id'));
+		seqItem.append(nodeItem);
 		
 		// attach node data and absId to element
-		$(nodeEl).data('node',node).attr('data-absid',absId).attr('data-nodeid',node.id);
+		nodeEls.data('node',node).attr('data-absid',absId).attr('data-nodeid',node.id);
 	}
 	
 	// create select checkbox for this node
@@ -771,23 +867,23 @@ View.prototype.initSequence = function(target){
 	//var split = seq.attr('id').split('--');
 	//var sequenceId = split[1];
 	var numNodes = $('.node',seq).length;
-	var stepTerm = view.getI18NString('step_plural');
+	var stepTerm = view.getI18NString('stepPlural');
 	if(numNodes===1){
 		stepTerm = view.getI18NString('step');
 	}
 	
 	// create info footer with number of steps/branches
-	var infoEl = $('<div class="sequenceInfo"><span class="nodeCount">'+ numNodes +' ' + stepTerm + ' +</span></div>');
+	var infoEl = $('<div class="sequenceInfo"><a class="nodeCount">'+ numNodes +' ' + stepTerm + ' +</span></a>');
 	
 	// create hover overlay
-	var hoverDiv = $('<div class="sequenceOverlay">' + view.getI18NString('authoring_project_content_activeHover') + '</div>');
+	var hoverDiv = $('<div class="sequenceOverlay"><div>' + view.getI18NString('authoring_project_content_activeSequenceHover') + '</div></div>');
 	
-	// create delete and hide/show links
+	// create delete and hide/show/copy links
 	if(seq.attr('id')!=='unusedNodes'){
 		var actionsEl = $('<div class="actions"></div>'),
 		toggleLink = '';
 		if(isActive){
-			toggleLink = $('<a class="tooltip" data-tooltip-anchor="bottom" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/ alt="hide"></a>');
+			toggleLink = $('<a class="tooltip" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/svg/dark-gray/hide.svg"/ alt="hide"></a>');
 			// bind hide click action
 			toggleLink.on('click',function(e){
 				e.stopPropagation();
@@ -800,7 +896,7 @@ View.prototype.initSequence = function(target){
 			});
 		} else {
 			// sequence is inactive, so add show link instead of hide link
-			toggleLink = $('<a class="tooltip" data-tooltip-anchor="bottom" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/ alt="show"></a>');
+			toggleLink = $('<a class="tooltip" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/svg/dark-gray/show.svg"/ alt="show"></a>');
 
 			// bind show click action
 			toggleLink.on('click',function(e){
@@ -812,9 +908,21 @@ View.prototype.initSequence = function(target){
 					//view.showSelected();
 				});
 			});
-			hoverDiv.text(view.getI18NString('authoring_project_content_inactiveHover'));
+			$('div', hoverDiv).text(view.getI18NString('authoring_project_content_inactiveSequenceHover'));
 		}
-		var deleteLink = $('<a class="tooltip" data-tooltip-anchor="bottom" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/trash.png" alt="delete"/></a>');
+		var copyLink = $('<a class="tooltip" title="' + view.getI18NString('duplicate') + '"><img class="icon" src="/vlewrapper/vle/images/icons/svg/dark-gray/duplicate.svg" alt="duplicate"/></a>');
+		var deleteLink = $('<a class="tooltip" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/svg/dark-gray/trash.svg" alt="delete"/></a>');
+		
+		// bind copy click action
+		copyLink.on('click',function(e){
+			e.stopPropagation();
+			// remove "selected" class from all activities
+			$('.seq').removeClass('selected');
+			// add 'selected' class to current activity and execute delete function
+			seq.addClass('selected', function(){
+				//view.copySelected();
+			});
+		});
 		
 		// bind delete click action
 		deleteLink.on('click',function(e){
@@ -827,7 +935,7 @@ View.prototype.initSequence = function(target){
 			});
 		});
 
-		actionsEl.append(toggleLink).append(deleteLink);
+		actionsEl.append(copyLink).append(toggleLink).append(deleteLink);
 		infoEl.append(actionsEl);
 		
 		// insert info footer and hover overlay to activity element
@@ -836,7 +944,7 @@ View.prototype.initSequence = function(target){
 		// add tooltips
 		view.insertTranslations('main',view.insertTooltips(infoEl));
 	} else {
-		hoverDiv.text(view.getI18NString('authoring_project_content_unusedHover'));
+		$('div',hoverDiv).text(view.getI18NString('authoring_project_content_unusedStepsHover'));
 		seq.attr('data-absid','null');
 		$('li.node',seq).addClass('unused');
 		$('.seqWrap',seq).append(hoverDiv);
@@ -846,13 +954,16 @@ View.prototype.initSequence = function(target){
 	view.positionActivityOverlays();
 	
 	// bind sequence click action
-	seq.on('click',function(){
-		if(!$(this).hasClass('ui-sortable-helper')){
+	$('.sequenceOverlay, .nodeCount', seq).on('click',function(){
+		if(!seq.hasClass('ui-sortable-helper')){
 			view.editSequence(target);
 		}
 	});
 };
 
+/**
+ * 
+ */
 View.prototype.positionActivityOverlays = function() {
 	$('.seqWrap').each(function(){
 		var seq = $(this),
@@ -879,8 +990,8 @@ View.prototype.editSequence = function(target){
 
 	// hide dynamic project and show sequence editor
 	if($('#dynamicProject').is(':visible')){
-		$('#dynamicProject').fadeOut(function(){
-			$('#sequenceEditor').fadeIn();
+		$('#dynamicProject').fadeOut('fast',function(){
+			$('#sequenceEditor').fadeIn('fast');
 		});
 	}
 
@@ -959,12 +1070,12 @@ View.prototype.editSequence = function(target){
 		// create loading graphic
 		
 		// create sequence controls element
-		var controls = $('<div id="sequenceControls" class="settings"></div>');
+		var controls = $('<div id="seqControls" class="settings"></div>');
 		
 		// insert select all checkbox
 		var selectAll = $('<span id="stepSelect"></span>');
 		var selectAllInput = $('<input type="checkbox" id="stepSelectAll"></input>');
-		controls.append(selectAll.append(selectAllInput)).append('<label for="stepSelectAll">' + view.getI18NString('select_all') + '</label>');
+		controls.append(selectAll.append(selectAllInput)).append('<label for="stepSelectAll">' + view.getI18NString('selectAll') + '</label>');
 		selectAllInput.on('click',function(){
 			if($(this).prop('checked')){
 				view.selectStepsAll();
@@ -1024,7 +1135,7 @@ View.prototype.editSequence = function(target){
 					target = {after:true, id:''};
 					if(position===0){
 						// new position is first step in activity, so set activity node as target and "after" to false
-						target.id = $('#sequenceEditor').data('absid');
+						target.id = ui.item.parent().data('absid');
 						target.after = false;
 					} else {
 						// set target as previous step in activity
@@ -1181,11 +1292,11 @@ View.prototype.editSequence = function(target){
 		contentEl.append(closeEl);
 		// bind click action on close link
 		closeEl.on('click',function(){
-			$('#sequenceEditor').fadeOut(function(){
+			$('#sequenceEditor').fadeOut('fast',function(){
 				// clear contents
 				contentEl.empty().attr('data-absid','');
 				// show activities
-				$('#dynamicProject').fadeIn(function(){ view.positionActivityOverlays(); });
+				$('#dynamicProject').fadeIn('fast',function(){ view.positionActivityOverlays(); });
 			});
 		});
 		
@@ -1196,30 +1307,36 @@ View.prototype.editSequence = function(target){
 			// make controls scroll with activity
 			if(resetDisplay){
 				var offset = controls.offset(),
-				elTop = offset.top;
+					elTop = offset.top;
 				controlPos.gap = elTop-$('#projectStructure .contentWrapper').offset().top;
 				controlPos.baseTop = $('#authoringContainer').offset().top;
 				$('#sequenceEditor').data('controlPos',controlPos);
 			}
 			$('#projectStructure .contentWrapper').off('scroll.controls');
-			$('#projectStructure .contentWrapper').on('scroll.controls', setScroll);
+			$('#projectStructure .contentWrapper').on('scroll.controls', view.positionActivityControls);
 			$(window).off('resize.controls');
-			$(window).on('resize.controls', setScroll);
+			$(window).on('resize.controls', view.positionActivityControls);
 
-			function setScroll() {
+			/*function setScroll() {
 				//var elWidth = controls.width(),
 				var top = $('#authoringContainer').offset().top;
 				if (controlPos.baseTop-top>controlPos.gap) {
 					var elWidth = controls.width(),
-					left = controls.offset().left;
-					controls.addClass('sticky');
+						elHeight = controls.height(),
+						left = controls.offset().left;
+						controls.addClass('sticky');
+					if ($('.seqControlsPlaceholder',contentEl).length < 1){
+						controls.after('<div class="seqControlsPlaceholder"></div>');
+						$('.seqControlsPlaceholder',contentEl).height(elHeight);
+					}
 					//left = left-parseInt(controls.css('margin-left'),10)/2-parseInt(controls.css('margin-right'),10)/2-parseInt(controls.css('border-left-width'),10)/2-parseInt(controls.css('border-right-width'),10)/2;
 					controls.css({'top':controlPos.baseTop, 'left':left, 'width':elWidth});
 				} else {
 					controls.removeClass('sticky');
 					controls.css({'top':'', 'left':'', 'width':''});
+					$('.seqControlsPlaceholder',contentEl).remove();
 				}
-			}
+			}*/
 
 			$('#projectStructure .contentWrapper').scroll();
 		});
@@ -1232,10 +1349,41 @@ View.prototype.editSequence = function(target){
 		// populate activity editor
 		populateSequence(false);
 	} else {
-		$('#sequenceContent').fadeOut(function(){
+		$('#sequenceContent').fadeOut("fast",function(){
 			// populate activity editor
 			populateSequence(true);
 		});
+	}
+};
+
+/**
+ * Sets the position and dimensions of the activity editing controls
+ */
+View.prototype.positionActivityControls = function(){
+	if($('#sequenceEditor').is(':visible')){
+		var contentEl = $('#sequenceEditor'),
+			controls = $('#seqControls'),
+			controlPos = contentEl.data('controlPos'),
+			top = $('#authoringContainer').offset().top;
+		if (controlPos.baseTop-top>controlPos.gap) {
+			var elWidth, elHeight, left;
+			if(!controls.hasClass('sticky')){
+				controls.addClass('sticky');
+				controls.after('<div class="seqControlsPlaceholder"></div>');
+				$('.seqControlsPlaceholder',contentEl).height(elHeight);
+			}
+			var placeholder = $('.seqControlsPlaceholder',contentEl);
+				elWidth = (placeholder.outerWidth() + 13) + 'px',
+				//elHeight = placeholder.height(),
+				left = (placeholder.offset().left - 7) + 'px',
+				top = controlPos.baseTop + 'px';
+			//left = left-parseInt(controls.css('margin-left'),10)/2-parseInt(controls.css('margin-right'),10)/2-parseInt(controls.css('border-left-width'),10)/2-parseInt(controls.css('border-right-width'),10)/2;
+			controls.css({'top':top, 'left':left, 'width':elWidth});
+		} else {
+			controls.removeClass('sticky');
+			controls.css({'top':'', 'left':'', 'width':''});
+			$('.seqControlsPlaceholder',contentEl).remove();
+		}
 	}
 };
 
@@ -2276,7 +2424,9 @@ View.prototype.onProjectLoaded = function(){
 		$('#loggingToggle').prop('checked',true);
 
 		$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
-		$('#projectInfo input[type="checkbox"]').toggleSwitch();
+		$('#projectInfo input[type="checkbox"]').toggleSwitch({
+			labels: [view.getI18NString("toggleOn"), view.getI18NString("toggleOff")]
+		});
 		
 		// if we're in portal mode, tell the portal that we've opened this project
 		if (this.portalUrl) {
@@ -2362,6 +2512,7 @@ View.prototype.retrieveProjectInfoSuccess = function(text,xml,o) {
 	isLibrary = infoJSON.isLibrary,
 	isFavorite = infoJSON.isFavorite,
 	sharedUsers = infoJSON.sharedUsers;
+	parentId = view.parentProjectId = infoJSON.parentId;
 
 	// check if thumb image exists, insert thumb image
 	$.ajax({
@@ -2384,6 +2535,23 @@ View.prototype.retrieveProjectInfoSuccess = function(text,xml,o) {
 
 	// clear out existing shared/library icons
 	$('.infoIcon').remove();
+	
+	// insert owner's name into metadata editing panel
+	$('#projectOwner').text(projectOwnerName);
+	
+	// inser shared user names into metadata editing panel
+	$('#projectSharedUsers').text(sharedUsers);
+	if(view.utils.isNonWSString(sharedUsers)){
+		$('#sharedUsersDisplay').show();
+	} else {
+		$('#sharedUsersDisplay').hide();
+	}
+	
+	if(typeof parentId === 'number'){
+		$('#originalAuthorDisplay').show();
+	} else {
+		$('#originalAuthorDisplay').hide();
+	}
 
 	// if project is shared, insert shared icon
 	if(projectOwnerUsername !== view.portalUsername){
@@ -2464,7 +2632,7 @@ View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 					}
 				}
 				var userTerm = o.getI18NString('user');
-				if (usersJSON.length > 1) { userTerm = o.getI18NString('user_plural'); }
+				if (usersJSON.length > 1) { userTerm = o.getI18NString('userPlural'); }
 				currentUsers = usersJSON.length + ' <a href="#nogo" class="tooltip" title="' + currentEditors + '">' + userTerm + '</a> ' + o.getI18NString('authoring_project_also_editing');
 				o.notificationManager.notify(o.getI18NString("authoring_multiple_editors_warning"), 3);
 				$('#currentUsers').html(currentUsers);
@@ -2861,20 +3029,20 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 
 	// pre-load i18N strings
 	var createdDetailsPreText = this.getI18NString('authoring_project_created_pre'),
-	createdDetailsRunPreText = this.getI18NString('authoring_project_created_pre_run'),
-	runWarningShortText = this.getI18NString("authoring_project_run_warning_short"),
-	openDialogSharedText = this.getI18NString('authoring_dialog_open_shared'),
-	openDialogOwnedText = this.getI18NString('authoring_dialog_open_owned'),
-	projectSharedPreText = this.getI18NString("authoring_project_shared_pre"),
-	projectSharedUsersPreText = this.getI18NString("authoring_project_shared_users_pre"),
-	projectLibraryText = this.getI18NString("authoring_project_library"),
-	projectCopyLibraryPreText = this.getI18NString("authoring_project_copy_library_pre"),
-	projectCopyPreText = this.getI18NString("authoring_project_copy_pre"),
-	lastEditedPreText = this.getI18NString('authoring_project_last_edited_pre'),
-	toggleFavoriteTitleText = this.getI18NString("authoring_toggle_favorite_title"),
-	idText = this.getI18NString('ID'),
-	openText = this.getI18NString("open"),
-	copyText = this.getI18NString("copy");
+		createdDetailsRunPreText = this.getI18NString('authoring_project_created_pre_run'),
+		runWarningShortText = this.getI18NString("authoring_project_run_warning_short"),
+		openDialogSharedText = this.getI18NString('authoring_dialog_open_shared'),
+		openDialogOwnedText = this.getI18NString('authoring_dialog_open_owned'),
+		projectSharedPreText = this.getI18NString("authoring_project_shared_pre"),
+		projectSharedUsersPreText = this.getI18NString("authoring_project_shared_users_pre"),
+		projectLibraryText = this.getI18NString("authoring_project_library"),
+		projectCopyLibraryPreText = this.getI18NString("authoring_project_copy_library_pre"),
+		projectCopyPreText = this.getI18NString("authoring_project_copy_pre"),
+		lastEditedPreText = this.getI18NString('authoring_project_last_edited_pre'),
+		toggleFavoriteTitleText = this.getI18NString("authoring_toggle_favorite_title"),
+		idText = this.getI18NString('ID'),
+		openText = this.getI18NString("open"),
+		copyText = this.getI18NString("copy");
 
 	//loop through all the projects
 	for(var x=projectsArray.length-1; x>-1; x--) {
@@ -2929,12 +3097,12 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 		} else {
 			if(isAuthorable){
 				sharedDetails = '<p class="sharedDetails">' +
-				'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
+				'<img alt="shared" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
 				projectSharedPreText + projectOwner +
 				'</p>';
 
 				sharedUsers = '<p class="sharedDetails sharedUsers">' +
-				'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
+				'<img alt="shared" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
 				projectSharedUsersPreText + project.sharedUsers +
 				'</p>';
 			}
@@ -2944,9 +3112,9 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 		if(typeof project.isLibrary === 'boolean' && project.isLibrary){
 			isLibrary = true;
 			var infoTitle = projectLibraryText;
-			infoIcon = '<img alt="copy" src="/vlewrapper/vle/images/icons/brown/bookmark.png" title="' + infoTitle + '">';
+			infoIcon = '<img alt="favorite" src="/vlewrapper/vle/images/icons/brown/bookmark.png" title="' + infoTitle + '">';
 			libraryDetails = '<p class="libraryDetails">' +
-			'<img alt="copy" src="/vlewrapper/vle/images/icons/red/bookmark.png" />' +
+			'<img alt="favorite" src="/vlewrapper/vle/images/icons/red/bookmark.png" />' +
 			infoTitle +
 			'</p>';
 		} else if(typeof project.parentId === 'number'){
@@ -3004,7 +3172,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 		'<span class="projectTitle">' + projectTitle + '</span><span class="projectId"> (' + idText + ': ' + projectId + ')</span>' +
 		ownershipIcon + infoIcon + 
 		'</div>' +
-		'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" data-tooltip-class="info" data-tooltip-anchor="left" data-tooltip-event="click" data-tooltip-keep="true"/></div>' +
+		'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/svg/teal/info.svg" data-projectid="' + projectId + '" data-tooltip-class="info" data-tooltip-anchor="left" data-tooltip-event="click" data-tooltip-keep="true"/></div>' +
 		'</div>' +
 		'</div>';
 
@@ -3078,7 +3246,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 		}
 	});
 
-	// bind open project button clicks
+	// bind open/copy project button clicks
 	projectTabs.off('click','.openProject');
 	projectTabs.on('click','.openProject',function(){
 		var id = $(this).attr('data-projectid');

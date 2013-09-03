@@ -15,6 +15,10 @@
 		"value":"Close",
 		"description":"Text for the word 'Close'"
 	},
+	"duplicate": {
+		"value":"Duplicate",
+		"description":"Text for the word 'Duplicate'"
+	},
 	"submit": {
 		"value":"Submit",
 		"description":"Text for the word 'Submit'"
@@ -43,7 +47,11 @@
 		"value":"Save",
 		"description":"Text for the word 'Save'"
 	},
-	"validator_item_required": {
+	"saveChanges": {
+		"value":"Save Changes",
+		"description":"Text for the phrase 'Save Changes'"
+	},
+	"validator_itemRequired": {
 		"value":"*This item is required.",
 		"description":"Text that is displayed when a required validation item is missing"
 	},
@@ -59,7 +67,7 @@
 		"value":"user",
 		"description":"Text for the word 'user'"
 	},
-	"user_plural":{
+	"userPlural":{
 		"value":"users",
 		"description":"Text for the plural form of 'user'"
 	},
@@ -67,7 +75,7 @@
 		"value":"step",
 		"description":"Text for the word 'step'"
 	},
-	"step_plural":{
+	"stepPlural":{
 		"value":"steps",
 		"description":"Text for the plural form of 'step'"
 	},
@@ -79,15 +87,15 @@
 		"value":"ID",
 		"description":"Text for the word 'ID'"
 	},
-	"toggle_on": {
+	"toggleOn": {
 		"value":"ON",
 		"description":"Text to display when a control toggle is enabled ('on')"
 	},
-	"toggle_off": {
+	"toggleOff": {
 		"value":"OFF",
 		"description":"Text to display when a control toggle is disabled ('off')"
 	},
-	"more_info":{
+	"moreInfo":{
 		"value":"More Info",
 		"description":"Text for the phrase 'More Info'"
 	},
@@ -103,7 +111,7 @@
 		"value":"Modified",
 		"description":"Text for the word 'Modified'"
 	},
-	"select_all":{
+	"selectAll":{
 		"value":"Select All",
 		"description":"Text for the phrase 'Select All'"
 	},
@@ -123,27 +131,27 @@
 		"value":"Other",
 		"description":"Text for the 'Other' option in select drop-down controls"
 	},
-	"file_button_text":{
+	"vle_toolbar_files":{
 		"value":"Files",
 		"description":"Text on the File Manager button for Student VLE"
 	},
-	"ideas_button_text":{
+	"vle_toolbar_ideaBasket":{
 		"value":"Ideas",
 		"description":"Text on the Idea Manager button for Student VLE"
 	},
-	"addidea_button_text":{
+	"vle_toolbar_newIdea":{
 		"value":"Add Idea",
 		"description":"Text on Add Idea buttons for Student VLE"
 	},
-	"mywork_button_text":{
+	"vle_toolbar_myWork":{
 		"value":"My Work",
 		"description":"Text on the My Work button for Student VLE"
 	},
-	"display_chat_room":{
-		"value":"Open Chat Room",
+	"vle_toolbar_chat":{
+		"value":"Chat Room",
 		"description":"Text on the Chat Room button for Student VLE"
 	},
-	"mywork_button_title":{
+	"vle_toolbar_myWorkTitle":{
 		"value":"Review My Work",
 		"description":"Text for mouse hover title on the My Work button"
 	},
@@ -313,7 +321,7 @@
 	},
 	"insertImage":{
 		"value":"Insert Image",
-		"description":"Text 'Insert Image', to use for file upload"
+		"description":"Text 'Insert Image', to use for image selection"
 	},
 	"idea":{
 		"value":"idea",
@@ -325,15 +333,15 @@
 	},
 	"idea_manager":{
 		"value":"Idea Manager",
-		"description":"Text for the Idea Manager tool"
+		"description":"The default text for the Idea Manager tool"
 	},
 	"idea_basket":{
 		"value":"Idea Basket",
-		"description":"The text 'Idea Basket' in the Idea Manager"
+		"description":"The default text for the Idea Basket in the Idea Manager tool"
 	},	
 	"idea_basket_add_an_idea":{
 		"value":"Add Idea",
-		"description":"The text 'Add Idea' in the Idea Manager"
+		"description":"The default text for button to add a new idea in the Idea Manager tool"
 	},
 	"idea_basket_retrieval_error":{
 		"value":"Error: Could not open Idea Basket, refresh the VLE to try to load it again",
@@ -636,7 +644,7 @@
 		"description":"Text to display for the new project button."
 	},
 	"authoring_exit": {
-		"value":"Exit to Home",
+		"value":"Teacher Home",
 		"description":"Text to display for the exit button."
 	},
 	"authoring_id": {
@@ -724,16 +732,32 @@
 		"description":"Text for the title/tooltip of the edit activity term text input in the project authoring panel."
 	},
 	"authoring_project_panel_edit_info":{
-		"value":"Edit Project Details",
-		"description":"Text for the title/tooltip of the edit project info button in the project authoring panel."
+		"value":"Edit Details",
+		"description":"Text for the edit project link in the project authoring panel."
+	},
+	"authoring_project_panel_edit_order":{
+		"value":"Re-Order Content",
+		"description":"Text for the edit content order link in the project authoring panel."
+	},
+	"authoring_project_panel_edit_theme":{
+		"value":"Change Theme",
+		"description":"Text for the edit theme links in the project authoring panel."
+	},
+	"authoring_project_panel_edit_branches":{
+		"value":"Setup Branching",
+		"description":"Text for the edit branches link in the project authoring panel."
 	},
 	"authoring_project_panel_manage_files":{
 		"value":"Manage Files",
-		"description":"Text for the title/tooltip of the edit manage files button in the project authoring panel."
+		"description":"Text for the manage files link in the project authoring panel."
+	},
+	"authoring_project_tools_editStructure":{
+		"value":"Project Structure:",
+		"description":"Text for the edit structure section in the project tools menu of the authoring tool"
 	},
 	"authoring_project_panel_preview":{
-		"value":"Preview Project",
-		"description":"Text for the title/tooltip of the preview project info button in the project authoring panel."
+		"value":"Preview",
+		"description":"Text for the link to preview project in the project authoring panel."
 	},
 	"authoring_project_panel_more_info":{
 		"value":"Edit",
@@ -750,10 +774,6 @@
 	"authoring_project_panel_theme_label":{
 		"value":"Theme",
 		"description":"Label text for the edit theme link in the project authoring panel."
-	},
-	"authoring_project_panel_edit_theme":{
-		"value":"Change Theme",
-		"description":"Label/tooltip text for the edit theme link in the project authoring panel."
 	},
 	"authoring_project_panel_features":{
 		"value":"Features:",
@@ -783,9 +803,9 @@
 		"value":"Project Tools",
 		"description":"Header text for the project content tools panel."
 	},
-	"authoring_project_tools_create_activity":{
-		"value":"Create New Activity +",
-		"description":""
+	"authoring_project_tools_createActivity":{
+		"value":"New Activity",
+		"description":"Text for the button/link to create a new activity in the tools section of the project authoring panel"
 	},
 	"authoring_or": {
 		"value":"- or -",
@@ -848,12 +868,16 @@
 		"description":"Text for the processing message when copying a project in the copy project dialog window."
 	},
 	"authoring_dialog_meta_title": {
-		"value":"Edit Project Information",
+		"value":"Edit Project Details",
 		"description":"Title for the project information dialog window."
 	},
 	"authoring_dialog_meta_header":{
-		"value":"Details for Project {0}",
+		"value":"Project {0}",
 		"description":"Header text of the project information dialog window."
+	},
+	"authoring_dialog_meta_headerParent":{
+		"value":"(Copy of {0})",
+		"description":"Text identifying parent project in the header of the project information dialog window."
 	},
 	"authoring_dialog_meta_setting_basic":{
 		"value":"Basic Information",
@@ -870,6 +894,14 @@
 	"authoring_dialog_meta_field_author":{
 		"value":"Original Author:",
 		"description":"Label text for the original author field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_owner":{
+		"value":"Owner:",
+		"description":"Label text for the project owner field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_sharedUsers":{
+		"value":"Shared with:",
+		"description":"Label text for the shared users field in the project information dialog window."
 	},
 	"authoring_dialog_meta_field_contact":{
 		"value":"Contact:",
@@ -1127,6 +1159,10 @@
 		"value":"Delete",
 		"description":"Text for the link to delete an uploaded file in the manage project files dialog window."
 	},
+	"authoring_dialog_structure_title": {
+		"value":"Edit Project Structure",
+		"description":"Title for the edit project structure dialog window in the project authoring tool"
+	},
 	"authoring_dialog_assets_delete_confirm":{
 		"value":"Permanently delete \"{0}\" from project?",
 		"description":"Text for the confirmation message displayed when deleting an asset in the manage project files dialog window."
@@ -1175,16 +1211,20 @@
 		"value":"View Active",
 		"description":"Text for link to view the active content section of the project content authoring screen"
 	},
-	"authoring_project_content_activeHover":{
-		"value":"Click to Edit; Drag to Move",
+	"authoring_project_content_activeSequenceHover":{
+		"value":"Edit Activity",
 		"description":"Text to display when hovering over an element in the active content section of the project content authoring screen"
 	},
-	"authoring_project_content_inactiveHover":{
-		"value":"Click to Edit",
+	"authoring_project_content_sequenceTitleHover":{
+		"value":"Drag to re-order",
+		"description":"Text to display when hovering over the title of an element in the active content section of the project content authoring screen"
+	},
+	"authoring_project_content_inactiveSequenceHover":{
+		"value":"Edit Activity",
 		"description":"Text to display when hovering over an element in the inactive content section of the project content authoring screen"
 	},
-	"authoring_project_content_unusedHover":{
-		"value":"Click to View",
+	"authoring_project_content_unusedStepsHover":{
+		"value":"View Steps",
 		"description":"Text to display when hovering over the unused steps item in the inactive content section of the project content authoring screen"
 	},
 	"authoring_project_content_inactive": {

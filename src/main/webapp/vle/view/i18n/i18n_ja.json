@@ -1,17 +1,17 @@
 {
-    "file_button_text": {
+    "vle_toolbar_files": {
         "value": "ファイル",
         "description": "Text on the File Manager button for Student VLE"
     },
-    "ideas_button_text": {
+    "vle_toolbar_ideaBasket": {
         "value": "アイデア",
         "description": "Text on the Idea Manager button"
     },
-    "addidea_button_text": {
+    "vle_toolbar_newIdea": {
         "value": "アイデアを追加",
         "description": "Text on the Add Idea button"
     },
-    "mywork_button_text": {
+    "vle_toolbar_myWork": {
         "value": "マイワーク",
         "description": "Text on the My Work button"
     },
@@ -367,7 +367,7 @@
         "value": "採点するチームを変更する",
         "description": "text to show in the 'Change Team' button in the grading tool that brings up the grade-by-team page"
     },
-    "mywork_button_title": {
+    "vle_toolbar_myWorkTitle": {
         "value": "マイワークを見る",
         "description": "Text for mouse hover title on the My Work button"
     },
@@ -511,7 +511,7 @@
         "value": "ヒントを削除",
         "description": "The label for the 'delete current hint' button in the step hint authoring panel"
     },
-    "display_chat_room": {
+    "vle_toolbar_chat": {
         "value": "チャットルームをスタート",
         "description": "Text on the Chat Room button for Student VLE"
     },

@@ -16,6 +16,16 @@
 	font-size:.9em;
 }
 
+img.icon {
+	height:auto;
+	width:auto;
+}
+
+.ui-dialog img.icon {
+	height:16px;
+	width:auto;
+}
+
 #author_body header {
 	position:absolute;
 	top:0;
@@ -24,9 +34,9 @@
 	height:40px;
 	/*border: 4px solid #C6CF51;*/
 	border-bottom: 4px solid #CAD266;
-	-moz-box-shadow:1px 1px 3px #444;
+	/*-moz-box-shadow:1px 1px 3px #444;
 	-webkit-box-shadow:1px 1px 3px #444;
-	box-shadow:1px 1px 3px #444;
+	box-shadow:1px 1px 3px #444;*/
 	/*-moz-border-radius:6px;
 	-webkit-border-radius:6px;
 	border-radius:6px;
@@ -49,14 +59,14 @@
 	margin:0 auto;
 	/*max-width:1280px;
 	min-width:1024px;*/
-	min-width:800px;
+	min-width:900px;
 	position:relative;
 }
 
 #author_body #pageContent {
 	position:absolute;
 	left:0;
-	top:56px;
+	top:54px;
 	bottom:0;
 	right:0;
 }
@@ -87,7 +97,7 @@ label.error {
 .projectThumb {
 	float: left;
     margin:0 8px 10px 0;
-    border: 1px solid #666666;
+    border: 1px solid #373737;
     height: 75px;
     width: 75px;
 }
@@ -124,10 +134,10 @@ label.error {
 
 #author_body .contentPanel {
     background-color: #FFFFFF;
-    -o-box-shadow: 1px 1px 3px #444444;
-    -moz-box-shadow: 1px 1px 3px #444444;
-    -webkit-box-shadow: 1px 1px 3px #444444;
-    box-shadow: 1px 1px 3px #444444;
+    -o-box-shadow: 0 0 3px #444444;
+    -moz-box-shadow: 0 0 3px #444444;
+    -webkit-box-shadow: 0 0 3px #444444;
+    box-shadow: 0 0 3px #444444;
     overflow:auto;
 }
 
@@ -201,7 +211,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #projectWelcome #recent h3 {
 	color: #FF563F;
-    font-family: Trebuchet MS;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
     font-size: 1.2em;
     font-weight: normal;
     margin:0;
@@ -255,7 +265,7 @@ table.wisetable th, table.wisetable td {
 	-moz-box-shadow:0 0 3px #444444;
 	-webkit-box-shadow:0 0 3px #444444;
 	box-shadow:0 0 3px #444444;
-	font-family: Trebuchet MS;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
 	-webkit-transition: color 250ms, border-color 250ms, box-shadow 250ms;
 	-moz-transition: color 250ms, border-color 250ms, box-shadow 250ms;
 	-o-transition: color 250ms, border-color 250ms, box-shadow 250ms;
@@ -380,6 +390,7 @@ table.wisetable th, table.wisetable td {
 #author_body .panelHeader {
     padding:0 0 0.25em;
     font-size:1em;
+    font-family: "Source Sans Pro", sans-serif;
 }
 
 #author_body #projectInfo {
@@ -507,7 +518,7 @@ table.wisetable th, table.wisetable td {
 }
 
 #author_body #projectInfo #titleInput {
-	font-family:Trebuchet MS;
+	font-family:"Trebuchet MS", Helvetica, sans-serif;
     display:none;
     min-width:250px;
     margin: -0.025em 0.25em 0 0;
@@ -522,7 +533,6 @@ table.wisetable th, table.wisetable td {
 #author_body #projectInfo #projectTitle {
     cursor:pointer;
     padding:0 .1em;
-    margin-top:-0.1em;
 	font-size:120%;
 	display:inline-block;
 	overflow:hidden;
@@ -543,17 +553,18 @@ table.wisetable th, table.wisetable td {
     font-size:.9em;
     font-family: Arial, Helvetica, sans-serif;
     font-weight:bold;
+    padding-bottom: 1px;
+	display: inline-block;
 }
 
 #author_body #projectInfo img.infoIcon {
 	height: 18px;
-    margin: -2px 0 0 0.3em;
+    margin: -6px 0 0 0.3em;
     width: 18px;
 }
 
-#author_body #projectInfo ul#topProjectTools {
-	list-style-type:none;
-	margin: 0;
+#author_body #projectInfo #topProjectTools {
+	margin-left: 0.25em;
     padding: 0;
     position: absolute;
     right: 0;
@@ -561,10 +572,10 @@ table.wisetable th, table.wisetable td {
     bottom:0;
 }
 
-#author_body #projectInfo ul#topProjectTools li {
-	display:inline-block;
-	cursor:pointer;
-	margin-left:.25em;
+#author_body #projectInfo #topProjectTools a img {
+	margin-right:.5em;
+	height: 26px;
+	margin-bottom: 2px;
 }
 
 #author_body #projectInfo .tSwitch {
@@ -600,7 +611,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #projectInfo #frontDetails .right {
 	position:absolute;
-	bottom:0;
+	bottom:3px;
 	right:0;
 }
 
@@ -616,11 +627,11 @@ table.wisetable th, table.wisetable td {
 
 #author_body #author_messages {
 	position:absolute;
-	top:-1em;
+	top:-0.8em;
 	text-align:center;
-	left:.5em;
-	right:.5em;
-	font-size:.85em;
+	left:0.5em;
+	right:0.5em;
+	font-size:0.85em;
 	z-index:1;
 }
 
@@ -636,7 +647,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #authoringContainer {
 	position:relative;
-	margin-left: 204px;
+	margin-left: 196px;
 	padding-top:10px;
 }
 
@@ -646,7 +657,7 @@ table.wisetable th, table.wisetable td {
     overflow: auto;
     position: absolute;
     top: 10px;
-    width: 178px;
+    width: 170px;
 }
 
 #author_body .projectPanel {
@@ -663,16 +674,34 @@ table.wisetable th, table.wisetable td {
 #author_body .projectPanel .panelHeader {
 	border-bottom: 1px solid #CCCCCC;
     color: #555555;
-    font-family: 'Source Sans Pro', sans-serif;
     font-size: 1.2em;
-    margin: 0 0.25em 0.5em;
+    margin: 0 0.25em;
     padding: .25em 0;
 }
 
 #author_body .projectPanel section {
-	font-size:.9em;
-	padding:.25em;
+	font-size: .9em;
+	padding: 4px 0 5px;
+	border-bottom: 1px dotted #ccc;
+	margin: 0 .25em;
+}
+
+#author_body .projectPanel section.center {
 	text-align:center;
+}
+
+#author_body #projectTools section p, #author_body #projectTools section div, #author_body #projectTools section h5 {
+	margin:.25em;
+}
+
+#author_body #projectTools section a img {
+	height: 17px;
+	margin: -2px 4px 0 0;
+}
+
+#author_body #projectTools section a.submit {
+	display:block;
+	margin:0 auto;
 }
 
 #author_body .projectComponent > h3 {
@@ -699,7 +728,7 @@ table.wisetable th, table.wisetable td {
 
 #author_body #sequenceEditor .sequenceContents {
 	margin: 0.5em auto;
-    width: 90%;
+    width: 96%;
     min-height:200px;
     position:relative;
 }
@@ -857,14 +886,13 @@ table.wisetable th, table.wisetable td {
 	vertical-align:top;
 	position:relative;
 	overflow:hidden;
-	cursor:pointer;
 }
 
 #author_body #dynamicProject .seq:hover {
-	-moz-box-shadow:0 0 2px #666;
+	/*-moz-box-shadow:0 0 2px #666;
     -webkit-box-shadow:0 0 2px #666;
     -o-box-shadow:0 0 2px #666;
-    box-shadow:0 0 2px #666;
+    box-shadow:0 0 2px #666;*/
 }
 
 #author_body #dynamicProject .seq .seqWrap {
@@ -878,6 +906,12 @@ table.wisetable th, table.wisetable td {
     top: 0;
 }
 
+#author_body #dynamicProject .seq .seqWrap ul.sequence li.node {
+	height:20px;
+	line-height:20px;
+	margin-top:0.25em;
+}
+
 #author_body #dynamicProject .seq .sequenceTitle,
 #author_body #dynamicProject .seq .sequenceInfo {
 	padding:5px;
@@ -885,22 +919,22 @@ table.wisetable th, table.wisetable td {
 
 #author_body #dynamicProject .seq .sequenceTitle {
 	line-height:1.3em;
-	color:#ffffff;
 	border:0 none;
 	margin:-6px -6px 5px;
 	padding:5px 7px;
+	cursor:move;
+	padding-left:5px;
+}
+
+#author_body #dynamicProject .seq .sequenceTitle, ul.sequenceItem li.seq .item  {
 	-o-text-shadow: 0 0 1px #007391;
 	-moz-text-shadow: 0 0 1px #007391;
 	-webkit-text-shadow: 0 0 1px #007391;
 	text-shadow: 0 0 1px #007391;
+	color:#ffffff;
 }
 
-#author_body #dynamicProject #activeContainer .seq .sequenceTitle {
-	padding-left:5px;
-	cursor:move;
-}
-
-#author_body #dynamicProject #inactiveContainer .seq .sequenceTitle {
+#author_body #dynamicProject #inactiveContainer .seq .sequenceTitle, ul.sequenceItem li.seq .item.inactive {
 	background: #666666;
 	text-shadow: 0 0 1px #555555;
 }
@@ -913,10 +947,9 @@ table.wisetable th, table.wisetable td {
 	position:absolute;
 	left:-1px;
 	right:-1px;
-	background-color:#000000;
-	color:#bbbbbb;
-	text-align:center;
-	padding-top:20px;
+	background-color:transparent;
+	background-color:rgba(0,0,0,.15);
+	color:#ffffff;
 	opacity:0;
 	filter:Alpha(Opacity=0);
 	-webkit-transition: opacity 250ms;
@@ -924,11 +957,25 @@ table.wisetable th, table.wisetable td {
 	-o-transition: opacity 250ms;
 	-ms-transition: opacity 250ms;
 	transition: opacity 250ms;
+	cursor:pointer;
 }
 
-#author_body #dynamicProject .seq:hover .sequenceOverlay {
-	opacity:.8;
-	filter:Alpha(Opacity=80);
+#author_body #dynamicProject .seq .sequenceOverlay > div {
+	position:absolute;
+	bottom:0;
+	left:0;
+	right:0;
+	background-color:#000000;
+	background-color:rgba(0,0,0,.75);
+	font-weight:bold;
+	font-size:.9em;
+	text-align:center;
+	padding:.5em 0;
+}
+
+#author_body #dynamicProject .seq .sequenceOverlay:hover {
+	opacity:1;
+	filter:Alpha(Opacity=100);
 }
 
 #author_body #dynamicProject .seq .sequenceTitle .ui-icon {
@@ -942,16 +989,20 @@ table.wisetable th, table.wisetable td {
 	background-color: #FFFFFF;
     border-top: 1px solid #CCCCCC;
     bottom: 0;
-    -o-box-shadow: 0 -1px 1px 0 #FFFFFF, 0 0 30px 0 #DDDDDD inset;
-    -moz-box-shadow: 0 -1px 1px 0 #FFFFFF, 0 0 30px 0 #DDDDDD inset;
-    -webkit-box-shadow: 0 -1px 1px 0 #FFFFFF, 0 0 30px 0 #DDDDDD inset;
-    box-shadow: 0 -1px 1px 0 #FFFFFF, 0 0 30px 0 #DDDDDD inset;
+    -o-box-shadow: 0 -1px 1px 0 #ffffff, 0 0 30px 0 #cccccc inset;
+    -moz-box-shadow: 0 -1px 1px 0 #ffffff, 0 0 30px 0 #cccccc inset;
+    -webkit-box-shadow: 0 -1px 1px 0 #ffffff, 0 0 30px 0 #cccccc inset;
+    box-shadow: 0 -1px 1px 0 #ffffff, 0 0 30px 0 #cccccc inset;
     color: #555555;
     font-size: 0.9em;
     left: 0;
     position: absolute;
     right: 0;
     padding:.5em .75em;
+}
+
+#author_body #dynamicProject .seq .sequenceInfo a {
+	color: #555555;
 }
 
 #author_body #dynamicProject .seq .sequenceInfo .actions {
@@ -967,11 +1018,10 @@ table.wisetable th, table.wisetable td {
 }
 
 #author_body #dynamicProject .seq .sequenceInfo .actions img.icon {
-	height: 20px;
     opacity: 0.65;
     filter:Alpha(Opacity=65);
     padding-top: 2px;
-    width: 20px;
+    height: 20px;
     -webkit-transition: all 250ms;
 	-moz-transition: all 250ms;
 	-o-transition: all 250ms;
@@ -984,50 +1034,10 @@ table.wisetable th, table.wisetable td {
 	filter:Alpha(Opacity=1);
 }
 
-#author_body #dynamicProject .seq:hover .nodeCount {
-	text-decoration:underline;
-}
-
-#author_body ul.sequence {
-	list-style-type: none;
-    margin: 5px;
-    padding: 0;
-    overflow: auto;
-}
-
-#author_body ul.sequence .placeholder {
-	height:24px;
-	background-color:#dddddd;
-	border: 1px solid #dddddd;
-	margin: 0.5em 0 .25em;
-}
-
-#author_body ul.sequence li.node {
-	background-color: #F5F5F5;
-    border: 1px solid #CCCCCC;
-    font-size: 0.9em;
-    margin-top: 0.25em;
-    padding: 0.1em;
-    color:#555555;
-    overflow:hidden;
-	-o-text-overflow: ellipsis;
-  	-webkit-text-overflow: ellipsis;
-  	text-overflow: ellipsis;
-	white-space:nowrap;
-}
-
-#author_body ul.sequence li.node .type {
-	display:none;
-	font-size:.9em;
-	margin:0 .5em;
-	color:#888888;
-}
-
 #author_body #sequenceContent > div {
 	margin: 0.5em;
     padding: 0.25em 0;
 	position:relative;
-	color:#666666;
 }
 
 #author_body #sequenceContent > div label {
@@ -1035,7 +1045,7 @@ table.wisetable th, table.wisetable td {
 	font-size:1.1em;
 }
 
-#author_body #sequenceControls {
+#author_body #seqControls, #author_body #seqControlsPlaceholder {
 	margin:.5em 0 0 !important;
 	background-color:#FFFFFF;
 }
@@ -1046,11 +1056,11 @@ table.wisetable th, table.wisetable td {
     top: 2px;
 }
 
-#author_body #sequenceControls.sticky {
+#author_body #seqControls.sticky {
 	padding:7px 0;
 }
 
-#author_body #sequenceControls.sticky #stepTools {
+#author_body #seqControls.sticky #stepTools {
 	top:5px;
 }
 
@@ -1066,40 +1076,83 @@ table.wisetable th, table.wisetable td {
 	padding: 0 3px 1px 2px;
 }
 
-#author_body .sequenceContents ul.sequence {
-	margin:0 1em 0.5em;
+ul.sequence, ul.sequenceItem {
+	list-style-type: none;
+    margin: 5px;
+    padding: 0;
+    overflow: auto;
+    margin:0 0.5em 0.5em;
 }
 
-#author_body .sequenceContents ul.sequence li.node {
+ul.sequence .placeholder, ul.sequenceItem .placeholder {
+	height:24px;
+	background-color:#dddddd;
+	border: 1px solid #dddddd;
+	margin: 0.5em 0 .25em;
+}
+
+ul.sequence li.node, ul.sequenceItem li.seq .item {
+	background-color: #F5F5F5;
+    border: 1px solid #CCCCCC;
+    font-size: 0.9em;
+    margin-top: 0.25em;
+    padding: 0.1em;
+    color:#555555;
+    overflow:hidden;
+	-o-text-overflow: ellipsis;
+  	-webkit-text-overflow: ellipsis;
+  	text-overflow: ellipsis;
+	white-space:nowrap;
 	/*cursor:pointer;*/
 	margin-top:.5em;
 	height: 24px;
     line-height: 24px;
     position:relative;
+    cursor:move;
 }
 
-#author_body .sequenceContents ul.sequence li.node:hover {
+ul.sequenceItem li.seq .item {
+	border-color: #1c8ca8;
+	color:#FFFFFF;
+}
+
+ul.sequenceItem li.seq .item.inactive {
+	border-color:#666666;
+}
+
+ul.sequence li.node .type {
+	display:none;
+	font-size:.9em;
+	margin:0 .5em;
+	color:#888888;
+}
+
+ul.sequence li.node:hover {
 	/*background-color:#F2F5DB;*/
 }
 
-#author_body .sequenceContents ul.sequence li.node.selected {
+ul.sequence li.node.selected {
 	border-color: #1C8CA8;
 	background-color:#eaf4f7;
 }
 
-#author_body .sequenceContents ul.sequence li.node.unused {
+ul.sequence li.node.unused {
 	cursor:default;
 }
 
-#author_body .sequenceContents ul.sequence li.node .move {
+ul.sequence .move, ul.sequenceItem .move {
 	cursor:move;
 }
 
-#author_body .sequenceContents ul.sequence li.node .type {
+ul.sequence li.node .type {
 	display:inline;
 }
 
-#author_body .sequenceContents ul.sequence li.node .title {
+ul.sequence li.node .stepTitle {
+	font-weight:bold;
+}
+
+ul.sequence li.node .title {
 	overflow:hidden;
 	-o-text-overflow: ellipsis;
   	-webkit-text-overflow: ellipsis;
@@ -1107,35 +1160,43 @@ table.wisetable th, table.wisetable td {
 	white-space:nowrap;
 }
 
-#author_body .sequenceContents ul.sequence li.node .edit {
+ul.sequence li.node .edit {
 	position:absolute;
 	right:.5em;
 	font-size:.95em;
 }
 
-#author_body .sequenceContents ul.sequence li.node img.icon {
+ul.sequence li.node img.icon {
 	height:18px;
 	width:18px;
 	margin:-3px .25em 0;
 	
 }
 
-#author_body ul.sequence li.node .ui-icon {
+ul.sequence li.node .ui-icon, ul.sequenceItem .ui-icon {
 	display: inline-block;
-    margin-bottom: 0.2em;
+    margin-bottom: 0.3em;
     vertical-align: middle;
 }
 
-#author_body ul.sequence li.node input[type="checkbox"] {
+ul.sequence li.node input[type="checkbox"] {
 	margin-right:.25em;
 }
 
-#author_body ul.sequence li.node.unused input[type="checkbox"] {
+ul.sequence li.node.unused input[type="checkbox"] {
 	margin:0 .25em;
 }
 
-#author_body ul.sequence li.node img {
-	margin: 0 0.25em 0.1em 0.25em;
+ul.sequence li.node img {
+	margin: 0 0.25em 0.2em 0.25em;
+}
+
+ul.sequenceItem ul.sequence {
+	margin:0 0.5em 0.5em 1em;
+}
+
+ul.sequenceItem .seqTitle {
+	font-weight:bold;
 }
 
 /* Toolbars  - TODO: move to globalstyles eventually */
@@ -1325,6 +1386,11 @@ table.wisetable th, table.wisetable td {
 	color:#444444;
 }
 
+.alert .featureSettings {
+	border:0 none;
+	background-color:#ffffff;
+}
+
 .featureSettings:first-child {
 	margin-top:0;
 }
@@ -1340,7 +1406,7 @@ table.wisetable th, table.wisetable td {
 }
 
 .featureSettings label {
-	/*font-weight:bold;*/
+	font-weight:bold;
 }
 
 .featureSettings input[type="checkbox"] {
@@ -1348,9 +1414,6 @@ table.wisetable th, table.wisetable td {
 }
 
 .featureSettings .ui-selectmenu-button {
-}
-
-.featureSettings .ui-selectmenu-button a.ui-button {
 	margin: 0 0.5em 0.2em .25em;
     vertical-align: middle;
 }
@@ -1376,8 +1439,10 @@ table.wisetable th, table.wisetable td {
     color:#444444;
 }
 
-.featureSettings .settingsHeader .details img.help {
-	margin-right:0;
+.featureSettings .settingsHeader .more {
+	font-weight:normal;
+	font-size: 0.9em;
+	margin-left:0.25em;
 }
 
 .featureSettings .settingsHeader .details input[type="checkbox"] {
@@ -1510,7 +1575,7 @@ table.wisetable th, table.wisetable td {
 #createProjectDialog #createOr {
 	background: none repeat scroll 0 0 #FFFFFF;
     color: #FF563F;
-    font-family: Trebuchet MS;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
     font-size: 1.25em;
     font-style: italic;
     font-weight: bold;
@@ -1557,7 +1622,7 @@ table.wisetable th, table.wisetable td {
 	padding:0;
 }
 
-#openProjectDialog #projectTabs #createNewContent {
+#openProjectDialog #projectTabs #openProjectIntro {
 	position: absolute;
     right: 0.25em;
     top: 0.1em;
@@ -1620,6 +1685,7 @@ table.wisetable th, table.wisetable td {
 .projectListing .projectDetails img {
 	margin-left: 0.5em;
     vertical-align: top;
+    height:16px;
 }
 
 input.openProject {
@@ -1643,6 +1709,10 @@ input.openProject {
     width: 90%;
     display:block;
     margin: 0.5em auto;
+}
+
+#editProjectMetadataDialog #sharedUsersDisplay, #editProjectMetadataDialog #originalAuthorDisplay {
+	display:none;
 }
 
 /* Idea Manager Settings */
@@ -2167,6 +2237,13 @@ table#ideaAttributes {
 #assetEditorDialog #previewAsset #previewDetails #previewActions > a:last-child {
 	border-right: 0 none;
 	padding-right:2px;
+}
+
+
+/* Project Structure Dialog */
+
+#projectStructureDialog #structureSelect {
+	display:none;
 }
 
 

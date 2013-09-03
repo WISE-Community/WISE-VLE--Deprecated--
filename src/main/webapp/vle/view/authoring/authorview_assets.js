@@ -64,7 +64,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 								//{text: this.getI18NString("authoring_dialog_assets_remove"), click: remove}];
 	
 	// setup asset editor dialog
-	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:800, title: this.getI18NString("authoring_dialog_assets_title"),
+	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:820, title: this.getI18NString("authoring_dialog_assets_title"),
 		//buttons: this.assetEditorButtons,
 		dialogClass: 'settings',
 		open: function(){

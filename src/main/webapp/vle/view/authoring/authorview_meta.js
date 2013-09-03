@@ -284,7 +284,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		$('#editProjectMetadataDialog').dialog('close');
 	};
 	
-	$('#editProjectMetadataDialog').dialog({autoOpen:false, modal:true, title:this.getI18NString('authoring_dialog_meta_title'), width:800,
+	$('#editProjectMetadataDialog').dialog({autoOpen:false, modal:true, title:view.getI18NString('authoring_dialog_meta_title'), width:850,
 		dialogClass: 'settings',
 		open: function(){
 			// initialize jQuery UI selectmenus on select elements
@@ -351,32 +351,37 @@ View.prototype.editProjectMetadata = function(show){
 		$('#projectMetadataStandards').val(this.utils.resolveNullToEmptyString(this.projectMeta.standards));
 		$('#projectMetadataKeywords').val(this.utils.resolveNullToEmptyString(this.projectMeta.keywords));
 		
-		var techReqs = this.projectMeta.techReqs;
+		var techReqs = this.projectMeta.techReqs,
+			techReqSettings = $('#projectMetadataTechFlash, #projectMetadataTechJava, #projectMetadataTechQuickTime');
 		
 		if(techReqs != null) {
 
 			//determine if flash needs to be checked
-			if(techReqs.flash) {
-				$('#projectMetadataTechFlash').prop('checked', true);
-			}
+			var flashReq = techReqs.flash ? true : false;
+			$('#projectMetadataTechFlash').prop('checked', flashReq);
 			
 			//determine if java needs to be checked
-			if(techReqs.java) {
-				$('#projectMetadataTechJava').prop('checked', true);
-			}
+			var javaReq = techReqs.java ? true : false;
+			$('#projectMetadataTechJava').prop('checked', javaReq);
 			
 			//determine if quicktime needs to be checked
-			if(techReqs.quickTime) {
-				$('#projectMetadataTechQuicktime').prop('checked', true);
-			}
+			var quickTimeReq = techReqs.quickTime ? true : false;
+			$('#projectMetadataTechQuickTime').prop('checked', quickTimeReq);
 
 			//set the tech details string
 			$('#projectMetadataTechDetails').val(this.utils.resolveNullToEmptyString(techReqs.techDetails));
+		} else {
+			techReqSettings.prop('checked', false);
 		}
 		
 		if(doShow){
 			// set header text with project id
-			$('#metaHeader').html(this.getI18NStringWithParams('authoring_dialog_meta_header',[this.portalProjectId]));
+			var metaHeaderText = this.getI18NStringWithParams('authoring_dialog_meta_header',[this.portalProjectId]);
+			// add parent project id, if applicable
+			if(typeof this.parentProjectId === 'number'){
+				metaHeaderText += '<span class="more">' + this.getI18NStringWithParams('authoring_dialog_meta_headerParent',[this.parentProjectId]) + '</span>';
+			}
+			$('#metaHeader').html(metaHeaderText);
 			
 			if ($('#editProjectMetadataDialog').is(':visible')){
 				// refresh jQuery UI selectmenus

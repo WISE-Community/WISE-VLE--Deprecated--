@@ -3,23 +3,23 @@
         "value": "rivista",
         "description": "Text on the Journal button"
     },
-    "ideas_button_text": {
+    "vle_toolbar_ideaBasket": {
         "value": "idee",
         "description": "Text on the Idea Manager button"
     },
-    "file_button_text": {
+    "vle_toolbar_files": {
         "value": "file",
         "description": "Text on the File Manager button"
     },
-    "addidea_button_text": {
+    "vle_toolbar_newIdea": {
         "value": "mario",
         "description": "Text on the Add Idea button"
     },
-    "mywork_button_text": {
+    "vle_toolbar_myWork": {
         "value": "毎ワーク",
         "description": "Text on the My Work button"
     },
-    "display_chat_room": {
+    "vle_toolbar_chat": {
         "value": "\"hi\"",
         "description": "Text on the Chat Room button for Student VLE"
     },
@@ -31,7 +31,7 @@
         "value": "firsto time only",
         "description": "The text \"First Time Only\" to display in \"force show:\" drop down in the step hint authoring panel"
     },
-    "mywork_button_title": {
+    "vle_toolbar_myWorkTitle": {
         "value": "\"review\"",
         "description": "Text for mouse hover title on the My Work button"
     },

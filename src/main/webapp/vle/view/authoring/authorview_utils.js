@@ -100,6 +100,11 @@ View.prototype.utils.resize = function(){
 	$('#projectTitle').css('max-width',titleMaxW + 'px');
 	$('#projectTitle').width('auto').width($('#projectTitle').width() + 2);
 	
+	// set width of activity editing controls
+	if($('#seqControls').hasClass('sticky')){
+		view.positionActivityControls();
+	}
+	
 	// set projectStructure to fit the remaining height of the projectContent
 	var psHeight = $('#projectContent').height() - $('#projectInfo').outerHeight(true) - parseInt($('#projectContent > .panelContent').css('padding-top'),10) - parseInt($('#projectContent > .panelContent').css('padding-bottom'),10);
 	$('#projectStructure').height(psHeight);

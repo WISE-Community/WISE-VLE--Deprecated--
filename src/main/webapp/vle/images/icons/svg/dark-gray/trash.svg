@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="90px" height="100px" viewBox="-5 0 90 100" enable-background="new -5 0 90 100" xml:space="preserve">
+<g>
+	<title>Layer 1</title>
+	<path id="svg_1" fill="#222222" d="M6.939,28.697l8.246,61.439c0,3.459,11.112,6.263,24.815,6.263
+		c13.707,0,24.815-2.804,24.815-6.263l9.637-61.907C64.499,31.851,46.834,32.241,40,32.241
+		C33.473,32.241,17.074,31.883,6.939,28.697L6.939,28.697z M72.96,13.717L61.427,7.775C54.5,6,57.359,5.603,40,5.603
+		S25.25,6.25,18.573,7.779L7.044,13.717C4.146,14.722,2.5,15.869,2.5,17.091v4.546C2.5,25.539,19.292,28.7,40,28.7
+		s37.5-3.166,37.5-7.063v-4.546C77.5,15.869,75.854,14.722,72.96,13.717z"/>
+	<g id="svg_4">
+		<rect id="svg_2" x="27.405" y="42.5" fill="#FFFFFF" width="5.725" height="36"/>
+		<rect id="svg_3" x="46.87" y="42.5" fill="#FFFFFF" width="5.726" height="36"/>
+	</g>
+</g>
+</svg>

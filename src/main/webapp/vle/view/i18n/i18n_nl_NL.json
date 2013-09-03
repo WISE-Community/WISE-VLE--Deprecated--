@@ -1,13 +1,13 @@
 {
-    "file_button_text": {
+    "vle_toolbar_files": {
         "value": "Bestanden",
         "description": "Text on the File Manager button"
     },
-    "ideas_button_text": {
+    "vle_toolbar_ideaBasket": {
         "value": "Ideeën",
         "description": "Text on the Idea Manager button"
     },
-    "addidea_button_text": {
+    "vle_toolbar_newIdea": {
         "value": "Voeg een idee toe",
         "description": "Text on the Add Idea button"
     },
@@ -55,11 +55,11 @@
         "value": "Volgende >",
         "description": "'Next Step' button in the gradingtool that will show the next step in the project"
     },
-    "mywork_button_text": {
+    "vle_toolbar_myWork": {
         "value": "Onze antwoorden",
         "description": "Text on the My Work button for Student VLE"
     },
-    "mywork_button_title": {
+    "vle_toolbar_myWorkTitle": {
         "value": "Onze antwoorden herzien ",
         "description": "Text for mouse hover title on the My Work button"
     },
@@ -419,7 +419,7 @@
         "value": "Tijdsaanduiding",
         "description": "timestamp"
     },
-    "display_chat_room": {
+    "vle_toolbar_chat": {
         "value": "Chat ruimte",
         "description": "Text on the Chat Room button for Student VLE"
     },

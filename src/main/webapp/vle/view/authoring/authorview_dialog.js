@@ -363,6 +363,41 @@ View.prototype.populateCreateNodeChoices = function() {
 };
 
 /**
+ * Creates and renders the dialog to edit the project structure
+ */
+View.prototype.initializeEditProjectStructureDialog = function(){
+	var view = this;
+	
+	$('#structureSelect').tabs();
+	
+	var cancel = function(){
+		$('#projectStructureDialog').dialog('close');
+		// TODO: reset order
+	};
+	
+	var save = function(){
+		
+	};
+	
+	$('#projectStructureDialog').dialog({autoOpen:false, draggable:false, modal:true,
+		minWidth: 800,
+		maxWidth: 1024,
+		/*dialogClass: 'alert',*/
+		dialogClass: 'settings',
+		title:view.getI18NString('authoring_dialog_structure_title'),
+		buttons: [{text: view.getI18NString("cancel"), click: cancel, class: 'secondary'},
+		          {text: view.getI18NString("saveChanges"), click: save}],
+		open: function(){
+			view.utils.fitDialogToWindow($(this));
+		},
+		close: function(){
+			$(this).dialog('option','height','auto');
+			$(this).dialog('option','width','auto');
+		}
+	});
+};
+
+/**
  * Creates and renders the dialog to edit the project file
  */
 View.prototype.initializeEditProjectFileDialog = function(){
@@ -627,7 +662,9 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 	$('#editIMSettingsDialog').dialog({autoOpen:false, modal:true, title:'Idea Manager Settings', width:800,
 		dialogClass: 'settings',
 		open: function(){
-			$('#enableIdeaManager').toggleSwitch();
+			$('#enableIdeaManager').toggleSwitch({
+				labels: [view.getI18NString("toggleOn"), view.getI18NString("toggleOff")]
+			});
 			$('#enableIdeaManager').toggleSwitch('refresh');
 			
 			// adjust dialog height to window
@@ -640,9 +677,9 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 			// reset form validation
 			$('#imSettings').validate().resetForm();
 		},
-		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'},
-		          {text: this.getI18NString("undo_changes"), click: undoIMSettings, class: 'secondary'},
-		          {text: this.getI18NString("save"), click: updateIMSettings}]
+		buttons: [{text: view.getI18NString("cancel"), click: cancel, class: 'secondary'},
+		          {text: view.getI18NString("undo_changes"), click: undoIMSettings, class: 'secondary'},
+		          {text: view.getI18NString("save"), click: updateIMSettings}]
 	});
 };
 

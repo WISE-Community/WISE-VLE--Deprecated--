@@ -1,8 +1,8 @@
 /**
- * Functions specific to the selection process in the project layout for the authoring view
+ * Functions specific to the selection and content editing process in the project layout for the authoring view
  * 
  * @author patrick lawler
- * @author jonathan breitbart
+ * @author jonathan lim-breitbart
  * 
  */
 
@@ -152,7 +152,7 @@ View.prototype.deleteSelected = function(){
 			'<span class="ui-icon ui-icon-alert"></span>' + 
 			'WARNING: This operation is permanent and cannot be undone!</p>' + 
 			'<p>As an alternative, you can move activities to the Inactive Content section by clicking ' +
-			'<img src="/vlewrapper/vle/images/icons/dark/24x24/hide.png" class="icon" alt="hide"> (Hide). ' + 
+			'<img src="/vlewrapper/vle/images/icons/svg/dark-gray/hide.svg" class="icon" alt="hide"> (Hide). ' + 
 			'Inactive activities do not show up when viewing the project, but are saved for possible future use.</p>';
 		
 	} else if(selected.nodes.size>0){
@@ -272,7 +272,7 @@ View.prototype.hideSelected = function(){
 		target = 'uSeq';
 		info = '<p>If you hide an activity, it will not appear when viewing the project but will be saved in the Inactive Content section. ' +
 			'You can always move an activity back to Active Content by clicking ' +
-			'<img src="/vlewrapper/vle/images/icons/dark/24x24/show.png" class="icon" alt="show"> (Show).</p>';
+			'<img src="/vlewrapper/vle/images/icons/svg/dark-gray/show.svg" class="icon" alt="show"> (Show).</p>';
 		
 		if(selected.seqs.size()==1){ // one activity has been selected for deletion
 			var seq = $(selected.seqs[0]),
@@ -343,7 +343,7 @@ View.prototype.moveNodes = function(id, className){
 	// get selected nodes to move
 	var selected = this.getSelected(className);
 	
-	if(id=='uSeq'){//only move sequences to unattached sequences
+	if(id==='uSeq'){//only move sequences to unattached sequences
 		if(selected.nodes.size()>0){
 			this.notificationManager.notify('Only Activities can be moved into the Inactive Activities area.', 3);
 		}
@@ -354,7 +354,7 @@ View.prototype.moveNodes = function(id, className){
 		for(var b=0;b<removed.length;b++){
 			this.getProject().getSequenceNodes().unshift(removed[b]);
 		}
-	} else if(id=='uNode'){//only move nodes to unattached nodes
+	} else if(id==='uNode'){//only move steps to unattached steps
 		if(selected.seqs.size()>0){
 			this.notificationManager.notify('Only Steps can be moved into the Inactive Steps area.', 3);
 		}	
@@ -374,7 +374,7 @@ View.prototype.moveNodes = function(id, className){
 				
 				//enforce project structure
 				if(this.simpleProject){
-					if(toNode.type=='sequence'){//only sequences can be siblings to sequences in simple project mode
+					if(toNode.type==='sequence'){//only sequences can be siblings to sequences in simple project mode
 						//var removed = this.removeFromProject(selected.seqs, use2x);
 						var removed = this.removeFromProject(selected.seqs);
 						if(selected.nodes.size()>0){
@@ -406,7 +406,7 @@ View.prototype.moveNodes = function(id, className){
 					}
 					
 					//if(!use2x){
-						if(removed[f].type=='sequence'){
+						if(removed[f].type==='sequence'){
 							this.getProject().getSequenceNodes().push(removed[f]);
 						} else {
 							this.getProject().getLeafNodes().push(removed[f]);
@@ -688,6 +688,16 @@ View.prototype.checkReviewSequenceOrder = function() {
 		//$('.reviewWarning').remove();
 		//this.notificationManager.notify('Warning: One or more Review Sequences in your project are out of order and will not function correctly! Please fix before running project in a classroom.', 3, 'keepMsg reviewWarning');
 	}
+};
+
+/**
+ * Opens the edit project structure dialog
+ */
+View.prototype.editProjectStructure = function(){
+	// open project structure dialog
+	$('#projectStructureDialog').dialog('open');
+	
+	
 };
 
 
@@ -1182,7 +1192,7 @@ View.prototype.moveCallback = function(id, args){
 		var pIdLoc = id.id.split('--');
 		var toNode = this.getProject().getNodeById(pIdLoc[1]);
 		if(id.after){//move selected after node - selected become siblings
-			if(pIdLoc[0]!='null'){
+			if(typeof pIdLoc[0] === "string"){
 				var parent = this.getProject().getNodeById(pIdLoc[0]);
 				
 				//enforce project structure

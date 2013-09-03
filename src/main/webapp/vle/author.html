@@ -38,11 +38,11 @@
 				<div id="globalTools" class="toolbar">
 					<ul>
 						<li id="openProject">
-							<a id="openProjectLink" href="#nopath" data-i18n="authoring_open_project"></a>
+							<a id="openProjectLink" href="javascript:void(0);" data-i18n="authoring_open_project"></a>
 						</li>
 						
 						<li id="newProject" class="menuGroup">
-							<a id="newProjectLink" href="#nopath" data-i18n="authoring_new_project"></a>
+							<a id="newProjectLink" href="javascript:void(0);" data-i18n="authoring_new_project"></a>
 						</li>
 						
 						<li id="signOutLinks" class="menuGroup">
@@ -93,14 +93,12 @@
 						<div id="editThumb"><div data-i18n="authoring_project_panel_edit_thumb"></div></div>
 						<div id="infoSummary">
 							<div class="panelHeader">
-								<a class="bookmark tooltip" href="#nogo" data-i18n-title="authoring_toggle_favorite_title" data-tooltip-offset="4" data-tooltip-anchor="bottom"></a>
+								<a class="bookmark tooltip" href="javascript:void(0);" data-i18n-title="authoring_toggle_favorite_title" data-tooltip-offset="4" data-tooltip-anchor="bottom"></a>
 								<span id="projectTitle" class="inputDisplay tooltip" data-i18n-title="authoring_project_panel_edit_title" data-tooltip-offset="-2" data-tooltip-anchor="bottom"></span>
 								<span id="projectId"></span>
-								<ul id="topProjectTools">
-									<li id="editInfo" class="tooltip" data-i18n-title="authoring_project_panel_edit_info" data-tooltip-anchor="bottom" data-tooltip-offset="-3"><img alt="Project Details" src="/vlewrapper/vle/images/icons/teal/configuration.png" /></li>
-									<li id="manageFiles" class="tooltip" data-i18n-title="authoring_project_panel_manage_files" data-tooltip-anchor="bottom" data-tooltip-offset="-3"><img alt="Art and Files" src="/vlewrapper/vle/images/icons/teal/container.png" /></li>
-									<li id="previewProject" class="tooltip" data-i18n-title="authoring_project_panel_preview" data-tooltip-anchor="bottom" data-tooltip-offset="-3"><img alt="Preview Project" src="/vlewrapper/vle/images/icons/teal/screen.png" /></li>
-								</ul>
+								<div id="topProjectTools">
+									<a id="previewProject" href="javascript:void(0);"><img alt="Preview Project" src="/vlewrapper/vle/images/icons/svg/teal/screen.svg" /><span data-i18n='authoring_project_panel_preview'></span></a>
+								</div>
 							</div>
 							<div id="frontDetails">
 								<div>
@@ -109,10 +107,10 @@
 									<label for="activityTerm" data-i18n="authoring_project_panel_activityterm_label"></label>
 									<input type='text' name='activityTerm' data-i18n-title='authoring_project_panel_edit_activityterm' id='activityTerm' size='12'/>
 									<label for="currentTheme" data-i18n="authoring_project_panel_theme_label"></label>
-									<a id="changeTheme" class="tooltip" data-i18n-title="authoring_project_panel_edit_theme" href="#nopath"><span id="currentTheme"></span> - <span id="currentNavMode"></span></a>
+									<a id="changeTheme" href="javascript:void(0);" class="tooltip" data-i18n-title="authoring_project_panel_edit_theme" href="#nopath"><span id="currentTheme"></span> - <span id="currentNavMode"></span></a>
 									<div class="right sectionLabel">
 										<span id="summaryDetails"></span>
-										<a id='moreDetails' href="#nogo" data-i18n='authoring_project_panel_more_info'></a>
+										<a id='moreDetails' href="javascript:void(0);" data-i18n='authoring_project_panel_more_info'></a>
 									</div>
 								</div>
 								<div>
@@ -120,20 +118,20 @@
 									<span class="sectionLabel" data-i18n="authoring_project_panel_features"></span>
 										<div class="featureToggle">
 											<label for="enableIM" data-i18n='idea_manager'></label>
-											<img src='images/icons/info.png' alt='Idea Manager Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='bottom' data-tooltip-keep='true' data-tooltip-event="click" data-i18n-title='help_authoring_ideamanager_info' />
+											<img src='images/icons/svg/teal/info.svg' alt='Idea Manager Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='bottom' data-tooltip-keep='true' data-tooltip-event="click" data-i18n-title='help_authoring_ideamanager_info' />
 											<input type="checkbox" id="enableIM" name="enableIM" class="metaInfo" data-field="isIdeaManagerEnabled" />
-											<a id="imSettingsEdit" href="#nogo" data-i18n="settings"></a>
+											<a id="imSettingsEdit" href="javascript:void(0);" data-i18n="settings"></a>
 										</div>
 										<div class="featureToggle">
 											<label for="enableUpload" data-i18n="student_uploader"></label>
-											<img src='images/icons/info.png' alt='Student Upoader Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='bottom' data-tooltip-keep='true' data-tooltip-event="click" data-i18n-title='help_authoring_studentuploader_info' />
+											<img src='images/icons/svg/teal/info.svg' alt='Student Upoader Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='bottom' data-tooltip-keep='true' data-tooltip-event="click" data-i18n-title='help_authoring_studentuploader_info' />
 											<input type="checkbox" id="enableUpload" name="enableUpload" class="metaInfo" data-field="isStudentAssetUploaderEnabled" />
 										</div>
 									</div>
 									<div id="currentUsers" class="right sectionLabel"></div>
 									<!-- TODO: move to advanced settings <div id="loggingLevel">
 										<label for="loggingToggle" data-i18n="authoring_project_panel_logging_label"></label>
-										<img src='images/icons/info.png' alt='Logging Level Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor=bottom data-tooltip-keep='true' data-tooltip-event="click" data-i18n-title='help_authoring_logginglevel_info' />
+										<img src='images/icons/svg/teal/info.svg' alt='Logging Level Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor=bottom data-tooltip-keep='true' data-tooltip-event="click" data-i18n-title='help_authoring_logginglevel_info' />
 										<input type="checkbox" checked="checked" id="loggingToggle" name="loggingToggle" />
 									</div> -->
 								</div>
@@ -285,19 +283,19 @@
 											<span class="details" data-i18n="authoring_project_content_active_info"></span>
 											<a class="right scroll" href="#inactiveHeader"><span data-i18n="authoring_project_content_view_inactive"></span><span class="ui-icon ui-icon-triangle-1-s"></span></a>
 										</h3>
-										<ul id="activeContainer"></ul>
+										<ul id="activeContainer" class="sequenceContainer"></ul>
 										<h3 id="inactiveHeader">
 											<span data-i18n="authoring_project_content_inactive"></span>
 											<span class="details" data-i18n="authoring_project_content_inactive_info"></span>
 											<a class="right scroll" href="#activeHeader"><span data-i18n="authoring_project_content_view_active"></span><span class="ui-icon ui-icon-triangle-1-n"></span></a>
 										</h3>
-										<ul id="inactiveContainer"></ul>
+										<ul id="inactiveContainer" class="sequenceContainer"></ul>
 									</div>
 									<div id="sequenceEditor" class="projectComponent">
 										<h3>
 											<span id="currentSequence"></span>
-											<a id="prevSequence" class="left"></a>
-											<a id="nextSequence" class="right"></a>
+											<a id="prevSequence" href="javascript:void(0);" class="left"></a>
+											<a id="nextSequence" href="javascript:void(0);" class="right"></a>
 										</h3>
 										<section class="projectPanel sequenceContents">
 											<div id="sequenceContent"></div>
@@ -308,8 +306,21 @@
 					</div> <!-- end of contentWrapper -->
 					<div id="projectTools" class="projectPanel">
 						<div class="panelHeader" data-i18n="authoring_project_tools_header"></div>
+						<section class="center">
+							<p><a class="submit small" id="newSequence" onclick="eventManager.fire('createNewSequence')"><img alt="New Activity" src="/vlewrapper/vle/images/icons/svg/white/new.svg" /><span data-i18n="authoring_project_tools_createActivity" ></span></a></p>
+						</section>
 						<section>
-							<a class="submit small" id="newSequence" data-i18n="authoring_project_tools_create_activity" onclick="eventManager.fire('createNewSequence')"></a>
+							<p><a id="editInfo" href="javascript:void(0);"><img alt="Project Details" src="/vlewrapper/vle/images/icons/svg/teal/form.svg" /><span data-i18n="authoring_project_panel_edit_info"></span></a></p>
+							<p><a id="manageFiles" href="javascript:void(0);"><img alt="Art and Files" src="/vlewrapper/vle/images/icons/svg/teal/container.svg" /><span data-i18n="authoring_project_panel_manage_files"></span></a></p>
+							<p><a id="editTheme" href="javascript:void(0);"><img alt="Edit Theme" src="/vlewrapper/vle/images/icons/svg/teal/wand.svg" /><span data-i18n="authoring_project_panel_edit_theme"></span></a></p>
+						</section>
+						<section>
+							<h5 data-i18n="authoring_project_tools_editStructure"></h5>
+							<p><a id="editOrder" href="javascript:void(0);"><img alt="Re-order Content" src="/vlewrapper/vle/images/icons/svg/teal/reorder.svg" /><span data-i18n="authoring_project_panel_edit_order"></span></a></p>
+							<p>
+								<a id="editBranches" href="javascript:void(0);"><img alt="Create Branches" src="/vlewrapper/vle/images/icons/svg/teal/branch.svg" /><span data-i18n="authoring_project_panel_edit_branches"></span></a>
+								<img id="metaHelp" src='images/icons/svg/teal/info.svg' alt='Branching Help' class='help tooltip' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title=''/>
+							</p>
 						</section>
 					</div>
 					<div id="author_messages"></div>
@@ -339,7 +350,7 @@
 	
 	<div id='openProjectDialog' class="dialog">
 		<div id="projectTabs">
-			<div id="createNewContent">
+			<div id="openProjectIntro">
 				<span data-i18n="authoring_or"></span>
 				<a class="submit" id="openCreateNew" data-i18n="authoring_project_create_new" onclick="eventManager.fire('createNewProject')"></a>
 			</div>
@@ -360,6 +371,23 @@
 		<div class="loading contentLoading" id="openProjectLoading">
 			<div class="loadingText"></div>
 			<div><img src="images/loading.gif"/></div>
+		</div>
+	</div>
+	
+	<div id="projectStructureDialog" class="dialog">
+		<div id="structureTabs">
+			<ul id="structureSelect">
+				<li><a id="structureTab" href="#projectStructure" i18n=""></a></li>
+				<li><a id="importTab" href="#importContent" i18n=""></a></li>
+			</ul>
+				<div id="projectStructureHeader" class="settingsHeader"></div>
+				<div id="projectContent">
+					<h5>Active Content</h5>
+					<ul id="activeContent" class="sequenceItem"></ul>
+					<h5>Inactive Content</h5>
+					<ul id="inactiveContent" class="sequenceItem"></ul>
+				</div>
+				<div id="importContent"></div>
 		</div>
 	</div>
 	
@@ -409,7 +437,7 @@
 				<div id="assetUsage" class="details">
 					<div id="sizeDiv"></div>
 					<div id="sizeBar"></div>
-					<img id="assetsHelp" src='images/icons/info.png' alt='File Manager Help' class='help' />
+					<img id="assetsHelp" src='images/icons/svg/teal/info.svg' alt='File Manager Help' class='help' />
 				</div>
 			</div>
 			<div class="setting" id="assetUploadWrapper">
@@ -452,9 +480,9 @@
 					<div id="previewDetails">
 						<div id="previewDimensions">&nbsp</div>
 						<div id="previewActions">
-							<a id="assetView" data-i18n="authoring_dialog_assets_view"></a>
-							<a id="assetDownload" data-i18n="authoring_dialog_assets_download"></a>
-							<a id="assetDelete" data-i18n="authoring_dialog_assets_delete"></a>
+							<a id="assetView" href="javascript:void(0);" data-i18n="authoring_dialog_assets_view"></a>
+							<a id="assetDownload" href="javascript:void(0);" data-i18n="authoring_dialog_assets_download"></a>
+							<a id="assetDelete" href="javascript:void(0);" data-i18n="authoring_dialog_assets_delete"></a>
 						</div>
 					</div>
 				</div>
@@ -476,7 +504,7 @@
 				<div class="settingsHeader">
 					<span id="metaHeader"></span>
 					<div class="details">
-						<img id="metaHelp" src='images/icons/info.png' alt='File Manager Help' class='help tooltip' data-tooltip-class='info' data-tooltip-anchor='left' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_meta_general_info'/>
+						<img id="metaHelp" src='images/icons/svg/teal/info.svg' alt='File Manager Help' class='help tooltip' data-tooltip-class='info' data-tooltip-anchor='left' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_meta_general_info'/>
 					</div>
 				</div>
 				<div class="setting">
@@ -487,13 +515,25 @@
 							<input type='text' id='projectMetadataTitle' name='projectMetadataTitle' data-i18n-placeholder='authoring_dialog_meta_field_title_placeholder' class='required' minlength='2' maxlength='100' />
 						</p>
 						<p>
+							<label data-i18n="authoring_dialog_meta_field_owner"></label>
+							<span>
+								<span id='projectOwner'></span>
+							</span>
+						</p>
+						<p id="originalAuthorDisplay">
 							<label data-i18n="authoring_dialog_meta_field_author"></label>
 							<span>
 								<span id='projectMetadataAuthor'></span>
-								<img src='images/icons/teal/question.png' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_meta_author_info' />
+								<img src='images/icons/svg/teal/question.svg' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_meta_author_info' />
 							</span>
 						</p>
-						<!-- TODO: add parent project info, owner and shared users, root project info and link to share with others perhaps -->
+						<p id="sharedUsersDisplay">
+							<label data-i18n="authoring_dialog_meta_field_sharedUsers"></label>
+							<span>
+								<span id='projectSharedUsers'></span>
+							</span>
+						</p>
+						<!-- TODO: add link to share with others and root project info perhaps -->
 						<p>
 							<label for="projectMetadataContact" data-i18n="authoring_dialog_meta_field_contact"></label>
 							<input type='text' id='projectMetadataContact' name='projectMetadataContact' data-i18n-placeholder='authoring_dialog_meta_field_contact_placeholder' minlength='2' maxlength='255' />
@@ -651,9 +691,9 @@
 				<div class='setting'>
 					<div class='settingLabel'><span>Idea Attributes</span>
 						<span class='details'>Specify up to three (3) additional attributes (data fields) for each idea in this project</span>
-						<img src='images/icons/info.png' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_imsettings_attribute' />
+						<img src='images/icons/svg/teal/info.svg' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_imsettings_attribute' />
 					</div>
-					<p id='imRunWarning' class='warning'>WARNING: This project is part of a classroom run. Changing idea attributes can result in student data loss. Be careful!<img src='images/icons/teal/question.png' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_imsettings_run_warning' /></p> <!-- TODO: be more specific -->
+					<p id='imRunWarning' class='warning'>WARNING: This project is part of a classroom run. Changing idea attributes can result in student data loss. Be careful!<img src='images/icons/svg/teal/question.svg' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' data-i18n-title='help_authoring_imsettings_run_warning' /></p> <!-- TODO: be more specific -->
 					<table id='ideaAttributes'>
 						<tr>
 							<td class='attribute required'>
@@ -670,7 +710,7 @@
 				<div class='setting'>
 					<div class='settingLabel'><span>Labels & Terminology</span>
 						<span class='details'>Optional: Customize the names of Idea Manager components for this project</span>
-						<img src='images/icons/info.png' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-event="click" data-i18n-title='help_authoring_imsettings_terminology' />
+						<img src='images/icons/svg/teal/info.svg' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-event="click" data-i18n-title='help_authoring_imsettings_terminology' />
 					</div>
 					<ul class='inline-block'>
 						<li>Term for "idea": <input type='text' id='imIdeaTerm' name='imIdeaTerm' class='required' minlength='2' maxlength='20' /></li>

@@ -1,25 +1,25 @@
 {
-    "ideas_button_text": {
+    "vle_toolbar_ideaBasket": {
         "value": "Ideas",
         "description": "Text on the Idea Manager button for Student VLE"
     },
-    "file_button_text": {
+    "vle_toolbar_files": {
         "value": "Archivos",
         "description": "Text on the File Manager button for Student VLE"
     },
-    "addidea_button_text": {
+    "vle_toolbar_newIdea": {
         "value": "Agregar idea",
         "description": "Text on Add Idea buttons for Student VLE"
     },
-    "mywork_button_text": {
+    "vle_toolbar_myWork": {
         "value": "Mi trabajo",
         "description": "Text on the My Work button for Student VLE"
     },
-    "display_chat_room": {
+    "vle_toolbar_chat": {
         "value": "Abrir la sala de chat",
         "description": "Text on the Chat Room button for Student VLE"
     },
-    "mywork_button_title": {
+    "vle_toolbar_myWorkTitle": {
         "value": "Revisar mi trabajo",
         "description": "Text for mouse hover title on the My Work button"
     },
