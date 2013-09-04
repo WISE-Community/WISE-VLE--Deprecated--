@@ -475,26 +475,29 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
     				if(dynamicImage.id == expectedResult.id) {
     					var expectedResultArray = expectedResult.expectedPoints;
     		    	    var eyValue = this.getYValueObj(xValue,expectedResultArray);
+    		    	    if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues) eyValue += dynamicImage.predictionInitialYValue;
     		    	    var eslope = 0;
     		    	    var slope = 0;
-    		    	    if (xValue - 1 > 0){
-    		    	    	var epyValue = this.getYValueObj(xValue-1,expectedResultArray); 
-    		    	    	eslope = Math.atan(eyValue - epyValue);
-    		    	    	var pyValue = this.getYValue(xValue-1,predictionArr); 
-    		    	    	slope = Math.atan(yValue - pyValue);
+    		    	    var xunit = 0.01 * parseFloat(graphParams.xaxis.max);
+    		    	    if (xValue - xunit > 0){
+    		    	    	var epyValue = this.getYValueObj(xValue-xunit,expectedResultArray); 
+    		    	    	if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues) epyValue += dynamicImage.predictionInitialYValue;
+    		    	    	eslope = Math.atan((eyValue - epyValue)/xunit);
+    		    	    	var pyValue = this.getYValue(xValue-xunit,predictionArr); 
+    		    	    	slope = Math.atan((yValue - pyValue)/xunit);
     		    	    }	
 
     		    	    if (predictionArr.length == 0 || yValue == this.NOT_GRAPHED_ERROR){
     		    	       analysis = "Graph this!";
-    		    	    } else if (Math.abs(slope) > moeA && Math.abs(eslope) < moeA && xValue < graphParams.xaxis.max){
+    		    	    } else if (Math.abs(slope) > moeA && Math.abs(eslope) < moeA && xValue < parseFloat(graphParams.xaxis.max)){
 						   analysis = "Should be stopped!";
-						} else if (Math.abs(slope) < moeA && Math.abs(eslope) > moeA && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(slope) < moeA && Math.abs(eslope) > moeA && xValue < parseFloat(graphParams.xaxis.max)){
 						   analysis = "Should be moving!";
-						} else if (Math.abs(slope) > moeA && slope/Math.abs(slope) != eslope/Math.abs(eslope) && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(slope) > moeA && slope/Math.abs(slope) != eslope/Math.abs(eslope) && xValue < parseFloat(graphParams.xaxis.max)){
 						   analysis = "Wrong direction!";
-						} else if (Math.abs(slope) - Math.abs(eslope) > moeA && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(slope) - Math.abs(eslope) > moeA && xValue < parseFloat(graphParams.xaxis.max)){
 							analysis = "Too fast!";
-						} else if (Math.abs(eslope) - Math.abs(slope) > moeA && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(eslope) - Math.abs(slope) > moeA && xValue < parseFloat(graphParams.xaxis.max)){
 							analysis = "Too slow!";
 						} else if (yValue - eyValue > moeY){
 							analysis = "Incorrect Position!";
@@ -504,11 +507,7 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 							analysis = ""; // good segment
 						}
 
-    		    	    if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues){
-    		    	    	leftValue = (Math.max(0,yValue)+dynamicImage.predictionInitialYValue)/this.tickSpacing*this.yTickSize;
-    		    	    } else {
-    		    	    	leftValue = Math.max(0,yValue)/this.tickSpacing*this.yTickSize;
-    		    	    }
+    		    	    leftValue = Math.max(0,yValue)/this.tickSpacing*this.yTickSize;
 
     		    	    $("#animationError"+i).text(analysis);
     					$("#animationError"+i).css("left", leftValue);

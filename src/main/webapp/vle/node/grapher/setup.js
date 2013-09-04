@@ -91,7 +91,7 @@ var dependencies = [
  * (using that nodeClass in the filenames) to the 'icons' directory
  */
 var nodeClasses = [
-	{nodeClass:'grapher', nodeClassText:'Grapher'}
+	{nodeClass:'grapher', nodeClassText:'Grapher', icon:'node/grapher/icons/grapher28.png'}
 ];
 
 /*
