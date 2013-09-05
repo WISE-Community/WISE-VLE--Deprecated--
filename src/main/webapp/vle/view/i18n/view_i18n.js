@@ -29,7 +29,12 @@ View.prototype.i18n.supportedLocales = {
 			"nl_BG":"nl"
 		},
 		theme: {
-			"en_US":"en_US"
+			"en_US":"en_US",
+			"es":"es",
+			"ja":"ja",			
+			"nl":"nl",
+			"nl_NL":"nl",
+			"nl_BG":"nl"
 		}
 };
 
@@ -131,7 +136,7 @@ View.prototype.i18n.getString = function(key,locale,componentName) {
 View.prototype.i18n.getStringWithParams = function(key,locale,params, componentName) {
 	// first get translated string
 	var translatedString = this.getString(key,locale,componentName);
-	
+
 	// then go through the string and replace {0} with paramas[0], {1} with params[1], etc.
 	for (var i=0; i< params.length; i++) {
 		var lookupString = "{"+i+"}";
@@ -156,17 +161,17 @@ View.prototype.retrieveLocale = function(locale,componentName,localePath) {
 		localePath = localePath + "i18n_" + locale + ".json";
 	}
 	$.ajax({"url":localePath,
-		    async:isAsync,
-		    dataType:"json",
-			success:function(obj){
-				if (!View.prototype.i18n[componentName]) {
-					View.prototype.i18n[componentName] = {};
-				}
-				View.prototype.i18n[componentName][locale] = obj;
-			},
-			error:function(){
-				notificationManager.notify('Please notify server admin: Error retrieving locale file for component:'+componentName, 3);
+		async:isAsync,
+		dataType:"json",
+		success:function(obj){
+			if (!View.prototype.i18n[componentName]) {
+				View.prototype.i18n[componentName] = {};
 			}
+			View.prototype.i18n[componentName][locale] = obj;
+		},
+		error:function(){
+			notificationManager.notify('Please notify server admin: Error retrieving locale file for component:'+componentName, 3);
+		}
 	});	
 };
 
@@ -218,35 +223,35 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 	}
 	var count = translatableElements.length;
 	if (count > 0) {
-	translatableElements.each(function(){
-		// get i18n and i18n-title attributes from elements
-		var i18n = $(this).attr('data-i18n'), i18nTitle = $(this).attr('data-i18n-title'), i18nPlaceholder = $(this).attr('data-i18n-placeholder');
-		
-		// insert i18n translations
-		if (typeof i18n !== 'undefined' && i18n !== false) {
-			if ($(this).is("input")) {
-				// if input, we need to set the value="", not the innerHTML.
-				$(this).val(view.getI18NString(i18n,componentName));				
-			} else {
-				$(this).html(view.getI18NString(i18n,componentName));				
-			}
-		}
-		if (typeof i18nTitle !== 'undefined' && i18nTitle !== false) {
-			$(this).attr('title',view.getI18NString(i18nTitle,componentName));
-		}
-		if (typeof i18nPlaceholder !== 'undefined' && i18nPlaceholder !== false) {
-			$(this).attr('placeholder',view.getI18NString(i18nPlaceholder,componentName));
-		}
-		// remove i18n attributes from DOM element
-		$(this).removeAttr('data-i18n').removeAttr('data-i18n-title').removeAttr('data-i18n-placeholder');
+		translatableElements.each(function(){
+			// get i18n and i18n-title attributes from elements
+			var i18n = $(this).attr('data-i18n'), i18nTitle = $(this).attr('data-i18n-title'), i18nPlaceholder = $(this).attr('data-i18n-placeholder');
 
-		// when all i18n text has been inserted, run the callback function
-		if(--count == 0){
-			if(typeof onComplete === 'function'){
-				onComplete();
+			// insert i18n translations
+			if (typeof i18n !== 'undefined' && i18n !== false) {
+				if ($(this).is("input")) {
+					// if input, we need to set the value="", not the innerHTML.
+					$(this).val(view.getI18NString(i18n,componentName));				
+				} else {
+					$(this).html(view.getI18NString(i18n,componentName));				
+				}
 			}
-		}
-	});
+			if (typeof i18nTitle !== 'undefined' && i18nTitle !== false) {
+				$(this).attr('title',view.getI18NString(i18nTitle,componentName));
+			}
+			if (typeof i18nPlaceholder !== 'undefined' && i18nPlaceholder !== false) {
+				$(this).attr('placeholder',view.getI18NString(i18nPlaceholder,componentName));
+			}
+			// remove i18n attributes from DOM element
+			$(this).removeAttr('data-i18n').removeAttr('data-i18n-title').removeAttr('data-i18n-placeholder');
+
+			// when all i18n text has been inserted, run the callback function
+			if(--count == 0){
+				if(typeof onComplete === 'function'){
+					onComplete();
+				}
+			}
+		});
 	}
 };
 
