@@ -120,9 +120,18 @@ function CARGRAPH(node) {
 
 	// a point being dragged
 	this.dragPoint = null;
-	
+
 	//whether we want to show the correct graph
 	this.showCorrectGraph = false;
+
+	this.REACHED_MAX_DATA_LENGTH = false;
+	if (this.content != null && this.content.MAX_DATA_LENGTH !== "undefined" && !isNaN()){
+		this.MAX_DATA_LENGTH = this.content.MAX_DATA_LENGTH;
+	} else {
+		this.MAX_DATA_LENGTH = 2000;
+	}
+
+	
 };
 
 /** 
@@ -225,9 +234,11 @@ CARGRAPH.prototype.render = function() {
 	this.mouseDown = false;
 	$("#" + this.graphDivId).bind('mousedown', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = true;
+		event.data.thisCarGraph.currentObservation = ['GraphPressed'];
 	}));
 	$("#" + this.graphDivId).bind('mouseup', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = false;
+		event.data.thisCarGraph.saveCurrentObservation();
 	}));
 
 	//listen for the keydown event
@@ -391,6 +402,16 @@ CARGRAPH.prototype.render = function() {
 		$("#dynamicImageRadioDiv").append("<input class='dynamicImageRadio' name='dynamic' type='radio' "+checked+" onclick='dynamicImageChanged(\""+dynamicImage.id+"\")'>"+dynamicImage.graphLabel+"</input>");
 		dynamicImage.backInTime = false;
 	}	
+
+	//refresh observation array
+	this.carGraphState.observationArray = [];
+
+	// an array of [val, timestamp] for observation data
+	this.currentObservation = [];
+
+	this.initialTimestamp = new Date().getTime();
+	
+
 	this.displayOneFrame(0);
 };
 
@@ -787,6 +808,33 @@ CARGRAPH.prototype.getGraphParams = function() {
 };
 
 /**
+ * Save the current observation in the state's observationArray
+ */
+CARGRAPH.prototype.saveCurrentObservation = function() {
+		//var carGraphState = this.getLatestState();
+		carGraphState = this.carGraphState;
+		if (typeof carGraphState.observationArray === "undefined") carGraphState.observationArray = [];
+		// find the length of the array
+		var data_length = 0;
+		for (var i = 0; i < carGraphState.observationArray.length; i++){
+			data_length += carGraphState.observationArray[i].length;
+		}
+		data_length += this.currentObservation.length;
+		
+		if (data_length > this.MAX_DATA_LENGTH){
+			this.REACHED_MAX_DATA_LENGTH = true;
+		}
+
+		if (!this.REACHED_MAX_DATA_LENGTH){
+			carGraphState.observationArray.push(this.currentObservation);	 	
+		} else {
+			carGraphState.observationArray.push(["MAX"]);	
+		}
+
+		this.currentObservation = [];
+}
+
+/**
  * Save the student work for this step. This includes the carGraph
  * data and the response the student typed. 
  */
@@ -1116,6 +1164,8 @@ CARGRAPH.prototype.setupPlotHover = function() {
         if(event.data.thisCarGraph.mouseDown) {
         	// in any case move animation to current position on graph
         	setFrameIndexFromXValue(pos.x);
+        	// save position and timestamp to current observation
+        	event.data.thisCarGraph.currentObservation.push([new Date().getTime() - event.data.thisCarGraph.initialTimestamp, Math.round(100*pos.x)/100]);
         	
         	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction) {
         		// allow author to enable or disable draw while dragging
