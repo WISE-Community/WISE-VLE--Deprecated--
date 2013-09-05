@@ -274,9 +274,13 @@ SENSOR.prototype.render = function() {
 		$("#responseTextArea").val(response);
 		
 		//set the size of the text area
-		$("#responseTextArea").attr('rows', this.content.expectedLines);
-		$("#responseTextArea").attr('cols', 80);
-		
+		if (parseInt(this.content.expectedLines) > 0){
+			$("#responseTextArea").attr('rows', this.content.expectedLines);
+			$("#responseTextArea").attr('cols', 80);
+		} else {
+			$("#responseTextArea").hide();
+		}
+
 		if(this.content.enableSensor != null && this.content.enableSensor == false) {
 			//hide the sensor buttons
 			this.hideSensorButtons();
