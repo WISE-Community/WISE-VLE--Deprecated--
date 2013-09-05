@@ -1095,8 +1095,8 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 			//CRater already exists so we don't need to do anything
 		}
 		
-		//set the excelExportStringTemplate
-		this.content.excelExportStringTemplate = "Student Response: {response}, Check Answer: [{isCRaterSubmit}], CRater Score: [{cRaterAnnotationScore}], CRater Feedback: [{cRaterFeedbackText}]";
+		//set the export columns
+		this.setAutoGradedExportColumns();
 	} else {
 		//disable CRater
 		
@@ -1130,9 +1130,51 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 			}
 		}
 		
-		//remove the excelExportStringTemplate
-		this.content.excelExportStringTemplate = null;
+		//set the export columns
+		this.setRegularExportColumns();
 	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export columns for regular open response steps
+ */
+View.prototype.OpenResponseNode.setRegularExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Response",
+        	  "field": "response"
+          }
+  	];
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export columns for the auto graded open response steps
+ */
+View.prototype.OpenResponseNode.setAutoGradedExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Submit",
+        	  "field": "isCRaterSubmit"
+          },
+          {
+        	  "columnName": "Auto-Score",
+        	  "field": "cRaterScore"
+          },
+          {
+        	  "columnName": "Auto-Feedback",
+        	  "field": "cRaterFeedbackText"
+          },
+          {
+        	  "columnName": "Response",
+        	  "field": "response"
+          }
+  	];
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

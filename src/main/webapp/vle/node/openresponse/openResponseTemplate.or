@@ -24,5 +24,11 @@
    "displayAnswerAfterSubmit": true,
    "isLockAfterSubmit": false,
    "isMustCompleteAllPartsBeforeExit": false,   
-   "type": "OpenResponse"
+   "type": "OpenResponse",
+   "exportColumns":[
+		{
+			"columnName":"Response",
+			"field":"response"
+		}
+	]
 }
