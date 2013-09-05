@@ -145,6 +145,12 @@
 	     * start/pause button was clicked. start the animation iff it's not running already.
 	     */
 	    function startPauseAnimation() {
+	    	var xmax = typeof cargraph.carGraphState.xMax != "undefined" ? parseFloat(cargraph.carGraphState.xMax) : parseFloat(cargraph.content.graphParams.xmax);
+	    	var xmin = typeof cargraph.carGraphState.xMin != "undefined" ? parseFloat(cargraph.carGraphState.xMin) : parseFloat(cargraph.content.graphParams.xmin);
+	    	var animationTimeScaleFactor = typeof cargraph.animationTimeScaleFactor !== "undefined" ? cargraph.animationTimeScaleFactor : 1.0;
+
+	    	var xValue = parseInt(xmin) + animationFrameXIncrement*animationFrameIndex * parseInt(xmax) / 60 * animationTimeScaleFactor;
+	    	xValue = parseFloat(xValue.toFixed(numSignificantDigits));  // just need one significant 
 		    if (animationIntervalId < 0) {
 		    	// in case we had an error remove
 		    	if ($("#animationError").length > 0) $("#animationError").remove();
@@ -156,7 +162,11 @@
 				$("#startButton").val("Pause");
 				
 				// save so that we can update constraints
-				if (typeof cargraph != "undefined") cargraph.save();
+				if (typeof cargraph !== "undefined"){
+					cargraph.currentObservation = ['Start', [new Date().getTime() - cargraph.initialTimestamp, xValue]];
+					cargraph.saveCurrentObservation();
+					cargraph.save();	
+				} 
 				/*
 				Armin: Do some check within the run
 				Maybe used later */
@@ -171,7 +181,12 @@
 			    // pause animation
 			    clearInterval(animationIntervalId);		    
 			    animationIntervalId = -1;
-		    	$("#startButton").val("Start");		    
+		    	$("#startButton").val("Start");	
+		    	// save so that we can update constraints
+				if (typeof cargraph !== "undefined"){
+					cargraph.currentObservation = ['Pause', [new Date().getTime() - cargraph.initialTimestamp, xValue]];
+					cargraph.saveCurrentObservation();
+				} 	    
 		    }
 	    }
 	    
@@ -179,11 +194,23 @@
 	     * stop button was clicked. stop animation
 	     */
 	    function stopAnimation() {
+		    var xmax = typeof cargraph.carGraphState.xMax != "undefined" ? parseFloat(cargraph.carGraphState.xMax) : parseFloat(cargraph.content.graphParams.xmax);
+	    	var xmin = typeof cargraph.carGraphState.xMin != "undefined" ? parseFloat(cargraph.carGraphState.xMin) : parseFloat(cargraph.content.graphParams.xmin);
+	    	var animationTimeScaleFactor = typeof cargraph.animationTimeScaleFactor !== "undefined" ? cargraph.animationTimeScaleFactor : 1.0;
+
+	    	var xValue = parseInt(xmin) + animationFrameXIncrement*animationFrameIndex * parseInt(xmax) / 60 * animationTimeScaleFactor;
+	    	xValue = parseFloat(xValue.toFixed(numSignificantDigits));  // just need one significant 
+		    
 		    clearInterval(animationIntervalId);
 		    animationIntervalId = -1;
 		    animationFrameIndex = 0;        // reset animationframeindex to beginning			    
 	    	$("#startButton").val("Start");		    
 	    	cargraph.clearCrosshair();     // hide crosshair
+	    	if (typeof cargraph !== "undefined"){
+				cargraph.currentObservation = ['Stop', [new Date().getTime() - cargraph.initialTimestamp, xValue]];
+				cargraph.saveCurrentObservation();
+			} 
+
 	    };
 
 	    /*

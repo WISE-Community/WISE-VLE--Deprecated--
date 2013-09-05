@@ -234,7 +234,7 @@ CARGRAPH.prototype.render = function() {
 	this.mouseDown = false;
 	$("#" + this.graphDivId).bind('mousedown', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = true;
-		event.data.thisCarGraph.currentObservation = [];
+		event.data.thisCarGraph.currentObservation = ['GraphPressed'];
 	}));
 	$("#" + this.graphDivId).bind('mouseup', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = false;
