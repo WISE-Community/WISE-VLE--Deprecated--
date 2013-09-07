@@ -22,9 +22,8 @@ svgEditor.addExtension("Stamps", function(S) {
 		preventClickDefault = S.preventClickDefault,
 		getElem = S.getElem,
 		getId = S.getId,
-		transformPoint = S.transformPoint;
-	
-	var activeIndex = -1; // Index to hold active stamp (from 'content' Array)
+		transformPoint = S.transformPoint,
+		activeIndex = -1, // Index to hold active stamp (from 'content' Array)
 		// Array to store the stamp images
 		content = [
 			{
@@ -87,12 +86,6 @@ svgEditor.addExtension("Stamps", function(S) {
 		 * @param value String for new prompt content
 		 */
 		changed: function(){
-			// optional: override with custom actions
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
 			// optional: override with custom actions
 		}
 	};
@@ -158,7 +151,7 @@ svgEditor.addExtension("Stamps", function(S) {
 			// add stamp preview image to stamp selector
 			var stamptxt = "<img id='stamp" + i + "' class='tool_stamp' src='" + encodeURI(stamps[i].uri) + "' title='" + stamps[i].title + "' alt='Stamp " + num + "' />";
 			$('#stamp_images').append(stamptxt);
-			var height = stamps[i].height, width = stamps[i].width;
+			/*var height = stamps[i].height, width = stamps[i].width;
 			if(height > width || height == width){
 				if (height > 75){
 					var zoom = 75/height;
@@ -172,8 +165,8 @@ svgEditor.addExtension("Stamps", function(S) {
 					width = width * zoom;
 				}
 			}
-			console.log ("h: " + height + ' width: ' + width);
-			$('#stamp' + i).height(height).width(width);
+			//console.log ("h: " + height + ' width: ' + width);
+			$('#stamp' + i).height(height).width(width);*/
 		}
 		// set first image as default (selected)
 		setActive(0);
@@ -190,7 +183,6 @@ svgEditor.addExtension("Stamps", function(S) {
 		if(!loaded){
 			// on first load, set extension loaded variable to true and call extension loaded listener
 			loaded = true;
-			api.loadComplete();
 		}
 		
 	}
@@ -198,7 +190,7 @@ svgEditor.addExtension("Stamps", function(S) {
 	function setupDisplay(){
 		// setup extension UI components
 		var stampChooser = '<div id="tools_stamps">' +
-			'<div class="tools_title">Choose a Stamp:</div>' +
+			'<div class="tools_title" id="tools_stamps_title">Choose a Stamp:</div>' +
 			'<div id="stamp_images"></div>' +
 			'</div>';
 		var preview = '<img id="stamp_preview" />';

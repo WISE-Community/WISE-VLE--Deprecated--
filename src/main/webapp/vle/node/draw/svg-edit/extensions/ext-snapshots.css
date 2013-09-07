@@ -218,11 +218,3 @@
 	height: 21px;
     margin: -4px 5px -5px 4px;
 }
-
-#snapwarning_dialog, #deletesnap_dialog {
-	text-align:center;
-}
-
-#snapwarning_dialog div, #deletesnap_dialog div {
-	margin:.5em 0;
-}

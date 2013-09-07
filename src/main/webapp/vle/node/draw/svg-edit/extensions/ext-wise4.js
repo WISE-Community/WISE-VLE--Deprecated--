@@ -12,11 +12,27 @@
  */
  
 svgEditor.addExtension("WISE4", function(S) {
+	
+	/* Private variables */
 	//var svgcontent = S.svgcontent;
-	var lz77 = new LZ77(); // lz77 compression object
+	var lz77 = new LZ77(), // lz77 compression object
+		loaded = false, // Boolean to indicate whether extension has finished loading
+		changeNum = 0;
+		
 	svgEditor.changed = false; // boolean to specify whether data has changed, if no changes, do not post nodestate on exit
 	svgEditor.initLoad = false; // boolean to specify whether svgeditor is populating canvas on node entry or on snapshot click
-	var changeNum = 0;
+	
+	/* Public API (accessible via svgEditor object) */
+	var api = svgEditor.ext_wise4 = {
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		}
+	};
 	
 	// fit drawing canvas to workarea (accessible vie svgEditor object)
 	svgEditor.resizeCanvas = function() {
@@ -25,8 +41,8 @@ svgEditor.addExtension("WISE4", function(S) {
 	
 	function setupWarnings(){
 		var sizeWarning = '<div id="drawlimit_dialog" title="Drawing is Too Big"><div class="ui-state-error">' +
-			'<span class="ui-icon ui-icon-alert" style="float:left"></span>Warning! Your current drawing is too large.' +
-			'</div><div class="ui-dialog-content-content">If you would like to save this drawing, please delete some of the items in the picture.  Thank you!' +
+			'<span class="ui-icon ui-icon-alert" style="float:left"></span><span id="drawlimit_warning">Warning! Your current drawing is too large.' +
+			'</div><div class="ui-dialog-content-content" id="drawlimit_instructions">If you would like to save this drawing, please delete some of the items in the picture.  Thank you!' +
 			'</div></div>';
 		$('#svg_editor').append(sizeWarning);
 		
@@ -37,11 +53,14 @@ svgEditor.addExtension("WISE4", function(S) {
 			width: 420,
 			buttons: [
 			    {
+			    	id: 'drawlimit_confirm',
 			    	text: 'OK',
 			    	click: function() { $(this).dialog('close'); }
 			    }
 			]
 		});
+		
+		loaded = true;
 	}
 	
 	function updateDisplay(){

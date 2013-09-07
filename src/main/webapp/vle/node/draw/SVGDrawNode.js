@@ -4,6 +4,11 @@ SVGDrawNode.prototype.constructor = SVGDrawNode;
 SVGDrawNode.prototype.parent = Node.prototype;
 SVGDrawNode.authoringToolName = "Draw";
 SVGDrawNode.authoringToolDescription = "Students draw using basic drawing tools, take snapshots and create flipbook animations";
+SVGDrawNode.prototype.i18nEnabled = true;
+SVGDrawNode.prototype.i18nPath = "/vlewrapper/vle/node/draw/i18n/";
+SVGDrawNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 SVGDrawNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
