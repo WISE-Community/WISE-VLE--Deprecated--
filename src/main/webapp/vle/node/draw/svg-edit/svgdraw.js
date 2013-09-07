@@ -388,14 +388,14 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		if(context.toolbarOptions){
 			for(var key in context.toolbarOptions){
 				if (context.toolbarOptions.hasOwnProperty(key)) {
-					if(context.toolbarOptions[key] === false){
+					if(!context.toolbarOptions[key]){
 						context.hideTools(key);
 					}
 				}
 			}
 			if(!context.toolbarOptions.pencil && !context.toolbarOptions.line && !context.toolbarOptions.rectangle &&
 					!context.toolbarOptions.ellipse && !context.toolbarOptions.polygon && !context.toolbarOptions.text){
-				$('#colors').hide();
+				$('#color_tools').hide();
 			}
 		}
 		
@@ -458,7 +458,7 @@ SVGDRAW.prototype.hideTools = function(option){
 	if(option==='pencil'){
 		$('#tool_fhpath').hide();
 	} else if(option==='line'){
-		$('#tool_line').hide();
+		$('#tools_line_show').hide();
 	} else if(option==='connector'){
 		$('#mode_connect').hide();
 	} else if (option==='rectangle'){
