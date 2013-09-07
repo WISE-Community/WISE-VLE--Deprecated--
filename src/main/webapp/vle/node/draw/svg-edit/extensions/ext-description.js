@@ -126,7 +126,7 @@ svgEditor.addExtension("Description", function(S) {
 		});
 		
 		// bind click events to toggle the description input display
-		$('#description_edit, .description_header span').on('click', function(){
+		$('#description_edit, #description_header span').on('click', function(){
 			toggle(false);
 		});
 		$('#description_collapse').on('click', function(){

@@ -299,6 +299,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		$('#tools_stamp_title').html(this.view.getI18NString('stamps_title','SVGDrawNode'));
 		$('#tool_stamp').attr('title', this.view.getI18NString('stamps_button','SVGDrawNode'));
 		$('#description span.minimized').data('default', this.view.getI18NString('description_header_add','SVGDrawNode'));
+		$('#description span.minimized').text(this.view.getI18NString('description_header_add','SVGDrawNode'));
 		$('#description_header').attr('title', this.view.getI18NString('description_header_title','SVGDrawNode'));
 		$('#description_header_text > span.panel_title').html(this.view.getI18NString('description_header_label','SVGDrawNode'));
 		$('#description_header_max').html(this.view.getI18NString('description_header_maximized','SVGDrawNode'));
