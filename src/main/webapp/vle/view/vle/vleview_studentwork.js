@@ -829,7 +829,7 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 
 				if(displayCRaterScoreToStudent) {
 					//display the score
-					message += "You got a score of " + cRaterAnnotationJSON.score;
+					message += "You got a score of " + score;
 				}
 
 				if(displayCRaterFeedbackToStudent) {
@@ -852,9 +852,10 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					//get the current node state
 					var latestNodeState = currentNodeVisit.getLatestState();
 
-					//insert the feedback text and feedback id into the node state
+					//insert the feedback text, feedback id, and feedback score into the node state
 					latestNodeState.cRaterFeedbackText = feedbackText;
 					latestNodeState.cRaterFeedbackId = feedbackId;
+					latestNodeState.cRaterScore = score;
 
 					/*
 					 * save the current node visit again so the stepwork row in the 

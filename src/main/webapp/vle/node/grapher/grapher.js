@@ -241,7 +241,7 @@ Grapher.prototype.render = function() {
 		$("#responseTextArea").val(response);
 		
 		//set the size of the text area
-		if (this.content.expectedLines > 0){
+		if (parseInt(this.content.expectedLines) > 0){
 			$("#responseTextArea").attr('rows', this.content.expectedLines);
 			$("#responseTextArea").attr('cols', 80);
 		} else {
