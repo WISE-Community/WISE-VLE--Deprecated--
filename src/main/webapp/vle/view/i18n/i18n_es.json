@@ -40,15 +40,15 @@
         "description": "Text on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "toggle_nav_button_title": {
-        "value": "Modo pantalla completa (ocultar menú de navegación)",
+        "value": "Modo pantalla completa (ocultar men√∫ de navegaci√≥n)",
         "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "toggle_nav_button_text_off": {
-        "value": "Mostar menú",
+        "value": "Mostar men√∫",
         "description": "Text on the Toggle Navigation button when navigation UI is off (hidden)"
     },
     "toggle_nav_button_title_off": {
-        "value": "Mostrar menú de navegación",
+        "value": "Mostrar men√∫ de navegaci√≥n",
         "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "signout_button_text": {
@@ -80,7 +80,7 @@
         "description": "Text on the Home button"
     },
     "gohome_button_title": {
-        "value": "Guardar y salir de la página del estudiante",
+        "value": "Guardar y salir de la p√°gina del estudiante",
         "description": "Text for mouse hover title on the Home button"
     },
     "hint_title": {
@@ -152,11 +152,11 @@
         "description": "Text 'Successfully imported file' in Student Asset Manager"
     },
     "student_assets_import_failure_message": {
-        "value": "Falló la importación. El paso actual no acepta el archivo elegido. Por favor elegir otro archivo.",
+        "value": "Fall√≥ la importaci√≥n. El paso actual no acepta el archivo elegido. Por favor elegir otro archivo.",
         "description": "Text in Student Asset Manager when importing file failed"
     },
     "student_assets_add_selected_file": {
-        "value": "Agregar el archivo seleccionado a éste Paso",
+        "value": "Agregar el archivo seleccionado a √©ste Paso",
         "description": "Text on a button in Student Asset Manager to add the selected file to the current step"
     },
     "student_assets_delete_selected_file": {
@@ -164,11 +164,11 @@
         "description": "Text on a button in Student Asset Manager to delete a selected file"
     },
     "student_assets_student_usage_message": {
-        "value": "Se está utilizando {0} de {1} del espacio de almacenamiento.",
+        "value": "Se est√° utilizando {0} de {1} del espacio de almacenamiento.",
         "description": "Text on a button in Student Asset Manager to delete a selected file"
     },
     "student_assets_student_usage_exceeded_message": {
-        "value": "Se ha excedido el espacio de almacenamiento. El máximo permitido es {0} de un total de {1} en el servidor. Por favor eliminar algunos archivos.",
+        "value": "Se ha excedido el espacio de almacenamiento. El m√°ximo permitido es {0} de un total de {1} en el servidor. Por favor eliminar algunos archivos.",
         "description": "Text on a button in Student Asset Manager to delete a selected file"
     },
     "student_aggregate_view_intro_text": {
@@ -184,7 +184,7 @@
         "description": "Text 'OK'"
     },
     "student_aggregate_view_preview_mode_default_text": {
-        "value": "La vista general de este paso aparecerá cuando se haga una ejecución real con estudiantes.",
+        "value": "La vista general de este paso aparecer√° cuando se haga una ejecuci√≥n real con estudiantes.",
         "description": "Default text to display for aggregate view when in preview mode."
     },
     "done": {
@@ -240,7 +240,7 @@
         "description": "GradingTool: Text in the View Student Uploaded Files button"
     },
     "grading_button_export_latest_student_work": {
-        "value": "Exportar el último trabajo de los estudiantes",
+        "value": "Exportar el √∫ltimo trabajo de los estudiantes",
         "description": "GradingTool: Text in the Export Latest Student Work button"
     },
     "grading_button_export_all_student_work": {
@@ -264,15 +264,15 @@
         "description": "GradingTool: Text in the Export Student Names button"
     },
     "grading_button_special_export": {
-        "value": "Exportación especial",
+        "value": "Exportaci√≥n especial",
         "description": "GradingTool: Text in the Special Export button"
     },
     "grading_button_export_latest_student_work_description": {
-        "value": "(Exportar la última revisión de los estudiantes)",
+        "value": "(Exportar la √∫ltima revisi√≥n de los estudiantes)",
         "description": "GradingTool: Description next the Export Student Names button"
     },
     "grading_button_export_all_student_work_description": {
-        "value": "(Exportar la última revisión de los estudiantes y sus datos de navegación)",
+        "value": "(Exportar la √∫ltima revisi√≥n de los estudiantes y sus datos de navegaci√≥n)",
         "description": "GradingTool: Description next the Export All Student Work button"
     },
     "grading_button_export_idea_baskets_description": {
@@ -280,7 +280,7 @@
         "description": "GradingTool: Description next the Export Idea Baskets button"
     },
     "grading_button_explanation": {
-        "value": "Explicación",
+        "value": "Explicaci√≥n",
         "description": "GradingTool: Text in the Explanation button"
     },
     "grading_button_check_for_new_student_work": {
@@ -312,7 +312,7 @@
         "description": "GradingTool: grade by step Avg Class Score table column"
     },
     "grading_grade_by_step_scored_items_only": {
-        "value": "sólo items calificados",
+        "value": "s√≥lo items calificados",
         "description": "GradingTool: grade by step scored items only table column"
     },
     "grading_grade_by_step_percent_completed_step": {
@@ -320,7 +320,7 @@
         "description": "GradingTool: grade by step % of Students Who Have Completed This Step table column"
     },
     "grading_grade_by_step_all_periods": {
-        "value": "Todos los períodos",
+        "value": "Todos los per√≠odos",
         "description": "GradingTool: grade by step All Periods select option when choosing whose work to filter by"
     },
     "grading_grade_by_team_header": {
@@ -356,11 +356,11 @@
         "description": "'Next Step' button in the grading tool that will show the next step in the project"
     },
     "grading_next_step_not_exist": {
-        "value": "El Paso siguiente no existe: este es el último paso calificable",
+        "value": "El Paso siguiente no existe: este es el √∫ltimo paso calificable",
         "description": "Text to show when next step does not exist because this is the last gradable step in teh project"
     },
     "period": {
-        "value": "Período",
+        "value": "Per√≠odo",
         "description": "Period"
     },
     "workgroupId": {
@@ -408,7 +408,7 @@
         "description": "timestamp"
     },
     "last_annotation": {
-        "value": "Último comentario",
+        "value": "√öltimo comentario",
         "description": "the text 'last annotation'"
     },
     "grading_open_premade_comments": {
@@ -420,7 +420,7 @@
         "description": "the text 'not available'"
     },
     "grading_no_work_warning": {
-        "value": "El estudiante no envió trabajo alguno para este paso con lo cual se ha deshabilitado la calificación y el feedback",
+        "value": "El estudiante no envi√≥ trabajo alguno para este paso con lo cual se ha deshabilitado la calificaci√≥n y el feedback",
         "description": "text to show in grading cells that do not have students' work to display"
     },
     "grading_no_revisions": {
@@ -428,19 +428,19 @@
         "description": "text to show in grading cells that do not have any revisions"
     },
     "grading_only_latest_revision_displayed": {
-        "value": "(Sólo se muestra la última revisión)",
+        "value": "(S√≥lo se muestra la √∫ltima revisi√≥n)",
         "description": "text to show in grading cells where only the latest revision is displayed"
     },
     "grading_hide_personal_info": {
-        "value": "Ocultar información personal",
+        "value": "Ocultar informaci√≥n personal",
         "description": "text to show next to the 'Hide Personal Info' checkbox in the grading tool"
     },
     "grading_show_flagged_items_only": {
-        "value": "Sólo items marcados",
+        "value": "S√≥lo items marcados",
         "description": "text to show next to the 'Show Flagged Items Only' checkbox in the grading tool"
     },
     "grading_show_smart_filtered_items_only": {
-        "value": "Sólo items filtrados por el filto inteligente",
+        "value": "S√≥lo items filtrados por el filto inteligente",
         "description": "text to show next to the 'Show Smart-Filtered Items Only' checkbox in the grading tool"
     },
     "grading_enlarge_student_work_text": {
@@ -448,7 +448,7 @@
         "description": "text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
     },
     "grading_only_show_new_student_work": {
-        "value": "Sólo mostrar trabajo nuevo",
+        "value": "S√≥lo mostrar trabajo nuevo",
         "description": "text to show next to the 'Only Show New Work' checkbox in the grading tool"
     },
     "grading_show_all_revisions": {
@@ -456,11 +456,11 @@
         "description": "text to show next to the 'Show All Revisions' checkbox in the grading tool"
     },
     "grading_sort_by_auto_graded_score_checkbox": {
-        "value": "Ordenar por puntaje automático",
+        "value": "Ordenar por puntaje autom√°tico",
         "description": "text to show next to the 'Sort By Auto Graded Score' checkbox in the grading tool"
     },
     "grading_hide_show_revisions": {
-        "value": "Revisión(es)",
+        "value": "Revisi√≥n(es)",
         "description": "text to show in the 'Hide/Show Revisions' link in the grading tool that toggles revisions visibility"
     },
     "grading_change_team": {
@@ -476,7 +476,7 @@
         "description": "Text to display in VLE for user name in preview mode"
     },
     "note_title": {
-        "value": "Nota de reflexión",
+        "value": "Nota de reflexi√≥n",
         "description": "Text to display in the title bar of a note dialog window"
     },
     "authoring_hint_dialog_title": {
@@ -496,7 +496,7 @@
         "description": "The text 'Never' to display in 'force show:' drop down in the step hint authoring panel"
     },
     "authoring_hint_option_firstTimeOnly": {
-        "value": "Sólo primera vez",
+        "value": "S√≥lo primera vez",
         "description": "The text 'First Time Only' to display in 'force show:' drop down in the step hint authoring panel"
     },
     "authoring_hint_option_always": {
@@ -504,7 +504,7 @@
         "description": "The text 'Always' to display in 'force show:' drop down in the step hint authoring panel"
     },
     "authoring_hint_modal": {
-        "value": "Modo diálogo",
+        "value": "Modo di√°logo",
         "description": "Text to display for the label of the 'Modal Dialog' checkbox in the step hint authoring panel"
     },
     "authoring_hint_isMustViewAllPartsBeforeClosing": {
@@ -516,7 +516,7 @@
         "description": "The label for the 'Options' settings in the step hint authoring panel"
     },
     "authoring_hint_terminology_label": {
-        "value": "Etiquetas/Terminología",
+        "value": "Etiquetas/Terminolog√≠a",
         "description": "The label for the 'Labels/Terminology' settings in the step hint authoring panel"
     },
     "authoring_hint_terminology_instructions": {
@@ -524,11 +524,11 @@
         "description": "The instructions for the 'Labels/Terminology' settings in the step hint authoring panel"
     },
     "authoring_hint_term_label": {
-        "value": "Término para \"pista\":",
+        "value": "T√©rmino para \"pista\":",
         "description": "The label for the 'hint' term input field in the step hint authoring panel"
     },
     "authoring_hint_term_plural_label": {
-        "value": "Término para \"pistas\" (plural):",
+        "value": "T√©rmino para \"pistas\" (plural):",
         "description": "The label for the 'hints' term input field in the step hint authoring panel"
     },
     "authoring_hint_add": {
@@ -540,15 +540,15 @@
         "description": "The label for the 'delete current hint' button in the step hint authoring panel"
     },
     "authoring_imsettings_attribute_help": {
-        "value": "El contenido de ayuda irá aquí",
+        "value": "El contenido de ayuda ir√° aqu√≠",
         "description": ""
     },
     "authoring_imsettings_terminology_help": {
-        "value": "El contenido de ayuda irá aquí",
+        "value": "El contenido de ayuda ir√° aqu√≠",
         "description": ""
     },
     "authoring_imsettings_text_required": {
-        "value": "El atributo texto es el componente básico de cada idea y no puede ser borrado.",
+        "value": "El atributo texto es el componente b√°sico de cada idea y no puede ser borrado.",
         "description": "The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
     },
     "project_error_has_no_steps": {
@@ -556,19 +556,19 @@
         "description": "The error text to be displayed when the project has no steps in it"
     },
     "preview_project_constraint_enabled_message": {
-        "value": "Las restricciones para la navegación como estudiante están habilitadas. Para pre-visualizar el proyecto sin restricciones,",
+        "value": "Las restricciones para la navegaci√≥n como estudiante est√°n habilitadas. Para pre-visualizar el proyecto sin restricciones,",
         "description": "The message shown in preview project mode when student navigation constraints are enabled."
     },
     "preview_project_constraint_disabled_message": {
-        "value": "Las restricciones para la navegación como estudiante están deshabilitadas. Para pre-visualizar el proyecto con todas las restricciones,",
+        "value": "Las restricciones para la navegaci√≥n como estudiante est√°n deshabilitadas. Para pre-visualizar el proyecto con todas las restricciones,",
         "description": "The message shown in preview project mode when student navigation constraints are enabled."
     },
     "common_click_here": {
-        "value": "hacer clic acá",
+        "value": "hacer clic ac√°",
         "description": "the common text 'click here'"
     },
     "authoring_confirm_switch_authoring_mode": {
-        "value": "Está a punto de abandonar el modo autor pero no se guardaron los cambios. Si continúa se perderán los cambios. ¿Quiere continuar igual?",
+        "value": "Est√° a punto de abandonar el modo autor pero no se guardaron los cambios. Si contin√∫a se perder√°n los cambios. ¬øQuiere continuar igual?",
         "description": "Message displayed in the Authoring Tool to authors when trying to switch between simple/advanced modes but their changes have not been saved."
     },
     "grading_grade_by_team_teacher_graded_score": {
@@ -580,11 +580,11 @@
         "description": "GradingTool: Description next the Export Explanation Builder Work button"
     },
     "grading_button_export_custom_work_description": {
-        "value": "(Exportar todo el trabajo o el último trabajo para pasos específicos a seleccionar)",
+        "value": "(Exportar todo el trabajo o el √∫ltimo trabajo para pasos espec√≠ficos a seleccionar)",
         "description": "GradingTool: Description next the Export Custom Student Work button"
     },
     "grading_button_export_student_names_description": {
-        "value": "(Exportar los nombres de los estudiantes junto con el período, el id del equipo de trabajo, el id de SABIO y el login)",
+        "value": "(Exportar los nombres de los estudiantes junto con el per√≠odo, el id del equipo de trabajo, el id de SABIO y el login)",
         "description": "GradingTool: Description next the Export Student Names button"
     },
     "grading_button_special_export_description": {
@@ -604,7 +604,7 @@
         "description": "Title/tooltip for sortable rows in a table"
     },
     "ideaBasket_empty": {
-        "value": "Su {0} está vacía. Clic en \"{1}\" para empezar a agregar {2}.",
+        "value": "Su {0} est√° vac√≠a. Clic en \"{1}\" para empezar a agregar {2}.",
         "description": "Text to display when idea basket is empty"
     },
     "ideaBasket_deletedTableHeader": {
@@ -616,7 +616,7 @@
         "description": "Header text for the ideas table in the Idea Basket"
     },
     "ideaBasket_deletedEmpty": {
-        "value": "El cesto de basura está vacío.",
+        "value": "El cesto de basura est√° vac√≠o.",
         "description": "Text to display when the Idea Basket trash is empty"
     },
     "ideaBasket_trashLabel": {
@@ -668,19 +668,19 @@
         "description": "Text for link or button to copy an idea from the Public Idea Basket"
     },
     "ideaBasket_public_header": {
-        "value": "{0} pública",
+        "value": "{0} p√∫blica",
         "description": "Header text for the Public Idea Basket"
     },
     "ideaBasket_public_publicLabel": {
-        "value": "Pública",
+        "value": "P√∫blica",
         "description": "Label designating a public idea in the Idea Basket"
     },
     "ideaBasket_public_empty": {
-        "value": "{0} está vacía.",
+        "value": "{0} est√° vac√≠a.",
         "description": "Text to display when public Idea Basket is empty"
     },
     "ideaBasket_public_publicRowLabel": {
-        "value": "(Pública)",
+        "value": "(P√∫blica)",
         "description": "Label designating a public idea row in the Idea Basket"
     },
     "ideaBasket_public_privateLabel": {
@@ -696,7 +696,7 @@
         "description": "Header text for the column identifying how many times an idea has been copied from the Public Idea Basket"
     },
     "ideaBasket_public_makePublic": {
-        "value": "Hacerla pública",
+        "value": "Hacerla p√∫blica",
         "description": "Text for button or link to make an idea public (add to the Public Idea Basket)"
     },
     "ideaBasket_public_makePrivate": {
@@ -724,7 +724,7 @@
         "description": "Error text to display when workgroup attempts to copy their own idea from the public Idea Basket."
     },
     "ideaBasket_public_alreadyCopiedError": {
-        "value": "Error: ya se había copiado esta {0}.",
+        "value": "Error: ya se hab√≠a copiado esta {0}.",
         "description": "Error text to display when workgroup attempts to copy an idea from the public Idea Basket they have already copied."
     },
     "ideaBasket_saveError": {
@@ -732,7 +732,7 @@
         "description": "Error message to display when Idea Basket fails to save on the server"
     },
     "ideaBasket_loadError": {
-        "value": "Error: no se pudo recuperar la {0} Refresquen el proyecto o vayan a otro de los pasos y luego vuelvan a éste e intenten cargarlo de nuevo.",
+        "value": "Error: no se pudo recuperar la {0} Refresquen el proyecto o vayan a otro de los pasos y luego vuelvan a √©ste e intenten cargarlo de nuevo.",
         "description": "Error message to display when Idea Basket fails to load"
     },
     "ideaManager_attributeSelectMultiple": {
@@ -752,7 +752,7 @@
         "description": "Label for no icon option of the icon attribute selector in the Idea Manager"
     },
     "ideaManager_addIdea_textLabel": {
-        "value": "Escriban su {0} acá*:",
+        "value": "Escriban su {0} ac√°*:",
         "description": "Label for the idea text input field in add or edit idea forms in the Idea Manager tools"
     },
     "ideaManager_addIdea_title": {
@@ -768,7 +768,7 @@
         "description": "Title text for the edit idea dialog/form in Idea Manager tools"
     },
     "ideaManager_editIdea_changeConfirm": {
-        "value": "Esta {0} está siendo usada actualmente en los pasos: {1} Si cambian esta {2}, deberán también cambiar su respuesta en esos pasos.",
+        "value": "Esta {0} est√° siendo usada actualmente en los pasos: {1} Si cambian esta {2}, deber√°n tambi√©n cambiar su respuesta en esos pasos.",
         "description": "Text for the warning confirmation dialog that appears when users attempt to edit an idea that is being used in Explanation Builder steps"
     },
     "ideaManager_deleteIdea_title": {
@@ -776,11 +776,11 @@
         "description": "Title text for the delete idea dialog in Idea Manager tools"
     },
     "ideaManager_deleteIdea_confirm1": {
-        "value": "¿Seguro que quieren borrar esta {0}?",
+        "value": "¬øSeguro que quieren borrar esta {0}?",
         "description": "Text for first part of confirmation delete idea confirmation dialog"
     },
     "ideaManager_deleteIdea_confirm2": {
-        "value": "También pueden recuperarla de la basura más tarde si cambian de opinión.",
+        "value": "Tambi√©n pueden recuperarla de la basura m√°s tarde si cambian de opini√≥n.",
         "description": "Text for second part of confirmation delete idea confirmation dialog"
     },
     "teacher_score": {
@@ -828,23 +828,23 @@
         "description": "The label for the teacher feedback"
     },
     "your_teacher_hasnt_graded": {
-        "value": "Calificando: El docente no ha calificado todavía el trabajo.",
+        "value": "Calificando: El docente no ha calificado todav√≠a el trabajo.",
         "description": "The text to show that there is no feedback from the teacher yet"
     },
     "last_visited_on": {
-        "value": "Último acceso",
+        "value": "√öltimo acceso",
         "description": "The label to show when the student last visited the step"
     },
     "latest_work": {
-        "value": "Trabajo más reciente",
+        "value": "Trabajo m√°s reciente",
         "description": "The label to show the latest work"
     },
     "you_havent_visited_this_step": {
-        "value": "Todavía no accedieron a este paso.",
+        "value": "Todav√≠a no accedieron a este paso.",
         "description": "The text to show that the student hasn't visited the step yet"
     },
     "you_havent_submitted_work_for_this_step": {
-        "value": "Todavía no han enviado trabajos para este paso.",
+        "value": "Todav√≠a no han enviado trabajos para este paso.",
         "description": "The text to show that the student hasn't submitted work for the step yet"
     },
     "teacher_flagged_work": {
@@ -868,7 +868,7 @@
         "description": "The label for the student work that has been flagged for a step"
     },
     "anonymous": {
-        "value": "Anónimo",
+        "value": "An√≥nimo",
         "description": "The label to specify that the team is anonymous"
     },
     "you_got_a_score_of": {
@@ -884,7 +884,7 @@
         "description": "The text to display the comments in the feedback popup"
     },
     "you_can_always_view": {
-        "value": "También pueden verse los comentarios haciendo clic en el ícono \"Comentarios\" en la esquina superior derecha.",
+        "value": "Tambi√©n pueden verse los comentarios haciendo clic en el √≠cono \"Comentarios\" en la esquina superior derecha.",
         "description": "The message at the bottom of the feedback popup to tell the student they can always bring the popup back up"
     },
     "you_must_view_all": {
@@ -924,11 +924,11 @@
         "description": "The message shown to students telling them to complete work on current activity before moving on"
     },
     "constraint_must_complete_current_step": {
-        "value": "Deben completar el paso en el que están antes de continuar con otro",
+        "value": "Deben completar el paso en el que est√°n antes de continuar con otro",
         "description": "The message shown to students telling them to complete work on current step before moving on"
     },
     "constraint_must_have_status": {
-        "value": "El paso de acá abajo debe tener '{0}' seteado a '{1}' antes de trabajar en este paso {2}",
+        "value": "El paso de ac√° abajo debe tener '{0}' seteado a '{1}' antes de trabajar en este paso {2}",
         "description": "The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the current step"
     }
 }
