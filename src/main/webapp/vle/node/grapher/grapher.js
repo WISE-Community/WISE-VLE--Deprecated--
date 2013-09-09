@@ -215,6 +215,9 @@ Grapher.prototype.render = function() {
 				
 				if($("#seriesRadioDiv").children().length < seriesLabels.length) 
 					$("#seriesRadioDiv").append("<input class='seriesRadio' name='dynamic' type='radio' "+checked+" onclick='seriesChanged("+s+")'>"+seriesLabels[s]+"</input>");
+				
+				// initialize this series in the state
+				this.grapherState.initializePrediction(seriesLabels[s]);
 			}
 		}
 
@@ -325,9 +328,8 @@ Grapher.prototype.render = function() {
 			$(".activeAnnotationToolTip").show();
 		}));
 	}
-	
-	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**
@@ -2501,7 +2503,7 @@ Grapher.prototype.clearPrediction = function() {
 	var found_series = false;
 	for (var i = 0; i < this.grapherState.predictionArray.length; i++){
 		if (this.grapherState.predictionArray[i]['id'] == this.currentGraphName){
-			this.grapherState.predictionArray.splice(i, 1);
+			this.grapherState.predictionArray[i].predictions = [];
 			found_series = true;
 			break;
 		}
