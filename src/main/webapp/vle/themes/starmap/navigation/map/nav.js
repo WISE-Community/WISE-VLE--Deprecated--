@@ -282,13 +282,12 @@ NavigationPanel.prototype.render = function(forceReRender) {
 	} else {
 		//the nav ui is empty so we need to build it
 		$('#navigation').append('<div id="activityControls">' +
-			'<a id="prevAct"><img src="/vlewrapper/vle/themes/starmap/navigation/map/images/arrow-left.png" alt="left"></a>' +
 			'<div id="currentAct"><span class="pos"></div>' +
-			'<a id="nextAct"><img src="/vlewrapper/vle/themes/starmap/navigation/map/images/arrow-right.png" alt="left"></a>' +
+			'<a id="prevAct" href="javascript:void(0);"></a>' +
+			'<a id="reset" href="javascript:void(0);"></a>' +
+			'<a id="nextAct" href="javascript:void(0);"></a>' +
 			'</div>' +
-			'<a id="reset">Zoom Out</a>' +
-			'<a id="export">Export</a>' +
-			'<!-- <a id="toggleView">Student View</a> -->');
+			'<a id="export">Export</a>');
 		
 		this.map = starmap() // create map instance
 			.height(528)

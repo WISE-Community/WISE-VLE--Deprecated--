@@ -134,7 +134,7 @@ function starmap() {
 			// Update the inner dimensions with padding
 			// g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-			// function to build a group's hull path
+			// function to build a group's (activity) hull path
 			/*var groupPath = function(d) {
 				return "M" + d3.geom.hull(d.values.map(function(i) {return [i.x, i.y];})).join("L") + "Z";
 			};*/
@@ -334,7 +334,7 @@ function starmap() {
 					y = d.y;
 
 					d3.select(elem).each(function(n){
-						$('#currentAct').html("<span class='pos'>#" + (n.position+1) + ":</span> " + n.title); 
+						$('#currentAct').html("<span class='pos'>#" + (n.position+1) + "</span> " + n.title); 
 					});
 
 					// hide activity info displays
@@ -372,17 +372,17 @@ function starmap() {
 						$('#prevAct').on('click', function(){
 							zoom(d3.select(view.escapeIdForJquery('#' + prevAct.identifier))[0][0], prevAct);
 						});
-						$('#prevAct').show();
+						$('#prevAct').removeClass('disabled');
 					} else {
-						$('#prevAct').hide();
+						$('#prevAct').addClass('disabled');
 					}
 					if(nextAct){
 						$('#nextAct').on('click', function(){
 							zoom(d3.select(view.escapeIdForJquery('#' + nextAct.identifier))[0][0], nextAct);
 						});
-						$('#nextAct').show();
+						$('#nextAct').removeClass('disabled');
 					} else {
-						$('#nextAct').hide();
+						$('#nextAct').addClass('disabled');
 					}
 				}
 
@@ -400,7 +400,6 @@ function starmap() {
 				zoomed = true;
 				zoomInit = true;
 				g.classed("zoom", true);
-				$('#reset').delay(500).fadeIn(750); // TODO: pass in reset link as a setting?
 			};
 
 			function draw(){
@@ -948,7 +947,6 @@ function starmap() {
 			.classed('inactive',false);
 
 		zoomed = false;
-		$('#reset').delay(500).fadeOut(750); // TODO: pass in reset link as a setting?
 
 		return chart;
 	};
