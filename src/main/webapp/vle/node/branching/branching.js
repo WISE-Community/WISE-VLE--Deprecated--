@@ -158,7 +158,11 @@ Branching.prototype.getPathToVisit = function() {
  * the .html file for this step (look at branching.html).
  */
 Branching.prototype.render = function() {
-	if (!this.content.showBranchSelectionPage) {
+	if (this.node.type != "BranchingNode") {
+		// if the next step is HTML, this gets called. ignore it.
+		return;
+	}
+	if (this.content && !this.content.showBranchSelectionPage) {
 		// if showBranchSelectionPage is false, we immediately run the branchingFunction and go to the first node in the chosen path.
 		var pathToVisitJSONObj = this.getPathToVisit();
 		if (!pathToVisitJSONObj) {
@@ -166,7 +170,7 @@ Branching.prototype.render = function() {
 			return;
 		}
 		this.doBranch(pathToVisitJSONObj);
-	} else {
+	} else if (this.content && this.content.showBranchSelectionPage) {
 		// show the splash page and let the user choose a branch to go down
 		this.hideAllExceptionBranchStep();
 		this.showBranchPage();

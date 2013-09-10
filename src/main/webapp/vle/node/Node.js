@@ -1647,6 +1647,58 @@ Node.prototype.canSpecialExport = function() {
 };
 
 /**
+ * Get the node ids that this step is importing work from
+ */
+Node.prototype.getNodeIdsImportingFrom = function() {
+	var nodeIds = [];
+	
+	//the tag maps
+	var tagMaps = this.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//this is an importWork function
+					
+					//get all the tagged steps
+					var taggedNodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
+					
+					//loop through all the tagged steps
+					for(var y=0; y<taggedNodeIds.length; y++) {
+						//get a node id
+						var nodeId = taggedNodeIds[y];
+						
+						if(nodeId != null) {
+							//get the node
+							var node = this.view.getProject().getNodeById(nodeId);
+							
+							if(node != null) {
+								nodeIds.push(nodeId);								
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return nodeIds;
+};
+
+/**
  * Get the latest node state from all the steps with the given tag
  * @param tagName the tag for the step(s) we want to import work from
  * @param functionArgs the arguments for this tag map function
