@@ -557,6 +557,14 @@ CarGraphNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/cargraph/cargraph.html');
 };
 
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+CarGraphNode.prototype.canSpecialExport = function() {
+	return true;
+};
+
 /*
  * Add this node to the node factory so the vle knows it exists.
  * e.g. if you are creating a quiz step you would change it to
