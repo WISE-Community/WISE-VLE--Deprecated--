@@ -276,7 +276,8 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 	var ready = true,
 		extensions = ['ext_prompt', 'ext_stamps', 'ext_snapshots', 'ext_description', 
 	                  'ext_importstudentasset', 'ext_wise4', 'ext_clearlayer'];
-	for(var e in extensions){
+	var e = extensions.length-1;
+	for(; e>-1; --e){
 		var prop = extensions[e];
 		if(svgEditor.hasOwnProperty(prop)){
 			if(!svgEditor[prop].isLoaded()){
