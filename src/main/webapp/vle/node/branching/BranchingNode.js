@@ -17,6 +17,11 @@
 BranchingNode.prototype = new Node(); //TODO: rename BranchingNode
 BranchingNode.prototype.constructor = BranchingNode; //TODO: rename both occurrences of BranchingNode
 BranchingNode.prototype.parentNode = Node.prototype; //TODO: rename BranchingNode
+BranchingNode.prototype.i18nEnabled = true;
+BranchingNode.prototype.i18nPath = "/vlewrapper/vle/node/branching/i18n/";
+BranchingNode.prototype.supportedLocales = {
+	"en_US":"en_US"
+};
 
 /*
  * the name that displays in the authoring tool when the author creates a new step
