@@ -1906,7 +1906,7 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 								}
 							}
 							// now tell the Node to render the summary view.
-							nodeOfAggregateWork.renderSummaryView(workgroupIdToWork,aggregateWorkDiv,graphType);
+							nodeOfAggregateWork.renderSummaryView(workgroupIdToWork, aggregateWorkDiv, graphType, showAllStudents);
 						};
 						
 						// make the request to get student work for this specific nodeId.
