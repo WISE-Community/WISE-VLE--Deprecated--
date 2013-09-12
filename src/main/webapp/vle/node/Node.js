@@ -2564,8 +2564,10 @@ Node.prototype.getScore = function(nodeState) {
 
 /**
  * Disables this node's content panel so students cannot interact with it.
+ * @param doDisable true iff the node should be disabled
+ * @param message optional message
  */
-Node.prototype.disableInteractivity = function(doDisable) {
+Node.prototype.disableInteractivity = function(doDisable, message) {
 	if (doDisable) {
 		/* get the position, height and width of the content panel */
 		var panelPosition = $('#contentDiv').offset();
@@ -2574,7 +2576,14 @@ Node.prototype.disableInteractivity = function(doDisable) {
 
 		/* create the disabledPanel and append it to the given document */
 		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
+		//the message to display in the modal dialog
+		
+		if (message && message != "") {
+			var message = "<div id='disabledNodeMessageDiv'>"+message+"</div>";
+			dynamicPanel.html(message);			
+		}
 		$('body').append(dynamicPanel);	
+
 	} else {
 		$('#disabledPanel').remove();
 	}

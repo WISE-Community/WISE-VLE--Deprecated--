@@ -19,6 +19,10 @@
 		"value":"Click 'OK' to save and lock this step.  Your work will be saved and you will not be able to make any more changes.\nIf you want to keep working on this step, click 'Cancel'.",
 		"description":"The text to notify the student to click 'OK' to save and lock the step"
 	},	
+	"step_completed": {
+		"value":"You have completed this step. Please move on to the next step.",
+		"description":"The text to notify the student that they've completed the step and that they should move on"
+	},	
 	"correct_feedback":{
 		"value": "You have correctly placed {0} out of {1} choices.",
 		"description":"Message showing students how many choices they placed correctly"
