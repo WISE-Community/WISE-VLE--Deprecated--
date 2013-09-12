@@ -730,7 +730,7 @@ View.prototype.renderStartNode = function(){
 		}
 		
 		/* render if start position has been set */
-		if(startPos){
+		if(startPos != null){
 			/* since this is the first node rendered, we want to set the VLE's current
 			 * position to be the same as the startPos so that getStartPosition will always
 			 * return a value.*/
