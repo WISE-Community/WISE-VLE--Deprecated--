@@ -5,6 +5,7 @@ function renderDragAndDrop(){
 				connectWith:'ul',
 				stop:function(e,ui){
 					/* update the match sequence */
+					ms.orderSourceBucket();
 					ms.addOrderingToChoices();
 					ms.saveState();
 					
