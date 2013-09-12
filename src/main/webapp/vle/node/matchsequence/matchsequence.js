@@ -416,7 +416,7 @@ MS.prototype.render = function() {
 	// check to see if we need to disable the step from further interactivity by checking if student has exhausted number of attempted allowed
 	if (this.numSubmitsAllowedBeforeLock != -1) {
 		if (this.attempts.length == this.numSubmitsAllowedBeforeLock) {
-			this.node.disableInteractivity(true);
+			this.node.disableInteractivity(true, this.view.getI18NString("step_completed","MatchSequenceNode"));
 		}
 	}
     
@@ -838,7 +838,7 @@ MS.prototype.checkAnswer = function() {
 	// check to see if we need to disable the step from further interactivity by checking if student has exhausted number of attempted allowed
 	if (this.numSubmitsAllowedBeforeLock != -1) {
 		if (this.attempts.length == this.numSubmitsAllowedBeforeLock) {
-			this.node.disableInteractivity(true);
+			this.node.disableInteractivity(true, this.view.getI18NString("step_completed","MatchSequenceNode"));
 		}
 	}
 };
