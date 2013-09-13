@@ -155,6 +155,8 @@ EpigameNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdP
 			//gradingText += "<b>Trial #"+(i+1)+"</b><br/>"
 			gradingText += JSON.stringify(nodeStates[i].getStudentWork().response) + "<br/><br/>";
 		}
+		
+//		gradingText= "bob";
 
 		//put the student work into the div
 		$('#' + divId).html(gradingText);

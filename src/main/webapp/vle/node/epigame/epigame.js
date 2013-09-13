@@ -529,8 +529,7 @@ Epigame.prototype.getCurrentQuizData = function() {
 	
 	console.log("maxQuestionsToAsk : " + maxQuestionsToAsk);
 	
-	data.quiz = [];
-	
+	data.quiz = [];	
 	data.maxQuestionsToAsk = maxQuestionsToAsk;
 	
 	for(i=0;i<allQuizData.length;i++) {
@@ -555,8 +554,10 @@ Epigame.prototype.getCurrentPostQuizData = function() {
 	
 	var allQuizData = this.node.getQuizData().posttestQuestionLists[this.getCurrentBucketIndex()];
 	var quizQuestions = this.node.getQuizData().questionPool;
+	var maxQuestionsToAsk = this.node.getQuizData().maxQuestionsToAsk;
 	
 	data.quiz = [];
+	data.maxQuestionsToAsk = maxQuestionsToAsk;	
 	
 	for(i=0;i<allQuizData.length;i++) {
 		data.quiz.push(quizQuestions[allQuizData[i]-1]);
@@ -664,6 +665,13 @@ Epigame.prototype.adaptiveMissionSelector = function(numMissionsCompleted,player
 	return numMissionsCompleted;	
 };
 
+Epigame.prototype.getCurrentAdaptiveMissionPlayed = function() {
+	if(this.states)
+		return this.states.length;
+		
+	return 0;
+}
+
 Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 	var warpData = this.node.getAdaptiveMissionData();
 	var missionTable = warpData.missions;
@@ -716,7 +724,7 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 		if(missionCompleted[i])
 			numMissionsCompleted++;
 		var i1 = missionList[i].split("-")[0]-1;
-		var i2 = missionList[i].split("-")[1]-1;		
+		var i2 = missionList[i].split("-")[1]-1;
 		missionDifficulty[i] = missionTable[i1][i2].difficulty;
 	}
 
@@ -750,13 +758,7 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 		default:
 		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index		
 	}
-	
-	//if the previous warp mission was not complete, then stay at that warp index
-//	if(!this.getLatestState().response.success)	{									   
-//		index = this.getLatestState().response.warpIndex;
-//		console.log("setting index......");		
-//	}
-		
+			
 	//if we didn't finish the last warp attempt, go back
 	if(this.states != null && this.states.length > 0) {
 		console.log("looking for last mission: ");			
@@ -789,9 +791,10 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 	//check to make sure that the index
 	while (index >= missionList.length)
 		index -= missionList.length;
-		
+
 	this.lastWarpIndex = index;
-	
+	this.lastMissionDifficulty = missionDifficulty[index];
+
 	var missionIndex1 = missionList[index].split("-")[0];
 	var missionIndex2 = missionList[index].split("-")[1];
 	
@@ -861,7 +864,8 @@ Epigame.prototype.serializeCampaignSettings = function(settings) {
 		+ "|@" + (settings.rank2Val)
 		+ "|@" + (settings.rank3Val)
 		+ "|@" + (settings.rank4Val)
-		+ "|@" + (settings.rank5Val);
+		+ "|@" + (settings.rank5Val)
+		+ (settings.forceRestriction ? "|@1" : "|@0")
 		
 	
 };
@@ -879,7 +883,8 @@ Epigame.prototype.serializeUserSettings = function(settings) {
 	result += "|$" + (isNaN(parsed) ? "" : parsed);
 	parsed = parseFloat(settings.musicVolume);
 	result += "|#" + (isNaN(parsed) ? "" : parsed);
-	
+	result += settings.velocimeterToggle == "false" ? "|#0" : "|#1";
+		
 	//Some game data is unused for this implementation, so this lets the game control the defaults
 	result += "|$|#|#|$CP";
 	
@@ -1048,6 +1053,7 @@ Epigame.prototype.getLatestState = function() {
 	return latestState;
 };
 
+
 Epigame.prototype.getPreviousWarpScore = function() {
 	var previousSuccesfulState = null;
 	var previousSuccesfulScore = 0;	
@@ -1118,9 +1124,51 @@ Epigame.prototype.saveGameState = function(reportString) {
 Epigame.prototype.saveExitState = function() {
 	var elem = this.getGameElement();
 	if (elem && elem.getExitReport) {
-		console.log("saving exit state: " + elem.getExitReport());	
 		this.save(elem.getExitReport());
 	}
+};
+
+Epigame.prototype.getMissionData = function() {
+	var dataLog = {};
+		
+	/*
+	console.log("logging project data");
+	var project = this.view.getProject();
+	console.log(project);
+	console.log(project.projectJSON());
+
+	console.log("user and class info");			
+	console.log(this.node.view.userAndClassInfo);
+	*/
+
+	dataLog.projectID = 1;
+	dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
+	dataLog.stepVisit = this.states.length;
+
+	var numAttempts = 0;
+	var numTrials = 0;
+	var successfulTrialNum = 0;
+
+	for(var i=0;i<this.states.length;i++) {
+		if(this.states[i].response.success) {			
+			if(this.states[i].response.missionData && this.states[i].response.missionData.numTrials) {
+				successfulTrialNum = this.states[i].response.missionData.numTrials;
+			}
+			numAttempts++;
+		}
+
+		if(this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
+			numTrials = this.states[i].response.missionData.totalTrials;
+		}
+	}
+
+	dataLog.attempts = numAttempts;
+	dataLog.attemptTrials = numTrials + 1 - successfulTrialNum;
+	dataLog.totalTrials = numTrials + 1;
+	
+	dataLog.missionDifficulty = this.lastMissionDifficulty;
+
+	return JSON.stringify(dataLog);
 };
 
 /**
@@ -1151,12 +1199,7 @@ Epigame.prototype.save = function(st) {
 	this.states.push(epigameState);
 	
 	if(epigameState.response) {
-		console.log("pushing state: " + epigameState.response);
-		
-		if(epigameState.response.success)
-			console.log("success ");
-		else
-			console.log("no success");
+		console.log("pushing state: " + epigameState.response);		
 	}
 	
 	// Process the student work for nav display
