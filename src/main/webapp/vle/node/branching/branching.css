@@ -5,14 +5,20 @@
 .branchLink {
 	text-decoration:underline;
 	color:blue;	
-	display:block;
 	margin-top:10px;
+	margin-left:10px;
 }
 
 .branchLink.pathCompleted:before {
-	content: "\2713";
+	//content: "\2713";
 }
 
 .branchLink:hover {
 	cursor:pointer;
+}
+
+#branchStepCompletedMsg {
+	font-size:1.5em;
+	font-weight:bold;
+	color:red;
 }

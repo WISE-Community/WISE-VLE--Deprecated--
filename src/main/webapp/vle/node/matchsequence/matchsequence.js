@@ -37,6 +37,7 @@ function MS(node, view) {
     this.feedbacks = this.content.assessmentItem.responseDeclaration.correctResponses;
     this.choices = [];
     this.sourceBucket = undefined;
+    this.originalSourceBucket = undefined;  // original source bucket with the ordering of items by the author, does not change.
     this.buckets = [];  // includes only targetbuckets
     this.customCheck = undefined;
     this.displayLayout = this.content.displayLayout;
@@ -78,6 +79,9 @@ function MS(node, view) {
     if(this.content.assessmentItem.interaction.shuffle){
     	this.sourceBucket.shuffle();
     };
+    
+    // make a snapshot of the sourceBucket into originalSourceBucket
+    this.originalSourceBucket = this.sourceBucket;
     
     /* instantiate target buckets */
     for (var i=0; i < this.content.assessmentItem.interaction.fields.length; i++) {
@@ -254,12 +258,33 @@ MS.prototype.getTargetBucketById = function(bucketId) {
 };
 
 /**
+ *  Orders the items in the SourceBucket in accordance to how it was originally ordered by the author 
+ */
+MS.prototype.orderSourceBucket = function() {
+	// get the state before we remove items from the source bucket in the UI
+	var sourceBucketListItems = $("#sourceBucket li");
+	// then remove all items from the source bucket in the UI
+	$("#sourceBucket").html("");
+	// go through the original source bucket and order
+	for (var x=0; x < this.originalSourceBucket.choices.length; x++) {
+		var originalSourceBucketChoice = this.originalSourceBucket.choices[x];
+		for (var i=0; i < sourceBucketListItems.length; i++) {
+			var sourceBucketListItem = sourceBucketListItems[i];
+			if (originalSourceBucketChoice.identifier == sourceBucketListItem.id) {
+				$("#sourceBucket").append(sourceBucketListItem);
+			}
+		}		
+	}
+};
+
+/**
  * Adds orderings to choices within the targetbuckets
  * Iterates through all of the target buckets and adds
  * ordering to the choices. Iterates through all sourcebuckets and
  * removes ordering from the choices.
  */
 MS.prototype.addOrderingToChoices = function() {
+	
 	if (!this.content.assessmentItem.interaction.ordered) {
 		return;
 	}
@@ -416,7 +441,7 @@ MS.prototype.render = function() {
 	// check to see if we need to disable the step from further interactivity by checking if student has exhausted number of attempted allowed
 	if (this.numSubmitsAllowedBeforeLock != -1) {
 		if (this.attempts.length == this.numSubmitsAllowedBeforeLock) {
-			this.node.disableInteractivity(true);
+			this.node.disableInteractivity(true, this.view.getI18NString("step_completed","MatchSequenceNode"));
 		}
 	}
     
@@ -838,7 +863,7 @@ MS.prototype.checkAnswer = function() {
 	// check to see if we need to disable the step from further interactivity by checking if student has exhausted number of attempted allowed
 	if (this.numSubmitsAllowedBeforeLock != -1) {
 		if (this.attempts.length == this.numSubmitsAllowedBeforeLock) {
-			this.node.disableInteractivity(true);
+			this.node.disableInteractivity(true, this.view.getI18NString("step_completed","MatchSequenceNode"));
 		}
 	}
 };

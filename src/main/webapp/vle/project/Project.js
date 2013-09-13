@@ -279,7 +279,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		
 		/* Returns the node at the given position in the project if it exists, returns null otherwise */
 		var getNodeByPosition = function(position){
-			if(position){
+			if(position != null) {
+				//make sure position is a string
+				position += "";
+				
 				var locs = position.split('.');
 				var parent = rootNode;
 				var current;
