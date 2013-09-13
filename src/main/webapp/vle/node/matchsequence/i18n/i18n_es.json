@@ -62,5 +62,9 @@
     "click_ok_to_save": {
         "value": "Clic 'OK' para grabar y sellar este paso. El trabajo se guardará y no se podrán realizar más cambios. Si quieren seguir trabajando en este paso hagan clic en 'Cancelar'.",
         "description": "The text to notify the student to click 'OK' to save and lock the step"
+    },
+    "step_completed": {
+        "value": "Este paso está completo. Continuar con el siguiente.",
+        "description": "The text to notify the student that they've completed the step and that they should move on"
     }
 }
