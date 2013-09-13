@@ -832,13 +832,11 @@ View.prototype.renderNodeCompletedListener = function(position){
 		//get the step icon
 		var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
 		
-		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconPath + '\' width=\'28px\'/>';
+		$('#stepIcon').html('<img src="' + iconPath + '" alt="step icon" />');
 	}
 	
 	/* set title in nav bar */
-    if(document.getElementById('stepTitle') != null) {
-    	document.getElementById('stepTitle').innerHTML = this.currentNode.getTitle();
-    }
+    $('#stepTitle').html(this.currentNode.getTitle());
     
 	/* get project completion and send to teacher, if xmpp is enabled */
 	if (this.xmpp && this.isXMPPEnabled && false) {
