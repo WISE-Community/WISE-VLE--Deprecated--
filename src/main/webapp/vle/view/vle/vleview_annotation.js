@@ -107,7 +107,8 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 			}
 		}
 		
-		var you_can_always_view = this.getI18NString('you_can_always_view');
+		var buttonText = this.getI18NString('node_annotations_button_text'),
+			you_can_always_view = this.getI18NStringWithParams('node_annotations_instructions',[buttonText]);
 		
 		nodeAnnotationsString += "<span class='nodeAnnotationsFooter' style='font-style:italic'>" + you_can_always_view + "</span>";
 		nodeAnnotationsString += "</div>";

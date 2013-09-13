@@ -10,7 +10,7 @@
 #vle_body #my_menu {
 	height:100%;
 	width:100%;
-	position:relative;
+	position:absolute;
 	/*background-color: #191D2E;*/
 	background: url("images/background.png") no-repeat scroll center center #191D2E;
 	background-size: cover;

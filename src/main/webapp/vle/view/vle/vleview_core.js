@@ -1128,7 +1128,8 @@ View.prototype.goToNodePosition = function(nodePosition) {
 			 * stay on the current node they are already on
 			 */
 			var message = processTagMapConstraintResults.message;
-			alert(message);
+			alert(message); // TODO: change to jQuery dialog (which is skinnable by themes)
+			this.eventManager.fire('renderNodeBlocked', nextNode);
 			return;
 		}
 	}
