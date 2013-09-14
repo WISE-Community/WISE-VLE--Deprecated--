@@ -20,13 +20,13 @@
  * navigation menu should be included here. (It is okay to leave this function empty.)
  */
 NavigationPanel.prototype.menuCreated = function() {
-	$('#navigation').show();
+	$('#navigation').fadeIn();
 	
 	// set the text and title for the toggle navigation menu button
 	$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title","theme")).html(view.getI18NString("toggle_nav_button_text","theme"));
 	
 	// on stepHeader hover show step title, vice versa
-	$('#stepHeader').hover(
+	/*$('#stepHeader').hover(
 			function(){
 				clearTimeout($(this).data('stepHeaderTimer'));
 				$('#stepInfo').fadeIn();
@@ -35,13 +35,13 @@ NavigationPanel.prototype.menuCreated = function() {
 				$('#stepInfo').stop(true,true);
 				$('#stepInfo').fadeOut();
 			}
-	);
+	);*/
 
 	// for some reason, the first time a node loads when the project is opened,
 	// the stepInfo div is not fading after 4 seconds, so force here
-	setTimeout(function(){
+	/*setTimeout(function(){
 		$('#stepInfo').fadeOut();
-	}, 4000);
+	}, 4000);*/
 
 	// show project content
 	$('#vle_body').css('opacity',1);
@@ -65,8 +65,9 @@ NavigationPanel.prototype.menuCreated = function() {
  * @param node Node that has been rendered
  */
 NavigationPanel.prototype.nodeRendered = function(node) {
-	//$('#stepContent').show();
-	$('#navigation').hide();
+	$('#stepContent').fadeIn(function(){
+		$('#navigation').fadeOut();
+	});
 	
 	// clear the stepHeaderTimer timeout actions on the step header
 	clearTimeout($('#stepHeader').data('stepHeaderTimer'));
@@ -81,6 +82,18 @@ NavigationPanel.prototype.nodeRendered = function(node) {
 		}, 4000);
 		$('#stepHeader').data('stepHeaderTimer',stepHeaderTimer);
 	}
+};
+
+
+/**
+ * Called when user attempts to visit a step but is blocked (by a constraint, for example)
+ * 
+ * OPTIONAL
+ * 
+ * @param node Node that has been blocked
+ */
+NavigationPanel.prototype.renderNodeBlockedListener = function(node){
+	this.mode = 'nav';
 };
 
 /**
@@ -114,7 +127,44 @@ NavigationPanel.prototype.toggleVisibility = function() {
 		}
 	};*/
 	
-	$('#navigation').show();
+	var navPanel = this;
+	
+	function updateIcon(el, path){
+		d3.select(el)
+			.attr('data-iconPath', '')
+			.classed('iconChanged', false)
+			.transition()
+			.duration(250)
+			.delay(500)
+			.attr('width', 44)
+			.attr('height', 44)
+			.attr('x', -22)
+			.attr('y', -22)
+			.transition()
+			.duration(1250)
+			.ease('bounce')
+			.attr('xlink:href', path)
+			.attr('width', 30)
+			.attr('height', 30)
+			.attr('x', -15)
+			.attr('y', -15);
+	}
+	
+	$('#stepContent').fadeOut(function(){
+		$('#navigation').fadeIn(function(){
+			navPanel.mode = 'nav';
+			
+			// update any node icons that have changed
+			$('.iconChanged', $('#navigation')).each(function(){
+				var href = d3.select(this).attr('data-iconPath'),
+					icon = new Image();
+				icon.name = href;
+				icon.src = href;
+				//href = $('#my_menu').data('base') + href;
+				icon.onload = updateIcon(this, href);
+			});
+		});
+	});
 };
 
 /**
@@ -174,6 +224,7 @@ NavigationPanel.prototype.navigationPanelToggleVisibilityButtonClickedListener =
  */
 NavigationPanel.prototype.navigationNodeClickedListener = function(nodePosition) {
 	//go to the node position that was clicked if it is available
+	this.mode = 'step';
 	this.view.goToNodePosition(nodePosition);
 };
 
@@ -192,6 +243,7 @@ NavigationPanel.prototype.visitNodeListener = function(nodeId){
  * @param forceReRender true iff we want to rerender the navigation from scratch
  */
 NavigationPanel.prototype.render = function(forceReRender) {
+	
 	//obtain the html in the nav div and run trim on it
 	var currentNavHtml = document.getElementById("my_menu").innerHTML.replace(/^\s*/, "").replace(/\s*$/, "");
 	
@@ -231,7 +283,7 @@ NavigationPanel.prototype.render = function(forceReRender) {
 				var currentTitle = previousNavElement.firstChild.nextSibling.nodeValue;
 				var newTitle;
 				var parentTitle = prevNode.parent.title;
-				previousNavElement.firstChild.src = view.iconUrl + 'instantquiz16.png';
+				previousNavElement.firstChild.src = view.iconUrl + 'instantquiz16.png';  // TODO: update
 
 				if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
 					newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1);
@@ -280,19 +332,14 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		}
 
 	} else {
+		this.mode = 'nav'; // variable to hold current mode of the vle: 'nav' (viewing menu) or 'node' (viewing a step)
+		
 		//the nav ui is empty so we need to build it
-		$('#navigation').append('<div id="activityControls">' +
-			'<div id="currentAct"><span class="pos"></div>' +
-			'<a id="prevAct" href="javascript:void(0);"></a>' +
-			'<a id="reset" href="javascript:void(0);"></a>' +
-			'<a id="nextAct" href="javascript:void(0);"></a>' +
-			'</div>' +
-			'<a id="export">Export</a>');
+		$('#navigation').append('<a id="export">Export</a>');
 		
 		this.map = starmap() // create map instance
 			.height(528)
 			.width(940)
-			//.backgroundImg('themes/starmap/navigation/map/images/background.png')
 			.view(view);
 	
 		this.currentStepNum = 1;
@@ -339,9 +386,6 @@ NavigationPanel.prototype.render = function(forceReRender) {
 			.datum(projectJSON)
 			.call(map);
 		
-		$('#reset').on('click', function(){
-			map.reset();
-		});
 		$('#export').on('click', function(){
 			alert(JSON.stringify(map.attributes()));
 		});
@@ -1135,6 +1179,7 @@ NavigationPanel.prototype.addBaseHref = function(navHtml) {
 	 * the nav html
 	 */
 	navHtml = "<base href='" + documentBase + "'>" + navHtml;
+	$('#my_menu').attr('data-base', documentBase);
 
 	return navHtml;
 };
@@ -1317,8 +1362,9 @@ NavigationPanel.prototype.enableAllSteps = function() {
  * Set the step icon in the navigation
  * @param nodeId the node id
  * @param stepIconPath the path to the new icon
+ * @param animate Boolean whether to animate the icon change when nav panel is next shown
  */
-NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath) {
+NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath, animate) {
 	if(nodeId != null && nodeId != '' && stepIconPath != null && stepIconPath != '') {
 		//the node id and step icon path were provided so we will use them
 
@@ -1329,10 +1375,17 @@ NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath) {
 		 * of our ids contain a '.'
 		 * e.g. node_1.ht
 		 */
-		nodeId = nodeId.replace(/\./g, '\\.');
-
-		//set the img src to the step icon path
-		$('#anchor_' + nodeId).attr('xlink:href', stepIconPath);
+		nodeId = view.escapeIdForJquery(nodeId);
+		var node = d3.select('#anchor_' + nodeId),
+			newIcon = (stepIconPath !== node.attr('xlink:href'));
+		if(newIcon){
+			if(animate && newIcon && this.mode === 'step'){
+				node.classed('iconChanged', true).attr('data-iconPath', stepIconPath);
+			} else {
+				//set the img src to the step icon path
+				node.attr('xlink:href', stepIconPath);
+			}
+		}
 	}
 };
 
@@ -1368,9 +1421,11 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
 		var tempIconPath = tempNode.getIconPathForStatuses();
 
 		//set the icon for the node
-		thisView.navigationPanel.setIcon(nodeIdListening, tempIconPath);
+		thisView.navigationPanel.setIcon(nodeIdListening, tempIconPath, true);
 	}
 	
+	
+	// TODO: remove or redo with lock icon; 'constraintDisable' class not currently being used in this theme
 	if(statusType == 'isVisitable' && statusValue == false) {
 		//the step is not visitable so we will grey out the step
 		
@@ -1446,6 +1501,8 @@ View.prototype.navModeDispatcher = function(type,args,obj){
 		obj.navigationPanel.navigationNodeClickedListener(args[0]);
 	} else if(type=="visitNode") {
 		obj.navigationPanel.visitNodeListener(args[0]);
+	} else if(type=='renderNodeBlocked'){
+		obj.navigationPanel.renderNodeBlockedListener(args[0])
 	};
 };
 
@@ -1464,7 +1521,8 @@ var events = [
              'navigationPanelNextButtonClicked',
              'navigationPanelToggleVisibilityButtonClicked', // REQUIRED (DO NOT EDIT)
              'navigationNodeClicked',
-             'visitNode'
+             'visitNode',
+             'renderNodeBlocked'
              ];
 
 /**

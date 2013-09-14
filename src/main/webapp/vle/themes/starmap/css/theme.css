@@ -324,6 +324,12 @@ body#w4_vle {
 	white-space: nowrap;
 }
 
+#vle_body #stepInfo img {
+	height: 28px;
+	max-width: 28px;
+	width: auto;
+}
+
 #vle_body #stepNav {
 	margin-left:-0.5em;
 }

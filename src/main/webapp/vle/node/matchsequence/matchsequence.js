@@ -275,7 +275,6 @@ MS.prototype.orderSourceBucket = function() {
 			}
 		}		
 	}
-
 };
 
 /**
