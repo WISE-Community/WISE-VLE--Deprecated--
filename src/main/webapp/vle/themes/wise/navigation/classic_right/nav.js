@@ -788,20 +788,29 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		var icon = '';
 
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-			//icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
 			var nodeClass = node.getNodeClass();
 			var isValid = false;
+			var iconPath = '';
+			
+			//loop through all the node classes for this node type
 			for(var a=0;a<this.view.nodeClasses[node.type].length;a++){
 				if(this.view.nodeClasses[node.type][a].nodeClass == nodeClass){
+					//we have found the node class we want
 					isValid = true;
+					
+					//get the icon path for this node class
+					iconPath = this.view.nodeClasses[node.type][a].icon;
+					
 					break;
 				}
 			}
 			if(!isValid){
 				nodeClass = this.view.nodeClasses[node.type][0].nodeClass;
+				iconPath = this.view.nodeClasses[node.type][0].icon;
 			}
-			var nodeIconPath = this.view.nodeIconPaths[node.type];
-			icon = '<img id="stepIcon_' + node.id + '" src=\'' + nodeIconPath + nodeClass + '16.png\'/> ';
+			
+			//create the html for the step icon
+			icon = '<img id="stepIcon_' + node.id + '" src=\'' + iconPath + '\'/> ';
 		};
 
 		//display the step

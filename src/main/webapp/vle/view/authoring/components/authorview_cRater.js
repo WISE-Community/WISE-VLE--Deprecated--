@@ -24,6 +24,8 @@ View.prototype.cRaterManager.dispatcher = function(type, args, obj) {
 		obj.updateCRaterMaxCheckAnswers();
 	} else if(type=='enableCRater') {
 		obj.updateEnableCRater();
+	} else if(type=='cRaterStudentActionUpdated') {
+		obj.cRaterStudentActionUpdated(args);
 	}
 };
 

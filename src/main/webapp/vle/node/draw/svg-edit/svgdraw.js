@@ -8,6 +8,10 @@
 function SVGDRAW(node) {
 	this.node = node;
 	this.view = node.view;
+	
+	// insert loading i18n text
+	$('#overlay_content > div').html(this.view.getI18NString('loading','SVGDrawNode'));
+	
 	this.content = node.getContent().getContentJSON();
 	
 	if(node.studentWork != null) {
@@ -16,6 +20,7 @@ function SVGDRAW(node) {
 		this.states = [];  
 	};
 	
+	this.initTries = 0;
 	this.svgCanvas = null;
 	this.teacherAnnotation = "";
 	this.defaultBackground = ""; // svg string to hold starting (or background) svg image
@@ -268,9 +273,71 @@ SVGDRAW.prototype.load = function() {
 
 // populate instructions, stamp images, description/annotation text, and snapshots (wise4)
 SVGDRAW.prototype.initDisplay = function(data,context) {
-	if(svgEditor.ext_snapshots && svgEditor.ext_snapshots.isLoaded() && svgEditor.ext_prompt && svgEditor.ext_prompt.isLoaded() &&
-			svgEditor.ext_stamps && svgEditor.ext_stamps.isLoaded() && svgEditor.ext_description && svgEditor.ext_description.isLoaded()
-			&& svgEditor.ext_importstudentasset && svgEditor.ext_importstudentasset.isLoaded()){
+	var ready = true,
+		extensions = ['ext_prompt', 'ext_stamps', 'ext_snapshots', 'ext_description', 
+	                  'ext_importstudentasset', 'ext_wise4', 'ext_clearlayer'];
+	var e = extensions.length-1;
+	for(; e>-1; --e){
+		var prop = extensions[e];
+		if(svgEditor.hasOwnProperty(prop)){
+			if(!svgEditor[prop].isLoaded()){
+				ready = false;
+				break;
+			}
+		} else {
+			ready = false;
+			break;
+		}
+	}
+	
+	if(ready){
+		
+		// insert i18n text elements
+		$('#drawlimit_title').attr('title', this.view.getI18NString('sizeLimit_title','SVGDrawNode'));
+		$('#drawlimit_warning').html(this.view.getI18NString('sizeLimit_warning','SVGDrawNode'));
+		$('#drawlimit_warning').html(this.view.getI18NString('sizeLimit_instructions','SVGDrawNode'));
+		$('#drawlimit_confirm > .ui-button-text').html(this.view.getI18NString('OK','SVGDrawNode'));
+		$('#tools_stamp_title').html(this.view.getI18NString('stamps_title','SVGDrawNode'));
+		$('#tool_stamp').attr('title', this.view.getI18NString('stamps_button','SVGDrawNode'));
+		$('#description span.minimized').data('default', this.view.getI18NString('description_header_add','SVGDrawNode'));
+		$('#description span.minimized').text(this.view.getI18NString('description_header_add','SVGDrawNode'));
+		$('#description_header').attr('title', this.view.getI18NString('description_header_title','SVGDrawNode'));
+		$('#description_header_text > span.panel_title').html(this.view.getI18NString('description_header_label','SVGDrawNode'));
+		$('#description_header_max').html(this.view.getI18NString('description_header_maximized','SVGDrawNode'));
+		$('#description_edit').html(this.view.getI18NString('description_edit_link','SVGDrawNode'));
+		$('#description_edit').attr('title', this.view.getI18NString('description_edit_title','SVGDrawNode'));
+		$('#description_collapse').html(this.view.getI18NString('Save','SVGDrawNode'));
+		$('#tool_import_student_asset').attr('title', this.view.getI18NString('importStudentAsset_button','SVGDrawNode'));
+		$('#tool_prompt > a').html(this.view.getI18NString('prompt_link','SVGDrawNode'));
+		$('#tool_prompt > a').attr('title', this.view.getI18NString('prompt_title','SVGDrawNode'));
+		$('#snapHolder .snap').attr('title', this.view.getI18NString('snapshots_snapHover','SVGDrawNode'));
+		$('#snapHolder .snap_delete').attr('title', this.view.getI18NString('snapshots_snapDelete_title','SVGDrawNode'));
+		$('#snapshot_header > h3').html(this.view.getI18NString('snapshots_header','SVGDrawNode'));
+		$('#close_snapshots').attr('title', this.view.getI18NString('snapshots_closeTitle','SVGDrawNode'));
+		$('#snap_loop').attr('title', this.view.getI18NString('snapshots_playback_playLoop','SVGDrawNode'));
+		$('#snap_play').attr('title', this.view.getI18NString('snapshots_playback_playOnce','SVGDrawNode'));
+		$('#snap_pause').attr('title', this.view.getI18NString('snapshots_playback_pause','SVGDrawNode'));
+		$('#play_speed').attr('title', this.view.getI18NString('snapshots_playback_speed','SVGDrawNode'));
+		$('#speed_units').html(this.view.getI18NString('snapshots_playback_units','SVGDrawNode'));
+		$('#new_snapshot > a').html(this.view.getI18NString('snapshots_addNew_link','SVGDrawNode'));
+		$('#new_snapshot').attr('title', this.view.getI18NString('snapshots_addNew_title','SVGDrawNode'));
+		$('#tool_snapshot > a').html(this.view.getI18NString('snapshots_toggle_link','SVGDrawNode'));
+		$('#tool_snapshot').attr('title', this.view.getI18NString('snapshots_toggle_title','SVGDrawNode'));
+		$('#deletesnap_dialog').attr('title', this.view.getI18NString('snapshots_dialog_delete_title','SVGDrawNode'));
+		$('#deletesnap_warning').html(this.view.getI18NString('snapshots_dialog_delete_warning','SVGDrawNode'));
+		$('#deletesnap_instructions').html(this.view.getI18NString('snapshots_dialog_delete_confirm','SVGDrawNode'));
+		$('#snapnumber_dialog').attr('title', this.view.getI18NString('snapshots_dialog_tooMany_title','SVGDrawNode'));
+		$('#snapnumber_warning').html(this.view.getI18NStringWithParams('snapshots_dialog_tooMany_warning',[svgEditor.ext_snapshots.max()],'SVGDrawNode'));
+		$('#snapnumber_instructions').html(this.view.getI18NString('snapshots_dialog_tooMany_instructions','SVGDrawNode'));
+		$('#snapnumber_confirm > .ui-button-text').html(this.view.getI18NString('OK','SVGDrawNode'));
+		$('#deletesnap_confirm > .ui-button-text').html(this.view.getI18NString('Yes','SVGDrawNode'));
+		$('#deletesnap_cancel > .ui-button-text').html(this.view.getI18NString('Cancel','SVGDrawNode'));
+		$('#tool_erase').attr('title', this.view.getI18NString('eraseDrawing_button','SVGDrawNode'));
+		$('#revert_confirm > .ui-button-text').html(this.view.getI18NString('OK','SVGDrawNode'));
+		$('#revert_cancel > .ui-button-text').html(this.view.getI18NString('Cancel','SVGDrawNode'));
+		$('#revert_dialog').attr('title', this.view.getI18NString('eraseDrawing_dialog_title','SVGDrawNode'));
+		$('#revert_warning').html(this.view.getI18NStringWithParams('eraseDrawing_dialog_warning',[svgEditor.ext_snapshots.max()],'SVGDrawNode'));
+		$('#revert_instructions').html(this.view.getI18NString('eraseDrawing_dialog_instructions','SVGDrawNode'));
 		
 		var promptExt = svgEditor.ext_prompt,
 			descriptionExt = svgEditor.ext_description,
@@ -365,7 +432,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 					$('#description').show();
 				});
 				// update description header text
-				$('.description_header_text span.panel_title').text('Frame Description:');
+				$('.description_header_text span.panel_title').html(this.view.getI18NString('description_header_labelSnapshots','SVGDrawNode'));
 				// set header preview text position
 				var left = $('#description .panel_title').width() + 12;
 				var right = $('#description .description_buttons').width() + 15;
@@ -388,14 +455,14 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		if(context.toolbarOptions){
 			for(var key in context.toolbarOptions){
 				if (context.toolbarOptions.hasOwnProperty(key)) {
-					if(context.toolbarOptions[key] === false){
+					if(!context.toolbarOptions[key]){
 						context.hideTools(key);
 					}
 				}
 			}
 			if(!context.toolbarOptions.pencil && !context.toolbarOptions.line && !context.toolbarOptions.rectangle &&
 					!context.toolbarOptions.ellipse && !context.toolbarOptions.polygon && !context.toolbarOptions.text){
-				$('#colors').hide();
+				$('#color_tools').hide();
 			}
 		}
 		
@@ -440,13 +507,19 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			svgCanvas.undoMgr.resetUndoStack(); // reset undo stack to prevent users from deleting stored starting image
 			$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
 			$('#fit_to_canvas').mouseup();
+			this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 			$('#loading_overlay').fadeOut();
 			svgEditor.loadedWISE = true;
 		},500);
 	}
 	else {
 		setTimeout(function(){
-			context.initDisplay(data,context);
+			++context.initTries;
+			if(context.initTries<600){
+				context.initDisplay(data,context);
+			} else {
+				context.view.notificationManager.notify("Error: Unable to start drawing tool because svg-edit extensions failed to load.",1);
+			}
 		},100);
 	}
 };
@@ -458,7 +531,7 @@ SVGDRAW.prototype.hideTools = function(option){
 	if(option==='pencil'){
 		$('#tool_fhpath').hide();
 	} else if(option==='line'){
-		$('#tool_line').hide();
+		$('#tools_line_show').hide();
 	} else if(option==='connector'){
 		$('#mode_connect').hide();
 	} else if (option==='rectangle'){
@@ -519,16 +592,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 					//ask the student if they are sure they want to submit their work now
 					checkWork = confirm(submitConfirmationMessage);
 				} else {
-					var message = 'You have ' + chancesLeft;
-					
-					if(chancesLeft == 1) {
-						message += ' chance ';
-					} else {
-						message += ' chances ';
-					}
-					
-					message += 'left to receive feedback on your answer so this should be your best work!\n\n';
-					message += 'Are you ready to receive feedback on this answer?';
+					var message = this.view.getI18NStringWithParams('autoGrade_confirm',[chancesLeft],'SVGDrawNode');
 					
 					//ask the student if they are sure they want to check the work now
 					checkWork = confirm(message);
@@ -572,10 +636,10 @@ SVGDRAW.prototype.autoGradeWork = function() {
 				scorer.scoreDrawing(this.studentData);
 				
 				//get the score
-				var scoreObject = this.studentData.rubricScore;
-				
-				var score = null;
-				var key = null;
+				var scoreObject = this.studentData.rubricScore,
+					score = null,
+					key = null,
+					max = '5'; // TODO: get the max score from auto scoring config in the future
 				
 				if(scoreObject != null) {
 					score = scoreObject.score;
@@ -589,7 +653,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 				
 				//display the score if we need to
 				if(this.content.autoScoring.autoScoringDisplayScoreToStudent) {
-					message += 'Auto score returned: ' + score + " out of 5.";
+					message += this.view.getI18NStringWithParams('autoGrade_result',[score, max],'SVGDrawNode');
 				}
 				
 				//display the feedback if we need to
@@ -612,7 +676,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 				this.saveToVLE();
 				
 				if(this.content.autoScoring.autoScoringDoNotDisplayFeedbackToStudentOnLastChance && chancesLeft == 1) {
-					alert('Good Job!\n\nYou have used up all your chances to submit.\n\nYou can continue to edit your drawing if you need to.');
+					alert(this.view.getI18NString('autoGrade_complete','SVGDrawNode'));
 				} else {
 					if(this.content.autoScoring.autoScoringDisplayScoreToStudent || this.content.autoScoring.autoScoringDisplayFeedbackToStudent) {
 						//we need to show the score of text feedback to the student
@@ -624,13 +688,13 @@ SVGDRAW.prototype.autoGradeWork = function() {
 						eventManager.fire("showNodeAnnotations",[this.node.id]);
 					} else {
 						//we are not going to show the score or the text feedback to the student
-						alert('Thank you for submitting your work.');
+						alert(this.view.getI18NString('autoGrade_submissionComplete', 'SVGDrawNode'));
 					}
 				}
 			}
 		} else {
 			//the student does not have anymore check work chances
-			alert('Good Job!\n\nYou have used up all your chances to submit.\n\nYou can continue to edit your drawing if you need to.');
+			alert(this.view.getI18NString('autoGrade_complete','SVGDrawNode'));
 		}
 	}
 };

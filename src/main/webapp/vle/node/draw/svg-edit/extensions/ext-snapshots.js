@@ -141,14 +141,6 @@ svgEditor.addExtension("Snapshots", function(S) {
 		 */
 		changed: function(){
 			// optional: override with custom actions
-			// console.log('svg-edit snapshot extension changed');
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
-			// console.log('svg-edit snapshot extension finished loading');
 		}
 	};
 	
@@ -157,7 +149,6 @@ svgEditor.addExtension("Snapshots", function(S) {
 		if(!loaded){
 			// on first load, set extension loaded variable to true and call extension loaded listener
 			loaded = true;
-			api.loadComplete();
 		}
 		if(callback){
 			callback();
@@ -168,7 +159,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		content = snapshots;
 		
 		// clear out any existing snapshots
-		$('.snap').remove();
+		$('#snap_images .snap').remove();
 		var open = 0;
 		selected = 0;
 		if(idToOpen && idToOpen > -1){
@@ -269,15 +260,14 @@ svgEditor.addExtension("Snapshots", function(S) {
 			pulse = pulsate;
 		}
 		var snapNum = num*1 + 1;
-		var snapHolder = '<div class="snap" title="Click to Open; Click and Drag to Reorder">' +
-			'<div class="snap_wrapper" id="snap' + id + '"></div>' + 
-			'<div class="snap_delete" title="Delete Frame"><span>X</span></div>' +
-			'<div class="snap_num"><span>' + snapNum + '</span></div>' +
-			'</div>';
-		$("#snap_images").append(snapHolder);
+		
+		var holder = $('#snapHolder > .snap').clone();
+		$('.snap_wrapper',holder).attr('id', 'snap' + id);
+		$('.snap_num > span',holder).text(snapNum);
+		$("#snap_images").append(holder);
 		
 		var thumb = createThumb(svgString); // create snapshot thumb
-		var $snap = $("div.snap:eq(" + num + ")");
+		var $snap = $("#snap_images .snap:eq(" + num + ")");
 		bindSnapshot($snap); // Bind snap thumbnail to click function that opens corresponding snapshot
 		document.getElementsByClassName("snap_wrapper")[num].appendChild(document.importNode(thumb.documentElement, true)); // add snapshot thumb to snapshots panel
 		var container = $('#snap_images');
@@ -322,7 +312,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		content[index].svg = svgString;
 		var thumb = createThumb(svgString);
 		var $currWrapper;
-		$('.snap_wrapper').each(function(i){
+		$('#snap_images .snap_wrapper').each(function(i){
 			var current = $(this).attr('id');
 			current = parseInt(current.replace('snap','') ,10);
 			if(current === opened){
@@ -342,7 +332,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		var svg = content[index].svg;
 		svgCanvas.setSvgString(svg);
 		var container = $('#snap_images'),
-	    	scrollTo = $("div.snap:eq(" + index + ")");
+	    	scrollTo = $("div.snap:eq(" + index + ")",container);
 		container.animate({
 			scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop() - 5
 		}, 250);
@@ -405,7 +395,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 			// scroll to currently selected snapshot
 			if(selected > -1){
 				var container = $('#snap_images'),
-			    	scrollTo = $("div.snap:eq(" + selected + ")");
+			    	scrollTo = $("div.snap:eq(" + selected + ")", container);
 				container.animate({
 					scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop() - 5
 				}, 250);
@@ -416,7 +406,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 	}
 	
 	function updateNumbers(){
-		$(".snap_num > span").each(function(index){
+		$("#snap_images .snap_num > span").each(function(index){
 			var num = "" + (index*1 + 1);
 			$(this).text(num);
 		});
@@ -432,13 +422,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 	
 	function changeSpeed(value){
 		var speed = 1000/value;
-		var label;
-		if (value === 1){
-			label = value + " snap/sec";
-		} else {
-			label = value + " snaps/sec";
-		}
-		$('#current_speed').text(label); // update speed display
+		$('#speed').text(value); // update speed display
 		if(playback !== 'pause'){ // if in playback mode, change current playback speed
 			$("#svgcanvas").stopTime('play');
 			if(playback === 'play'){
@@ -468,8 +452,8 @@ svgEditor.addExtension("Snapshots", function(S) {
 			} else {
 				playback = 'loop';
 			}
-			$('.snap').off('click'); // unbind snap click function
-			$('.snap_delete').off('click'); // unbind delete click function
+			$('#snap_images .snap').off('click'); // unbind snap click function
+			$('#snap_images .snap_delete').off('click'); // unbind delete click function
 			$('#snap_images').sortable('disable');
 			$('#snap_play').hide();
 			$('#snap_loop').hide();
@@ -489,6 +473,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 				}
 			},0);
 		} else if (mode==="pause") {
+			$('#snap_images').stop(true, false);
 			$("#svgcanvas").stopTime('play');
 			playback = 'pause';
 			snapCheck();
@@ -498,12 +483,13 @@ svgEditor.addExtension("Snapshots", function(S) {
 			$('#snap_images').animate({ top: '32px' }, 250);
 			$('#snapshot_tools').slideDown(250);
 			setTimeout(function(){
-				$('.snap').on('click', function(){ snapClick(this); }); // rebind snap click function
-				$('.snap_delete').on('click', function(){ deleteClick(this); }); // rebind delete click function
+				$('#snap_images .snap').on('click', function(){ snapClick(this); }); // rebind snap click function
+				$('#snap_images .snap_delete').on('click', function(){ deleteClick(this); }); // rebind delete click function
 				$('#snap_images').sortable('enable');
 				selected = $('.snap.active').index();
-				opened = $('.snap.active > .snap_wrapper').attr('id').replace('snap','');
-				api.changed();
+				openSnapshot(selected,false);
+				//opened = $('.snap.active > .snap_wrapper').attr('id').replace('snap','');
+				//api.changed();
 			}, 300);
 		}
 	}
@@ -532,7 +518,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 
 	function deleteClick(item){
 		$(item).parent().off("click");
-		var i = $(".snap_delete").index(item);
+		var i = $("#snap_images .snap_delete").index(item);
 		selected = i;
 		$("#deletesnap_dialog").dialog('open');
 	}
@@ -540,12 +526,12 @@ svgEditor.addExtension("Snapshots", function(S) {
 	function snapClick(item){
 		active = item;
 		selecting = true;
-		selected = $("div.snap").index(item);
+		selected = $("#snap_images .snap").index(item);
 		openSnapshot(selected,true);
 	}
 	
 	function updateSnapClass(num){
-		$(".snap").each(function(i){
+		$("#snap_images .snap").each(function(i){
 			if(i !== num){
 				$(this).removeClass("hover active");
 			} else {
@@ -591,23 +577,32 @@ svgEditor.addExtension("Snapshots", function(S) {
 			'<img id="snap_loop" data-mode="loop" class="snap_controls" src="extensions/loop.png" alt="loop" title="Play (Loop)" />' +
 			'<img id="snap_play" data-mode="play" class="snap_controls" src="extensions/play.png" alt="play" title="Play (Once)" />' +
 			'<img id="snap_pause" data-mode="pause" class="snap_controls" src="extensions/pause.png" alt="pause" title="Pause" />' +
-			'<div id="current_speed"></div><div id="play_speed" title="Playback Speed"></div>' +
+			'<div id="current_speed"><span id="speed"></span><span id="speed_units">/sec</span></div><div id="play_speed" title="Playback Speed"></div>' +
 			'<!-- <div id="snap_browse">' +
 			'<img id="next" class="snap_controls" src="extensions/previous.png" alt="back" title="Back" />' +
 			'<img id="previous" class="snap_controls" src="extensions/next.png" alt="forward" title="Forward" />' +
 			'</div> hide forward/back buttons for now, TODO: see whether users want them --></div></div>' +
 			'<div id="snapshots"><div id="snapshot_tools">' +
-			'<div id="new_snapshot"><img class="snapshot_new" src="extensions/camera.svg" alt="camera" title="Add New Frame" />' +
-			'<a class="label snapshot_new" title="Add a new frame">New Frame +</a><hr /></div></div><div id="snap_images"></div></div>';
+			'<div id="new_snapshot" title="Add New Frame"><img class="snapshot_new" src="extensions/camera.svg" alt="camera" />' +
+			'<a class="label snapshot_new">New Frame +</a><hr /></div></div><div id="snap_images"></div></div>';
 		
 		// add snapshots panel to page
 		$('#sidepanels').append(paneltxt);
 		
+		// add template snapshot holder to page
+		var snapHolder = '<div id="snapHolder" style="display:none;">' +
+			'<div class="snap" title="Click to Open; Click and Drag to Reorder">' +
+			'<div class="snap_wrapper"></div>' + 
+			'<div class="snap_delete" title="Delete Frame"><span>X</span></div>' +
+			'<div class="snap_num"><span></span></div>' +
+			'</div></div>';
+		$('#svg_editor').append(snapHolder);
+		
 		// setup snapshot panel toggle link
-		var linktext = '<div id="tool_snapshot" class="extension_link">' +
-			'<a class="label tool_snapshot" title="Show/Hide Frames">Frames (Snapshots)</a>' +
+		var linktext = '<div id="tool_snapshot" class="extension_link" title="Show/Hide Frames">' +
+			'<a class="label tool_snapshot">Frames (Snapshots)</a>' +
 			'<img class="tool_snapshot" src="extensions/snapshot.png" ' + // image path edited for wise4
-			'title="Show Frames" alt="icon" />' +
+			'alt="icon" />' +
 			'</div>';
 		
 		// add toggle link to page
@@ -621,19 +616,19 @@ svgEditor.addExtension("Snapshots", function(S) {
 		// set snap image sorting events
 		$("#snap_images").sortable({
 			start: function(event, ui) {
-				active = $(".snap").index(ui.item);
+				active = $("#snap_images .snap").index(ui.item);
 				ui.item.off("click"); // unbind click function
 				$("#svgcanvas").stopTime('play'); // stop snap playback
-				$('.snap').css('cursor','move');
+				$('#snap_images .snap').css('cursor','move');
 			},
 			stop: function(event, ui) {
 				setTimeout(function(){
 					ui.item.on('click', function(){snapClick(this);}); // rebind click function
 				}, 300);
-				$('.snap').css('cursor','pointer');
+				$('#snap_images .snap').css('cursor','pointer');
 			},
 			update: function(event, ui) {
-				var newIndex = $(".snap").index(ui.item);
+				var newIndex = $("#snap_images .snap").index(ui.item);
 				// reorder snapshots array
 				var current = content.splice(active,1);
 				content.splice(newIndex,0,current[0]);
@@ -649,13 +644,13 @@ svgEditor.addExtension("Snapshots", function(S) {
 		// setup dialogs elements
 		var dialogtxt = '<div id="deletesnap_dialog" title="Delete Frame">' + 
 			'<div class="ui-state-error"><span class="ui-icon ui-icon-alert" style="float:left"></span>' +
-			'Warning! This operation is permanent.</div>' +
-			'<p>Are you sure you want to delete this frame for good?</p></div>' +
+			'<span id="deletesnap_warning">Warning! This operation is permanent.</span></div>' +
+			'<p id="deletesnap_instructions">Are you sure you want to delete this frame for good?</p></div>' +
 			'<div id="overlay"></div>' + 
 			'<div id="snapnumber_dialog" title="Too Many Frames"><div class="ui-state-error">' +
-			'<span id="snapnum_warning" class="ui-icon ui-icon-alert" style="float:left"></span>' +
-			'Sorry! You are only allowed <span id="maxSnaps">' + max + '</span> frames.</div>' +
-			'<p>If you want to create another one, please delete one of your current frames by clicking on the \'X\' in the upper right corner of the snapshot you want to delete. Thank you!' +
+			'<span class="ui-icon ui-icon-alert" style="float:left"></span>' +
+			'<span id="snapnumber_warning">Sorry! You are only allowed <span id="maxSnaps">' + max + '</span> frames.</span></div>' +
+			'<p id="snapnumber_instructions">If you want to create another one, please delete one of your current frames by clicking on the \'X\' in the upper right corner of the snapshot you want to delete. Thank you!' +
 			'</p></div>';
 		
 		// add dialog elements to page
@@ -669,6 +664,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 			width:550,
 			buttons: [
 				{
+					id: 'snapnumber_confirm',
 					text: 'OK',
 					click: function() {
 						$(this).dialog('close');
@@ -685,15 +681,16 @@ svgEditor.addExtension("Snapshots", function(S) {
 			width:400,
 			buttons: [
 			    {
+			    	id: 'deletesnap_confirm',
 			    	text: 'Yes',
 			    	click: function() {
 			    		// process delete request
 			    		var index = selected;
-			    		if ($(".snap:eq(" + selected + ")").hasClass("hover")) {
+			    		if ($("#snap_images .snap:eq(" + selected + ")").hasClass("hover")) {
 							selected = -1;
 						}
 						content.splice(index,1);
-						$(".snap:eq(" + index + ")").fadeOut(1000, function(){
+						$("#snap_images .snap:eq(" + index + ")").fadeOut(1000, function(){
 							$(this).remove();
 							snapCheck();
 							updateNumbers();
@@ -713,6 +710,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 			    	}
 			    },
 			    {
+			    	id: 'deletesnap_cancel',
 			    	text: 'Cancel',
 			    	click: function() {
 			    		$(this).dialog('close');

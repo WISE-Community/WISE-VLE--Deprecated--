@@ -110,12 +110,12 @@
                         </div>
                     </td>
                     <td>
-                        <a id="helpTextLink" href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">help</a>
+                        <a id="helpTextLink" href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank" data-i18n='help'>help</a>
                     </td>
                 </tr>
             </table>
             <div id="questionTable">
-                <div id="questionType" data-i18n='openresponse'>
+                <div id="questionType" data-i18n='open_response'>
                     open response
                 </div>
             </div>
@@ -129,34 +129,31 @@
                 	<div id='promptLabelDiv' class="itemLabel Color1" data-i18n="question">
                 	</div>
                     <div id="promptContainer">
-                    	<div id="orPromptDiv">
-                    	Prompt goes here. This text will automatically be replaced by actual prompt.
-                    	</div>
+                    	<div id="orPromptDiv"></div>
                     </div>
                 </div>
                 
                 <div id='originalPromptDisplayDiv' style='display:none'>
                 	<div id='originalPromptLabelDiv' class="itemLabel Color1">
-                    Question&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails1()">show/hide</a> 
+                    <span data-i18n="question">Question</span>
+                    <a id="toggleSwitch" onclick="toggleDetails1()" data-i18n="show_hide">show/hide</a> 
                 	</div>
                 	<div id="originalPromptContainer" class="promptContainer">
                 		<div id='originalPromptTextDiv' style="display:none;" class="promptText"></div>
-                		<div id='originalPromptTextDiv2' class="promptText2">Question is hidden</div>
+                		<div id='originalPromptTextDiv2' class="promptText2" data-i18n="question_is_hidden">Question is hidden</div>
                 	</div>
                 </div>
                 
                 <div id='associatedWorkDisplayDiv' style='display:none'>
-                	<div id='associatedWorkLabelDiv' class="itemLabel Color1">
-                    your original response... this text is overwritten by javascript 
-                	</div>
+                	<div id='associatedWorkLabelDiv' class="itemLabel Color1"></div>
                 	<div id="associatedWorkPromptContainer" class="promptContainer">
                 		<div id='associatedWorkTextDiv' class="promptText"></div>
-                		<div id='associatedWorkTextDiv2' style="display:none;" class="promptText2">text is hidden</div>
+                		<div id='associatedWorkTextDiv2' style="display:none;" class="promptText2" data-i18n="text_is_hidden">text is hidden</div>
                 	</div>
                 </div>
                 
                 <div id='annotationDisplayDiv' style='display:none'>
-                	<div id='annotationLabelDiv' class="itemLabel Color1">
+                	<div id='annotationLabelDiv' class="itemLabel Color1" data-i18n="annotation">
                     annotation
                 	</div>
                 	<div id="annotationPromptContainer" class="promptContainer">
@@ -166,7 +163,7 @@
                 </div>
                 
                 <div id='previousResponseDisplayDiv' style='display:none'>
-	                <div id='previousResponseLabelDiv' class="itemLabel Color1">
+	                <div id='previousResponseLabelDiv' class="itemLabel Color1" data-i18n="your_previous_response">
 	                    your previous response
 	                </div>
 	                <div id="previousPromptContainer">
@@ -178,7 +175,7 @@
                 </div>
                 
                 <div id='starterParent' style='display:none'>
-                	<div id='starterSentenceDiv' class="starterSentence"><a onclick="showStarter()">Show Starter Sentence</a></div>
+                	<div id='starterSentenceDiv' class="starterSentence"><a onclick="showStarter()" data-i18n="show_starter_sentence">Show Starter Sentence</a></div>
                 </div>
                 <div id='responseDisplayDiv' style='display:none'>
 	                <div id='responseLabelDiv' data-i18n="your_response" class="itemLabel Color1">
@@ -199,8 +196,8 @@
                 <div id="numberAttemptsDiv"></div>
             </div>
 	        <input type="button" id="saveButton" data-i18n="save_changes" value="SAVE CHANGES" onclick="save();" />
-	        <input type="button" id="saveAndLockButton" value="SUBMIT (and lock)" onclick="saveAndLock();" style="display:none" disabled="disabled" />
-	        <input type="button" id="checkAnswerButton" value="CHECK ANSWER" onclick="checkAnswer();" style="display:none" disabled="disabled" />
+	        <input type="button" id="saveAndLockButton" value="SUBMIT (and lock)" onclick="saveAndLock();" style="display:none" disabled="disabled" data-i18n="submit_and_lock" />
+	        <input type="button" id="checkAnswerButton" value="CHECK ANSWER" onclick="checkAnswer();" style="display:none" disabled="disabled" data-i18n="check_answer" />
         </div>
         <div id="dialogDiv" style='display:none' />
     </body>

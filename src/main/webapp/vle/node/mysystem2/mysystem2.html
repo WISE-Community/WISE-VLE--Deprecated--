@@ -6,11 +6,11 @@
     <meta http-equiv="Content-Script-Type" content="text/javascript" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="my_system_sc_git_sha"    content ="0e76748085fa3969b7e0a37e447291403bc162a4" />
-    <meta name="my_system_sc_git_time"   content ="Wed Mar 27 17:15:07 2013 -0400" />
-    <meta name="my_system_sc_git_branch" content ="(HEAD, origin/master, origin/HEAD, re_add_js_rules, master)" />
-    <meta name="sc_build_time"           content ="2013-03-27 17:27:01 -0400" />
-    <meta name="sc_build_number"         content ="59a6ebbee13a8569e5c5ec02fc315ae0fb3f4fcf" />
+    <meta name="my_system_sc_git_sha"    content ="159cfd6084d5dcbce8a7080dc188cc8fd72ee0de" />
+    <meta name="my_system_sc_git_time"   content ="Fri Jun 14 11:38:04 2013 -0400" />
+    <meta name="my_system_sc_git_branch" content ="(HEAD, origin/master, origin/HEAD, master)" />
+    <meta name="sc_build_time"           content ="2013-06-14 11:39:13 -0400" />
+    <meta name="sc_build_number"         content ="8ac8325606b9ce7e115ae60200fe4522a9073fbc" />
     <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="apple-touch-icon" href="images/00_my_system_sproutcore-logo.png" />
     <link rel="apple-touch-startup-image" media="screen and (orientation:portrait)" href="images/00_my_system_sproutcore-startup-portrait.png" />
@@ -183,9 +183,11 @@ SC.setupBodyClassNames = function() {
     function main() {
       MySystem.main();
       
-      if (window.opener) {
+      if (window.opener && divId) {
         // if this window is a popup (e.g. from a WISE gradingtool's 'enlarge' link),
         // get the content and data from the parent window and load them into MySystem
+        var data = window.opener.$("#studentwork_"+divId).html();
+        var contentString = window.opener.$("#content_"+divId).html();
 
         /** 
         From: geoffreykwan
@@ -206,15 +208,13 @@ SC.setupBodyClassNames = function() {
         to end up with  <style type='text/css'>
         **/
 
-        if(contentString != null && data != null) {
-            contentString = contentString.replace(/"\\&quot;/g, "'");
-            contentString = contentString.replace(/\\&quot;"/g, "'");
+        contentString = contentString.replace(/"\\&quot;/g, "'");
+        contentString = contentString.replace(/\\&quot;"/g, "'");
 
-            var domIO = document.getElementById('my_system_state');
-            domIO.textContent = data;
-            MySystem.loadWiseConfig(JSON.parse(contentString),null);
-            MySystem.updateFromDOM();
-        }
+        var domIO = document.getElementById('my_system_state');
+        domIO.textContent = data;
+        MySystem.loadWiseConfig(JSON.parse(contentString),null);
+        MySystem.updateFromDOM();
       }
     }
   </script>

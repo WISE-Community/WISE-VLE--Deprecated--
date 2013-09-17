@@ -211,7 +211,8 @@ img.tooltip {
 
 .sectionContent h5,.sectionContent div {
 	margin: .5em 0;
-	font-size: .9em line-height:1.2em;
+	font-size: .9em;
+	line-height:1.2em;
 }
 
 .sectionContent p {
@@ -414,4 +415,14 @@ img.tooltip {
 
 .hintText p:last-child {
 	margin-bottom:0;
+}
+
+/** div to dispaly message in when a node is locked **/
+#disabledNodeMessageDiv {
+color:red;
+	font-size:2em;
+	font-weight:bold;
+	padding:20px;
+	position:fixed;
+	top:50%;		
 }

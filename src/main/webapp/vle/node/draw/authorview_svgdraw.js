@@ -883,6 +883,9 @@ View.prototype.SVGDrawNode.updateAutoScoringCriteria = function() {
 		
 		//hide the auto scoring feedback div
 		this.hideAutoScoringFeedbackAuthoring();
+		
+		//set the export columns
+		this.setRegularExportColumns();
 	} else if(autoScoringCriteria == 'methane') {
 		//set the value into the content
 		this.setAutoScoringField('autoScoringCriteria', 'methane');
@@ -890,6 +893,9 @@ View.prototype.SVGDrawNode.updateAutoScoringCriteria = function() {
 		//show the auto scoring feedback div
 		this.generateAutoScoringFeedbackAuthoringDiv();
 		this.showAutoScoringFeedbackAuthoring();
+		
+		//set the export columns
+		this.setAutoGradedExportColumns();
 	} else if(autoScoringCriteria == 'ethane') {
 		//set the value into the content
 		this.setAutoScoringField('autoScoringCriteria', 'ethane');
@@ -897,6 +903,9 @@ View.prototype.SVGDrawNode.updateAutoScoringCriteria = function() {
 		//show the auto scoring feedback div
 		this.generateAutoScoringFeedbackAuthoringDiv();
 		this.showAutoScoringFeedbackAuthoring();
+		
+		//set the export columns
+		this.setAutoGradedExportColumns();
 	}
 	
 	//fire source updated event, this will update the preview
@@ -1125,6 +1134,62 @@ View.prototype.SVGDrawNode.updateAutoScoringSubmitConfirmationMessageChanged = f
 	
 	//set the message text into the content
 	this.setAutoScoringField('submitConfirmationMessage', submitConfirmationMessage);
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Clear the export columns
+ */
+View.prototype.SVGDrawNode.clearExportColumns = function() {
+	this.content.exportColumns = null;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export column for regular draw steps
+ */
+View.prototype.SVGDrawNode.setRegularExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Data",
+        	  "field": "data"
+          }
+  	];
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export columns for auto graded draw steps
+ */
+View.prototype.SVGDrawNode.setAutoGradedExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Submit",
+        	  "field": "checkWork"
+          },
+          {
+        	  "columnName": "Auto-Feedback Key",
+        	  "field": "autoFeedbackKey"
+          },
+          {
+        	  "columnName": "Auto-Score",
+        	  "field": "autoScore"
+          },
+          {
+        	  "columnName": "Auto-Feedback",
+        	  "field": "autoFeedback"
+          },
+          {
+        	  "columnName": "Data",
+        	  "field": "data"
+          }
+  	];
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

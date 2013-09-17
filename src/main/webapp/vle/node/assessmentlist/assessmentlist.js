@@ -174,8 +174,17 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 		//handle error cases
 		if(peerWorkToReview.error) {
 			if(peerWorkToReview.error == 'peerReviewUserHasNotSubmittedOwnWork') {
+				/*
+				 * the message that tells the user they must complete a previous step before
+				 * they can work on this step
+				 */
+				var to_start_this_step_you_must = thisAl.view.getI18NString("to_start_this_step_you_must", "AssessmentListNode");
+				
+				//the word link
+				var link = thisAl.view.getI18NString("link", "AssessmentListNode");
+				
 				//the user has not submitted work for the original step
-				thisAl.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisAl.view.getProject().getPositionById(thisAl.associatedStartNode.id) + '\']) \">' + thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id) + '</a></b> (link).</p>');
+				thisAl.onlyDisplayMessage('<p>' + to_start_this_step_you_must + ' <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisAl.view.getProject().getPositionById(thisAl.associatedStartNode.id) + '\']) \">' + thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id) + '</a></b> (' + link + ').</p>');
 			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork' || peerWorkToReview.error == 'peerReviewNotOpen') {
 				/*
 				 * server was unable to assign student any work to review, most likely because there was no available work to assign
@@ -193,8 +202,19 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 					//use the custom authored message
 					thisAl.onlyDisplayMessage(thisAl.stepNotOpenCustomMessage.replace(/associatedStartNode.title/g, startNodeTitle));
 				} else {
+					/*
+					 * the message that tells the student that the step is not available yet
+					 * because more of their classmates need to submit a response before
+					 * they can receive a classmate work to review. then it says they should
+					 * return to this step later.
+					 */
+					var this_step_is_not_available_yet = thisAl.view.getI18NString("this_step_is_not_available_yet", "AssessmentListNode");
+					var more_of_your_peers_need_to_submit = thisAl.view.getI18NString("more_of_your_peers_need_to_submit", "AssessmentListNode");
+					var you_will_then_be_assigned_a_response = thisAl.view.getI18NString("you_will_then_be_assigned_a_response", "AssessmentListNode");
+					var please_return_to_this_step_again = thisAl.view.getI18NString("please_return_to_this_step_again", "AssessmentListNode");
+					
 					//use the default message
-					thisAl.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + startNodeTitle + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');					
+					thisAl.onlyDisplayMessage('<p>' + this_step_is_not_available_yet + '</p></p><p>' + more_of_your_peers_need_to_submit + ' <b>"' + startNodeTitle + '"</b>. <br/>' + you_will_then_be_assigned_a_response + '</p><p>' + please_return_to_this_step_again + '</p>');					
 				}
 			}
 			
@@ -222,9 +242,19 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 		thisAl.showDefaultDivs();
 		//thisAl.showDefaultValues();
 		
+		/*
+		 * the labels for the instructions and the work from another group and the
+		 * feedback that the student needs to give to that other group
+		 */
+		var instructions = thisAl.view.getI18NString('instructions', 'AssessmentListNode');
+		var your_feedback_for = thisAl.view.getI18NString('your_feedback_for', 'AssessmentListNode');
+		var work_submitted_by = thisAl.view.getI18NString('work_submitted_by', 'AssessmentListNode');
+		var team_anonymous = thisAl.view.getI18NString('team_anonymous', 'AssessmentListNode');
+		
+		
 		//set more informative labels
-		$('#promptLabelDiv').html('instructions');
-		$('#responseLabelDiv').html('your feedback for <i>Team Anonymous</i>:');
+		$('#promptLabelDiv').html(instructions);
+		$('#responseLabelDiv').html(your_feedback_for + ' <i>' + team_anonymous + '</i>:');
 		
 		//display the prompt
 		$('#originalPromptTextDiv').html(thisAl.associatedStartNode.getPeerReviewPrompt());
@@ -234,7 +264,7 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 		 * display the other student's work or a message saying there is no other student work
 		 * available yet
 		 */
-		$('#associatedWorkLabelDiv').html('work submitted by <i>Team Anonymous</i>:');		
+		$('#associatedWorkLabelDiv').html(work_submitted_by + ' <i>' + team_anonymous + '</i>:');		
 		$('#associatedWorkTextDiv').html(peerWorkText);
 		$('#associatedWorkDisplayDiv').show();
 		
@@ -260,8 +290,17 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
 	if(!isOriginalNodeLocked) {
 		//original step is not locked
 		
+		/*
+		 * the message that tells the user they must complete a previous step before
+		 * they can work on this step
+		 */
+		var to_start_this_step_you_must = thisAl.view.getI18NString("to_start_this_step_you_must", "AssessmentListNode");
+		
+		//the word link
+		var link = thisAl.view.getI18NString("link", "AssessmentListNode");
+		
 		//display message telling student to go back and submit that original step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"view.goToNodePosition(' + this.view.getProject().getPositionById(this.associatedStartNode.id) + ')\">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>' + to_start_this_step_you_must + ' <b><a style=\"color:blue\" onclick=\"view.goToNodePosition(' + this.view.getProject().getPositionById(this.associatedStartNode.id) + ')\">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (' + link + ').</p>');
 	} else {
 		//original step is locked
 		
@@ -274,17 +313,26 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
 		//show regular divs such as prompt, starter, and response and populate them
 		this.showDefaultDivs();
 		this.showDefaultValues();
+		
+		/*
+		 * the labels for the instructions and the work from another group and the
+		 * feedback that the student needs to give to that other group
+		 */
+		var instructions = thisAl.view.getI18NString('instructions', 'AssessmentListNode');
+		var your_feedback_for = thisAl.view.getI18NString('your_feedback_for', 'AssessmentListNode');
+		var work_submitted_by = thisAl.view.getI18NString('work_submitted_by', 'AssessmentListNode');
+		var team_anonymous = thisAl.view.getI18NString('team_anonymous', 'AssessmentListNode');
 
 		//set more informative labels
-		document.getElementById('promptLabelDiv').innerHTML = 'instructions';
-		document.getElementById('responseLabelDiv').innerHTML = 'your feedback for <i>Team Anonymous</i>:';
+		document.getElementById('promptLabelDiv').innerHTML = instructions;
+		document.getElementById('responseLabelDiv').innerHTML = your_feedback_for + ' <i>' + team_anonymous + '</i>:';
 		
 		//display the original prompt
 		document.getElementById('originalPromptTextDiv').innerHTML = this.associatedStartNode.getPeerReviewPrompt();
 		document.getElementById('originalPromptDisplayDiv').style.display = 'block';
 		
 		//display the authored work for the student to review
-		document.getElementB$('#iv').innerHTML = 'work submitted by <i>Team Anonymous</i>:' ;		
+		document.getElementB$('#iv').innerHTML = work_submitted_by + ' <i>' + team_anonymous + '</i>:' ;		
 		document.getElementById('associatedWorkTextDiv').innerHTML = teacherWorkText;
 		document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
 		
@@ -321,13 +369,20 @@ ASSESSMENTLIST.prototype.render = function() {
 		//the student must complete all parts before leaving the step
 		if(this.states.length == 0) {
 			/*
-			 * the student has not submitted any work yet so we will create
-			 * the constraint. in order to have work, the student must have
-			 * completed all the parts which is why we only need to check for
-			 * existence of any work and we don't have to specifically check
-			 * for all parts.
+			 * check that the addActiveTagMapConstraint() function exists.
+			 * if we are in step preview mode in the authoring tool, this
+			 * function will not exist so we will not create the constraint.
 			 */
-			this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeExiting', null, null);
+			if(this.view.addActiveTagMapConstraint != null) {
+				/*
+				 * the student has not submitted any work yet so we will create
+				 * the constraint. in order to have work, the student must have
+				 * completed all the parts which is why we only need to check for
+				 * existence of any work and we don't have to specifically check
+				 * for all parts.
+				 */
+				this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeExiting', null, null);				
+			}
 		}
 	}
 	
@@ -363,8 +418,13 @@ ASSESSMENTLIST.prototype.render = function() {
 		
 		/* if this is part 2 of peer-review sequence and the student has completed it */
 		if((this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') && this.isSubmitted()) {
+			//the message to tell the student they have successfully reviewed another groups work
+			var you_have_successfully_reviewed = this.view.getI18NString('you_have_successfully_reviewed', 'AssessmentListNode');
+			var team_anonymous = this.view.getI18NString('team_anonymous', 'AssessmentListNode');
+			var well_done = this.view.getI18NString('well_done', 'AssessmentListNode');
+			
 			//display this message in the step frame
-			this.onlyDisplayMessage('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
+			this.onlyDisplayMessage('<p>' + you_have_successfully_reviewed + ' <i>' + team_anonymous + '</i>.</p><p>' + well_done + '</p>');
 		} else {
 			//this is a regular assessment list so we will just lock the screen
 			this.lockScreen();
@@ -384,19 +444,30 @@ ASSESSMENTLIST.prototype.render = function() {
 					 * so the author can get an idea of how it will look to the students
 					 */
 					
+					var instructions = this.view.getI18NString('instructions', 'AssessmentListNode');
+					
 					//set more informative labels
-					$('#promptLabelDiv').html('instructions');
+					$('#promptLabelDiv').html(instructions);
+					
+					var prompt_from_first_peer_review = this.view.getI18NString('prompt_from_first_peer_review', 'AssessmentListNode');
 					
 					//display the prompt
-					$('#originalPromptTextDiv').html('[Prompt from the first peer review step will display here]');
+					$('#originalPromptTextDiv').html('[' + prompt_from_first_peer_review + ']');
 					$('#originalPromptDisplayDiv').show();
+					
+					/*
+					 * the label for the work from another group
+					 */
+					var work_submitted_by = this.view.getI18NString('work_submitted_by', 'AssessmentListNode');
+					var team_anonymous = this.view.getI18NString('team_anonymous', 'AssessmentListNode');
+					var work_from_a_random_classmate = this.view.getI18NString('work_from_a_random_classmate', 'AssessmentListNode');
 					
 					/*
 					 * display the other student's work or a message saying there is no other student work
 					 * available yet
 					 */
-					$('#associatedWorkLabelDiv').html('work submitted by <i>Team Anonymous</i>:');		
-					$('#associatedWorkTextDiv').html('[Work from a random classmate will display here]');
+					$('#associatedWorkLabelDiv').html(work_submitted_by + ' <i>' + team_anonymous + '</i>:');		
+					$('#associatedWorkTextDiv').html('[' + work_from_a_random_classmate + ']');
 					$('#associatedWorkDisplayDiv').show();
 				} else {
 					//this is the step where the student writes comments on their classmates work
@@ -447,7 +518,9 @@ ASSESSMENTLIST.prototype.submit = function() {
 	
 	if (allCompleted) {
 		if (this.content.isLockAfterSubmit) {
-			doLockStep=confirm("Click 'OK' to save and lock this step.  Your work will be saved and you will not be able to make any more changes.\nIf you want to keep working on this step, click 'Cancel'.");
+			var click_ok_to_save = this.view.getI18NString('click_ok_to_save', 'AssessmentListNode');
+			
+			doLockStep=confirm(click_ok_to_save);
 			if (doLockStep==true) { 
 				//disable the submit and save draft buttons
 				this.setSaveUnavailable();
@@ -475,8 +548,11 @@ ASSESSMENTLIST.prototype.submit = function() {
 			this.save(isSubmit);
 		};
 	} else {
+		//the message that tells the student that they need to answer all the questions
+		var please_answer_all_the_questions = this.view.getI18NString('please_answer_all_the_questions', 'AssessmentListNode');
+		
 		/* all not completed yet, notify user and have them finish */
-		alert("Please answer all the questions before submitting this questionnaire.");
+		alert(please_answer_all_the_questions);
 	};
 };
 
@@ -620,10 +696,14 @@ ASSESSMENTLIST.prototype.save = function(isSubmit) {
 		//disable the save draft button
 		this.setSaveDraftUnavailable();	
 		
+		//the message that says their work has been saved or submitted
+		var your_work_has_been_saved = this.view.getI18NString('your_work_has_been_saved', 'AssessmentListNode');
+		var your_work_has_been_submitted = this.view.getI18NString('your_work_has_been_submitted', 'AssessmentListNode');
+		
 		// show "saved" or "submitted" message
-		var confMSG = 'Your work has been saved.';
+		var confMSG = your_work_has_been_saved;
 		if (isSubmit) {
-			confMSG = 'Your work has been submitted.';				
+			confMSG = your_work_has_been_submitted;				
 		}
 		if ($("#saveConfirmation").size() == 0) {
 			$("#submitButtonDiv").after('<br/><span style=\'font-size:.8em\' id="saveConfirmation">'+confMSG+'</span>&nbsp;');
@@ -830,7 +910,11 @@ ASSESSMENTLIST.prototype.getLastSavedResponse = function(assessmentJSON) {
 ASSESSMENTLIST.prototype.lockScreen = function() {
 	this.setSaveUnavailable();
 	$(".interactable").attr("disabled",true);
-	$(".stepAlreadyCompleteDiv").html("You have completed this step.");
+	
+	//the message that says the student has completed this step
+	var you_have_completed_this_step = this.view.getI18NString('you_have_completed_this_step', 'AssessmentListNode');
+	
+	$(".stepAlreadyCompleteDiv").html(you_have_completed_this_step);
 };
 
 
@@ -908,7 +992,11 @@ ASSESSMENTLIST.prototype.showDefaultValues = function() {
 	
 	/* set html prompt element values */
 	$('#promptDiv').html(this.content.prompt);
-	$('#promptLabelDiv').html('question');
+	
+	//the question label
+	var question = this.view.getI18NString('question', 'AssessmentListNode');
+	
+	$('#promptLabelDiv').html(question);
 	
 	/* set text area size: set row based on expectedLines */
 	$('#responseBox').attr('rows', this.content.assessmentItem.interaction.expectedLines);

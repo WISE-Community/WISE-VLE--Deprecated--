@@ -21,11 +21,11 @@ var subscribedToIdeaBasketChanged = false;
  */
 var documentReadyFunction = function(object, createForStep, stepBasket) {
 	
-	if(stepBasket != null) {
+	if(stepBasket) {
 		//set the idea basket since we are loading the idea basket for an idea basket step
 		basket = stepBasket;
 	} else {
-		if(basket == null){
+		if(!basket){
 			//create a new idea basket
 			basket = new IdeaBasket();
 		}

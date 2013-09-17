@@ -127,6 +127,7 @@ Epigame.prototype.getTotalScore = function(tagName, functionArgs, scoreProp, rea
 		message: totalScore >= minScore ? "" : "Your overall " + readableScoreName + " is " + totalScore + ". This mission requires " + minScore + " or higher."
 	};
 	result[scoreProp] = totalScore;
+	result.minScore = minScore;
 	return result;
 }
 
@@ -227,7 +228,7 @@ Epigame.prototype.checkCompletedAll = function(tagName, functionArgs) {
 		for(var i = 0; i < nodeIds.length; ++i) {
 			var nodeId = nodeIds[i];
 			if (nodeId && !this.isNodeCompleted(nodeId)) {
-				nodesFailed.push(nodeId);
+				nodesFailed.push(nodeId); 
 			}
 		}
 	}
@@ -416,11 +417,12 @@ Epigame.prototype.getCampaignSettings = function() {
 	return null;
 };
 
-Epigame.prototype.getUserSettings = function(totalPerfScore, totalExplScore, totalWarpScore) {
+Epigame.prototype.getUserSettings = function(totalPerfScore, totalExplScore, totalWarpScore, minScore) {
 	var result = {
 		perfScore: totalPerfScore,
 		explScore: totalExplScore,
-		warpScore: totalWarpScore
+		warpScore: totalWarpScore,
+		minScore: minScore
 	};
 	
 	var work = this.getLatestEpigameWork();
@@ -672,7 +674,7 @@ Epigame.prototype.getCurrentAdaptiveMissionPlayed = function() {
 	return 0;
 }
 
-Epigame.prototype.getCurrentAdaptiveMissionData = function() {
+Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
 	var warpData = this.node.getAdaptiveMissionData();
 	var missionTable = warpData.missions;
 	var missionLists = warpData.missionLists;
@@ -866,6 +868,7 @@ Epigame.prototype.serializeCampaignSettings = function(settings) {
 		+ "|@" + (settings.rank4Val)
 		+ "|@" + (settings.rank5Val)
 		+ (settings.forceRestriction ? "|@1" : "|@0")
+		+ (settings.hideQuizScore ? "|@1" : "|@0")
 		
 	
 };
@@ -893,6 +896,8 @@ Epigame.prototype.serializeUserSettings = function(settings) {
 	parsed = parseInt(settings.explScore);
 	result += "|@" + (isNaN(parsed) ? "" : parsed);
 	parsed = parseInt(settings.warpScore);
+	result += "|@" + (isNaN(parsed) ? "" : parsed);
+	parsed = parseInt(settings.minScore);
 	result += "|@" + (isNaN(parsed) ? "" : parsed);
 	result += "|@";
 	
@@ -936,7 +941,7 @@ Epigame.prototype.render = function() {
 		var tagMapResults = this.processTagMaps();
 		
 		//Build a user settings object for the game
-		this.userSettings = this.getUserSettings(tagMapResults.perfScore, tagMapResults.explScore, tagMapResults.warpScore);
+		this.userSettings = this.getUserSettings(tagMapResults.perfScore, tagMapResults.explScore, tagMapResults.warpScore, tagMapResults.minScore);
 		
 		//Grab the req-check results
 		enableStep = tagMapResults.enableStep;
@@ -949,11 +954,11 @@ Epigame.prototype.render = function() {
 		} else if (this.content.mode == "editor") {
 			this.loadMissionEditor(this.content.levelString);
 		} else if (this.content.mode == "adaptiveMission") {
-			this.loadAdaptiveMission(this.getCurrentAdaptiveMissionData());
+			this.loadAdaptiveMission(this.getCurrentAdaptiveMissionData(this.content.levelString));
 		} else if (this.content.mode == "adaptiveQuiz") {
 			this.loadAdaptiveQuiz();
 		} else if (this.content.mode == "adaptivePostQuiz") {
-			this.loadAdaptivePostQuiz();			
+			this.loadAdaptivePostQuiz();
 		} else if (this.content.mode == "map") {
 			this.loadMap();
 		} else if (this.content.mode == "tutorial") {
@@ -979,6 +984,7 @@ Epigame.prototype.processTagMaps = function() {
 	var perfScore = 0;
 	var explScore = 0;
 	var warpScore = 0;
+	var minScore = 0;
 	var result;
 	
 	var tagMaps = this.node.tagMaps;
@@ -1021,6 +1027,8 @@ Epigame.prototype.processTagMaps = function() {
 					explScore = result.highScore_explanation;
 				if (result.finalScore)
 					warpScore = result.finalScore;
+				if (result.minScore)
+					minScore = result.minScore;
 			}
 		}
 	}
@@ -1034,7 +1042,8 @@ Epigame.prototype.processTagMaps = function() {
 		message: messages.length ? messages.join("<br>") + "<br>" : "",
 		perfScore: perfScore,
 		explScore: explScore,
-		warpScore: warpScore
+		warpScore: warpScore,
+		minScore: minScore
 	};
 };
 
@@ -1148,6 +1157,7 @@ Epigame.prototype.getMissionData = function() {
 	var numAttempts = 0;
 	var numTrials = 0;
 	var successfulTrialNum = 0;
+	var numSuccesses = 0;
 
 	for(var i=0;i<this.states.length;i++) {
 		if(this.states[i].response.success) {			
@@ -1155,6 +1165,7 @@ Epigame.prototype.getMissionData = function() {
 				successfulTrialNum = this.states[i].response.missionData.numTrials;
 			}
 			numAttempts++;
+			numSuccesses++;
 		}
 
 		if(this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
@@ -1165,6 +1176,7 @@ Epigame.prototype.getMissionData = function() {
 	dataLog.attempts = numAttempts;
 	dataLog.attemptTrials = numTrials + 1 - successfulTrialNum;
 	dataLog.totalTrials = numTrials + 1;
+	dataLog.numSuccesses = numSuccesses;
 	
 	dataLog.missionDifficulty = this.lastMissionDifficulty;
 

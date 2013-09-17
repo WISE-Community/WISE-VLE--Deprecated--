@@ -13,12 +13,17 @@ function BRAINSTORM(node){
 	this.states = [];
 	this.recentResponses = new Array();
 	this.subscribed = false;
+	var project = this.view.getProject();
+	this.stepTerm = project.getStepTerm() ? project.getStepTerm() : this.view.getI18NString('stepTerm');
 
 	if(node.studentWork != null) {
 		this.states = node.studentWork; 
 	} else {
 		this.states = [];  
 	};
+	
+	// insert i18n translations
+	$('#brain_instructions').html(this.view.getI18NStringWithParams('instructions',[this.view.getI18NString('save','BrainstormNode')],'BrainstormNode'));
 
 };
 
@@ -36,7 +41,7 @@ BRAINSTORM.prototype.prepareStarterSentence = function(){
 	if(this.content.starterSentence.display!='1'){
 		document.getElementById('starterParent').innerHTML = '';
 	} else {
-		document.getElementById('starterParent').innerHTML = "<div id='starterSentenceDiv' class='starterSentence'><a onclick='showStarter()'>Show Starter Sentence</a></div>";
+		document.getElementById('starterParent').innerHTML = "<div id='starterSentenceDiv' class='starterSentence'><a onclick='showStarter()'>" + this.view.getI18NString('Show Starter Sentence','BrainstormNode') + "</a></div>";
 	};
 };
 
@@ -517,7 +522,7 @@ BRAINSTORM.prototype.saveReply = function(replyText, replyToNodeVisitId, replyTo
 		//make the "check for new responses" button clickable
 		this.enableRefreshResponsesButton();
 	} else {
-		document.getElementById('saveMsg').innerHTML = "<font color='8B0000'>nothing to save</font>";
+		document.getElementById('saveMsg').innerHTML = "<font color='8B0000'>" + this.view.getI18NString('save_noContent','BrainstormNode') + "</font>";
 	};
 };
 
@@ -527,6 +532,7 @@ BRAINSTORM.prototype.saveReply = function(replyText, replyToNodeVisitId, replyTo
  */
 BRAINSTORM.prototype.filterInappropriatePosts = function(vle){
 	this.vle = vle;
+	var view = this.view;
 	var getInappropriateFlagsCallback = function(responseText, responseXML, handlerArgs) {
 		if (responseText != null && responseText != "") {
 			var responseJSON = JSON.parse(responseText);
@@ -536,7 +542,7 @@ BRAINSTORM.prototype.filterInappropriatePosts = function(vle){
 					var flagJSON = flagArray[i];
 					if (flagJSON.type == "inappropriateFlag" && flagJSON.value == "flagged") {
 						// replace student's response with generic message
-						$("div[bsNodeVisitId="+flagJSON.stepWorkId+"]").each(function() { $(this).find(".responseTextArea").html("This comment has been flagged as inappropriate.") });
+						$("div[bsNodeVisitId="+flagJSON.stepWorkId+"]").each(function() { $(this).find(".responseTextArea").html(view.getI18NString('flag_inappropriate','BrainstormNode')) });
 					}
 				}
 			}
@@ -654,7 +660,7 @@ BRAINSTORM.prototype.savePost = function(frameDoc){
 		this.view.pushStudentWork(this.node.id, currentState);
 		this.states.push(currentState);
 
-		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>";
+		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>" + this.view.getI18NString('save_success','BrainstormNode') + "</font>";
 
 		this.recentResponses.push(response);
 
@@ -684,7 +690,7 @@ BRAINSTORM.prototype.savePost = function(frameDoc){
 		//make the "check for new responses" button clickable
 		this.enableRefreshResponsesButton();
 	} else {
-		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>nothing to save</font>";
+		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>" + this.view.getI18NString('save_noContent','BrainstormNode') + "</font>";
 	};
 };
 
@@ -697,8 +703,9 @@ BRAINSTORM.prototype.savePost = function(frameDoc){
  */
 BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 	//obtain the dom object that holds all the responses
-	var responsesParent = $('#responses');
-	var postedByUserId = state.userId;
+	var responsesParent = $('#responses'),
+		postedByUserId = state.userId,
+		view = this.view;
 
 	var responseMainDiv = $('<div>').addClass('responseMainDiv');
 	if (state != null && state.nodeVisitId != null) {
@@ -707,7 +714,7 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 	}
 
 	//create the response title and textarea elements
-	var responseTitle = $('<div>').addClass('responseTitle').html("<span class='postedBy'>Posted By: &nbsp;" + vle.getUserAndClassInfo().getUserNameByUserId(postedByUserId) + "<span>");
+	var responseTitle = $('<div>').addClass('responseTitle').html("<span class='postedBy'>" + view.getI18NString('postedByLabel','BrainstormNode') + vle.getUserAndClassInfo().getUserNameByUserId(postedByUserId) + "<span>");
 	var responseTextArea = $('<div>').attr("rows","7").attr("cols","80").attr("disabled", true)
 	.attr('class', 'responseTextArea').html(state.response);
 
@@ -737,7 +744,7 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 				.attr("id",replyTextareaId);
 				replyDiv.append(replyTextarea);
 
-				var replySaveButton = $("<input>").addClass("replySaveButton").attr("type","button").val("Post Reply");
+				var replySaveButton = $("<input>").addClass("replySaveButton").attr("type","button").val(view.getI18NString('post_reply','BrainstormNode'));
 
 				replySaveButton.click({bs:bs},function(event) {
 					var bs = event.data.bs;
@@ -886,7 +893,7 @@ BRAINSTORM.prototype.showStarter = function(){
 		//link clicked, so remove it
 		document.getElementById('starterParent').innerHTML = '';
 	} else {
-		this.node.view.notificationManager.notify("There is no starter sentence specified for this step", 3);
+		this.node.view.notificationManager.notify(this.view.getI18NStringWithParams('noStarter',[this.stepTerm],'BrainstormNode'), 3);
 	};
 };
 
@@ -1039,7 +1046,7 @@ BRAINSTORM.prototype.processPostSuccessResponse = function(responseText, respons
 BRAINSTORM.prototype.processPostFailResponse = function(responseText, args){
 	// this is a callback for a failed save.
 	var bs = args.additionalData.bs;
-	bs.node.view.notificationManager.notify("Failed to save reply. Please talk to your teacher.", 5);	
+	bs.node.view.notificationManager.notify(this.view.getI18NString('save_fail'), 5);	
 };
 
 //used to notify scriptloader that this script has finished loading

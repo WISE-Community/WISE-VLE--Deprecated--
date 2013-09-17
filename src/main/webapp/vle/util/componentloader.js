@@ -12,11 +12,12 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', 'peerreviewhelper', 'ideabasket', 'studentasset', 'studentWebSocket'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
-		summary: ['core']
+		summary: ['core'],
+		classroomMonitor: ['setup', 'core', 'config', 'user', 'session', 'maxscores', 'teacherWebSocket']
 	};
 	
 	//components are comprised of variables, events, methods, and initialization.
@@ -406,6 +407,7 @@ var componentloader = function(em, sl){
 				'openStepTypeDescriptions':[null,null],
 				'displayTagView':[null,null],
 				'displayImportView':[null,null],
+				'displayIconsView':[null,null],
 				'populateAddTagSelect':[null,null],
 				'populateAddTagMapSelect':[null,null],
 				'addTag':[null,null],
@@ -554,6 +556,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('browserResize', view.authorDispatcher, view);
 					view.eventManager.subscribe('displayTagView', view.authorDispatcher, view);
 					view.eventManager.subscribe('displayImportView', view.authorDispatcher, view);
+					view.eventManager.subscribe('displayIconsView', view.authorDispatcher, view);
 					view.eventManager.subscribe('populateAddTagSelect', view.authorDispatcher, view);
 					view.eventManager.subscribe('populateAddTagMapSelect', view.authorDispatcher, view);
 					view.eventManager.subscribe('addTag', view.authorDispatcher, view);
@@ -597,6 +600,7 @@ var componentloader = function(em, sl){
 					view.initializeStepTypeDescriptionsDialog();
 					view.initializeTagViewDialog();
 					view.initializeImportViewDialog();
+					view.initializeIconsViewDialog();
 					view.initializeAnalyzeProjectDialog();
 										
 					window.onunload = env.onWindowUnload;
@@ -628,7 +632,10 @@ var componentloader = function(em, sl){
 				'studentWorkUpdated':[null,null],
 				'currentNodePositionUpdated':[null,null],
 				'constraintStatusUpdated':[null,null],
-				'nodeLinkClicked':[null,null]
+				'nodeLinkClicked':[null,null],
+				'nodeStatusUpdated':[null,null],
+				'navigationLoadingCompleted':[null,null],
+				'cRaterResponseReceived':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -656,6 +663,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('nodeLinkClicked', view.vleDispatcher, view);
+						view.eventManager.subscribe('navigationLoadingCompleted', view.navigationLoadingCompletedListener, view);
 						view.eventManager.initializeLoading([['loadingProjectStarted','loadingProjectCompleted','Project'],
 						                                     ['getUserAndClassInfoStarted','getUserAndClassInfoCompleted', 'Learner Data'], 
 						                                     ['getUserAndClassInfoStarted', 'renderNodeCompleted', 'Learning Environment']]);
@@ -812,7 +820,8 @@ var componentloader = function(em, sl){
 				'cRaterRemoveFeedback':[null, null],
 				'cRaterMaxCheckAnswersChanged':[null, null],
 				'enableCRater':[null, null],
-				'stepIconUpdated':[null, null]
+				'stepIconUpdated':[null, null],
+				'cRaterStudentActionUpdated':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -839,6 +848,22 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('cRaterMaxCheckAnswersChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('enableCRater', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('stepIconUpdated', view.stepIconsManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterStudentActionUpdated', view.cRaterManager.dispatcher, view);
+				}
+			}
+		},
+		studentWebSocket:{},
+		teacherWebSocket:{
+			variables:{},
+			events:{
+				'classroomMonitorConfigUrlReceived': [null, null],
+				'loadingProjectComplete': [null, null]
+			},
+			methods:{},
+			initialize:{
+				init:function(view){
+					eventManager.subscribe("classroomMonitorConfigUrlReceived", view.classroomMonitorDispatcher, view);
+					eventManager.subscribe("loadingProjectCompleted", view.classroomMonitorDispatcher, view);
 				}
 			}
 		}

@@ -109,9 +109,9 @@ MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function(
 		var node = this.view.getProject().getNodeById(this.nodeId);
 		
 		if(node.type == 'sequence') {
-			message = 'You must complete the steps in Activity ' + stepNumberAndTitle + ' before moving ahead';
+			message = this.view.getI18NStringWithParams("constraint_must_complete_activity_before_advancing", [stepNumberAndTitle], "main");
 		} else {
-			message = 'You must complete Step ' + stepNumberAndTitle + ' before moving ahead';		
+			message = this.view.getI18NStringWithParams("constraint_must_complete_step_before_advancing", [stepNumberAndTitle], "main");
 		}		
 	}
 	
@@ -124,7 +124,7 @@ MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function(
  */
 MustCompleteBeforeAdvancingConstraint.prototype.constrainNavigation = function() {
 	if(this.view.navigationLogic != null && this.view.navigationLogic.tagMapConstraintManager != null) {
-		this.view.navigationLogic.tagMapConstraintManager.disableAllStepsAfter(this.nodeId);		
+		this.view.navigationLogic.tagMapConstraintManager.disableAllStepsAfter(this.nodeId, this);
 	}
 };
 

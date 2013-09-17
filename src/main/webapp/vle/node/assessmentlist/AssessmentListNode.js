@@ -7,6 +7,7 @@ AssessmentListNode.prototype.i18nEnabled = true;
 AssessmentListNode.prototype.i18nPath = "/vlewrapper/vle/node/assessmentlist/i18n/";
 AssessmentListNode.prototype.supportedLocales = {
 			"en_US":"en_US",
+			"es":"es",
 			"ja":"ja",
 			"nl":"nl",
 			"nl_GE":"nl",
@@ -97,11 +98,10 @@ AssessmentListNode.prototype.overridesIsCompleted = function() {
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
  */
-AssessmentListNode.prototype.isCompleted = function() {
-	var nodeVisitsForThisNode = this.view.getState().getNodeVisitsByNodeId(this.id);
-	if (nodeVisitsForThisNode != null) {
-		for (var i=0; i < nodeVisitsForThisNode.length; i++) {
-			var nodeVisitForThisNode = nodeVisitsForThisNode[i];
+AssessmentListNode.prototype.isCompleted = function(nodeVisits) {
+	if (nodeVisits != null) {
+		for (var i=0; i < nodeVisits.length; i++) {
+			var nodeVisitForThisNode = nodeVisits[i];
 			if (nodeVisitForThisNode.nodeStates != null) {
 				for (var k=0;k<nodeVisitForThisNode.nodeStates.length;k++) {
 					var nodeState = nodeVisitForThisNode.nodeStates[k];

@@ -26,6 +26,8 @@ TagMapConstraintFactory.createTagMapConstraint = function(view, nodeId, tagName,
 		return new MustCompleteXBeforeConstraint(view, nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
 	} else if(functionName == 'mustVisitXBefore') {
 		return new MustVisitXBeforeConstraint(view, nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
+	} else if(functionName == 'xMustHaveStatusY') {
+		return new XMustHaveStatusYConstraint(view, nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
 	}
 };
 

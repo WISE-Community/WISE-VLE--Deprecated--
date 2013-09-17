@@ -97,6 +97,7 @@
 		
 		var area = 0;
 		var volume = 0;
+		var volume_enclosed = 0;
 		for (var i = 0; i < this.fixDefs.length; i++)
 		{
 			var fixDef = this.fixDefs[i];
@@ -115,6 +116,7 @@
 			//f.SetDensity((f.materialDensity * f.materialSpaces)/f.area);
 
 			volume += f.materialSpaces + f.protectedSpaces + f.interiorSpaces;
+			volume_enclosed += f.materialSpaces + f.protectedSpaces;
 
 			var lowerBound = f.GetAABB().lowerBound;
 			var upperBound = f.GetAABB().upperBound;
@@ -140,7 +142,7 @@
 				body.percentSubmerged2d[i][j] = 0;
 			}
 		}
-		if (GLOBAL_PARAMETERS.DEBUG){
+		if (GLOBAL_PARAMETERS.DEBUG_DEEP){
 			g = this.g = new createjs.Graphics();
 			this.shape = new createjs.Shape(g);	
 			g.beginFill("rgba(250,0,0,1.0)");
@@ -152,9 +154,7 @@
 
 	
 	/** Update skin to reflect position of b2 body on screen */
-	p.update = function ()
-	{
-
+	p.update = function (){
 		if (this.body != null && typeof(this.body) != "undefined" && typeof(this.parent) != "undefined" && this.parent != null)
 		{
 			if (this.parent.parent == null){

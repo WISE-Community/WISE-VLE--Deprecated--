@@ -190,11 +190,11 @@
 		  <table>
 		  	<tr>
 		  		<td>
-				  <input id="startButton" type="button" value="Start" onclick="startSensor()" />
-			      <input id="stopButton" type="button" value="Stop" onclick="stopSensor()" />
-			      <input id="clearButton" type="button" value="Clear Probe Data" onclick="clearData()" />
-			      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction()" />
-			      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange()" />
+				  <input id="startButton" type="button" value="Start" onclick="startSensor()" data-i18n="start" />
+			      <input id="stopButton" type="button" value="Stop" onclick="stopSensor()" data-i18n="stop" />
+			      <input id="clearButton" type="button" value="Clear Probe Data" onclick="clearData()" data-i18n="clear_probe_data" />
+			      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction()" data-i18n="clear_prediction" />
+			      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange()" data-i18n="reset_axis_limits" />
 	      		</td>
 		  		<td>
 		  			<div id="plotHoverPosition"></div>
@@ -251,11 +251,11 @@
 	    </table>
 	    
 	    <!-- where the student will write their analysis or explanation to the graph -->
-	    <div id="showStarterSentenceButtonDiv"><input id="showStarterSentenceButton" type="button" value="Show Starter Sentence" onclick="showStarterSentence()" /></div>
+	    <div id="showStarterSentenceButtonDiv"><input id="showStarterSentenceButton" type="button" value="Show Starter Sentence" onclick="showStarterSentence()" data-i18n="show_starter_sentence" /></div>
 	    <textarea id='responseTextArea'></textarea>
 	    <br/>
 	    <!-- the save button -->
-	    <input id="saveButton" type="button" value="Save" onclick="save()" />
+	    <input id="saveButton" type="button" value="Save" onclick="save()" data-i18n="save" />
 	    <div id="graphMessageDiv" style="position:absolute;width:500px;display:none"><table id="graphMessageTable" align='center'><tr><td id="graphMessage" style="text-align:center"></td></tr></table></div>
 	</body>
 </html>

@@ -12,7 +12,8 @@ OpenResponseNode.prototype.i18nEnabled = true;
 OpenResponseNode.prototype.i18nPath = "/vlewrapper/vle/node/openresponse/i18n/";
 OpenResponseNode.prototype.supportedLocales = {
 			"en_US":"en_US",
-			"ja":"ja"
+			"ja":"ja",
+			"es":"es"
 };
 
 OpenResponseNode.tagMapFunctions = [
@@ -32,11 +33,36 @@ function OpenResponseNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
-	this.importableFromNodes = new Array("NoteNode","OpenResponseNode");	
+	this.importableFromNodes = new Array("NoteNode","OpenResponseNode", "ExplanationBuilderNode");	
 	this.importableFileExtensions = new Array(
 			"jpg", "png");
 	
 	this.tagMapFunctions = this.tagMapFunctions.concat(OpenResponseNode.tagMapFunctions);
+};
+
+/**
+ * Returns the criteria value for this node based on student response.
+ */
+OpenResponseNode.prototype.getCriteriaValue = function() {
+	var result = null;
+	var contentJSON = this.content.getContentJSON();
+	if (this.content.getContentJSON().cRater != null && this.content.getContentJSON().cRater != "") {
+		// if this step is CRater/Henry open response step, return the last score they received from CRater for this step.
+		// the score is stored in the annotation for the step.
+		var nodeAnnotationsArray = this.getNodeAnnotations();
+		if (nodeAnnotationsArray != null) {
+			for (var i=0; i<nodeAnnotationsArray.length; i++) {
+				var nodeAnnotation = nodeAnnotationsArray[i];
+				if (nodeAnnotation.type == "cRater" || nodeAnnotation.type == "henry") {
+					if (nodeAnnotation.value != null && nodeAnnotation.value[0] != null && nodeAnnotation.value[0].score != null) {
+						// get the CRater/Henry score 
+						result = nodeAnnotation.value[0].score;
+					}
+				}
+			}
+		}
+	}
+	return result;
 };
 
 /**
@@ -92,6 +118,9 @@ OpenResponseNode.prototype.importWork = function(importFromNode) {
 	if (this.canImportWork(importFromNode)) {
 		var studentWorkState = this.view.getState().getLatestWorkByNodeId(importFromNode.id);
 		if (studentWorkState != null) {
+			if(true) {
+				
+			}
 			var studentWork = studentWorkState.response;
 
 			if(studentWork != null && studentWork.constructor.toString().indexOf("Array") != -1) {
@@ -305,15 +334,20 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 			if(annotationRevision == null) {
 				//there was no CRater annotation for this node state
 				
+				var save_answer = this.view.getI18NString('save_answer', 'OpenResponseNode');
+				
 				//display the save answer for the node visit
-				htmlForNodeState += 'Save Answer';
+				htmlForNodeState += save_answer;
 				htmlForNodeState += '<br>';
 				htmlForNodeState += studentWork;
 			} else {
 				//there was a CRater annotation for this node state
 				
+				var check_answer = this.view.getI18NString('check_answer', 'OpenResponseNode');
+				var auto_score = this.view.getI18NString('auto_score', 'OpenResponseNode');
+				
 				//display the check answer number for the node visit
-				htmlForNodeState += 'Check Answer #' + checkAnswerCounter;
+				htmlForNodeState += check_answer + ' #' + checkAnswerCounter;
 				checkAnswerCounter++;
 				
 				htmlForNodeState += '<br>';
@@ -321,7 +355,7 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 				htmlForNodeState += '<br>';
 				
 				//display the CRater score
-				htmlForNodeState += 'Auto-Score: ' + annotationRevision.score;
+				htmlForNodeState += auto_score + ': ' + annotationRevision.score;
 				
 				/*
 				 * get the CRater feedback the student received, if any.
@@ -333,8 +367,10 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 				if(feedbackText != null) {
 					htmlForNodeState += '<br>';
 
+					var auto_feedback = this.view.getI18NString('auto_feedback', 'OpenResponseNode');
+					
 					//display the feedback
-					htmlForNodeState += 'Auto-Feedback: ' + feedbackText;					
+					htmlForNodeState += auto_feedback + ': ' + feedbackText;					
 				}
 			}
 
@@ -489,16 +525,41 @@ OpenResponseNode.prototype.getAutoGradedFields = function(stepWorkId, runId, nod
  * @param nodeState the latest node state for the step
  * @return whether the student has completed the step or not
  */
-OpenResponseNode.prototype.isCompleted = function(nodeState) {
+OpenResponseNode.prototype.isCompleted = function(nodeVisits) {
 	var result = false;
 	
-	if(nodeState != null && nodeState != '') {
-		if(nodeState.response != '') {
-			result = true;
-		}
+	if(nodeVisits != null) {
+		//get the latest node state for this step
+		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+		
+		if(nodeState != null && nodeState != '') {
+			if(nodeState.response != null && nodeState.response != '') {
+				//the student has completed this step
+				result = true;
+			}
+		}		
 	}
 	
 	return result;
+};
+
+/**
+ * Process the student work to see if we need to change the node's status
+ * 
+ * @param nodeVisits the node visits for this step
+ */
+OpenResponseNode.prototype.processStudentWork = function(nodeVisits) {
+	if(nodeVisits != null) {
+		if(nodeVisits.length > 0) {
+			//the student has visited this step
+			this.setStatus('isVisited', true);
+		}
+		
+		if(this.isCompleted(nodeVisits)) {
+			//the student has completed this step
+			this.setStatus('isCompleted', true);
+		}
+	}
 };
 
 OpenResponseNode.prototype.getHTMLContentTemplate = function() {

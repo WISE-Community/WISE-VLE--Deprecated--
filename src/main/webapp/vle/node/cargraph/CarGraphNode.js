@@ -495,7 +495,9 @@ CarGraphNode.prototype.overridesIsCompleted = function() {
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
  */
-CarGraphNode.prototype.isCompleted = function(carGraphState) {
+CarGraphNode.prototype.isCompleted = function(nodeVisits) {
+	var carGraphState = this.view.getState().getLatestWorkByNodeId(this.id);
+	
 	if (typeof this.tagMaps == "undefined") return true;
 	// cycle through tag maps, if I get a custom tag map check student work to complete
 	if (typeof carGraphState === "undefined") carGraphState = this.view.getState().getLatestWorkByNodeId(this.id);
@@ -553,6 +555,14 @@ CarGraphNode.prototype.getHTMLContentTemplate = function() {
 	 * node/quiz/quiz.html
 	 */
 	return createContent('node/cargraph/cargraph.html');
+};
+
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+CarGraphNode.prototype.canSpecialExport = function() {
+	return true;
 };
 
 /*

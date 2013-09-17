@@ -7,11 +7,18 @@ MatchSequenceNode.prototype.constructor = MatchSequenceNode;
 MatchSequenceNode.prototype.parent = Node.prototype;
 MatchSequenceNode.authoringToolName = "Match & Sequence";
 MatchSequenceNode.authoringToolDescription = "Students drag and drop choices into boxes";
+MatchSequenceNode.prototype.i18nEnabled = true;
+MatchSequenceNode.prototype.i18nPath = "/vlewrapper/vle/node/matchsequence/i18n/";
+MatchSequenceNode.prototype.supportedLocales = {
+		"en_US":"en_US",
+		"ja":"ja",
+		"es":"es"
+};
 
 MatchSequenceNode.tagMapFunctions = [
-	{functionName:'importWork', functionArgs:[]},
-	{functionName:'showPreviousWork', functionArgs:[]}
-];
+                                     {functionName:'importWork', functionArgs:[]},
+                                     {functionName:'showPreviousWork', functionArgs:[]}
+                                     ];
 
 /**
  * @constructor
@@ -24,7 +31,7 @@ function MatchSequenceNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
-	
+
 	this.tagMapFunctions = this.tagMapFunctions.concat(MatchSequenceNode.tagMapFunctions);
 };
 
@@ -39,7 +46,7 @@ MatchSequenceNode.prototype.parseDataJSONObj = function(stateJSONObj) {
 
 
 MatchSequenceNode.prototype.onExit = function() {
-	
+
 };
 
 /**
@@ -57,12 +64,12 @@ MatchSequenceNode.prototype.onExit = function() {
 MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create the match sequence object so we can reference the content later
 	var matchSequence = new MS(this, this.view);
-	
+
 	//get the latest state object
 	var state = nodeVisit.getLatestWork();
-	
+
 	var text = "";
-	
+
 	//loop through all the target buckets
 	for(var h=0;h<state.buckets.length;h++){
 		var bucket = state.buckets[h];
@@ -75,34 +82,67 @@ MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, 
 		 * ([bucketText]: choice1Text, choice2Text)
 		 */
 		text += "([" + bucketText + "]: ";
-		
+
 		var choicesText = "";
-		
+
 		//loop through the choices
 		for(var g=0;g<bucket.choices.length;g++){
 			//if this is not the first choice, add a comma to separate them
 			if(choicesText != "") {
 				choicesText += ", ";
 			}
-			
+
 			//add the bucket text
 			choicesText += bucket.choices[g].text;
 		};
-		
+
 		text += choicesText;
-		
+
 		//close the bucket and add a new line for easy reading
 		text += ")<br>";
 	};
-	
+
+	//loop through the source bucket
+	if (state.sourceBucket != null) {
+		var bucket = state.sourceBucket;
+		//get the text for the source bucket
+		var bucketText = bucket.text;
+
+		/*
+		 * each bucket will be represented as following
+		 * 
+		 * ([bucketText]: choice1Text, choice2Text)
+		 */
+		text += "([" + bucketText + "]: ";
+
+		var choicesText = "";
+
+		//loop through the choices
+		for(var g=0;g<bucket.choices.length;g++){
+			//if this is not the first choice, add a comma to separate them
+			if(choicesText != "") {
+				choicesText += ", ";
+			}
+
+			//add the bucket text
+			choicesText += bucket.choices[g].text;
+		};
+
+		text += choicesText;
+
+		//close the bucket and add a new line for easy reading
+		text += ")<br>";
+	}
+
+
 	if(state.score != null) {
 		//get the max score
 		var maxScore = matchSequence.getMaxPossibleScore();
-		
+
 		text += "<br>";
-		text += "Auto-Graded Score: " + state.score + "/" + maxScore;
+		text += this.view.getI18NStringWithParams("autograded_score",[state.store + "/" + maxScore],"MatchSequenceNode");
 	}
-	
+
 	displayStudentWorkDiv.append(text);
 };
 
@@ -111,21 +151,60 @@ MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, 
  * @param nodeState the latest node state for the step
  * @return whether the student has completed the step or not
  */
-MatchSequenceNode.prototype.isCompleted = function(nodeState) {
-	var result = false;
+MatchSequenceNode.prototype.isCompleted = function(nodeVisits) {
+	var hasCorrectness = (this.content.getContentJSON().hasCorrectness != null) ? this.content.getContentJSON().hasCorrectness : true;
 	
-	if(nodeState != null && nodeState != '') {
-		if(nodeState.isCorrect) {
-			result = true;
+	var isCompleted = false;
+	
+	var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+	
+	if (hasCorrectness) {
+		if(nodeState != null && nodeState != '') {
+			if(nodeState.isCorrect) {
+				isCompleted = true;
+			}
 		}
+	} else {
+		return nodeState != null; 
 	}
-	
-	return result;
+
+	return isCompleted;
+};
+/**
+ * Returns the order in which the branching paths should appear based on student response.
+ */
+MatchSequenceNode.prototype.getBranchPathOrderValues = function() {
+	var branchPathOrder = [];
+	var state = view.getLatestStateForNode(this.id);
+
+	//loop through all the target buckets
+	for(var h=0;h<state.buckets.length;h++){
+		var bucket = state.buckets[h];
+
+		//loop through the choices
+		for(var g=0;g<bucket.choices.length;g++){
+			var choice = bucket.choices[g];
+			branchPathOrder.push(choice.identifier);
+		};
+	};
+
+	//loop through the source bucket
+	if (state.sourceBucket != null) {
+		var bucket = state.sourceBucket;
+
+		//loop through the choices
+		for(var g=0;g<bucket.choices.length;g++){
+			var choice = bucket.choices[g];
+			branchPathOrder.push(choice.identifier);
+		};
+	}
+	return branchPathOrder;
 };
 
 MatchSequenceNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/matchsequence/matchsequence.html');
 };
+
 
 NodeFactory.addNode('MatchSequenceNode', MatchSequenceNode);
 

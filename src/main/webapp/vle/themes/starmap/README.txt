@@ -1,7 +1,7 @@
 Introduction to the WISE Virtual Learning Environment (VLE) Project Theme Architecture
 
 Each WISE project theme is made up of a "vle_body.html" file, a "config.json" file, and
-folders for custom css, images, javascript, and navigation modes.
+folders for custom CSS, images, Javascript, and navigation modes.
 
 -----------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ corresponding image files to the theme package as well.  Note: screenshots/thumb
 be displayed in the project settings section of the WISE authoring tool where authors can
 select a theme and corresponding navigation mode to use for each project.
 
-The following fields must be included in the theme's "config.json" file.  Modify each field to
+The following fields should be included in the theme's "config.json" file.  Modify each field to
 match your theme.
 
 *Configuration Options*:
@@ -57,19 +57,22 @@ match your theme.
 2. "name" -  A text identifier for the theme; will be displayed when selecting the
 	theme in project authoring and/or run settings (String)
 3. "description" - A short text description of the theme's major features (String)
-4. "version" - Version number for this iteration of the theme (String)
-5. "author" - Name of the theme's author (String)
-6. "date" - Date and time the theme was created/updated (String)
-7. "screenshot" - Preview screenshot of theme (File path relative to theme root)
-8. "thumb" - Preview thumbnail image of theme (File path relative to theme root),
-9. "logo" - VLE logo for this theme; usually displayed in HTML for the project VLE - see
+4. "notes" - More detailed information about the theme and any special instructions or 
+	requirements for using it, including project structure and/or content requirements and
+	limitations (String; optional)
+5. "version" - Version number for this iteration of the theme (String)
+6. "author" - Name of the theme's author (String)
+7. "date" - Date and time the theme was created/updated (String)
+8. "screenshot" - Preview screenshot of theme (File path relative to theme root)
+9. "thumb" - Preview thumbnail image of theme (File path relative to theme root),
+10. "logo" - VLE logo for this theme; usually displayed in HTML for the project VLE - see
 	"vle_logo" DOM element in "vle_body.html" (File path relative to theme root)
-10. "css" - CSS files required by theme (Array of file paths relative to theme root)
-11. "js" - Javascript files required by theme; Optional (Array of file paths relative to theme root)
-12. "jqueryui_css" - CSS file for customized jQuery UI theme; Optional, as WISE provides a
+11. "css" - CSS files required by theme (Array of file paths relative to theme root)
+12. "js" - Javascript files required by theme; Optional (Array of file paths relative to theme root)
+13. "jqueryui_css" - CSS file for customized jQuery UI theme; Optional, as WISE provides a
 	default jQuery UI theme; leave value as empty string ("") to use the default theme (File
 	path relative to theme root)
-13. "nav_modes" - The project navigation modes this theme supports; First entry in the array
+14. "nav_modes" - The project navigation modes this theme supports; First entry in the array
 	will be set as the default; Each navigation mode's 'id' entry MUST match the name of a folder
 	in the "navigation" directory for your theme; You must include at least one navigation mode
 	with your theme; See "Project Navigation" section below for more details (Array of Objects)
@@ -83,13 +86,23 @@ activity and step DOM elements that make up each WISE project menu).
 
 Available navigation modes for a theme are defined in the theme's "config.json" file, in the
 "nav_modes" configuration option (item 13 above). Each navigation mode entry must be a JSON object
-with the following items:
+and should include the following items:
 1. "id" - A unique identifier for this navigation mode; MUST match the name of a folder in the theme's
 	"navigation" directory (String)
 2. "name" - A text identifier for the navigation mode; will be displayed when selecting the
 	navigation mode in project authoring and/or run settings (String)
-3. "description" - A short text description of the theme's major features (String)
-4. "screenshot" - Preview screenshot of theme (File path relative to this navigation mode's root folder)
+3. "description" - A short text description of the navigation mode's layout/features (String)
+4. "notes" - More detailed information about or instructions for using the navigation mode, including
+	project structure and/or step type or content requirements (String; optional)
+5. "screenshot" - Preview screenshot of theme (File path relative to theme root)
+6. "stepIcons" - Setting indicating whether the navigation mode displays icons for steps in the project;
+	authoring tool will show or hide step icons selectors depending on this option (Boolean)
+7. "activityIcons" - Setting indicating whether the navigation mode displays icons for activities in the
+	project; authoring tool will show or hide activity icons selectors depending on this option (Boolean)
+8. "activityIconPath" - The default image file to use for activity icons (default step icons are
+	specified by each step type) (File path relative to theme root; optional)
+9. "css" - Extra CSS files required by the navigation mode (Array of file paths relative to theme root)
+10. "js" - Extra Javascript files required by the navigation mode (Array of file paths relative to theme root)
 
 *Every WISE VLE theme MUST include at least 1 (one) navigation mode.*
 
@@ -106,7 +119,7 @@ Each navigation mode folder must include the following:
 	custom events they would like. (See the "nav.js" files included with this theme's navigation modes 
 	for more details.)
 2. "nav.css" file - This file includes any navigation menu specific CSS and theme customizations.
-3. Any other assets (images, for example) that the navigation mode uses
+3. Any other assets (images, Javascript, CSS, for example) that the navigation mode uses
 
 
 **** Internationalization ****

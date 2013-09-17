@@ -7,6 +7,13 @@ NoteNode.prototype.constructor = NoteNode;
 NoteNode.prototype.parent = OpenResponseNode.prototype;
 NoteNode.authoringToolName = "Reflection Note";
 NoteNode.authoringToolDescription = "Students write text to answer a question or explain their thoughts";
+NoteNode.prototype.i18nEnabled = true;
+NoteNode.prototype.i18nPath = "/vlewrapper/vle/node/openresponse/i18n/";
+NoteNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"es":"es"
+};
 
 /**
  * @constructor

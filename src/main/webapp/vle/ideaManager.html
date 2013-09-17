@@ -20,7 +20,7 @@
 
   <title>Idea Basket!</title>
   <meta name="description" content="WISE4 Idea Manager Tool (Idea Basket view)">
-  <meta name="author" content="Jonathan Breitbart">
+  <meta name="author" content="Jonathan Lim-Breitbart">
 
   <!--  Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +33,7 @@
   <!-- CSS : implied media="all" -->
   <link rel="stylesheet" href="css/ideaManager/blue/style.css">
   <link rel="stylesheet" href="css/ideaManager/basket.css">
-  <link rel="stylesheet" href="/vlewrapper/vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css">
+  <link rel="stylesheet" href="/vlewrapper/vle/jquery/css/wise-theme/jquery-ui-1.10.0.custom.css">
   <link rel="stylesheet" href="css/ideaManager/jquery-validate/cmxformTemplate.css">
 
   <!-- Uncomment if you are specifically targeting less enabled mobile browsers
@@ -212,14 +212,14 @@
 	</div>
 	
 	<div id='deleteDialog' style='display:none; text-align:center;'>
-		<div class='ui-state-highlight' style="padding:.5em;"><span class="ui-icon ui-icon-info" style="margin-right: .3em; float:left;"></span><span>Are you sure you want to delete this idea?</span></div>
-		<div style="padding:.5em;">You can always retrieve it from the trash later on if you change your mind.</div>
+		<div class='ui-state-highlight' style="padding:.5em;"><span class="ui-icon ui-icon-info" style="margin-right: .3em; float:left;"></span><span id="deletedIdeaConfirm1">Are you sure you want to delete this idea?</span></div>
+		<div style="padding:.5em;" id="deletedIdeaConfirm2">You can always retrieve it from the trash later on if you change your mind.</div>
 	</div>
 	
   <!-- Javascript at the bottom for fast page loading -->
 
-  <script src="jquery/js/jquery-1.6.1.min.js"></script>
-  <script src="jquery/js/jquery-ui-1.8.17.custom.min.js"></script>
+  <script src="jquery/js/jquery-1.9.1.min.js"></script>
+  <script src="jquery/js/jquery-ui-1.10.0.custom.min.js"></script>
   <script src="jquery/js/jquery-validate/jquery.validate.pack.js"></script>
   <script src="jquery/js/jquery.form.js"></script>
   

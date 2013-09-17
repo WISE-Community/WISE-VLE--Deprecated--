@@ -750,6 +750,7 @@ View.prototype.OpenResponseNode.displayCRaterFeedback = function(cRaterScoringRu
 			var rank = cRaterScoringRule.rank;
 			var score = cRaterScoringRule.score;
 			var feedback = cRaterScoringRule.feedback;
+			var studentAction = cRaterScoringRule.studentAction;
 			
 			//display all the fields in the scoring rule
 			cRaterFeedbackHtml += "Concepts: " + concepts + ", ";
@@ -789,7 +790,8 @@ View.prototype.OpenResponseNode.displayCRaterFeedback = function(cRaterScoringRu
 							
 							//add the button to remove the feedback
 							cRaterFeedbackHtml += "<input id='' type='button' value='Remove' onclick='eventManager.fire(\"cRaterRemoveFeedback\", [" + x + ", " + y + "])'>";
-							cRaterFeedbackHtml += "<br>";							
+							
+							cRaterFeedbackHtml += "<br>";
 						}
 					}
 				}
@@ -797,6 +799,30 @@ View.prototype.OpenResponseNode.displayCRaterFeedback = function(cRaterScoringRu
 			
 			//add the button to add feedback
 			cRaterFeedbackHtml += "<input id='cRaterAddFeedbackButton_" + x + "' type='button' value='Add Feedback' onclick='eventManager.fire(\"cRaterAddFeedback\", " + x + ")'>";
+			
+			cRaterFeedbackHtml += "<br>";
+			cRaterFeedbackHtml += "<br>";
+			
+			//the label for the student action radio buttons
+			cRaterFeedbackHtml += "Student Action:";
+			
+			cRaterFeedbackHtml += "<br>";
+			
+			//add the revise radio button
+			if(studentAction == 'revise') {
+				cRaterFeedbackHtml += "<input id='' type='radio' name='studentAction_" + x + "' value='revise' onclick='eventManager.fire(\"cRaterStudentActionUpdated\", [" + x + ", \"revise\"])' checked='checked'>Revise";
+			} else {
+				cRaterFeedbackHtml += "<input id='' type='radio' name='studentAction_" + x + "' value='revise' onclick='eventManager.fire(\"cRaterStudentActionUpdated\", [" + x + ", \"revise\"])'>Revise";
+			}
+			
+			cRaterFeedbackHtml += "<br>";
+			
+			//add the rewrite radio button
+			if(studentAction == 'rewrite') {
+				cRaterFeedbackHtml += "<input id='' type='radio' name='studentAction_" + x + "' value='rewrite' onclick='eventManager.fire(\"cRaterStudentActionUpdated\", [" + x + ", \"rewrite\"])' checked='checked'>Rewrite";	
+			} else {
+				cRaterFeedbackHtml += "<input id='' type='radio' name='studentAction_" + x + "' value='rewrite' onclick='eventManager.fire(\"cRaterStudentActionUpdated\", [" + x + ", \"rewrite\"])'>Rewrite";
+			}
 			
 			cRaterFeedbackHtml += "<br>";
 			cRaterFeedbackHtml += "<br>";
@@ -969,6 +995,37 @@ View.prototype.OpenResponseNode.cRaterRemoveFeedback = function(args) {
 };
 
 /**
+ * Update the student action for a CRater feedback
+ */
+View.prototype.OpenResponseNode.cRaterStudentActionUpdated = function(args) {
+	//get the scoring rule index we are going to update the student action for
+	var x = args[0];
+	
+	//get the student action 'revise' or 'rewrite'
+	var studentAction = args[1];
+	
+	if(x == null) {
+		//default to 0
+		x = 0;
+	}
+	
+	if(this.content.cRater.cRaterScoringRules != null &&
+			this.content.cRater.cRaterScoringRules[x] != null) {
+		
+		//get the feedback object
+		var feedbackObject = this.content.cRater.cRaterScoringRules[x];
+		
+		if(feedbackObject != null) {
+			//update the student action in the feedback object
+			feedbackObject.studentAction = studentAction;
+		}
+	}	
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
  * Update the CRater max check answer value
  */
 View.prototype.OpenResponseNode.updateCRaterMaxCheckAnswers = function() {
@@ -1038,8 +1095,8 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 			//CRater already exists so we don't need to do anything
 		}
 		
-		//set the excelExportStringTemplate
-		this.content.excelExportStringTemplate = "Student Response: {response}, Check Answer: [{isCRaterSubmit}], CRater Score: [{cRaterAnnotationScore}], CRater Feedback: [{cRaterFeedbackText}]";
+		//set the export columns
+		this.setAutoGradedExportColumns();
 	} else {
 		//disable CRater
 		
@@ -1073,9 +1130,51 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 			}
 		}
 		
-		//remove the excelExportStringTemplate
-		this.content.excelExportStringTemplate = null;
+		//set the export columns
+		this.setRegularExportColumns();
 	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export columns for regular open response steps
+ */
+View.prototype.OpenResponseNode.setRegularExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Response",
+        	  "field": "response"
+          }
+  	];
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export columns for the auto graded open response steps
+ */
+View.prototype.OpenResponseNode.setAutoGradedExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Submit",
+        	  "field": "isCRaterSubmit"
+          },
+          {
+        	  "columnName": "Auto-Score",
+        	  "field": "cRaterScore"
+          },
+          {
+        	  "columnName": "Auto-Feedback",
+        	  "field": "cRaterFeedbackText"
+          },
+          {
+        	  "columnName": "Response",
+        	  "field": "response"
+          }
+  	];
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

@@ -3710,38 +3710,35 @@ View.prototype.getStudentIdsByWorkgroupId = function(workgroupId, numberOfLineBr
 	}
 	
 	//the html that we will use to display the student ids
-	var studentIdsHtml = "";
+	var userIdsHtml = "";
 	
 	if(workgroupId != null) {
 		//get the user in the class
 		var classmate = this.getUserAndClassInfo().getClassmateByWorkgroupId(workgroupId);
 		
 		if(classmate != null) {
-			//retrieve the : delimited student ids of the users in the workgroup
-			var studentIds = classmate.studentIds;
-
-			//split the string by :
-			var studentIdsArray = studentIds.split(":");
+			//retrieve the student ids of the users in the workgroup
+			var userIds = classmate.userIds;
 
 			//loop through each name in the workgroup
-			for(var y=0; y<studentIdsArray.length; y++) {
+			for(var y=0; y<userIds.length; y++) {
 				//add an empty line or comma between each student id
-				if(studentIdsHtml != "") {
+				if(userIdsHtml != "") {
 					if(numberOfLineBreaks == 0){
-						studentIdsHtml += ", ";
+						userIdsHtml += ", ";
 					}
 					for(var x=0; x<numberOfLineBreaks; x++) {
-						studentIdsHtml += "<br />";
+						userIdsHtml += "<br />";
 					}
 				}
 
 				//add the student ids
-				studentIdsHtml += studentIdsArray[y];
+				userIdsHtml += userIds[y];
 			}
 		}
 	}
 	
-	return studentIdsHtml;
+	return userIdsHtml;
 };
 
 /**

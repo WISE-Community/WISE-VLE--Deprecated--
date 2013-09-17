@@ -25,6 +25,8 @@ View.prototype.matchsequenceDispatcher = function(type,args,obj){
 		obj.MatchSequenceNode.containerSelected(args[0]);
 	} else if(type=='msContainerTextUpdated'){
 		obj.MatchSequenceNode.containerTextUpdated(args[0]);
+	} else if(type=='msSourceBucketNameUpdated'){
+		obj.MatchSequenceNode.sourceBucketNameUpdated();
 	} else if(type=='msChoiceSelected'){
 		obj.MatchSequenceNode.choiceSelected(args[0],args[1]);
 	} else if(type=='msChoiceTextUpdated'){
@@ -66,6 +68,7 @@ var events = [
 	'msShuffleChanged',
 	'msContainerSelected',
 	'msContainerTextUpdated',
+	'msSourceBucketNameUpdated',
 	'msChoiceSelected',
 	'msChoiceTextUpdated',
 	'msOrderUpdated',

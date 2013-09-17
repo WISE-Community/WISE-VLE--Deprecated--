@@ -200,6 +200,56 @@ MustVisitXBeforeConstraint.prototype.checkConstraint = function(currentNodeId, n
 };
 
 /**
+ * Get the nodes that this constraint requires the student to visit
+ * but the student has not visited yet.
+ */
+MustVisitXBeforeConstraint.prototype.getNodesFailed = function() {
+	//array to accumulate the nodes that the student has not completed
+	var nodesFailed = [];
+
+	//the node ids of the steps that come before the current step and have the given tag
+	var previousNodeIds = this.view.getProject().getPreviousNodeIdsByTag(this.tagName, this.nodeId);
+	
+	if(previousNodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<previousNodeIds.length; x++) {
+			//get a node id
+			var previousNodeId = previousNodeIds[x];
+			
+			if(previousNodeId != null) {
+				if(this.mustVisitAfterCreateTime) {
+					if(!this.isVisitedAfterCreateTime(previousNodeId)) {
+						//the student has not visited this step after the create time
+						nodesFailed.push(previousNodeId);
+					}
+				} else {
+					if(!this.isVisited(previousNodeId)) {
+						//the student has not visited this step
+						nodesFailed.push(previousNodeId);
+					}
+				}
+			}
+		}
+	}
+	
+	if(this.mustVisitNodeId != null) {
+		if(this.mustVisitAfterCreateTime) {
+			if(!this.isVisitedAfterCreateTime(this.mustVisitNodeId)) {
+				//the student has not visited this step after the create time
+				nodesFailed.push(this.mustVisitNodeId);
+			}
+		} else {
+			if(!this.isVisited(this.mustVisitNodeId)) {
+				//the student has not visited this step
+				nodesFailed.push(this.mustVisitNodeId);
+			}
+		}
+	}
+	
+	return nodesFailed;
+};
+
+/**
  * Get the message to display to the student when this constraint
  * prevents them from moving to the next step they are trying to move to.
  * @param nodesFailed the node ids of the steps that the student has not completed
@@ -228,17 +278,18 @@ MustVisitXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					stepsNumberAndTitlesFailed += 'Activity ' + stepNumberAndTitle + ' (all steps)';
+					stepsNumberAndTitlesFailed += this.view.getI18NString("activityTerm", "main") + stepNumberAndTitle + ' ('+ this.view.getI18NString("all_steps", "main")  +')';
 				} else {
-					stepsNumberAndTitlesFailed += 'Step ' + stepNumberAndTitle;
+					stepsNumberAndTitlesFailed += this.view.getI18NString("stepTerm", "main") + stepNumberAndTitle;
 				}
 			}		
 		}
 		
 		if(nodesFailed.length == 1) {
-			message = 'You must visit ' + stepsNumberAndTitlesFailed + ' before you can work on this step';
+			message = this.view.getI18NStringWithParams("constraint_must_visit_x_before", [stepsNumberAndTitlesFailed], "main");
 		} else if(nodesFailed.length > 1) {
-			message = 'You must visit these before you can work on this step\n\n' + stepsNumberAndTitlesFailed;		
+			message = this.view.getI18NString("constraint_must_visit_these_before", "main");
+			message += "\n\n" + stepsNumberAndTitlesFailed;
 		}
 	}
 	
@@ -264,11 +315,11 @@ MustVisitXBeforeConstraint.prototype.constrainNavigation = function() {
 				var nodeId = nodeIds[x];
 				
 				//disable the step
-				this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(nodeId);
+				this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(nodeId, this);
 			}
 		} else {
 			//node is a step
-			this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(this.nodeId);			
+			this.view.navigationLogic.tagMapConstraintManager.disableStepOrActivity(this.nodeId, this);			
 		}
 	}
 };

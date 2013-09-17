@@ -1,6 +1,13 @@
 FlashNode.prototype = new Node();
 FlashNode.prototype.constructor = FlashNode;
 FlashNode.prototype.parent = Node.prototype;
+FlashNode.prototype.i18nEnabled = true;
+FlashNode.prototype.i18nPath = "/vlewrapper/vle/node/flash/i18n/";
+FlashNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"es":"es"
+};
 
 /*
  * the name that displays in the authoring tool when the author creates a new step
@@ -181,7 +188,7 @@ FlashNode.prototype.renderGradingViewFlash = function(displayStudentWorkDiv, nod
 			width = 500;
 			
 			// insert enlarge link
-			var enlargeHtml = $('<a class="enlarge" title="View Full Size">Enlarge</a>');
+			var enlargeHtml = $('<a class="enlarge" title="View Full Size">'+this.view.getI18NString("enlarge","FlashNode")+'</a>');
 			displayStudentWorkDiv.prepend(enlargeHtml);
 			enlargeHtml.click(function(){
 				var flashContent = $('<div>').append($('#flashContent_' + escapedDivId).clone()).remove().html();
@@ -221,7 +228,7 @@ FlashNode.prototype.renderGradingViewFlash = function(displayStudentWorkDiv, nod
 		attributes.styleclass = "flashContent";
 		swfobject.embedSWF(activity_uri, "alternateContent_" + divId, width, height, minPlayerVersion, "/vlewrapper/vle/swfobject/expressInstall.swf", flashvars, params, attributes);
 	} else {
-		gradingHtml += 'Error: Student data not found. Check Flash file to ensure export format is correct.';
+		gradingHtml += this.view.getI18NString("error_student_data_not_found","FlashNode");
 		
 		//put the error string into the div
 		displayStudentWorkDiv.html(gradingHtml);
@@ -263,7 +270,7 @@ FlashNode.prototype.renderGradingViewCustom = function(displayStudentWorkDiv, no
 		//gradingText += studentWork;
 		gradingText += flashState;
 	} else {
-		gradingText += "Error: Custom grading content not found.  Check Flash file to ensure export format is correct.";
+		gradingText += this.view.getI18NString("error_custom_content_not_found","FlashNode");
 	}
 	
 	//put the custom grading string into the div

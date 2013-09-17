@@ -21,5 +21,8 @@
       },
       "timeDependent": false
    },
+   "numSubmitsAllowedBeforeLock":-1,   
+   "hasCorrectness": true,
+   "sourceBucketName":"Choices",
    "type": "MatchSequence"
 }

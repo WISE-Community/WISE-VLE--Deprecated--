@@ -44,7 +44,7 @@ var css = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'matchsequence', nodeClassText:'Match & Sequence'}
+	{nodeClass:'matchsequence', nodeClassText:'Match & Sequence', icon:'node/matchsequence/icons/matchsequence28.png'}
 ];
 
 var nodeIconPath = 'node/matchsequence/icons/';

@@ -11,12 +11,27 @@
  
 svgEditor.addExtension("CLear Layer", function() {
 	
+	/* Private variables */
+	var loaded = false; // Boolean to indicate whether extension has finished loading
+	
+	/* Public API (accessible via svgEditor object) */
+	var api = svgEditor.ext_clearlayer = {
+		/** 
+		 * Gets whether extensions has completely loaded
+		 * 
+		 * @returns Boolean
+		 */
+		isLoaded: function(){
+			return loaded;
+		}
+	};
+	
 	var revertWarning = '<div id="revert_dialog"><div class="ui-state-error">' +
 		//'<span class="ui-icon ui-icon-alert" style="float:left"></span>' +
 		//'Warning! This will erase your current drawing.' +
 		'<span class="ui-icon ui-icon-alert" style="float:left"></span>' + // edited text for WISE4
-		'Warning! This will erase your current drawing and replace it with the default state.' +
-		'</div><div class="ui-dialog-content-content"><p>If you would like to continue, press "OK".</p>' +
+		'<span id="revert_warning">Warning! This will erase your current drawing and replace it with the default state.' +
+		'</div><div class="ui-dialog-content-content"><p id="revert_instructions">If you would like to continue, press "OK".</p>' +
 		'</div></div>';
 	$('#svg_editor').append(revertWarning);
 	
@@ -28,6 +43,7 @@ svgEditor.addExtension("CLear Layer", function() {
 		width: 560,
 		buttons: [
 		    {
+		    	id: 'revert_confirm',
 		    	text: 'OK',
 		    	click: function() {
 		    		// delete all elements in the student layer
@@ -38,11 +54,14 @@ svgEditor.addExtension("CLear Layer", function() {
 				}
 		    },
 			{
+		    	id: 'revert_cancel',
 		    	text: 'Cancel',
 		    	click: function() {	$(this).dialog('close'); }
 		    }
 		]
 	});
+	
+	loaded = true;
 
 	return {
 		name: "Clear Layer",

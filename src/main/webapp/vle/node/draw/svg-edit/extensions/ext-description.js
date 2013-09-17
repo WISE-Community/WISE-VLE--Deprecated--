@@ -61,12 +61,6 @@ svgEditor.addExtension("Description", function(S) {
 		 */
 		changed: function(){
 			// optional: override with custom actions
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
 		}
 	};
 	
@@ -74,16 +68,16 @@ svgEditor.addExtension("Description", function(S) {
 	function setContent(value){
 		content = value;
 		$('#description_content').val(value);
+		var $desc = $('#description span.minimized');
 		if(value !== ''){
-			$('#description span.minimized').text(value);
+			$desc.text(value);
 		} else {
-			$('#description span.minimized').text('(Click to add)');
+			$desc.text($desc.data('default'));
 		}
 		
 		if(!loaded){
-			// on first load, set extension loaded variable to true and call extension loaded listener
+			// on first load, set extension loaded variable to true
 			loaded = true;
-			api.loadComplete();
 		}
 		
 		if(!loading){
@@ -115,8 +109,8 @@ svgEditor.addExtension("Description", function(S) {
 	function setupDisplay(){
 		// setup extension UI components
 		var displaytext = '<div id="description"><div id="description_wrapper">'+
-			'<div class="description_header" title="Click to edit"><div class="description_header_text"><span class="panel_title">Description:</span>'+
-			' <span class="maximized">(Enter your text in the box below)</span><span class="minimized">(Click to add)</span>'+
+			'<div id="description_header" title="Click to edit"><div id="description_header_text"><span class="panel_title">Description:</span>'+
+			' <span class="maximized">(Enter your text in the box below)</span><span class="minimized" data-default="(Click to add)">(Click to add)</span>'+
 			'</div><div class="description_buttons">'+
 			'<a id="description_edit" title="Edit Description">Edit</a>'+
 			'<button id="description_collapse" class="ui-button ui-state-default" title="Save">Save</button></div></div>'+
@@ -132,7 +126,7 @@ svgEditor.addExtension("Description", function(S) {
 		});
 		
 		// bind click events to toggle the description input display
-		$('#description_edit, .description_header span').on('click', function(){
+		$('#description_edit, #description_header span').on('click', function(){
 			toggle(false);
 		});
 		$('#description_collapse').on('click', function(){

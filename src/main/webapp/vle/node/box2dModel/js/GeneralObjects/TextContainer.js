@@ -156,7 +156,7 @@
 		this.g.endFill();
 		if (this.strokeSize > 0) this.g.endStroke();
 
-		stage.needs_to_update;
+		if (stage != null) stage.needs_to_update;
 	}
 	window.TextContainer = TextContainer;
 }(window));

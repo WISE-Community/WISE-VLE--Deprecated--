@@ -18,6 +18,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var totalProjectContent = totalProjectContent;
 		var constraints = [];
 		var usedNodeTypes = [];
+		var globalTagMaps = [];
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/
@@ -156,6 +157,16 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						} else {
 							thisNode.associatedAnnotateNode = currNode.associatedAnnotateNode;
 						}
+						
+						//set the icons
+						if(currNode.icons != null) {
+							thisNode.icons = currNode.icons;
+						}
+						
+						//initialize the statuses, constraints, and nodeIdsListening arrays
+						thisNode.statuses = [];
+						thisNode.constraints = [];
+						thisNode.nodeIdsListening = [];
 
 						/* if project is loading minified, create each node's content from the parsed totalProjectContent */
 						if(totalProjectContent){
@@ -268,7 +279,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		
 		/* Returns the node at the given position in the project if it exists, returns null otherwise */
 		var getNodeByPosition = function(position){
-			if(position){
+			if(position != null) {
+				//make sure position is a string
+				position += "";
+				
 				var locs = position.split('.');
 				var parent = rootNode;
 				var current;
@@ -444,7 +458,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		/* Recursively searches for the given id from the point of the node down and returns the path. */
 		var getPathToNode = function(node, path, id){
 			if(node.id==id){
-				return path;
+				return path + '';
 			} else if(node.type=='sequence'){
 				for(var e=0;e<node.children.length;e++){
 					var pos = getPathToNode(node.children[e], path + '.' + e, id);
@@ -854,12 +868,15 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			
 			var newFeedback = "";
 			
-			// TODO: i18n
 			if(showAllWorkHtml.newFeedback != "") {
-				newFeedback = "<div class='panelHeader'>New Feedback</div><div class='dialogSection'>" + showAllWorkHtml.newFeedback + "</div>";
+				var new_feedback = view.getI18NString('new_feedback');
+				
+				newFeedback = "<div class='panelHeader'>" + new_feedback + "</div><div class='dialogSection'>" + showAllWorkHtml.newFeedback + "</div>";
 			}
 			
-			var allFeedback = "<div class='panelHeader'>My Work</div><div class='dialogSecton'>" + showAllWorkHtml.allFeedback + "</div>";
+			var my_work = view.getI18NString('my_work');
+			
+			var allFeedback = "<div class='panelHeader'>" + my_work + "</div><div class='dialogSecton'>" + showAllWorkHtml.allFeedback + "</div>";
 			
 			return newFeedback + allFeedback;
 		};
@@ -903,6 +920,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					// TODO: exclude all nodes that return null for grading html
 					
 					var nodeId = node.id;
+					
+					var nodeVisits = view.getState().getNodeVisitsByNodeId(nodeId);
+					
+					//get all the node visits that have work
+					var nodeVisitsWithWork = view.getState().getNodeVisitsWithWorkByNodeId(nodeId);
 					
 					var vlePosition = getVLEPositionById(nodeId);
 					
@@ -973,8 +995,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						var annotationScore = view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'score');
 						
 						if(annotationScore && annotationScore.value != '') {
+							var teacher_score = view.getI18NString('teacher_score');
+							
 							//the p that displays the score
-							var scoreP = "<p style='display: inline'>Teacher Score: " + annotationScore.value + maxScoreForStep + "</p>";
+							var scoreP = "<p style='display: inline'>" + teacher_score + ": " + annotationScore.value + maxScoreForStep + "</p>";
 							var newP = "";
 
 							//get the post time of the annotation
@@ -982,8 +1006,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							
 							//check if the annotation is new for the student
 							if(annotationScorePostTime > lastTimeVisited) {
+								var new_text = view.getI18NString('new_text');
+								
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p class='newAnnotation'> [New]</p>";
+								newP = "<p class='newAnnotation'> [" + new_text + "]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -1002,8 +1028,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						var annotationComment = view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'comment');
 						
 						if(annotationComment && annotationComment.value != '') {
+							var teacher_feedback = view.getI18NString('teacher_feedback');
+							
 							//create the p that displays the comment
-							var commentP = "<p style='display: inline'>Teacher Feedback: " + annotationComment.value + "</p>";
+							var commentP = "<p style='display: inline'>" + teacher_feedback + ": " + annotationComment.value + "</p>";
 							var newP = "";
 							
 							//get the post time of the annotation
@@ -1011,8 +1039,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							
 							//check if the annotation is new for the student
 							if(annotationCommentPostTime > lastTimeVisited) {
+								var new_text = view.getI18NString('new_text');
+								
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p class='newAnnotation'> [New]</p>";
+								newP = "<p class='newAnnotation'> [" + new_text + "]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -1027,9 +1057,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							annotationHtml += annotationCommentHtml;							
 						}
 						
-						if(annotationHtml == "") {
+						if(nodeVisitsWithWork.length > 0 && annotationHtml == "") {
+							//the student has submitted work for the step but the teacher has not given feedback
+							var your_teacher_hasnt_graded = view.getI18NString('your_teacher_hasnt_graded');
+							
 							//there were no annotations
-							annotationHtml += "<tr><td class='teachermsg3'>" + "Grading: Your Teacher hasn't graded this step yet." + "<td></tr>";
+							annotationHtml += "<tr><td class='teachermsg3'>" + your_teacher_hasnt_graded + "<td></tr>";
 						}
 						
 						commonFeedback += annotationHtml;
@@ -1112,7 +1145,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					sequences: [],
 					startPoint: "",
 					navMode: navMode,
-					theme: theme
+					theme: theme,
+					globalTagMaps:[]
 			};
 			
 			/* set start point */
@@ -1131,6 +1165,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					project.sequences.push(allSequenceNodes[j].nodeJSON());
 				};
 			};
+			
+			//set the global tag maps
+			if(globalTagMaps != null) {
+				project.globalTagMaps = globalTagMaps;
+			}
 			
 			/* return the project object */
 			return project;
@@ -1761,6 +1800,97 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		};
 		
 		/**
+		 * Get the node titles for the step including the titles of parent nodes.
+		 * This is a recursive function that calls itself with each successive
+		 * parent node.
+		 * @param id the node id of a step or activity
+		 * @return the titles of all the nodes in the hierarchy separated by ': '
+		 * e.g.
+		 * If the node is for a step we will return the step title along with
+		 * all of its parent node titles. If the step title is 'How to use WISE'
+		 * and the activity the step is in is titled 'Introduction Activity' we
+		 * will return
+		 * 'Introduction Activity: How to use WISE'
+		 */
+		var getNodeTitles = function(id) {
+			var result = '';
+
+			/*
+			 * check if we are on the master node. we will not display
+			 * anything for the master node.
+			 */
+			if(id != 'master') {
+				//get the node
+				var node = getNodeById(id);
+
+				if(node != null) {
+					//get the title of the node
+					var nodeTitle = node.title;
+					
+					//get the parent of the node
+					var parent = node.parent;
+					var parentId = parent.id;
+					
+					//get the title of the parent nodes
+					var parentResult = getNodeTitles(parentId);
+					
+					if(parentResult == '') {
+						/*
+						 * parent was master so it returned '' so our result will
+						 * just be this node title
+						 */
+						result = nodeTitle;
+					} else {
+						//prepend the parent result
+						result = parentResult + ': ' + nodeTitle;
+					}
+				}
+			}
+			
+			return result;
+		};
+		
+		/**
+		 * Get all node ids and their titles in an array
+		 */
+		var getAllNodeIdsAndNodeTitles = function() {
+			//the array to hold all the objects that contain the node information
+			var nodeObjects = [];
+			
+			//get all the node ids
+			var allNodeIds = getNodeIds(null, true);
+			
+			//loop through all the node ids
+			for(var x=0; x<allNodeIds.length; x++) {
+				//get a node id
+				var nodeId = allNodeIds[x];
+				
+				//skip the master node
+				if(nodeId != null && nodeId != 'master') {
+					//get the node
+					var node = getNodeById(nodeId);
+					
+					if(node != null) {
+						//get the node title
+						var title = node.title;
+						
+						if(title != null) {
+							//create the object that will contain the node information
+							var nodeObject = {};
+							nodeObject.nodeId = nodeId;
+							nodeObject.title = title;
+							
+							//add the object to the array we will return
+							nodeObjects.push(nodeObject);
+						}
+					}
+				}
+			}
+			
+			return nodeObjects;
+		};
+		
+		/**
 		 * Recursively obtain all the leaf nodeIds that have the given tag
 		 * @param tagName the tag we are looking for
 		 * @return an array containing all the leaf nodes that contain the given tag
@@ -2252,6 +2382,20 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return parentNodeId;
 		};
 		
+		/**
+		 * Set the global tag maps from the project content
+		 */
+		var setGlobalTagMaps = function() {
+			globalTagMaps = content.getContentJSON().globalTagMaps;
+		};
+		
+		/**
+		 * Get the global tag maps
+		 */
+		var getGlobalTagMaps = function() {
+			return globalTagMaps;
+		};
+		
 		/* check to see if this project was passed a minifiedStr, in which we will
 		 * set the totalProjectContent and this project's content */
 		 if(totalProjectContent){
@@ -2289,6 +2433,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* create nodes for project and set rootNode*/
 			generateProjectNodes();
 			generateSequences();
+			
+			//set the global tag maps
+			setGlobalTagMaps();
 			
 			/* set up duplicate nodes */
 			setRealNodesInDuplicates();
@@ -2450,7 +2597,15 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* determine if the node id is in the sequence */
 			isNodeIdInSequence:function(nodeId, sequenceId) {return isNodeIdInSequence(nodeId, sequenceId);},
 			/* get the node id of the parent sequence of the step */
-			getParentNodeId:function(nodeId) {return getParentNodeId(nodeId);}
+			getParentNodeId:function(nodeId) {return getParentNodeId(nodeId);},
+			/* get the activity number, activity title, and step title*/
+			getNodeTitles:function(nodeId) {return getNodeTitles(nodeId);},
+			/* get all the node ids and node titles as an array */
+			getAllNodeIdsAndNodeTitles:function() {return getAllNodeIdsAndNodeTitles();},
+			/* set the global tag maps from the project content */
+			setGlobalTagMaps:function() {return setGlobalTagMaps();},
+			/* get the global tag maps */
+			getGlobalTagMaps:function() {return getGlobalTagMaps();}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

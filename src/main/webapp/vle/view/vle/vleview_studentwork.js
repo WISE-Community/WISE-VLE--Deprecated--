@@ -362,13 +362,13 @@ View.prototype.onWindowUnload = function(logout){
 	/* display splash screen letting user know that saving is occuring */
 	$('#onUnloadSaveDiv').dialog('open');
 
-	/* tell current step to clean up */ 
-	if(this.getCurrentNode()) {
-		this.getCurrentNode().onExit();		
-	}
-
 	/* set the endVisitTime to the current time for the current state */
 	this.getState().endCurrentNodeVisit();
+	
+	/* tell current step to clean up */ 
+	if(this.getCurrentNode()) {
+		this.getCurrentNode().onExit();
+	}
 
 	/* synchronously save any unsaved node visits */
 	this.postAllUnsavedNodeVisits(true);
@@ -780,10 +780,11 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 		try {
 			var annotationJSON = JSON.parse(responseText);
 			var nodeId = annotationJSON.nodeId;
-
+			
 			// display feedback immediately, if specified in the content
 			var vle = args[0];
 			var nodeStateId = args[2];
+			
 			// check the step content to see if we need to display the CRater feedback to the student.
 			var cRaterJSON = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater;
 
@@ -828,7 +829,7 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 
 				if(displayCRaterScoreToStudent) {
 					//display the score
-					message += "You got a score of " + cRaterAnnotationJSON.score;
+					message += "You got a score of " + score;
 				}
 
 				if(displayCRaterFeedbackToStudent) {
@@ -851,9 +852,10 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					//get the current node state
 					var latestNodeState = currentNodeVisit.getLatestState();
 
-					//insert the feedback text and feedback id into the node state
+					//insert the feedback text, feedback id, and feedback score into the node state
 					latestNodeState.cRaterFeedbackText = feedbackText;
 					latestNodeState.cRaterFeedbackId = feedbackId;
+					latestNodeState.cRaterScore = score;
 
 					/*
 					 * save the current node visit again so the stepwork row in the 
@@ -869,7 +871,10 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					//popup the message to the student
 					eventManager.fire("showNodeAnnotations",[nodeId]);
 				}
-			}			
+			}
+			
+			//fire the 'cRaterResponseReceived' event
+			eventManager.fire("cRaterResponseReceived",[nodeId, annotationJSON]);
 		} catch(err) {
 			/*
 			 * failed to parse JSON. this can occur if the item id is invalid which
@@ -917,6 +922,7 @@ View.prototype.getCRaterResponseCallbackFail = function(responseText, responseXM
  */
 View.prototype.studentWorkUpdatedListener = function() {
 	this.updateActiveTagMapConstraints();
+	this.updateSequenceStatuses();
 };
 
 //used to notify scriptloader that this script has finished loading

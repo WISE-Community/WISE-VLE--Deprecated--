@@ -158,60 +158,199 @@ Branching.prototype.getPathToVisit = function() {
  * the .html file for this step (look at branching.html).
  */
 Branching.prototype.render = function() {
-	// if showSplashPage is false, we immediately run the branchingFunction and go to the first node in the chosen path.
-	if (!this.content.showSplashPage) {
+	// check to see if we need to hide this BranchNode.
+	var doDisplay = true;
+	this.node.displayInNavigation(doDisplay);
 
+	if (this.node.type != "BranchingNode") {
+		// if the next step is HTML, this gets called. ignore it.
+		return;
+	}
+	if (this.content && !this.content.showBranchSelectionPage) {
+		// if showBranchSelectionPage is false, we immediately run the branchingFunction and go to the first node in the chosen path.
 		var pathToVisitJSONObj = this.getPathToVisit();
 		if (!pathToVisitJSONObj) {
 			this.view.notificationManager.notify("No branching path is available at this time. Please move on to the next step.",3);
 			return;
 		}
-		// inject the nodes in the path into the Project
-		this.chosenPathId = pathToVisitJSONObj.identifier;
+		this.doBranch(pathToVisitJSONObj);
+	} else if (this.content && this.content.showBranchSelectionPage) {
+		// show the splash page and let the user choose a branch to go down
+		this.hideAllExceptBranchStep();
+		this.showBranchPage();
+	}
+};
 
-		var chosenSequenceId = pathToVisitJSONObj.sequenceRef;
-		var pathSequence = this.view.getProject().getNodeById(chosenSequenceId);  // get the sequence node
 
-		//get the title of the path
-		this.chosenPathName = pathSequence.title;
 
-		// loop through the nodes in the sequence and add them to the current sequence after the branch node
-		for (var i=0; i < pathSequence.children.length; i++) {
-			var nodeInPath = pathSequence.children[i];
-			// show the nodes in the navigation
+/**
+ * Display a page where the user can see and select branch to go to
+ */
+Branching.prototype.showBranchPage = function() {
+	// check if user has completed this step if yes, show a message
+	if (this.node.isCompleted()) {
+		$("body").prepend("<span id='branchStepCompletedMsg'>"+this.view.getI18NString("branch_step_completed_msg", "BranchingNode")+"</span>");
+	}
+	$("#promptDiv").html(this.content.prompt);
+	var inCompleteBranchLinks = $("<div id='inCompleteBranchLinks'><h2>"+this.view.getI18NString("incomplete_paths","BranchingNode")+"</h2></div>");
+	var completedBranchLinks = $("<div id='completedBranchLinks'><h2>"+this.view.getI18NString("completed_paths","BranchingNode")+"</h2></div>");
+	var allPathsJSONArray = this.node.getAllPaths(); // an array of path JSON objects. [ {"identifier": "A","sequenceRef": "seq_3"},{ "identifier": "B","sequenceRef": "seq_4"},...]
+	var orderedVisiblePathIds = this.getOrderedVisiblePathIds(); // an ordered array of visible paths
+	for (var i=0; i<orderedVisiblePathIds.length; i++) {
+		var orderedVisiblePathId = orderedVisiblePathIds[i];
+		for (var j=0; j<allPathsJSONArray.length;j++) {
+			var pathJSONObj = allPathsJSONArray[j];
+			if (pathJSONObj.identifier == orderedVisiblePathId) {
+				if (this.node.isBranchPathCompleted(pathJSONObj)) {
+					completedBranchLinks.append(this.makeBranchLink(pathJSONObj));
+				} else {
+					inCompleteBranchLinks.append(this.makeBranchLink(pathJSONObj));
+				}
+				break;
+			}
+		}
+	};
+	
+	$("#pathsDiv").html("");
+	$("#pathsDiv").append(inCompleteBranchLinks);
+	$("#pathsDiv").append(completedBranchLinks);
+	if ($("#inCompleteBranchLinks .branchLink").length == 0) {
+		$("#inCompleteBranchLinks").append(this.view.getI18NString("no_incomplete_paths","BranchingNode"));
+	}
+	if ($("#completedBranchLinks .branchLink").length == 0) {
+		$("#completedBranchLinks").append(this.view.getI18NString("no_complete_paths","BranchingNode"));
+	}
+	$(".branchLink").click(this, function(eventObject) {
+		var clickedPathId = $(this).attr("id");
+		var branchContext = eventObject.data; // we passed in a reference to the branchContext above so we can invoke its functions
+		var pathToVisitJSONObj = branchContext.node.getPathJSONByPathId(clickedPathId);
+		branchContext.doBranch(pathToVisitJSONObj);
+	});
+};
 
-			//display this sequence in the navigation panel
-			this.displayInNavigationIncludingChildren(nodeInPath);
+/**
+ * Returns an ordered array of visible path ids at this time.
+ * This is dependent of maxPathVisible count and any ordering that is specified in the branchPathOrderCriteriaMapping for the step
+ */
+Branching.prototype.getOrderedVisiblePathIds = function() {
+	var allPathsJSONArray = this.node.getAllPaths(); // an array of path JSON objects. [ {"identifier": "A","sequenceRef": "seq_3"},{ "identifier": "B","sequenceRef": "seq_4"},...]
+	var branchPathOrder = [];
 
-			if(nodeInPath.type != 'sequence') {
-				// also preload the nodes in path
-				nodeInPath.preloadContent();
+	// check to see if this branch step's branch path ordering is determined by another step. If not, use default
+	if (this.content.branchPathOrderCriteria != null) {
+		var branchPathOrderCriteriaNodeId = this.content.branchPathOrderCriteria.criteriaNodeId;
+		var branchPathOrderCriteriaNode = this.view.getProject().getNodeById(branchPathOrderCriteriaNodeId);		
+		var branchPathOrderValues = branchPathOrderCriteriaNode.getBranchPathOrderValues(allPathsJSONArray);
+		var branchPathOrderCriteriaMappingArray = this.content.branchPathOrderCriteria.criteriaMappingArray;
+		for (var i=0; i<branchPathOrderValues.length; i++) {
+			var branchPathOrderValue = branchPathOrderValues[i];
+			for (var j=0; j<branchPathOrderCriteriaMappingArray.length; j++) {
+				var branchPathOrderCriteria = branchPathOrderCriteriaMappingArray[j];
+				if (branchPathOrderCriteria.criteriaValue == branchPathOrderValue) {
+					branchPathOrder.push(branchPathOrderCriteria.pathIdentifier);
+				}
 			}
 		}
 
-		// check to see if we need to hide this BranchNode.
-		if (!this.content.showBranchNodeAfterBranching) {
-			var doDisplay = false;
-			this.node.displayInNavigation(doDisplay);
-		}
-
-		// update navigation logic with changes to the sequence (e.g. skip hidden nodes, etc)
-		this.view.updateNavigationLogic();
-
-		// render the next node, which should be the first node of the branched path
-		this.view.renderNextNode();
 	} else {
-		// show the splash page and let the user choose a branch to go down
+		// use the path order specfied in the allPathsJSONArray
+		for (var i=0; i<allPathsJSONArray.length; i++) {
+			var pathJSONObj = allPathsJSONArray[i];
+			branchPathOrder.push(pathJSONObj.identifier);
+		}
+	}
+	
+	// now limit the number of paths in the return array based on maxPathsVisible value
+	var maxPathsVisible = (this.content.maxPathVisible != null) ? this.content.maxPathVisible : allPathsJSONArray.length; // determine how many paths are visible at this time. defaults to all paths.
+	var orderedVisiblePaths = [];
+	var numPathsVisibleSoFar = 0;
+	for (var i=0; i<branchPathOrder.length; i++) {
+		if (numPathsVisibleSoFar < maxPathsVisible) {
+			branchPathIdentifier = branchPathOrder[i];
+			orderedVisiblePaths.push(branchPathIdentifier);
+			// if student has already completed a branch, don't count it towards the limit
+			if (!this.node.isBranchPathCompleted(this.node.getPathJSONByPathId(branchPathIdentifier))) {
+				numPathsVisibleSoFar++;							
+			}
+		}
+	}
+	return orderedVisiblePaths;
+};
+
+
+/**
+ * Return an html string (link) of a branch path, which will branch the user when clicked.
+ */
+Branching.prototype.makeBranchLink = function(branchPathJSONObj) {
+	var branchPathIsCompletedClass = "";
+	if (this.node.isBranchPathCompleted(branchPathJSONObj)) {
+		branchPathIsCompletedClass = "pathCompleted";
+	}
+	return "<span class='branchLink "+branchPathIsCompletedClass+"' id='"+branchPathJSONObj.identifier+"'>"+branchPathJSONObj.title+"</span>";
+};
+
+/**
+ * Branches the user to the appropriate path.
+ */
+Branching.prototype.doBranch = function(pathToVisitJSONObj) {
+	// inject the nodes in the path into the Project
+	this.chosenPathId = pathToVisitJSONObj.identifier;
+
+	var chosenSequenceId = pathToVisitJSONObj.sequenceRef;
+	var pathSequence = this.view.getProject().getNodeById(chosenSequenceId);  // get the sequence node
+
+	//get the title of the path
+	this.chosenPathName = pathSequence.title;
+
+	// loop through the nodes in the sequence and add them to the current sequence after the branch node
+	for (var i=0; i < pathSequence.children.length; i++) {
+		var nodeInPath = pathSequence.children[i];
+		// show the nodes in the navigation
+
+		//display this sequence in the navigation panel
+		var doDisplay=true;
+		this.displayInNavigationIncludingChildren(nodeInPath,doDisplay);
+
+		if(nodeInPath.type != 'sequence') {
+			// also preload the nodes in path
+			nodeInPath.preloadContent();
+		}
+	}
+
+	// check to see if we need to hide this BranchNode.
+	if (!this.content.showBranchNodeAfterBranching) {
+		var doDisplay = false;
+		this.node.displayInNavigation(doDisplay);
+	}
+
+	// update navigation logic with changes to the sequence (e.g. skip hidden nodes, etc)
+	this.view.updateNavigationLogic();
+
+	// render the next node, which should be the first node of the branched path
+	this.view.renderNextNode();	
+};
+
+/**
+ * Hides all the steps and activities in the branching activity except the branching step.
+ */
+Branching.prototype.hideAllExceptBranchStep = function() {
+	var allPathsJSONArray = this.node.getAllPaths();
+	for (var i=0; i < allPathsJSONArray.length; i++) {
+		var pathJSONObj = allPathsJSONArray[i];
+		var sequenceId = pathJSONObj.sequenceRef;
+		var pathSequence = this.view.getProject().getNodeById(sequenceId);
+		var doDisplay = false;
+		this.displayInNavigationIncludingChildren(pathSequence,doDisplay);		
 	}
 };
 
 /**
- * Make the node visible in the navigation panel. If the node is a sequence
+ * Make the node visible/invisible in the navigation panel. If the node is a sequence
  * we will alsmo make the children visible.
- * @param node the node to make visible
+ * @param node the node to make visible/invisible
+ * @param doDisplay true/false show/hide
  */
-Branching.prototype.displayInNavigationIncludingChildren = function(node) {
-	var doDisplay = true;
+Branching.prototype.displayInNavigationIncludingChildren = function(node,doDisplay) {
 
 	if(node == null) {
 
@@ -229,8 +368,8 @@ Branching.prototype.displayInNavigationIncludingChildren = function(node) {
 			//get a child
 			var child = children[x];
 
-			//make the child visible
-			this.displayInNavigationIncludingChildren(child);
+			//make the child visible/invisible
+			this.displayInNavigationIncludingChildren(child,doDisplay);
 		}
 	} else {
 		//the node is a step
@@ -309,6 +448,9 @@ Branching.prototype.save = function() {
 
 	//push the state object into this or object's own copy of states
 	this.states.push(branchingState);
+	
+	// update constraints
+	this.view.updateActiveTagMapConstraints();
 };
 
 //used to notify scriptloader that this script has finished loading

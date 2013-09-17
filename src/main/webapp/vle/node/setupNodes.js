@@ -123,6 +123,10 @@ SetupNodes.setupFiles = [
 	{
 		nodeName:"EpigameNode",
 		nodeSetupPath:"vle/node/epigame/setup.js"
+	},
+	{
+		nodeName:"GrapherNode",
+		nodeSetupPath:"vle/node/grapher/setup.js"
 	}
 ];
 
