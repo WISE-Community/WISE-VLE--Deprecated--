@@ -30,7 +30,7 @@ View.prototype.EpigameNode = {};
  */
 View.prototype.EpigameNode.commonComponents = [];
 
-View.prototype.EpigameNode.modes = ["mission", "tutorial", "adaptiveMission", "adaptiveQuiz", "editor", "map"];
+View.prototype.EpigameNode.modes = ["mission", "tutorial", "adaptiveMission", "adaptiveQuiz", "editor", "map", "adaptivePostQuiz"];
 
 /**
  * Generates the authoring page. This function will create the authoring
@@ -59,6 +59,7 @@ View.prototype.EpigameNode.generatePage = function(view){
 
 	//create a new div that will contain the authoring components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
+	
 	var authoringSwfDiv = createElement(document, 'div', {id: 'authoringSwfDiv'});
 	
 	/*
@@ -120,16 +121,6 @@ View.prototype.EpigameNode.generatePage = function(view){
 	var levelStringTextArea = createElement(document, 'input', {id: 'levelStringTextArea', type: 'text', size: '45', onchange:"eventManager.fire('epigameUpdateLevelString')"});
 	levelStringDiv.append(levelStringLabel).append(createBreak()).append(levelStringTextArea);
 	
-	//Quiz data input
-	var quizStringDiv = $(createElement(document, 'div', {id:'quizStringDiv'}));
-	var quizStringLabel = $(createElement(document, 'span', {id:'quizStringLabel'})).text('Quiz Selector:');	
-	var preQuizToggle = createElement(document, "input", {id:'preQuizToggle', type:"radio", name: "timeLimit", onclick:"eventManager.fire('epigameChangeSettings')"});
-	var preQuizLabel = $(createElement(document, 'label', {id:'preQuizLabel', "for":"noTimeToggle"})).text('No Time Limit');	
-	var postQuizToggle = createElement(document, "input", {id:'postQuizToggle', type:"radio", name: "timeLimit", onclick:"eventManager.fire('epigameChangeSettings')"});
-	var postQuizLabel = $(createElement(document, 'label', {id:'postQuizLabel', "for":"testTimeToggle"})).text('Time Limit for the Entire Test');	
-	
-	quizStringDiv.append(quizStringLabel).append(createBreak()).append(preQuizToggle).append(preQuizLabel);	
-	
 	//Project settings input
 	var settingsToggle = createElement(document, "input", {id:'settingsToggle', type:"checkbox", checked:"checked", onclick:"eventManager.fire('epigameToggleSettings')"});
 	var settingsLabel = $(createElement(document, 'label', {id:'settingsLabel', "for":"settingsToggle"})).text('Use this step to define project settings');
@@ -146,11 +137,11 @@ View.prototype.EpigameNode.generatePage = function(view){
 	
 	var settingsNoQuestionToggle = createElement(document, "input", {id:'noQuestionsToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
 	var settingsNoQuestionLabel = $(createElement(document, 'label', {id:'noQuestionsLabel', "for":"questionNoToggle"})).text('Disable Tips and Questions');
-	var settingsNoQuestionLabel = $(createElement(document, 'label', {id:'noQuestionsLabel', "for":"questionNoToggle"})).text('Disable Tips and Questions');
-	var settingsNoQuestionLabel = $(createElement(document, 'label', {id:'noQuestionsLabel', "for":"questionNoToggle"})).text('Disable Tips and Questions');
 	
 	var settingsSpatialToggle = createElement(document, "input", {id: 'spatialToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
 	var settingsSpatialLabel = $(createElement(document, 'label', {id:'spatialLabel', "for":"spatialToggle"})).text('Use Spatial Interface');
+
+	var rankValue = $(createElement(document, 'label', {id:'rankText', "for":"rankText"})).text('Value');
 
 	var rank1Name = $(createElement(document, 'label', {id:'rank1Name', "for":"rank1Name"})).text('Fluffy');
 	var rank2Name = $(createElement(document, 'label', {id:'rank2Name', "for":"rank2Name"})).text('Planet Hopper');
@@ -165,10 +156,6 @@ View.prototype.EpigameNode.generatePage = function(view){
 	var rank5Text = createElement(document, "input", {id:'rank5Text', type:"text", onchange:"eventManager.fire('epigameChangeSettings')",size:"5"});
 
 	var rankValue = $(createElement(document, 'label', {id:'rankText', "for":"rankText"})).text('Rank Values');
-
-	var forceRestrictionToggle = createElement(document, "input", {id:'forceRestrictionToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});	
-	var forceRestrictionLabel = $(createElement(document, 'label', {id:'forceRestriction', "for":"forceRestriction"})).text('Disable Force Restrictions');
-
 	
 	//get document mode
 	var levelString = "";
@@ -206,8 +193,6 @@ View.prototype.EpigameNode.generatePage = function(view){
 	settingsDiv.append(createBreak()).append(rankValue).append(createBreak());
 	settingsDiv.append(rank1Text).append(rank1Name).append(createBreak()).append(rank2Text).append(rank2Name).append(createBreak()).append(rank3Text).append(rank3Name).append(createBreak()).append(rank4Text).append(rank4Name).append(createBreak()).append(rank5Text).append(rank5Name).append(createBreak());
 
-	settingsDiv.append(createBreak()).append(forceRestrictionToggle).append(forceRestrictionLabel).append(createBreak());
-	
 	//add the authoring components to the page
 	$(pageDiv)
 	.append(swfUrlDiv)
@@ -226,7 +211,6 @@ View.prototype.EpigameNode.generatePage = function(view){
 	
 	$(pageDiv)
 	.append(levelStringDiv)
-	.append(quizStringDiv)
 	.append(createBreak())
 	.append(createBreak())
 	.append(settingsToggle)
@@ -410,10 +394,6 @@ View.prototype.EpigameNode.updateModeSelection = function() {
 	var dataDiv = $('#levelStringDiv');
 	var dataLabel = $('#levelStringLabel');
 	var dataField = $('#levelStringTextArea');
-
-	var	quizDiv = $('#quizStringDiv');
-	var	quizLabel = $('#quizStringLabel');			
-
 	
 	switch (index) {
 		//Use data value as mission string
@@ -421,29 +401,21 @@ View.prototype.EpigameNode.updateModeSelection = function() {
 		case 4://Editor
 			dataLabel.text("Mission Data String:");
 			dataDiv.show();
-			
-			quizLabel.text("");
-			quizDiv.hide();					
 			break;
 		
-		
+		/*
 		//Use data value as adaptive index/identifier
-		//case 2://Adaptive Mission
+		case 2://Adaptive Mission
 		case 3://Adaptive Quiz
-			dataLabel.text("");
-			dataDiv.hide();		
-		
-			quizLabel.text("Quiz Selector:");
-			quizDiv.show();
+			dataLabel.text("Mission/Question Index (integer):");
+			dataDiv.show();
 			break;
+		*/
 		
 		//Ignore data value
 		default:
 			dataLabel.text("");
 			dataDiv.hide();
-			
-			quizLabel.text("");
-			quizDiv.hide();								
 			break;
 	}
 	
@@ -472,8 +444,7 @@ View.prototype.EpigameNode.updateSettings = function() {
 			rank2Val: $("#rank2Text").val(),
 			rank3Val: $("#rank3Text").val(),
 			rank4Val: $("#rank4Text").val(),
-			rank5Val: $("#rank5Text").val(),
-			forceRestriction: Boolean($("#forceRestrictionToggle").prop("checked"))			
+			rank5Val: $("#rank5Text").val()				
 		};
 	} else {
 		delete this.content.settings;
@@ -502,7 +473,7 @@ View.prototype.EpigameNode.updateSettingsDisplay = function() {
 		$("#scoreReqsToggle").prop("checked", Boolean(this.content.settings.globalizeReqs));
 		$("#questionsToggle").prop("checked", Boolean(this.content.settings.showQuestions));
 		$("#noQuestionsToggle").prop("checked", Boolean(this.content.settings.showNoQuestions));
-		$("#spatialToggle").prop("checked", Boolean(this.content.settings.spatialInterface));	
+		$("#spatialToggle").prop("checked", Boolean(this.content.settings.spatialInterface));		
 		$("#noTimeToggle").prop("checked", Boolean(this.content.settings.noTime));
 		$("#testTimeToggle").prop("checked", Boolean(this.content.settings.testTime));
 		$("#questionTimeToggle").prop("checked", Boolean(this.content.settings.questionTime));
@@ -513,7 +484,6 @@ View.prototype.EpigameNode.updateSettingsDisplay = function() {
 		$("#rank3Text").val(this.content.settings.rank3Val);
 		$("#rank4Text").val(this.content.settings.rank4Val);
 		$("#rank5Text").val(this.content.settings.rank5Val);
-		$("#forceRestrictionToggle").prop("checked", Boolean(this.content.settings.forceRestriction));	
 
 		//Settings enabled, so check the checkbox and show UI
 		$("#settingsToggle").prop("checked", true);
@@ -548,8 +518,7 @@ View.prototype.EpigameNode.toggleSettings = function() {
 			rank2Val: 1200,
 			rank3Val: 3600,
 			rank4Val: 7200,
-			rank5Val: 11000,
-			forceRestriction: false
+			rank5Val: 11000
 		};
 		
 		console.log("applying ui settings");
@@ -571,7 +540,6 @@ View.prototype.EpigameNode.toggleSettings = function() {
 		$("#rank3Text").val(this.content.settings.rank3Val);
 		$("#rank4Text").val(this.content.settings.rank4Val);
 		$("#rank5Text").val(this.content.settings.rank5Val);
-		$("#forceRestrictionToggle").val(this.content.settings.forceRestrictionToggle);
 		
 		//Show UI
 		$("#settingsDiv").show();

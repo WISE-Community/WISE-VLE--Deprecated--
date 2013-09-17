@@ -127,7 +127,6 @@ Epigame.prototype.getTotalScore = function(tagName, functionArgs, scoreProp, rea
 		message: totalScore >= minScore ? "" : "Your overall " + readableScoreName + " is " + totalScore + ". This mission requires " + minScore + " or higher."
 	};
 	result[scoreProp] = totalScore;
-	result.minScore = minScore;
 	return result;
 }
 
@@ -228,7 +227,7 @@ Epigame.prototype.checkCompletedAll = function(tagName, functionArgs) {
 		for(var i = 0; i < nodeIds.length; ++i) {
 			var nodeId = nodeIds[i];
 			if (nodeId && !this.isNodeCompleted(nodeId)) {
-				nodesFailed.push(nodeId); 
+				nodesFailed.push(nodeId);
 			}
 		}
 	}
@@ -417,12 +416,11 @@ Epigame.prototype.getCampaignSettings = function() {
 	return null;
 };
 
-Epigame.prototype.getUserSettings = function(totalPerfScore, totalExplScore, totalWarpScore, minScore) {
+Epigame.prototype.getUserSettings = function(totalPerfScore, totalExplScore, totalWarpScore) {
 	var result = {
 		perfScore: totalPerfScore,
 		explScore: totalExplScore,
-		warpScore: totalWarpScore,
-		minScore: minScore
+		warpScore: totalWarpScore
 	};
 	
 	var work = this.getLatestEpigameWork();
@@ -531,7 +529,8 @@ Epigame.prototype.getCurrentQuizData = function() {
 	
 	console.log("maxQuestionsToAsk : " + maxQuestionsToAsk);
 	
-	data.quiz = [];	
+	data.quiz = [];
+	
 	data.maxQuestionsToAsk = maxQuestionsToAsk;
 	
 	for(i=0;i<allQuizData.length;i++) {
@@ -556,10 +555,8 @@ Epigame.prototype.getCurrentPostQuizData = function() {
 	
 	var allQuizData = this.node.getQuizData().posttestQuestionLists[this.getCurrentBucketIndex()];
 	var quizQuestions = this.node.getQuizData().questionPool;
-	var maxQuestionsToAsk = this.node.getQuizData().maxQuestionsToAsk;
 	
 	data.quiz = [];
-	data.maxQuestionsToAsk = maxQuestionsToAsk;	
 	
 	for(i=0;i<allQuizData.length;i++) {
 		data.quiz.push(quizQuestions[allQuizData[i]-1]);
@@ -667,14 +664,7 @@ Epigame.prototype.adaptiveMissionSelector = function(numMissionsCompleted,player
 	return numMissionsCompleted;	
 };
 
-Epigame.prototype.getCurrentAdaptiveMissionPlayed = function() {
-	if(this.states)
-		return this.states.length;
-		
-	return 0;
-}
-
-Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
+Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 	var warpData = this.node.getAdaptiveMissionData();
 	var missionTable = warpData.missions;
 	var missionLists = warpData.missionLists;
@@ -726,7 +716,7 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
 		if(missionCompleted[i])
 			numMissionsCompleted++;
 		var i1 = missionList[i].split("-")[0]-1;
-		var i2 = missionList[i].split("-")[1]-1;
+		var i2 = missionList[i].split("-")[1]-1;		
 		missionDifficulty[i] = missionTable[i1][i2].difficulty;
 	}
 
@@ -760,7 +750,13 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
 		default:
 		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index		
 	}
-			
+	
+	//if the previous warp mission was not complete, then stay at that warp index
+//	if(!this.getLatestState().response.success)	{									   
+//		index = this.getLatestState().response.warpIndex;
+//		console.log("setting index......");		
+//	}
+		
 	//if we didn't finish the last warp attempt, go back
 	if(this.states != null && this.states.length > 0) {
 		console.log("looking for last mission: ");			
@@ -793,10 +789,9 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
 	//check to make sure that the index
 	while (index >= missionList.length)
 		index -= missionList.length;
-
+		
 	this.lastWarpIndex = index;
-	this.lastMissionDifficulty = missionDifficulty[index];
-
+	
 	var missionIndex1 = missionList[index].split("-")[0];
 	var missionIndex2 = missionList[index].split("-")[1];
 	
@@ -866,9 +861,7 @@ Epigame.prototype.serializeCampaignSettings = function(settings) {
 		+ "|@" + (settings.rank2Val)
 		+ "|@" + (settings.rank3Val)
 		+ "|@" + (settings.rank4Val)
-		+ "|@" + (settings.rank5Val)
-		+ (settings.forceRestriction ? "|@1" : "|@0")
-		+ (settings.hideQuizScore ? "|@1" : "|@0")
+		+ "|@" + (settings.rank5Val);
 		
 	
 };
@@ -886,8 +879,7 @@ Epigame.prototype.serializeUserSettings = function(settings) {
 	result += "|$" + (isNaN(parsed) ? "" : parsed);
 	parsed = parseFloat(settings.musicVolume);
 	result += "|#" + (isNaN(parsed) ? "" : parsed);
-	result += settings.velocimeterToggle == "false" ? "|#0" : "|#1";
-		
+	
 	//Some game data is unused for this implementation, so this lets the game control the defaults
 	result += "|$|#|#|$CP";
 	
@@ -896,8 +888,6 @@ Epigame.prototype.serializeUserSettings = function(settings) {
 	parsed = parseInt(settings.explScore);
 	result += "|@" + (isNaN(parsed) ? "" : parsed);
 	parsed = parseInt(settings.warpScore);
-	result += "|@" + (isNaN(parsed) ? "" : parsed);
-	parsed = parseInt(settings.minScore);
 	result += "|@" + (isNaN(parsed) ? "" : parsed);
 	result += "|@";
 	
@@ -941,7 +931,7 @@ Epigame.prototype.render = function() {
 		var tagMapResults = this.processTagMaps();
 		
 		//Build a user settings object for the game
-		this.userSettings = this.getUserSettings(tagMapResults.perfScore, tagMapResults.explScore, tagMapResults.warpScore, tagMapResults.minScore);
+		this.userSettings = this.getUserSettings(tagMapResults.perfScore, tagMapResults.explScore, tagMapResults.warpScore);
 		
 		//Grab the req-check results
 		enableStep = tagMapResults.enableStep;
@@ -954,11 +944,11 @@ Epigame.prototype.render = function() {
 		} else if (this.content.mode == "editor") {
 			this.loadMissionEditor(this.content.levelString);
 		} else if (this.content.mode == "adaptiveMission") {
-			this.loadAdaptiveMission(this.getCurrentAdaptiveMissionData(this.content.levelString));
+			this.loadAdaptiveMission(this.getCurrentAdaptiveMissionData());
 		} else if (this.content.mode == "adaptiveQuiz") {
 			this.loadAdaptiveQuiz();
 		} else if (this.content.mode == "adaptivePostQuiz") {
-			this.loadAdaptivePostQuiz();
+			this.loadAdaptivePostQuiz();			
 		} else if (this.content.mode == "map") {
 			this.loadMap();
 		} else if (this.content.mode == "tutorial") {
@@ -984,8 +974,7 @@ Epigame.prototype.processTagMaps = function() {
 	var perfScore = 0;
 	var explScore = 0;
 	var warpScore = 0;
-	var minScore = 0;
-	var result;
+	var result = null;
 	
 	var tagMaps = this.node.tagMaps;
 	if (tagMaps) {
@@ -1017,18 +1006,18 @@ Epigame.prototype.processTagMaps = function() {
 					result = this.getTotalAdaptive(tagName, funcArgs);
 				}
 				
-				if (result.pass == false)
-					enableStep = false;
-				if (result.message != "")
-					messages.push(result.message);
-				if (result.highScore_performance)
-					perfScore = result.highScore_performance;
-				if (result.highScore_explanation)
-					explScore = result.highScore_explanation;
-				if (result.finalScore)
-					warpScore = result.finalScore;
-				if (result.minScore)
-					minScore = result.minScore;
+				if(result != null) {
+					if (result.pass == false)
+						enableStep = false;
+					if (result.message != "")
+						messages.push(result.message);
+					if (result.highScore_performance)
+						perfScore = result.highScore_performance;
+					if (result.highScore_explanation)
+						explScore = result.highScore_explanation;
+					if (result.finalScore)
+						warpScore = result.finalScore;
+				}
 			}
 		}
 	}
@@ -1042,8 +1031,7 @@ Epigame.prototype.processTagMaps = function() {
 		message: messages.length ? messages.join("<br>") + "<br>" : "",
 		perfScore: perfScore,
 		explScore: explScore,
-		warpScore: warpScore,
-		minScore: minScore
+		warpScore: warpScore
 	};
 };
 
@@ -1061,7 +1049,6 @@ Epigame.prototype.getLatestState = function() {
 	
 	return latestState;
 };
-
 
 Epigame.prototype.getPreviousWarpScore = function() {
 	var previousSuccesfulState = null;
@@ -1133,54 +1120,9 @@ Epigame.prototype.saveGameState = function(reportString) {
 Epigame.prototype.saveExitState = function() {
 	var elem = this.getGameElement();
 	if (elem && elem.getExitReport) {
+		console.log("saving exit state: " + elem.getExitReport());	
 		this.save(elem.getExitReport());
 	}
-};
-
-Epigame.prototype.getMissionData = function() {
-	var dataLog = {};
-		
-	/*
-	console.log("logging project data");
-	var project = this.view.getProject();
-	console.log(project);
-	console.log(project.projectJSON());
-
-	console.log("user and class info");			
-	console.log(this.node.view.userAndClassInfo);
-	*/
-
-	dataLog.projectID = 1;
-	dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
-	dataLog.stepVisit = this.states.length;
-
-	var numAttempts = 0;
-	var numTrials = 0;
-	var successfulTrialNum = 0;
-	var numSuccesses = 0;
-
-	for(var i=0;i<this.states.length;i++) {
-		if(this.states[i].response.success) {			
-			if(this.states[i].response.missionData && this.states[i].response.missionData.numTrials) {
-				successfulTrialNum = this.states[i].response.missionData.numTrials;
-			}
-			numAttempts++;
-			numSuccesses++;
-		}
-
-		if(this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
-			numTrials = this.states[i].response.missionData.totalTrials;
-		}
-	}
-
-	dataLog.attempts = numAttempts;
-	dataLog.attemptTrials = numTrials + 1 - successfulTrialNum;
-	dataLog.totalTrials = numTrials + 1;
-	dataLog.numSuccesses = numSuccesses;
-	
-	dataLog.missionDifficulty = this.lastMissionDifficulty;
-
-	return JSON.stringify(dataLog);
 };
 
 /**
@@ -1204,18 +1146,17 @@ Epigame.prototype.save = function(st) {
 	}
 	
 	//Push this state to the global view.states object.
-//	eventManager.fire('pushStudentWork', epigameState);
+	//	eventManager.fire('pushStudentWork', epigameState);
 	this.node.view.pushStudentWork(this.node.id, epigameState)  //4.7 switch
 
 	//Push the state object into this or object's own copy of states
 	this.states.push(epigameState);
 	
-	if(epigameState.response) {
-		console.log("pushing state: " + epigameState.response);		
-	}
+	//get all the node visits for this step
+	var nodeVisits = this.view.getState().getNodeVisitsByNodeId(this.node.id);
 	
 	// Process the student work for nav display
-	this.node.processStudentWork(epigameState);
+	this.node.processStudentWork(nodeVisits);
 	
 	//Post the current node visit to the DB immediately without waiting for exit.
 	this.node.view.postCurrentNodeVisit();

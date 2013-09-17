@@ -268,7 +268,6 @@
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 40N of force is applied for .1 seconds to the right. The object starts moving to the right at 4 m/s. Five seconds later: 40N of force is applied to the left. What is the object’s new velocity?",
 			"difficulty": 0,
-			"layout": "a",			
 			"questionURL": "images/question1_question.png",
 			"correctResponse": "0 m/s ",
 			"incorrectResponses": [
@@ -285,8 +284,7 @@
 		},
 		{
 			"question": "At the start. An object is sitting still. It has a mass of 1 kg. There is no friction 20N of force is applied for .1 seconds to the right. The object starts moving to the right at 2 m/s. Five seconds later: 20N of force is applied for .1 seconds down. What direction does the object go?",
-			"difficulty": 20,
-			"layout": "b",					
+			"difficulty": 20,			
 			"questionURL": "images/question2_question.png",			
 			"correctResponse": "this direction",
 			"incorrectResponses": [
@@ -303,8 +301,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 40N of force is applied for .1 seconds to the right. Five seconds later: The object is moving to the right at 4 m/s. What would happen if the object had a mass of 2 kg instead?",
-			"difficulty": 20,
-			"layout": "c",						
+			"difficulty": 20,			
 			"questionURL": "images/question3_question.png",			
 			"correctResponse": "It would move 2 m/s toward the right.",
 			"incorrectResponses": [
@@ -321,8 +318,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 20N of force is applied for .1 seconds to the right. 20N of force is also applied for .1 seconds up. The object starts moving up to the right. Five seconds later: 20N of force is applied for .1 seconds down. What direction does the object go?",
-			"difficulty": 20,
-			"layout": "d",						
+			"difficulty": 20,			
 			"questionURL": "images/question4_question.png",			
 			"correctResponse": "this direction",
 			"incorrectResponses": [
@@ -339,8 +335,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 2 kg. There is no friction. 40N of force is applied for .1 seconds to the right. Five seconds later: The object is moving to the right at 2 m/s. What would happen if the object had a mass of 1 kg instead?",
-			"difficulty": 20,
-			"layout": "e",						
+			"difficulty": 20,			
 			"questionURL": "images/question5_question.png",			
 			"correctResponse": "It would move 4 m/s toward the right.",
 			"incorrectResponses": [
@@ -357,8 +352,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 50N of force is applied for .1 seconds to the right. The object starts moving to the right at 5 m/s. Five seconds later: 30N of force is applied for .1 seconds to the left. What is the object’s new velocity?",
-			"difficulty": 20,
-			"layout": "a",						
+			"difficulty": 20,			
 			"questionURL": "images/question6_question.png",			
 			"correctResponse": "2 m/s toward the right.",
 			"incorrectResponses": [
@@ -375,8 +369,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 20N of force is applied for .1 seconds to the right. Five seconds later: The object is moving to the right at 2 m/s. What would happen if 40N of force had been applied instead of 20N?",
-			"difficulty": 20,
-			"layout": "b",						
+			"difficulty": 20,			
 			"questionURL": "images/question7_question.png",			
 			"correctResponse": "It would move 4 m/s toward the right.",
 			"incorrectResponses": [
@@ -393,8 +386,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 20N of force is applied for .1 seconds to the right. The object starts moving to the right at 2 m/s. Five seconds later: 40N of force is applied for .1 seconds to the left. What is the object’s new velocity?",
-			"difficulty": 20,
-			"layout": "c",						
+			"difficulty": 20,			
 			"questionURL": "images/question8_question.png",			
 			"correctResponse": "2 m/s toward the left.",
 			"incorrectResponses": [
@@ -411,8 +403,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 20N of force is applied for .1 seconds to the right. 20N of force is also applied for .1 seconds up. The object starts moving up to the right. Five seconds later: 40N of force is applied for .1 seconds down. What direction does the object go?",
-			"difficulty": 20,
-			"layout": "d",			
+			"difficulty": 20,			
 			"questionURL": "images/question9_question.png",			
 			"correctResponse": "this direction",
 			"incorrectResponses": [
@@ -429,8 +420,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 20N of force is applied for .1 seconds to the right. The object starts moving to the right at 2 m/s. Five seconds later: 30N of force is applied for .1 seconds down. What direction does the object go?",
-			"difficulty": 20,
-			"layout": "e",						
+			"difficulty": 20,			
 			"questionURL": "images/question10_question.png",			
 			"correctResponse": "this direction",
 			"incorrectResponses": [
@@ -447,8 +437,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 40N of force is applied for .1 seconds to the right. The object starts moving to the right at 4 m/s. Five seconds later: 20N of force is applied for .1 seconds to the left and 20N of force is applied to the right at the same time. What is the object’s new velocity?",
-			"difficulty": 20,
-			"layout": "a",						
+			"difficulty": 20,			
 			"questionURL": "images/question11_question.png",			
 			"correctResponse": "4 m/s toward the right.",
 			"incorrectResponses": [
@@ -465,8 +454,7 @@
 		},
 		{
 			"question": "At the start: An object is sitting still. It has a mass of 1 kg. There is no friction. 40N of force is applied for .1 seconds to the right. Five seconds later: The object starts moving to the right at 4 m/s. What would happen if 20N of force had been applied instead of 40N?",
-			"difficulty": 20,
-			"layout": "b",						
+			"difficulty": 20,			
 			"questionURL": "images/question12_question.png",			
 			"correctResponse": "It would move 2 m/s toward the right.",
 			"incorrectResponses": [
@@ -483,8 +471,7 @@
 		},
 		{
 			"question": "An object is sitting still. It has a mass of 1 kg. There is no friction or gravity. 40N of force is applied for .1 seconds to the right (fig 1). The object starts moving to the right at 4 m/s (fig 2). Which force(s) could you apply for .1 seconds to change the moving object's velocity to 0 m/s (fig 3)?",
-			"difficulty": 20,
-			"layout": "e",						
+			"difficulty": 20,			
 			"questionURL": "images/question21_question.png",			
 			"correctResponse": "",
 			"incorrectResponses": [
@@ -501,8 +488,7 @@
 		},
 		{
 			"question": "An object is sitting still. It has a mass of 1 kg. There is no friction or gravity. 20N of force is applied for .1 seconds to the right (fig 1). The object starts moving to the right at 2 m/s (fig 2). Which force(s) could you apply to the object at point X for .1 seconds to change the object's velocity to 2 m/s downward and 2 m/s to the right (fig 3)?",
-			"difficulty": 20,
-			"layout": "d",						
+			"difficulty": 20,			
 			"questionURL": "images/question22_question.png",			
 			"correctResponse": "",
 			"incorrectResponses": [
@@ -519,8 +505,7 @@
 		},
 		{
 			"question": "An object is sitting still. It has a mass of 1 kg. There is no friction or gravity. 40N of force is applied for .1 seconds to the right (fig 1). The object starts moving to the rigth at 4 m/s (fig 2). Imagine you can change the mass at the beginning. What mass object would travel 2 m/s if you applied the same 40 N force for .1 seconds (fig 3)?",
-			"difficulty": 20,
-			"layout": "c",						
+			"difficulty": 20,			
 			"questionURL": "images/question23_question.png",			
 			"correctResponse": "",
 			"incorrectResponses": [
@@ -634,7 +619,7 @@
 				"images/question29_answer1.png",
 				"images/question29_answer2.png",
 				"images/question29_answer3.png",
-				"images/question29_answer4.png"		
+				"images/question29_answer4.png"				
 			]
 		},
 		{

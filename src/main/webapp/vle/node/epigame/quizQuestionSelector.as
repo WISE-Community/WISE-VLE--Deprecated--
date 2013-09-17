@@ -35,7 +35,6 @@ switch(bucketIndex) {
 	nextQuestionIndex = randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk);
 	break;
 	default:
-	nextQuestionIndex = randomQuestionSelector(questionAsked,numQuestionsAsked,maxQuestionsToAsk);	
 	break;
 }
 
@@ -61,6 +60,7 @@ function findNextAvailableQuestion(playerRating:int,questionAsked:Array,question
 	}
 	else {
 		var leastEasierQuestion = -1;
+		
 		for(i=0;i<questionAsked.length;i++) {
 			if(!questionAsked[i] && playerRating > questionDifficulty[i] && (leastEasierQuestion < 0 || questionDifficulty[i] > questionDifficulty[leastEasierQuestion]) ) {
 				leastEasierQuestion = i;
