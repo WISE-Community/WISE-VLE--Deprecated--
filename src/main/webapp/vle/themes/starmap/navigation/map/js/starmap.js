@@ -80,19 +80,6 @@ function starmap() {
 				}
 			}
 
-			// create force layout of used nodes
-			var links = d3.layout.tree().links(fullNodes);
-			var force = d3.layout.force()
-				.nodes(fullNodes)
-				//.charge(-320)
-				.gravity(.2)
-				.friction(.55)
-				.size([width, height])
-				.start();
-
-			// build groups of nodes from project based on sequence membership
-			//var groups = d3.nest().key(function(d) { return d.group; }).entries(force.nodes().filter(function(d,i){ return d.type === 'sequence' ? null : this }));
-
 			// Select the svg, g elements, if they exists
 			var svg = d3.select(this).select("svg#chart");
 			g = d3.select("g#wrap");
@@ -113,6 +100,18 @@ function starmap() {
 					.attr('height', height)
 					.attr('id','mapBg')
 					.attr('fill', 'rgba(255,255,255,.05)');
+				
+				// create activity controls
+				map.append('<div id="activityControls">' +
+					'<div id="currentAct"><span class="pos"></div>' +
+					'<a id="prevAct" href="javascript:void(0);"></a>' +
+					'<a id="reset" href="javascript:void(0);"></a>' +
+					'<a id="nextAct" href="javascript:void(0);"></a>' +
+					'</div>');
+				
+				$('#reset').on('click', function(){
+					reset();
+				});
 			}
 
 			// Update the outer dimensions
@@ -138,32 +137,28 @@ function starmap() {
 			/*var groupPath = function(d) {
 				return "M" + d3.geom.hull(d.values.map(function(i) {return [i.x, i.y];})).join("L") + "Z";
 			};*/
-
-			var getIcon = function(d) {
-				var project = view.getProject(),
-					metadata = view.getProjectMetadata(),
-					node = project.getNodeById(d.identifier),
-					isValid = false,
-					nodeClass = '',
-					nodeIconPath = '';
-				if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
-					nodeClass = node.getNodeClass();
-					for(var a=0;a<view.nodeClasses[node.type].length;a++){
-						if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
-							isValid = true;
-							nodeIconPath = view.nodeClasses[node.type][a].icon;
-							break;
-						}
-					}
-				}
-
-				if(!isValid){
-					nodeClass = view.nodeClasses[node.type][0].nodeClass;
-					nodeIconPath = view.nodeClasses[node.type][0].icon;
-				}
-				return nodeIconPath;
-			};
-
+			
+			// remove any NaN values from node x and y positions
+			// TODO: figure out why we get NaN sometimes
+			var n = fullNodes.length - 1;
+			for (; n>-1; --n){
+				var node = fullNodes[n];
+				if(isNaN(node.x)) node.x = width/2;
+				if(isNaN(node.y)) node.y = htight/2;
+			}
+			
+			// setup force layout and add nodes
+			var force = d3.layout.force()
+				.nodes(fullNodes)
+				//.charge(-320)
+				.gravity(.2)
+				.friction(.55)
+				.size([width, height])
+				.start();
+			
+			// create force layout of used nodes
+			var links = d3.layout.tree().links(fullNodes);
+			
 			// add links between activities and steps to links array
 			projectFull.children.forEach(function(o,i) {
 				if(i<projectFull.children.length-1){
@@ -181,7 +176,7 @@ function starmap() {
 							var source = 0,
 								target = 0,
 								group = '';
-							force.nodes().forEach(function(u,x){
+							fullNodes.forEach(function(u,x){
 								if(o.children[a].identifier === u.identifier){
 									source = u.index;
 									group = u.group;
@@ -213,6 +208,31 @@ function starmap() {
 			function sDragStart(d,i) {
 				forceSeq.each(function(s) { s.fixed = true; }); // set all activities to fixed position
 				force.stop(); // stops the force auto positioning before you start dragging
+			}
+			
+			function getIcon(d) {
+				var project = view.getProject(),
+					metadata = view.getProjectMetadata(),
+					node = project.getNodeById(d.identifier),
+					isValid = false,
+					nodeClass = '',
+					nodeIconPath = '';
+				if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
+					nodeClass = node.getNodeClass();
+					for(var a=0;a<view.nodeClasses[node.type].length;a++){
+						if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
+							isValid = true;
+							nodeIconPath = view.nodeClasses[node.type][a].icon;
+							break;
+						}
+					}
+				}
+
+				if(!isValid){
+					nodeClass = view.nodeClasses[node.type][0].nodeClass;
+					nodeIconPath = view.nodeClasses[node.type][0].icon;
+				}
+				return nodeIconPath;
 			}
 
 			function sDragMove(elem,i) {
@@ -260,9 +280,9 @@ function starmap() {
 							//newTrans = (trans[0] + ((width - (width * k))/2)) + ',' + (trans[1] + ((height - (height * k))/2));
 						}
 						newTrans = (trans[0] + ((width - (width * k))/2)) + ',' + (trans[1] + ((height - (height * k))/2));
-						console.log("event translate: " + trans);
-						console.log("scale: " + scale);
-						console.log("new translate: " + newTrans);
+						//console.log("event translate: " + trans);
+						//console.log("scale: " + scale);
+						//console.log("new translate: " + newTrans);
 						g.attr("transform", "translate(" + newTrans + ")scale(" + k + ")");
 						zoomInit = false;
 					}
@@ -272,7 +292,7 @@ function starmap() {
 			function renderNode(d){
 				var nodePosition = view.getProject().getPositionById(d.identifier);
 				//go to the node position that was clicked if it is available
-				view.goToNodePosition(nodePosition);
+				view.eventManager.fire('navigationNodeClicked', nodePosition);
 			};
 
 			// Resolves collisions between node and all other nodes
@@ -359,7 +379,7 @@ function starmap() {
 								.classed('inactive',function(d){ return this.getAttribute('data-group') !== group; });
 	
 								d3.select('#mapBgImg').classed('zoom',true);
-								$('#activityControls').delay(500).fadeIn(750);
+								$('#activityControls').delay(600).slideDown(250);
 							}, 200);
 						});
 
@@ -691,12 +711,12 @@ function starmap() {
 
 				// constrain items to map bounds
 				g.selectAll("g.item").each(function(d) {
-					if(d.x === "NaN"){
+					/*if(isNaN(d.x)){
 						d.x = 0;
 					}
-					if(d.y === "NaN"){
+					if(isNaN(d.y)){
 						d.y = 0;
-					}
+					}*/
 					if(d.master){
 						d.x = Math.max(margin.left, Math.min(width - margin.left, d.x));
 						d.y = Math.max(margin.top, Math.min(height - margin.top, d.y)); 
@@ -707,16 +727,16 @@ function starmap() {
 				});
 
 				if(!loaded){
-					var masters = fullNodes.filter(function(d){ return d.master; }),
-						children = fullNodes.filter(function(d){ return !d.master; }),
+					var masters = force.nodes().filter(function(d){ return d.master; }),
+						children = force.nodes().filter(function(d){ return !d.master; }),
 						qm = d3.geom.quadtree(masters),
 						qc = d3.geom.quadtree(children),
 						i = 0,
-						n = fullNodes.length;
+						n = force.nodes().length;
 
 					while (++i < n) {
-						qm.visit(collide(fullNodes[i]));
-						qc.visit(collide(fullNodes[i]));
+						qm.visit(collide(force.nodes()[i]));
+						qc.visit(collide(force.nodes()[i]));
 					}
 				}
 
@@ -869,6 +889,25 @@ function starmap() {
 		return nodeAttributes;
 	}
 	
+	function reset(){
+		$('#activityControls').delay(250).slideUp(250);
+		d3.select('#mapBgImg').classed('zoom',false);
+		g.classed("zoom", false)
+			.transition()
+			.duration(750)
+			.delay(600)
+			.ease("cubic-out")
+			.attr("transform", "scale(1) translate(1)");
+
+		d3.selectAll('.item, .link, .target, .hull')
+			.classed('active',false);
+
+		d3.selectAll('.item, .link, .hull')
+			.classed('inactive',false);
+
+		zoomed = false;
+	}
+	
 	// public API functions and variables
 	chart.margin = function(_) {
 		if (!arguments.length) return margin;
@@ -931,23 +970,7 @@ function starmap() {
 	};
 
 	chart.reset = function() {
-		$('#activityControls').fadeOut(750);
-		d3.select('#mapBgImg').classed('zoom',false);
-		g.classed("zoom", false)
-			.transition()
-			.duration(750)
-			.delay(500)
-			.ease("cubic-out")
-			.attr("transform", "scale(1) translate(1)");
-
-		d3.selectAll('.item, .link, .target, .hull')
-			.classed('active',false);
-
-		d3.selectAll('.item, .link, .hull')
-			.classed('inactive',false);
-
-		zoomed = false;
-
+		reset();
 		return chart;
 	};
 
