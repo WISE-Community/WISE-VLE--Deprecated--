@@ -35,19 +35,26 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'planet-easy', nodeClassText:'Easy Planet', icon:'node/epigame/icons/planet-easy.png'},
-	{nodeClass:'planet-medium', nodeClassText:'Medium Planet', icon:'node/epigame/icons/planet-medium.png'},
-	{nodeClass:'planet-hard', nodeClassText:'Hard Planet', icon:'node/epigame/icons/planet-hard.png'},
-	{nodeClass:'planet-easy-bronze', nodeClassText:'Easy Planet Bronze', icon:'node/epigame/icons/planet-easy-bronze.png'},
-	{nodeClass:'planet-easy-silver', nodeClassText:'Easy Planet Silver', icon:'node/epigame/icons/planet-easy-silver.png'},
-	{nodeClass:'planet-easy-gold', nodeClassText:'Easy Planet Gold', icon:'node/epigame/icons/planet-easy-gold.png'},
-	{nodeClass:'planet-medium-bronze', nodeClassText:'Medium Planet Bronze', icon:'node/epigame/icons/planet-medium-bronze.png'},
-	{nodeClass:'planet-medium-silver', nodeClassText:'Medium Planet Silver', icon:'node/epigame/icons/planet-medium-silver.png'},
-	{nodeClass:'planet-medium-gold', nodeClassText:'Medium Planet Gold', icon:'node/epigame/icons/planet-medium-gold.png'},
-	{nodeClass:'planet-hard-bronze', nodeClassText:'Hard Planet Bronze', icon:'node/epigame/icons/planet-hard-bronze.png'},
-	{nodeClass:'planet-hard-silver', nodeClassText:'Hard Planet Silver', icon:'node/epigame/icons/planet-hard-silver.png'},
-	{nodeClass:'planet-hard-gold', nodeClassText:'Hard Planet Gold', icon:'node/epigame/icons/planet-hard-gold.png'},
-	{nodeClass:'planet-locked', nodeClassText:'Locked Planet', icon:'node/epigame/icons/planet-locked.png'}
+	{nodeClass:'mission-easy', nodeClassText:'Easy Mission', icon:'node/epigame/icons/planet-easy.png'},
+	{nodeClass:'mission-easy-bronze', nodeClassText:'Easy Mission (Bronze)', icon:'node/epigame/icons/planet-easy-bronze.png'},
+	{nodeClass:'mission-easy-silver', nodeClassText:'Easy Mission (Silver)', icon:'node/epigame/icons/planet-easy-silver.png'},
+	{nodeClass:'mission-easy-gold', nodeClassText:'Easy Mission (Gold)', icon:'node/epigame/icons/planet-easy-gold.png'},
+	{nodeClass:'mission-medium', nodeClassText:'Medium Mission', icon:'node/epigame/icons/planet-medium.png'},
+	{nodeClass:'mission-medium-bronze', nodeClassText:'Medium Mission (Bronze)', icon:'node/epigame/icons/planet-medium-bronze.png'},
+	{nodeClass:'mission-medium-silver', nodeClassText:'Medium Mission (Silver)', icon:'node/epigame/icons/planet-medium-silver.png'},
+	{nodeClass:'mission-medium-gold', nodeClassText:'Medium Mission (Gold)', icon:'node/epigame/icons/planet-medium-gold.png'},
+	{nodeClass:'mission-hard', nodeClassText:'Hard Mission', icon:'node/epigame/icons/planet-hard.png'},
+	{nodeClass:'mission-hard-bronze', nodeClassText:'Hard Mission (Bronze)', icon:'node/epigame/icons/planet-hard-bronze.png'},
+	{nodeClass:'mission-hard-silver', nodeClassText:'Hard Mission (Silver)', icon:'node/epigame/icons/planet-hard-silver.png'},
+	{nodeClass:'mission-hard-gold', nodeClassText:'Hard Mission (Gold)', icon:'node/epigame/icons/planet-hard-gold.png'},
+	{nodeClass:'mission-locked', nodeClassText:'Locked Mission', icon:'node/epigame/icons/planet-locked.png'},
+	{nodeClass:'warp-blue', nodeClassText:'Blue Warp Mission', icon:'node/epigame/icons/warp-blue.png'},
+	{nodeClass:'warp-green', nodeClassText:'Green Warp Mission', icon:'node/epigame/icons/warp-green.png'},
+	{nodeClass:'warp-red', nodeClassText:'Red Warp Mission', icon:'node/epigame/icons/warp-red.png'},
+	{nodeClass:'star-bronze', nodeClassText:'Bronze Star', icon:'node/epigame/icons/star-bronze.png'},
+	{nodeClass:'star-silver', nodeClassText:'Silver Star', icon:'node/epigame/icons/star-silver.png'},
+	{nodeClass:'star-gold', nodeClassText:'Gold Star', icon:'node/epigame/icons/star-gold.png'},
+	{nodeClass:'star-locked', nodeClassText:'Locked Star', icon:'node/epigame/icons/star-locked.png'}
 ];
 
 var nodeIconPath = 'node/epigame/icons/';
