@@ -219,14 +219,16 @@ MultipleChoiceNode.prototype.renderGradingView = function(displayStudentWorkDiv,
  * @param workgroupIdToWork the id of the workgroup to work mapping
  * @param dom dom to render the summary into
  * @param graphType bar|pie|barpie
+ * @param showAllPeriods whether we are showing student work from all periods or just
+ * a single period
  */
-MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork, dom, graphType) {
+MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork, dom, graphType, showAllPeriods) {
 	var view = this.view;
 	var nodeId = this.id;
 	if (dom == null) {
 		dom=$("#summaryContent");
 	}
-	this.displayStepGraph(nodeId,dom,workgroupIdToWork,graphType);
+	this.displayStepGraph(nodeId, dom, workgroupIdToWork, graphType, showAllPeriods);
 };
 
 /**
@@ -269,157 +271,231 @@ MultipleChoiceNode.prototype.isCompleted = function(nodeVisits) {
  * @param dom dom to render the summary into
  * @param workgroupIdToWork the id of the workgroup to work mapping
  * @param graphType bar|pie|barpie
+ * @param showAllPeriods whether we are showing student work from all periods or just
+ * a single period
  */
-MultipleChoiceNode.prototype.displayStepGraph = function(nodeId, dom, workgroupIdToWork, graphType) {
-	
-	if(workgroupIdToWork != null) {
-		//get the period
-		var periodId = this.view.userAndClassInfo.getPeriodId();
+MultipleChoiceNode.prototype.displayStepGraph = function(nodeId, dom, workgroupIdToWork, graphType, showAllPeriods) {
+	if(showAllPeriods) {
+		//we will show all the periods
 		
-		//get all the workgroup ids in this period
-		var workgroupIdsInPeriod = this.view.userAndClassInfo.getClassmateIdsByPeriodId(periodId);
+		//get all the users in the class as objects
+		var studentsInClass = this.view.getUserAndClassInfo().getUsersInClass();
 		
-		if(workgroupIdsInPeriod != null) {
-			//get the workgroup ids as an array
-			var workgroupIdsInPeriodSplit = workgroupIdsInPeriod.split(":");
+		//create the label for all periods
+		var allPeriodsLabel = "All Periods";
+		
+		//create the aggregrate graph for the whole class
+		this.createAggregateGraphForStudents(dom, studentsInClass, workgroupIdToWork, graphType, allPeriodsLabel);
+
+		//get the periods
+		var periods = this.view.getUserAndClassInfo().getPeriods();
+		
+		//loop through all the periods
+		for(var periodIndex=0; periodIndex<periods.length; periodIndex++) {
+			//get a period
+			var period = periods[periodIndex];
 			
-			if(workgroupIdsInPeriodSplit != null) {
+			if(period != null) {
+				//get the period id, period name and period label
+				var periodId = period.periodId;
+				var periodName = period.periodName;
+				var periodLabel = "Period " + periodName;
 				
-				//the object to store choice to count mappings
-				var choiceToCount = {};
+				//get all the students in the period
+				var studentsInPeriod = this.view.getUserAndClassInfo().getAllStudentsInPeriodId(periodId);
 				
-				//get this student's workgroup id
-				var workgroupId = this.view.userAndClassInfo.getWorkgroupId();
-				
-				/*
-				 * add this student's workgroup id to the array since the logged in student 
-				 * is not included in the returned array from getClassmateIdsByPeriodId()
-				 */
-				workgroupIdsInPeriodSplit.push(workgroupId);
-				
-				//loop through the workgroup ids
-				for(var x=0; x<workgroupIdsInPeriodSplit.length; x++) {
-					//get a workgroup id
-					var classmateWorkgroupId = workgroupIdsInPeriodSplit[x];
-					classmateWorkgroupId = parseInt(classmateWorkgroupId);
-					
-					//get the work for the workgroup id
-					var work = workgroupIdToWork[classmateWorkgroupId];
-					
-					if(work != null) {
-						//get the response
-						var response = work.response;
-						
-						if(response != null) {
-							if(response instanceof Array) {
-								/*
-								 * the response is stored in an array so we will extract
-								 * it from the array
-								 */
-								response = response[0];
-							}
-							
-							if(choiceToCount[response] == null) {
-								//initialize this choice to count mapping
-								choiceToCount[response] = 0;
-							}
-							
-							//increment the count for the choice
-							choiceToCount[response] += 1;
-						}
-					}
-				}
-				
-				//array used to hold the available choices
-				var mcChoices = [];
-				
-				//get the step content so we can gather the choices
-				var node = this.view.getProject().getNodeById(nodeId);
-				var stepContent = node.content.getContentJSON();
-
-				//loop through all the choices
-				for(var y=0; y<stepContent.assessmentItem.interaction.choices.length; y++){
-					//get the choice text
-					var mcChoiceText = stepContent.assessmentItem.interaction.choices[y].text;
-					
-					//add the choice text to our array of choices
-					mcChoices.push(mcChoiceText);
-				}
-				
-				//the array to contain the data rows
-				var dataRows = [];
-				
-				//loop through all the possible choices
-				for(var z=0; z<mcChoices.length; z++) {
-					//get the choice text
-					var choiceText = mcChoices[z];
-					
-					//get the count for the choice
-					var count = choiceToCount[choiceText];
-					
-					if(count == null) {
-						count = 0;
-					}
-					
-					//parse int in case count is a string
-					count = parseInt(count);
-
-					/*
-					 * create an array that contains the choice and the count
-					 * because google expects it in this format
-					 */
-					var row = [choiceText, count];
-					
-					//add the row to the array of rows
-					dataRows.push(row);
-				}
-				
-				//create the google data object that will be used to graph the data
-				var data = new google.visualization.DataTable();
-				
-				//add the two columns
-				data.addColumn('string', 'Choice');
-		        data.addColumn('number', 'Count');
-		        
-		        //add the rows
-		        data.addRows(dataRows);
-		        
-		        //create the chart div where we will render the graph
-		        var chartDivId = 'chartDiv';
-		        var chartDiv = $("<div id='" + chartDivId + "'></div>");
-		        
-		        //add the chart div to the dom element
-		        dom.append(chartDiv);
-		        
-		        //get the chart div as an element
-		        var chartDivElement = chartDiv.get(0);
-		        
-		        var chart = null;
-		        
-		        //create the chart
-		        if(graphType == null) {
-		        	//default to a vertical bar graph
-		        	chart = new google.visualization.ColumnChart(chartDivElement);
-		        } else if(graphType == 'bar') {
-		        	//create a vertical bar graph
-		        	chart = new google.visualization.ColumnChart(chartDivElement);
-		        } else if(graphType == 'pie') {
-		        	//create a pie chart
-		        	chart = new google.visualization.PieChart(chartDivElement);
-		        }
-		        
-		        if(chart != null) {
-			        //draw the chart
-			        chart.draw(data);		        	
-		        }
-		        
-		        //make the dom element visible
-		        $(dom).show();
+				//create the aggregate graph for the period
+				this.createAggregateGraphForStudents(dom, studentsInPeriod, workgroupIdToWork, graphType, periodLabel);
 			}
 		}
+	} else {
+		//we will show a single period
+		
+		//get the period id
+		var periodId = this.view.getUserAndClassInfo().getPeriodId();
+		
+		//get the classmates in the period
+		var classmatesInPeriod = this.view.getUserAndClassInfo().getAllStudentsInPeriodId(periodId);
+		
+		//create the aggregate graph for the period
+		this.createAggregateGraphForStudents(dom, classmatesInPeriod, workgroupIdToWork, graphType);
 	}
 };
 
+/**
+ * Create the aggregate graph for a period
+ * @param dom dom to render the summary into
+ * @param students an array of students to include in the aggregate
+ * @param workgroupIdToWork the id of the workgroup to work mapping
+ * @param graphType the graph type to render (bar or pie)
+ * @param periodLabel (optional) the period label to display above the graph
+ */
+MultipleChoiceNode.prototype.createAggregateGraphForStudents = function(dom, students, workgroupIdToWork, graphType, periodLabel) {
+	//the array to accumulate the work for the period
+	var workForPeriod = [];
+	
+	if(students != null && workgroupIdToWork != null) {
+		//loop through all the students in the period
+		for(var c=0; c<students.length; c++) {
+			//get a student
+			var student = students[c];
+			
+			//get the student workgroup id and user name
+			var workgroupId = student.workgroupId;
+
+			//get the work for the student for this step
+			var work = workgroupIdToWork[workgroupId];
+			
+			if(work != null) {
+				//add the work to the array
+				workForPeriod.push(work);						
+			}
+		}
+	}
+	
+	//create the aggregate graph for the period
+	this.createAggregateGraph(dom, workForPeriod, graphType, periodLabel);
+};
+
+/**
+ * Create the aggregate graph by accumulating the data and then displaying it
+ * @param dom the dom element to display the graph in
+ * @param workArray the array of student work to display in the graph
+ * @param graphType the graph type (bar or pie)
+ * @param periodLabel (optional) the period label to display above the graph
+ */
+MultipleChoiceNode.prototype.createAggregateGraph = function(dom, workArray, graphType, periodLabel) {
+	//the object to store choice to count mappings
+	var choiceToCount = {};
+	
+	for(var x=0; x<workArray.length; x++) {
+		var work = workArray[x];
+		
+		if(work != null) {
+			//get the response
+			var response = work.response;
+			
+			if(response != null) {
+				if(response instanceof Array) {
+					/*
+					 * the response is stored in an array so we will extract
+					 * it from the array
+					 */
+					response = response[0];
+				}
+				
+				if(choiceToCount[response] == null) {
+					//initialize this choice to count mapping
+					choiceToCount[response] = 0;
+				}
+				
+				//increment the count for the choice
+				choiceToCount[response] += 1;
+			}
+		}
+	}
+	
+	//array used to hold the available choices
+	var mcChoices = [];
+	
+	//get the step content so we can gather the choices
+	var node = this.view.getProject().getNodeById(this.id);
+	var stepContent = node.content.getContentJSON();
+
+	//loop through all the choices
+	for(var y=0; y<stepContent.assessmentItem.interaction.choices.length; y++){
+		//get the choice text
+		var mcChoiceText = stepContent.assessmentItem.interaction.choices[y].text;
+		
+		//add the choice text to our array of choices
+		mcChoices.push(mcChoiceText);
+	}
+	
+	//the array to contain the data rows
+	var dataRows = [];
+	
+	//loop through all the possible choices
+	for(var z=0; z<mcChoices.length; z++) {
+		//get the choice text
+		var choiceText = mcChoices[z];
+		
+		//get the count for the choice
+		var count = choiceToCount[choiceText];
+		
+		if(count == null) {
+			count = 0;
+		}
+		
+		//parse int in case count is a string
+		count = parseInt(count);
+
+		/*
+		 * create an array that contains the choice and the count
+		 * because google expects it in this format
+		 */
+		var row = [choiceText, count];
+		
+		//add the row to the array of rows
+		dataRows.push(row);
+	}
+	
+	//create the google data object that will be used to graph the data
+	var data = new google.visualization.DataTable();
+	
+	//add the two columns
+	data.addColumn('string', 'Choice');
+    data.addColumn('number', 'Count');
+    
+    //add the rows
+    data.addRows(dataRows);
+    
+    //create a div to contain the period label and graph
+    var aggregateContainerDiv = $("<div id='aggregateContainerDiv_" + x + "'></div>");
+    
+    //surround the container div with a border
+	aggregateContainerDiv.css('border-style', 'solid');
+	aggregateContainerDiv.css('border-width', '1px');
+    
+	if(periodLabel != null) {
+		//append the period label
+		aggregateContainerDiv.append("<p>" + periodLabel + "</p>");
+	}
+	
+	//add the container div to the dom
+	dom.append(aggregateContainerDiv);
+	
+    //create the chart div where we will render the graph
+    var chartDivId = 'chartDiv';
+    var chartDiv = $("<div id='" + chartDivId + "'></div>");
+    
+    //add the chart div to the container div
+    aggregateContainerDiv.append(chartDiv);
+    
+    //get the chart div as an element
+    var chartDivElement = chartDiv.get(0);
+    
+    var chart = null;
+    
+    //create the chart
+    if(graphType == null) {
+    	//default to a vertical bar graph
+    	chart = new google.visualization.ColumnChart(chartDivElement);
+    } else if(graphType == 'bar') {
+    	//create a vertical bar graph
+    	chart = new google.visualization.ColumnChart(chartDivElement);
+    } else if(graphType == 'pie') {
+    	//create a pie chart
+    	chart = new google.visualization.PieChart(chartDivElement);
+    }
+    
+    if(chart != null) {
+        //draw the chart
+        chart.draw(data);		        	
+    }
+    
+    //make the dom element visible
+    $(dom).show();
+};
 
 /**
  * Returns the criteria value for this node based on student response.
