@@ -641,9 +641,9 @@ IdeaBasket.prototype.add = function(text,source,tags,flag) {
 		//we are adding an idea from the idea basket popup
 		
 		//get the values for the current step
-		var nodeId = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().id;
-		var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
-		nodeName = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().getTitle();
+		var nodeId = this.view.getCurrentNode().id;
+		var vlePosition = this.view.getProject().getVLEPositionById(nodeId);
+		nodeName = this.view.getCurrentNode().getTitle();
 		nodeName = vlePosition + ": " + nodeName;
 	} else {
 		//we are adding an idea from an idea basket step so we have access to this
@@ -679,9 +679,9 @@ IdeaBasket.prototype.addV2 = function(text,attributes) {
 		//we are adding an idea from the idea basket popup
 		
 		//get the values for the current step
-		var nodeId = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().id;
-		var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
-		nodeName = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().getTitle();
+		var nodeId = this.view.getCurrentNode().id;
+		var vlePosition = this.view.getProject().getVLEPositionById(nodeId);
+		nodeName = this.view.getCurrentNode().getTitle();
 		nodeName = vlePosition + ": " + nodeName;
 	} else {
 		//we are adding an idea from an idea basket step so we have access to this

@@ -332,7 +332,7 @@ ExplanationBuilder.prototype.initializeUI = function() {
 		
 		// insert text input and label for add and edit idea dialogs
 		var ideaText = $(document.createElement('div')).addClass('text'),
-			ideaTextLabel = view.getI18NStringWithParams('addIdea_textLabel', [this.ideaTerm],'ExplanationBuilderNode');
+			ideaTextLabel = view.getI18NStringWithParams('addIdea_textLabel', [this.ideaTerm], 'ExplanationBuilderNode');
 		ideaText.append('<div><label for="text">' + ideaTextLabel + '</label></div>');
 		ideaText.append('<div><textarea id="text" name="text" rows="2" class="required" minlength="2" maxlength="150"></textarea></div>');
 		ideaDialog.append(ideaText);
@@ -389,7 +389,7 @@ ExplanationBuilder.prototype.initializeUI = function() {
 		});
 	}
 	
-	var title = view.getI18NStringWithParams("addIdea_title", [view.utils.capitalize(this.ideaTerm),'ExplanationBuilderNode']);
+	var title = view.getI18NStringWithParams("addIdea_title", [view.utils.capitalize(this.ideaTerm)], 'ExplanationBuilderNode');
 	$('#ideaDialog').dialog({title:title, autoOpen:false, modal:true, resizable:false, width:'470', 
 		buttons:[
 			 {
