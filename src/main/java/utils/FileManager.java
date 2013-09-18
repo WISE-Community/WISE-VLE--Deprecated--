@@ -1481,11 +1481,11 @@ public class FileManager extends HttpServlet implements Servlet{
 				
 				if(fromNode != null) {
 					//get the attributes of the node in the "from" project
-					String type = fromNode.getString("type");
+					String type = fromNode.optString("type");
 					String id = nodeId;
-					String title = fromNode.getString("title");
-					String nodeClass = fromNode.getString("class");
-					String fileName = fromNode.getString("ref");
+					String title = fromNode.optString("title");
+					String nodeClass = fromNode.optString("class");
+					String fileName = fromNode.optString("ref");
 					
 					//make sure the file exists in the fromProjectFolder
 					File fileToImport = new File(fromProjectFolder, fileName);
