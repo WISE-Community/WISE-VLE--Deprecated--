@@ -1668,7 +1668,7 @@ View.prototype.onProjectLoaded = function(){
 			document.getElementById('numberStepSelect').options[0].selected = true;
 		};
 	
-		if(this.getProject() && this.getProject().getStepTerm()){
+		if(this.getProject() && typeof this.getProject().getStepTerm() === 'string'){
 			document.getElementById('stepTerm').value = this.getProject().getStepTerm();
 		} else {
 			var stepTerm = this.getI18NString('stepTerm');
@@ -1677,17 +1677,17 @@ View.prototype.onProjectLoaded = function(){
 			this.notificationManager.notify('stepTerm not set in project, setting default value: \"' + stepTerm + '\"', 2);
 		};
 		
-		if(this.getProject() && this.getProject().getStepTermPlural()){
+		if(this.getProject() && typeof this.getProject().getStepTermPlural() === 'string'){
 			document.getElementById('stepTermPlural').value = this.getProject().getStepTermPlural();
 		} else {
 			var stepTermPlural = this.getI18NString('stepTermPlural');
 			document.getElementById('stepTermPlural').value = stepTermPlural;
-			this.getProject().setStepTermPlural(stemTermPlural);
+			this.getProject().setStepTermPlural(stepTermPlural);
 			this.notificationManager.notify('stepTermPlural not set in project, setting default value: \"' + stepTermPlural + '\"', 2);
 		};
 		
 		// TODO: enable input when supported by authoring tool
-		if(this.getProject() && this.getProject().getActivityTerm()){
+		if(this.getProject() && typeof this.getProject().getActivityTerm() === 'string'){
 			//document.getElementById('activityTerm').value = this.getProject().getActivityTerm();
 		} else {
 			var activityTerm = this.getI18NString('activityTerm');
@@ -1700,7 +1700,7 @@ View.prototype.onProjectLoaded = function(){
 		if(this.getProject() && this.getProject().getActivityTermPlural()){
 			//document.getElementById('activityTermPlural').value = this.getProject().getActivityTermPlural();
 		} else {
-			var activityTermPlural = this.getI18NString('activityTermPlural');
+			var activityTermPlural = typeof this.getI18NString('activityTermPlural') === 'string';
 			//document.getElementById('activityTermPlural').value = activityTermPlural;
 			this.getProject().setActivityTermPlural('');
 			//this.notificationManager.notify('activityTermPlural not set in project, setting default value: \"' + activityTermPlural + '\"', 2);
