@@ -497,10 +497,16 @@ View.prototype.nodeIconUpdated = function(id){
 
 /**
  * Updates the project's stepTerm value
+ * 
+ * @param plural Boolean whether to update the singular or plural step term
  */
-View.prototype.stepTermChanged = function(){
+View.prototype.stepTermChanged = function(plural){
 	if(this.getProject()){
-		this.getProject().setStepTerm(document.getElementById('stepTerm').value);
+		if(plural){
+			this.getProject().setStepTermPlural(document.getElementById('stepTermPlural').value);
+		} else {
+			this.getProject().setStepTerm(document.getElementById('stepTerm').value);
+		}
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
@@ -1667,8 +1673,37 @@ View.prototype.onProjectLoaded = function(){
 		} else {
 			var stepTerm = this.getI18NString('stepTerm');
 			document.getElementById('stepTerm').value = stepTerm;
-			this.getProject().setStepTerm('');
+			this.getProject().setStepTerm(stepTerm);
 			this.notificationManager.notify('stepTerm not set in project, setting default value: \"' + stepTerm + '\"', 2);
+		};
+		
+		if(this.getProject() && this.getProject().getStepTermPlural()){
+			document.getElementById('stepTermPlural').value = this.getProject().getStepTermPlural();
+		} else {
+			var stepTermPlural = this.getI18NString('stepTermPlural');
+			document.getElementById('stepTermPlural').value = stepTermPlural;
+			this.getProject().setStepTermPlural(stemTermPlural);
+			this.notificationManager.notify('stepTermPlural not set in project, setting default value: \"' + stepTermPlural + '\"', 2);
+		};
+		
+		// TODO: enable input when supported by authoring tool
+		if(this.getProject() && this.getProject().getActivityTerm()){
+			//document.getElementById('activityTerm').value = this.getProject().getActivityTerm();
+		} else {
+			var activityTerm = this.getI18NString('activityTerm');
+			//document.getElementById('activityTerm').value = activityTerm;
+			this.getProject().setActivityTerm('');
+			//this.notificationManager.notify('activityTerm not set in project, setting default value: \"' + activityTerm + '\"', 2);
+		};
+		
+		// TODO: enable input when supported by authoring tool
+		if(this.getProject() && this.getProject().getActivityTermPlural()){
+			//document.getElementById('activityTermPlural').value = this.getProject().getActivityTermPlural();
+		} else {
+			var activityTermPlural = this.getI18NString('activityTermPlural');
+			//document.getElementById('activityTermPlural').value = activityTermPlural;
+			this.getProject().setActivityTermPlural('');
+			//this.notificationManager.notify('activityTermPlural not set in project, setting default value: \"' + activityTermPlural + '\"', 2);
 		};
 	
 		document.getElementById('postLevelSelect').selectedIndex = 0;

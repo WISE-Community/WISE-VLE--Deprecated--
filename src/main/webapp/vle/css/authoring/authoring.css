@@ -215,7 +215,7 @@ body#w4_author {
 	margin-left:.5em;
 }
 
-#stepTerm {
+#stepTerm, #stepTermPlural {
 	font-weight:normal !important;
 	margin-right:0 !important;
 }

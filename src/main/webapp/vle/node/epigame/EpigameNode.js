@@ -472,7 +472,7 @@ EpigameNode.prototype.navHelper = function() {
 			var project = env.getProject();
 			return {
 				root: interpretNode(project.getRootNode()),
-				stepTerm: project.getStepTerm(),
+				stepTerm: view.getStepTerm(),
 				title: project.getTitle()
 			};
 		},

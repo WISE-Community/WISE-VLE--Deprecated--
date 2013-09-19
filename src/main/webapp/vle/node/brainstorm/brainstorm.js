@@ -14,7 +14,7 @@ function BRAINSTORM(node){
 	this.recentResponses = new Array();
 	this.subscribed = false;
 	var project = this.view.getProject();
-	this.stepTerm = project.getStepTerm() ? project.getStepTerm() : this.view.getI18NString('stepTerm');
+	this.stepTerm = this.view.getStepTerm();
 
 	if(node.studentWork != null) {
 		this.states = node.studentWork; 

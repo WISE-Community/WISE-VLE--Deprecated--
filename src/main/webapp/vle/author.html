@@ -233,6 +233,11 @@ var view;
 			<input type='text' name='stepTerm' title='Click to Edit Step Term' id='stepTerm' onchange='eventManager.fire("stepTermChanged")' size='8'/>
 			<a id='editStepTerm' onclick='$("#stepTerm").focus();' title='Edit Step Term'>Edit</a>
 		</div>
+		<div class="authorOption">
+			Step Term (Plural):
+			<input type='text' name='stepTermPlural' title='Click to Edit Step Term Plural form' id='stepTerm' onchange='eventManager.fire("stepTermPluralChanged")' size='8'/>
+			<a id='editStepTermPlural' onclick='$("#stepTermPlural").focus();' title='Edit Step Term Plural'>Edit</a>
+		</div>
 		<div class='authorOption' id="postLevelOption">Logging Level:
 			<select id='postLevelSelect' onchange='eventManager.fire("postLevelChanged")'>
 				<option value='5'>High (All Steps)</option>
