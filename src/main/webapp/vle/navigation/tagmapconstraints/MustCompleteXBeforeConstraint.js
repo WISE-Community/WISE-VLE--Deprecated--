@@ -202,9 +202,9 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					nodeType = this.view.getI18NString("activityTerm", "main");
+					nodeType = this.view.getActivityTerm();
 				} else {
-					nodeType = this.view.getI18NString("stepTerm", "main");
+					nodeType = this.view.getStepTerm();
 				}
 				
 				stepsNumberAndTitlesFailed += nodeType + ' ' + stepNumberAndTitle;

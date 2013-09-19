@@ -1,24 +1,27 @@
 /* Modular Project Object */
 function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectContent){
 	return function(content, cbu, ll, view, totalProjectContent){
-		var content = content;
-		var contentBaseUrl = cbu;
-		var lazyLoading = ll;
-		var allLeafNodes = [];
-		var allSequenceNodes = [];
-		var autoStep;
-		var stepLevelNumbering;
-		var title;
-		var stepTerm;
-		var rootNode;
-		var view = view;
-		var copyIds = [];
-		var loggingLevel = 5; //default to log everything
-		var postLevel = 5; //default to post all steps
-		var totalProjectContent = totalProjectContent;
-		var constraints = [];
-		var usedNodeTypes = [];
-		var globalTagMaps = [];
+		var content = content,
+			contentBaseUrl = cbu,
+			lazyLoading = ll,
+			allLeafNodes = [],
+			allSequenceNodes = [],
+			autoStep,
+			stepLevelNumbering,
+			title,
+			stepTerm,
+			stepTermPlural,
+			activityTerm,
+			activityTermPlural,
+			rootNode,
+			view = view,
+			copyIds = [],
+			loggingLevel = 5, //default to log everything
+			postLevel = 5, //default to post all steps
+			totalProjectContent = totalProjectContent,
+			constraints = []
+			usedNodeTypes = []
+			globalTagMaps = [];
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/
@@ -1139,6 +1142,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					autoStep: autoStep,
 					stepLevelNum: stepLevelNumbering,
 					stepTerm: stepTerm,
+					stepTermPlural: stepTermPlural,
+					activityTerm: activityTerm,
+					activityTermPlural: activityTermPlural,
 					title: title,
 					constraints: constraints,
 					nodes: [],
@@ -2414,6 +2420,15 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* set step term */
 			stepTerm = project.stepTerm;
 			
+			/* set step term plural */
+			stepTermPlural = project.stepTermPlural;
+			
+			/* set activity term */
+			activityTerm = project.activityTerm;
+			
+			/* set activity term plural */
+			activityTermPlural = project.activityTermPlural;
+			
 			/* set title */
 			title = project.title;
 			
@@ -2460,6 +2475,18 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			getStepTerm:function(){return stepTerm;},
 			/* sets the step term to be used when displaying nodes in this project */
 			setStepTerm:function(term){stepTerm = term;},
+			/* returns the step term plural to be used when displaying nodes in the navigation for this project */
+			getStepTermPlural:function(){return stepTermPlural;},
+			/* sets the step term plural to be used when displaying nodes in this project */
+			setStepTermPlural:function(term){stepTermPlural = term;},
+			/* returns the activity term to be used when displaying activities in the navigation for this project */
+			getActivityTerm:function(){return activityTerm;},
+			/* sets the activity term to be used when displaying activities in this project */
+			setActivityTerm:function(term){activityTerm = term;},
+			/* returns the activity term plural to be used when displaying activities in the navigation for this project */
+			getActivityTermPlural:function(){return activityTermPlural;},
+			/* sets the activity term plural to be used when displaying activities in this project */
+			setActivityTermPlural:function(term){activityTermPlural = term;},
 			/* returns the title of this project */
 			getTitle:function(){return title;},
 			/* sets the title of this project */
