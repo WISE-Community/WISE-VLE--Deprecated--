@@ -534,6 +534,11 @@ View.prototype.OpenResponseNode.populateCRater = function() {
 			$('#cRaterDisplayFeedbackToStudent').attr('checked', this.content.cRater.displayCRaterFeedbackToStudent);
 		}
 		
+		if(this.content.cRater.mustSubmitAndReviseBeforeExit != null) {
+			//populate the must submit and revise before exit checkbox
+			$('#cRaterMustSubmitAndReviseBeforeExit').attr('checked', this.content.cRater.mustSubmitAndReviseBeforeExit);
+		}
+		
 		if(this.content.cRater.maxCheckAnswers != null) {
 			//populate the max check answers text input
 			$('#cRaterMaxCheckAnswers').val(this.content.cRater.maxCheckAnswers);
@@ -700,6 +705,27 @@ View.prototype.OpenResponseNode.updateCRaterDisplayFeedbackToStudent = function(
 	
 	//update the value in the content
 	this.content.cRater.displayCRaterFeedbackToStudent = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the must submit and revise before exit value
+ */
+View.prototype.OpenResponseNode.updateCRaterMustSubmitAndReviseBeforeExit = function() {
+	var value = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#cRaterMustSubmitAndReviseBeforeExit').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.cRater.mustSubmitAndReviseBeforeExit = value;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
@@ -1117,6 +1143,7 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 				$('#cRaterItemIdStatus').html('');
 				$('#cRaterDisplayScoreToStudent').attr('checked', false);
 				$('#cRaterDisplayFeedbackToStudent').attr('checked', false);
+				$('#cRaterMustSubmitAndReviseBeforeExit').attr('checked', false);
 				$('#cRaterMaxCheckAnswers').val('');
 				$('#cRaterFeedback').html('');
 				

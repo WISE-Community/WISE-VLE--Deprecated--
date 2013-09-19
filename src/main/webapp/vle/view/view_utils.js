@@ -1883,6 +1883,33 @@ View.prototype.getLatestNodeStateWithWorkFromNodeVisits = function(nodeVisits) {
 };
 
 /**
+ * Get all the node states from the node visits
+ * @param nodeVisits the node visits to get the node states from
+ * @return a flat array containing all the node states
+ */
+View.prototype.getNodeStatesFromNodeVisits = function(nodeVisits) {
+	var nodeStates = [];
+	
+	if(nodeVisits != null) {
+		//loop through all the node visits
+		for(var x=0; x<nodeVisits.length; x++) {
+			//get a node visit
+			var nodeVisit = nodeVisits[x];
+			
+			if(nodeVisit != null) {
+				//get the node states
+				var tempNodeStates = nodeVisit.nodeStates;
+				
+				//add the node states to our array of node states
+				nodeStates = nodeStates.concat(tempNodeStates);
+			}
+		}
+	}
+	
+	return nodeStates;
+};
+
+/**
  * Get the icon path given the node type and node class
  * 
  * @param nodeType the node type
