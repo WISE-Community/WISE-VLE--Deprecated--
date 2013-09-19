@@ -908,7 +908,7 @@
 		"description":"The message shown to students telling them to complete work on a previous step before working on the current step"
 	},
 	"constraint_must_complete_these_before": {
-		"value":"You must complete the following before you can work on this step:",
+		"value":"You must complete the following before you can work on this {0}:",
 		"description":"The message shown to students telling them to complete work on multiple steps before working on the current step"
 	},
 	"constraint_must_visit_x_before": {

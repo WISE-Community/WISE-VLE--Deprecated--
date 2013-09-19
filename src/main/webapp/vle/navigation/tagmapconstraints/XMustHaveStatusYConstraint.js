@@ -253,7 +253,7 @@ XMustHaveStatusYConstraint.prototype.getConstraintMessage = function(nodesFailed
 			
 			if(statusType == 'isCompleted' && statusValue == 'true') {
 				//the constraint requires a step to be completed so we will display a more informative message
-				message = this.view.getI18NString("constraint_must_complete_these_before", "main");
+				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [this.view.getStepTerm()], "main");
 				message += "\n\n" + fullNodeNamesFailed;
 			} else {
 				//use a generic message to handle all other constraints
@@ -264,7 +264,7 @@ XMustHaveStatusYConstraint.prototype.getConstraintMessage = function(nodesFailed
 			
 			if(statusType == 'isCompleted' && statusValue == 'true') {
 				//the constraint requires steps to be completed so we will display a more informative message
-				message = this.view.getI18NString("constraint_must_complete_these_before", "main");
+				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [this.viewgetStepTerm()], "main");
 				message += "\n\n" + fullNodeNamesFailed;
 			} else {
 				//use a generic message to handle all other constraints
