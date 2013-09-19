@@ -529,15 +529,68 @@ OpenResponseNode.prototype.isCompleted = function(nodeVisits) {
 	var result = false;
 	
 	if(nodeVisits != null) {
-		//get the latest node state for this step
-		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+		//get the step content
+		var content = this.content.getContentJSON();
 		
-		if(nodeState != null && nodeState != '') {
-			if(nodeState.response != null && nodeState.response != '') {
-				//the student has completed this step
+		var mustSubmitAndReviseBeforeExit = false;
+		
+		if(content != null) {
+			if(content.cRater != null) {
+				if(content.cRater.mustSubmitAndReviseBeforeExit) {
+					//the student must submit and then revise their work in order to complete the step
+					mustSubmitAndReviseBeforeExit = true;
+				}
+			}
+		}
+		
+		if(mustSubmitAndReviseBeforeExit) {
+			//the student must submit and then revise their work in order to complete the step
+			
+			//get all the student node states
+			var nodeStates = this.view.getNodeStatesFromNodeVisits(nodeVisits);
+			var foundSubmit = false;
+			var foundRevision = false;
+			
+			//loop through all the node states
+			for(var x=0; x<nodeStates.length; x++) {
+				//get a node state
+				var nodeState = nodeStates[x];
+				
+				if(nodeState != null) {
+					if(!foundSubmit) {
+						//we have not found a submit node state yet
+						
+						//check if this node state was a submit
+						var isCRaterSubmit = nodeState.isCRaterSubmit;
+						
+						if(isCRaterSubmit) {
+							//the node state was a submit so we have now found a submit
+							foundSubmit = true;
+						}
+					} else {
+						//we have previously found a submit node state so we are now looking for a revision
+						
+						//any node state is considered a revision so we have found a revision
+						foundRevision = true;
+					}
+				}
+			}
+			
+			if(foundSubmit && foundRevision) {
+				//we have found a submit and a revision after it
 				result = true;
 			}
-		}		
+		} else {
+			//get the latest node state for this step
+			var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+			
+			if(nodeState != null && nodeState != '') {
+				if(nodeState.response != null && nodeState.response != '') {
+					//the student has completed this step
+					result = true;
+				}
+			}	
+		}
 	}
 	
 	return result;
