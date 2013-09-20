@@ -1980,17 +1980,29 @@ View.prototype.getHighestSequenceNumberInHierarchy = function(nodeId) {
  * Checks whether a valid step term has been set for current project. If it has,
  * returns it; if not, returns the default term.
  * 
- * @param plural Boolean whether or not to retrieve the plural form of the step
- * term (optional; default is singular form)
- * 
  */
-View.prototype.getStepTerm = function(plural){
+View.prototype.getStepTerm = function(){
 	var project = this.getProject(),
-		stepTerm = plural ? project.getStepTermPlural() : project.getStepTerm();
+		stepTerm = project.getStepTerm();
 	if(stepTerm && this.utils.isNonWSString(stepTerm)){
 		return stepTerm;
 	} else {
-		return plural ? this.getI18NString('stepTermPlural') : this.getI18NString('stepTerm');
+		return this.getI18NString('stepTerm');
+	}
+};
+
+/**
+ * Checks whether a valid plural step term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ */
+View.prototype.getStepTermPlural = function(){
+	var project = this.getProject(),
+		stepTerm = project.getStepTermPlural();
+	if(stepTerm && this.utils.isNonWSString(stepTerm)){
+		return stepTerm;
+	} else {
+		return this.getI18NString('stepTermPlural');
 	}
 };
 
@@ -1998,17 +2010,29 @@ View.prototype.getStepTerm = function(plural){
  * Checks whether a valid activity term has been set for current project. If it has,
  * returns it; if not, returns the default term.
  * 
- * @param plural Boolean whether or not to retrieve the plural form of the activity
- * term (optional; default is singular form)
- * 
  */
-View.prototype.getActivityTerm = function(plural){
+View.prototype.getActivityTerm = function(){
 	var project = this.getProject(),
-		activityTerm = plural ? project.getActivityTermPlural() : project.getActivityTerm();
+		activityTerm = project.getActivityTerm();
 	if(activityTerm && this.utils.isNonWSString(activityTerm)){
 		return activityTerm;
 	} else {
-		return plural ? this.getI18NString('activityTermPlural') : this.getI18NString('activityTerm');
+		return this.getI18NString('activityTerm');
+	}
+};
+
+/**
+ * Checks whether a valid plural activity term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ */
+View.prototype.getActivityTermPlural = function(){
+	var project = this.getProject(),
+		activityTerm = project.getActivityTermPlural();
+	if(activityTerm && this.utils.isNonWSString(activityTerm)){
+		return activityTerm;
+	} else {
+		return this.getI18NString('activityTermPlural');
 	}
 };
 

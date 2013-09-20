@@ -595,10 +595,6 @@
         "value": "Actividad",
         "description": "Default term for an 'activity' in a WISE project"
     },
-    "all_steps": {
-        "value": "todos los pasos",
-        "description": "The text for 'all steps' in a WISE project"
-    },
     "ideaBasket_clickToSort": {
         "value": "Clic para ordenar",
         "description": "Title/tooltip for sortable rows in a table"
@@ -899,6 +895,10 @@
         "value": "Deben completar {0} antes de trabajar en este paso",
         "description": "The message shown to students telling them to complete work on a previous step before working on the current step"
     },
+    "constraint_all_steps":{
+		"value":"todos los {0}",
+		"description":"Text for the phrase 'All Steps', as in 'Activity 1: Getting Started (All Steps)'"
+	},
     "constraint_must_complete_these_before": {
         "value": "Deben completar esto antes de trabajar en este paso",
         "description": "The message shown to students telling them to complete work on multiple steps before working on the current step"
