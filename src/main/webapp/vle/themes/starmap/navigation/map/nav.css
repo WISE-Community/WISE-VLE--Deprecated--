@@ -184,7 +184,7 @@ svg#chart {
 }
 
 #wrap.zoom {
-	cursor: move;
+	/*cursor: move;*/
 }
 
 #mapBgImg {
@@ -330,7 +330,7 @@ svg#chart {
 	cursor:pointer;
 }
 
-.seq text {
+.seq text, .node text {
 	opacity:1;
 	font-size:10pt;
 	font-weight:200;
@@ -340,7 +340,7 @@ svg#chart {
 	stroke-width:0;
 }
 
-.seq .seqInfo {
+.seq .seqInfo, .node .nodeInfo {
 	opacity:0;
 	pointer-events: none;
 }
@@ -348,7 +348,7 @@ svg#chart {
 .seq .title.seqInfo, .seq .titleBg.seqInfo {
 }
 
-.seq tspan.pos {
+.seq tspan.pos, .node tspan.pos {
 	fill: #d1ffef;
 }
 

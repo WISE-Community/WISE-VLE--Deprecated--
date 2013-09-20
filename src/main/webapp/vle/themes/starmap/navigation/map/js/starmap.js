@@ -91,7 +91,7 @@ function starmap() {
 
 				// zoom layer
 				svg.append('svg:g')
-					.call(d3.behavior.zoom().on("zoom", pan))
+					//.call(d3.behavior.zoom().on("zoom", pan)) // disable pan for now
 					.append('svg:g')
 					.attr('id', 'wrap');
 				g = d3.select('g#wrap');
@@ -137,15 +137,6 @@ function starmap() {
 			/*var groupPath = function(d) {
 				return "M" + d3.geom.hull(d.values.map(function(i) {return [i.x, i.y];})).join("L") + "Z";
 			};*/
-			
-			// remove any NaN values from node x and y positions
-			// TODO: figure out why we get NaN sometimes
-			var n = fullNodes.length - 1;
-			for (; n>-1; --n){
-				var node = fullNodes[n];
-				if(isNaN(node.x)) node.x = width/2;
-				if(isNaN(node.y)) node.y = htight/2;
-			}
 			
 			// setup force layout and add nodes
 			var force = d3.layout.force()
@@ -215,25 +206,25 @@ function starmap() {
 					metadata = view.getProjectMetadata(),
 					node = project.getNodeById(d.identifier),
 					isValid = false,
-					nodeClass = '',
-					nodeIconPath = '';
-				if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
-					nodeClass = node.getNodeClass();
-					for(var a=0;a<view.nodeClasses[node.type].length;a++){
-						if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
-							isValid = true;
-							nodeIconPath = view.nodeClasses[node.type][a].icon;
-							break;
+						nodeClass = '',
+						nodeIconPath = '';
+					if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
+						nodeClass = node.getNodeClass();
+						for(var a=0;a<view.nodeClasses[node.type].length;a++){
+							if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
+								isValid = true;
+								nodeIconPath = view.nodeClasses[node.type][a].icon;
+								break;
+							}
 						}
 					}
-				}
 
-				if(!isValid){
-					nodeClass = view.nodeClasses[node.type][0].nodeClass;
-					nodeIconPath = view.nodeClasses[node.type][0].icon;
+					if(!isValid){
+						nodeClass = view.nodeClasses[node.type][0].nodeClass;
+						nodeIconPath = view.nodeClasses[node.type][0].icon;
+					}
+					return nodeIconPath;
 				}
-				return nodeIconPath;
-			}
 
 			function sDragMove(elem,i) {
 				var group = elem.group;
@@ -294,6 +285,9 @@ function starmap() {
 				//go to the node position that was clicked if it is available
 				view.eventManager.fire('navigationNodeClicked', nodePosition);
 			};
+			
+			var masters = force.nodes().filter(function(d){ return d.master; }),
+				children = force.nodes().filter(function(d){ return !d.master; });
 
 			// Resolves collisions between node and all other nodes
 			function collide(node) {
@@ -423,6 +417,7 @@ function starmap() {
 			};
 
 			function draw(){
+				var zoomRatio = 1.5/k;
 				// add loading message
 				var svgLoading = svg.append("text")
 					.attr("x", width / 2)
@@ -450,17 +445,7 @@ function starmap() {
 						.data(force.nodes().filter(function(d) { return (d.type !== "sequence") && (!d.master); }))
 						.enter().append("svg:g")
 						.attr("class", function(d){ return d.current === true ? "item node current" : "item node"; })
-						.attr("transform", function(d) { 
-							/*if(!d.isFixed){
-								var parent = force.nodes().filter(function(g){ return g.identifier === d.group; });
-								d.x = parent[0].x;
-								d.y = parent[0].y;
-							}
-							if(typeof d.x === "undefined" || typeof d.y === "undefined"){
-								debugger;
-							}*/
-							return "translate(" + d.x + "," + d.y + ")";
-						})
+						.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 						.attr("data-group", function(d){ return d.group; })
 						.attr("id", function(d){ return d.identifier })
 						.on("click", function(d){ renderNode(d); })
@@ -470,13 +455,91 @@ function starmap() {
 						.attr("id",function(d){ return "anchor_" + d.identifier; })
 						.attr("class","main")
 						.attr("r", r);*/
-					forceCircle = forceNode.append("svg:image")
+					forceNode.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-radial.png")
+						.attr("width", 0)
+						.attr("height", 0)
+						.attr("x", 0)
+						.attr("y", 0)
+						.attr("id", function(d){ return d.identifier + "_radial"; })
+						.attr("class", "radial");
+					
+					forceNode.append("svg:image")
 						.attr("id",function(d){ return "anchor_" + d.identifier; })
 						.attr("xlink:xlink:href",getIcon)
-						.attr("x", -15)
-						.attr("y", -15)
-						.attr("width", 30)
-						.attr("height", 30);
+						.attr("x", -18*zoomRatio)
+						.attr("y", -18*zoomRatio)
+						.attr("width", 36*zoomRatio)
+						.attr("height", 36*zoomRatio)
+						.attr("class", "icon")
+						.on("mouseover", function(d){
+							this.parentNode.parentNode.appendChild(this.parentNode);
+							// adjust position of rollover info (left or right of icon) to ensure it doesn't get cut off by edge of layout
+							var bgX = 12/k + 5*zoomRatio,
+							titleOffset = 14/k + 5*zoomRatio,
+							bgWidth = 199/k + 4/k;
+							if(d.x > (width-bgWidth)){
+								bgX = -bgWidth - bgX;
+							}
+							var titleX = bgX + titleOffset
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".titleBg").attr("x",bgX);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".title").attr("x",titleX);
+							if(d3.select(view.escapeIdForJquery("#" + d.identifier)).classed("active")){
+								d3.select(view.escapeIdForJquery("#" + d.identifier + "_radial"))
+									.transition()
+										.attr("width", 80*zoomRatio)
+										.attr("height", 80*zoomRatio)
+										.attr("x", -40*zoomRatio)
+										.attr("y", -40*zoomRatio)
+										.duration(125);
+								d3.select(view.escapeIdForJquery("#" + d.identifier + "_info"))
+									.transition()
+										.style("opacity",1)
+										.duration(250)
+										.delay(200);
+							}
+						})
+						.on("mouseout", function(d){
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info"))
+								.transition()
+								.duration(250)
+								.style("opacity",0);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_radial"))
+								.transition()
+								.attr("width", 0)
+								.attr("height", 0)
+								.attr("x", 0)
+								.attr("y", 0)
+								.duration(100)
+								.delay(250);
+						});
+					
+					var forceNodeInfo = forceNode.append("svg:g")
+						.attr("class","nodeInfo")
+						.attr("id", function(d){ return d.identifier + "_info"; });
+	
+					forceNodeInfo.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-header-blank.png")
+						.attr("width", 199/k)
+						.attr("height", 36/k)
+						.attr("x", 12/k)
+						.attr("y", -30/k)
+						.attr("class", "titleBg");
+	
+					var forceNodeText = forceNodeInfo.append("svg:text")
+						.attr("x", 26/k)
+						.attr("y", -7/k)
+						.attr("class", "title")
+						.style("font-size", function(){ return 12/k + 'pt'; });
+	
+					forceNodeText.append("svg:tspan")
+						.text(function(d){ return "#" + (d.position+1) + ""; })
+						.attr("class", "pos");
+	
+					forceNodeText.append("svg:tspan")
+						.text(function(d){ return  "" + (d.title) + ""; })
+						.attr("class", "name")
+						.attr("dx", 4/k);
 					/*forceNode.append("svg:circle")
 						.attr("class","detail")
 						.attr("r", 3.5)
@@ -507,9 +570,7 @@ function starmap() {
 						.attr("class", "item seq")
 						.attr("data-group", function(d){ return d.group; })
 						.attr('id', function(d){ return d.identifier })
-						.attr("transform", function(d) { 
-							return "translate(" + d.x + "," + d.y + ")";
-						})
+						.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 						.on("click", function(d){
 							if(d.type === "sequence"){
 								zoom(this, d);
@@ -675,7 +736,7 @@ function starmap() {
 					force.start();
 					if(!layoutIsSet){
 						n = 10;
-						for (var i = n * n; i > 0; --i) force.tick();
+						for (i = n * n; i > 0; --i) force.tick();
 					} else {
 						force.tick();
 					}
@@ -684,13 +745,12 @@ function starmap() {
 						d.fixed = true; 
 					});
 					loaded = true;
-					complete();
 
 					// remove loading message
 					svgLoading.remove();
-
-					//we are done loading the navigation panel for the first time
-					eventManager.fire('navigationLoadingCompleted');
+					
+					// fire completion callback
+					complete();
 				}, 10);
 			}
 
@@ -708,15 +768,33 @@ function starmap() {
 				/*g.selectAll("g.item circle.main").attr("r", function(d){
 					return (d3.select(this).classed('mouseover') || d.current) ? r+2 : r;
 				});*/
+				
+				if(!loaded){
+					var i = 0,
+						n = force.nodes().length,
+						qm = d3.geom.quadtree(masters),
+						qc = d3.geom.quadtree(children);
+						q = d3.geom.quadtree(force.nodes());
+
+					while (++i < n) {
+						qm.visit(collide(force.nodes()[i]));
+					}
+					
+					i = 0;
+					while (++i < n) {
+						qc.visit(collide(force.nodes()[i]));
+					}
+				}
 
 				// constrain items to map bounds
 				g.selectAll("g.item").each(function(d) {
-					/*if(isNaN(d.x)){
-						d.x = 0;
-					}
-					if(isNaN(d.y)){
-						d.y = 0;
-					}*/
+					// ensure node positions are numerical
+					// TODO: not sure if this is helping at all; need to figure out why we sometimes get NaN values
+					if(isNaN(d.x)) d.x = width/2;
+					if(isNaN(d.y)) d.y = height/2;
+					if(isNaN(d.px)) d.px = d.x;
+					if(isNaN(d.py)) d.py = d.y;
+					
 					if(d.master){
 						d.x = Math.max(margin.left, Math.min(width - margin.left, d.x));
 						d.y = Math.max(margin.top, Math.min(height - margin.top, d.y)); 
@@ -725,20 +803,6 @@ function starmap() {
 						d.y = Math.max(margin.top/2, Math.min(height - margin.top/2, d.y));
 					}
 				});
-
-				if(!loaded){
-					var masters = force.nodes().filter(function(d){ return d.master; }),
-						children = force.nodes().filter(function(d){ return !d.master; }),
-						qm = d3.geom.quadtree(masters),
-						qc = d3.geom.quadtree(children),
-						i = 0,
-						n = force.nodes().length;
-
-					while (++i < n) {
-						qm.visit(collide(force.nodes()[i]));
-						qc.visit(collide(force.nodes()[i]));
-					}
-				}
 
 				g.selectAll("g.item").attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
