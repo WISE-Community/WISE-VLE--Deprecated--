@@ -139,7 +139,9 @@ MustCompleteBeforeExitingConstraint.prototype.checkConstraint = function(current
  * @return a message that we will notify the student of the constraint
  */
 MustCompleteBeforeExitingConstraint.prototype.getConstraintMessage = function() {
-	var message = '';
+	var message = '',
+		stepTerm = this.view.getStepTerm(),
+		stepTermPlural = this.view.getStepTermPlural();
 	
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
@@ -147,9 +149,9 @@ MustCompleteBeforeExitingConstraint.prototype.getConstraintMessage = function() 
 		var node = this.view.getProject().getNodeById(this.nodeId);
 		
 		if(node.type == 'sequence') {
-			message = this.view.getI18NString("constraint_must_complete_current_activity", "main");
+			message = this.view.getI18NStringWithParams("constraint_must_complete_current_activity", [this.view.getI18NStringWithParams("constraint_all_steps", [stepTermPlural], "main")], "main");
 		} else {
-			message = this.view.getI18NString("constraint_must_complete_current_step", "main");
+			message = this.view.getI18NStringWithParams("constraint_must_complete_current_step", [stepTerm], "main");
 		}		
 	}
 	

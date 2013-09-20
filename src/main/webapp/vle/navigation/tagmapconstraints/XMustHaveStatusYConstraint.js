@@ -224,7 +224,8 @@ XMustHaveStatusYConstraint.prototype.getConstraintMessage = function(nodesFailed
 	var statusType = functionArgs[0];
 	var statusValue = functionArgs[1];
 	
-	var message = '';
+	var message = '',
+		stepTerm = this.view.getStepTerm();
 
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
@@ -253,22 +254,22 @@ XMustHaveStatusYConstraint.prototype.getConstraintMessage = function(nodesFailed
 			
 			if(statusType == 'isCompleted' && statusValue == 'true') {
 				//the constraint requires a step to be completed so we will display a more informative message
-				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [this.view.getStepTerm()], "main");
+				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [stepTerm], "main");
 				message += "\n\n" + fullNodeNamesFailed;
 			} else {
 				//use a generic message to handle all other constraints
-				message = this.view.getI18NStringWithParams("constraint_must_have_status",[statusType,statusValue,fullNodeNamesFailed],"main");
+				message = this.view.getI18NStringWithParams("constraint_must_have_status",[statusType,statusValue,stepTerm,fullNodeNamesFailed],"main");
 			}
 		} else if(nodesFailed.length > 1) {
 			//there are multiple nodes that have not been satisfied
 			
 			if(statusType == 'isCompleted' && statusValue == 'true') {
 				//the constraint requires steps to be completed so we will display a more informative message
-				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [this.viewgetStepTerm()], "main");
+				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [stepTerm], "main");
 				message += "\n\n" + fullNodeNamesFailed;
 			} else {
 				//use a generic message to handle all other constraints
-				message = this.view.getI18NStringWithParams("constraint_must_have_status",[statusType,statusValue,fullNodeNamesFailed],"main");
+				message = this.view.getI18NStringWithParams("constraint_must_have_status",[statusType,statusValue,stepTerm,fullNodeNamesFailed],"main");
 			}
 		}
 	}

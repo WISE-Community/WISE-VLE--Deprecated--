@@ -180,7 +180,9 @@ MustCompleteXBeforeConstraint.prototype.getNodesFailed = function() {
  * @return a message that we will notify the student of the constraint
  */
 MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed) {
-	var message = '';
+	var message = '',
+		stepTerm = this.view.getStepTerm(),
+		activityTerm = this.view.getActivityTerm();
 
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
@@ -202,9 +204,9 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					nodeType = this.view.getActivityTerm();
+					nodeType = activityTerm;
 				} else {
-					nodeType = this.view.getStepTerm();
+					nodeType = stepTerm;
 				}
 				
 				stepsNumberAndTitlesFailed += nodeType + ' ' + stepNumberAndTitle;
@@ -212,9 +214,9 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 		}
 		
 		if(nodesFailed.length == 1) {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_x_before", [stepsNumberAndTitlesFailed], "main");
+			message = this.view.getI18NStringWithParams("constraint_must_complete_x_before", [stepsNumberAndTitlesFailed,stepTerm], "main");
 		} else if(nodesFailed.length > 1) {
-			message = this.view.getI18NString("constraint_must_complete_these_before", "main");
+			message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [stepTerm], "main");
 			message += "\n\n" + stepsNumberAndTitlesFailed;
 		}
 	}

@@ -99,7 +99,8 @@ MustCompleteBeforeAdvancingConstraint.prototype.checkConstraint = function(curre
  * @return a message that we will notify the student of the constraint
  */
 MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function() {
-	var message = '';
+	var message = '',
+		stepTermPlural = this.view.getStepTermPlural();
 	
 	if(this.customMessage != null && this.customMessage != '') {
 		message = this.customMessage;
@@ -109,7 +110,7 @@ MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function(
 		var node = this.view.getProject().getNodeById(this.nodeId);
 		
 		if(node.type == 'sequence') {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_activity_before_advancing", [stepNumberAndTitle], "main");
+			message = this.view.getI18NStringWithParams("constraint_must_complete_activity_before_advancing", [this.view.getI18NStringWithParams("constraint_all_steps", [stepTermPlural], "main"),stepNumberAndTitle], "main");
 		} else {
 			message = this.view.getI18NStringWithParams("constraint_must_complete_step_before_advancing", [stepNumberAndTitle], "main");
 		}		

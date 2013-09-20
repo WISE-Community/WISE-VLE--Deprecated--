@@ -45,6 +45,9 @@ NavigationPanel.prototype.menuCreated = function() {
 
 	// show project content
 	$('#vle_body').css('opacity',1);
+	
+	//we are done loading the navigation panel for the first time
+	view.eventManager.fire('navigationLoadingCompleted');
 
 	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
 	view.eventManager.subscribe('constraintStatusUpdated', this.constraintStatusUpdatedListener, this);
@@ -141,7 +144,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 			.attr('x', -22)
 			.attr('y', -22)
 			.transition()
-			.duration(1250)
+			.duration(1500)
 			.ease('bounce')
 			.attr('xlink:href', path)
 			.attr('width', 30)
@@ -381,7 +384,7 @@ NavigationPanel.prototype.render = function(forceReRender) {
 			}
 		}
 		map.attributes(nodeAttributes);
-		map.complete(navPanel.menuLoaded);
+		map.complete(function(){ view.eventManager.fire('navigationMenuCreated'); });
 		d3.select('#my_menu')
 			.datum(projectJSON)
 			.call(map);
@@ -1119,39 +1122,6 @@ AdvisorRatingGlobalTagMap.prototype.getIconFromScore = function(score) {
 	return icon;
 };
 
-NavigationPanel.prototype.menuLoaded = function() {
-	var project = view.getProject(),
-		navPanel = this;
-	// insert step icons
-	/*$('.node').each(function(){
-		var nodeId = $(this).attr('id');
-		var node = project.getNodeById(nodeId);
-		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-  			//icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
-  			var nodeClass = node.getNodeClass();
-  			var isValid = false;
-  			for(var a=0;a<view.nodeClasses[node.type].length;a++){
-  				if(view.nodeClasses[node.type][a].nodeClass == nodeClass){
-  					isValid = true;
-  					break;
-  				}
-  			}
-  			if(!isValid){
-  				nodeClass = view.nodeClasses[node.type][0].nodeClass;
-  			}
-  			var nodeIconPath = view.nodeIconPaths[node.type];
-  			$(this).find('image').attr("xlink:href",nodeIconPath + nodeClass + '16.png');
-  		};
-	});*/
-	
-	//collapse all activities except for the current one
-	//eventManager.fire('menuCollapseAllNonImmediate');
-
-	//eventManager.fire('resizeMenu');
-	eventManager.fire('navigationMenuCreated');
-	//eventManager.fire('menuCreated');
-};
-
 /**
  * Add a base href to the html
  * @param navHtml that navigation menu html
@@ -1468,6 +1438,16 @@ NavigationPanel.prototype.getFullNodeName = function(nodeId) {
 	return fullStepName;
 };
 
+/**
+ * The navigation has loaded so we will perform any necessary processing.
+ * 
+ * @param type the event that was fired
+ * @param args arguments that were provided when the event was fired
+ * @param obj the view object
+ */
+NavigationPanel.prototype.navigationLoadingCompletedListener = function(type, args, obj) {
+
+};
 
 /**
 * The navMode dispatcher catches events specific to this project

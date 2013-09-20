@@ -261,7 +261,10 @@ MustVisitXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
 	} else {
-		var stepsNumberAndTitlesFailed = '';
+		var stepsNumberAndTitlesFailed = '',
+			stepTerm = this.view.getStepTerm(),
+			stepTermPlural = this.view.getStepTermPlural(),
+			activityTerm = this.view.getActivityTerm();
 		
 		if(nodesFailed != null) {
 			for(var x=0; x<nodesFailed.length; x++) {
@@ -278,17 +281,17 @@ MustVisitXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					stepsNumberAndTitlesFailed += this.view.getStepTerm(); + stepNumberAndTitle + ' ('+ this.view.getI18NString("all_steps", "main")  +')';
+					stepsNumberAndTitlesFailed += activityTerm + stepNumberAndTitle + ' ('+ this.view.getI18NStringWithParams("constraint_all_steps", [stepTermPlural], "main")  +')';
 				} else {
-					stepsNumberAndTitlesFailed += this.view.getActivityTerm() + stepNumberAndTitle;
+					stepsNumberAndTitlesFailed += stepTerm + stepNumberAndTitle;
 				}
 			}		
 		}
 		
 		if(nodesFailed.length == 1) {
-			message = this.view.getI18NStringWithParams("constraint_must_visit_x_before", [stepsNumberAndTitlesFailed], "main");
+			message = this.view.getI18NStringWithParams("constraint_must_visit_x_before", [stepsNumberAndTitlesFailed, stepTerm], "main");
 		} else if(nodesFailed.length > 1) {
-			message = this.view.getI18NString("constraint_must_visit_these_before", "main");
+			message = this.view.getI18NStringWithParams("constraint_must_visit_these_before", [stepTerm], "main");
 			message += "\n\n" + stepsNumberAndTitlesFailed;
 		}
 	}
