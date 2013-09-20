@@ -79,7 +79,7 @@ function ExplanationBuilder(node, view) {
 	this.ebTerm = this.view.getI18NString('explanation_builder');
 	this.addIdeaTerm = this.view.getI18NString('idea_basket_add_an_idea');
 	var project = this.view.getProject();
-	this.stepTerm = project.getStepTerm() ? project.getStepTerm() : this.view.getI18NString('stepTerm');
+	this.stepTerm = this.view.getStepTerm();
 	if(this.version > 1){
 		if(this.settings.hasOwnProperty('ideaTerm') && this.view.utils.isNonWSString(this.settings.ideaTerm)){
 			this.ideaTerm = this.settings.ideaTerm;

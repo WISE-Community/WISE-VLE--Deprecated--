@@ -317,7 +317,8 @@ var componentloader = function(em, sl){
 				'stepLevelChanged':[null,null], 
 				'autoStepChanged':[null,null], 
 				'stepNumberChanged':[null,null],
-				'stepTermChanged':[null,null], 
+				'stepTermChanged':[null,null],
+				'stepTermPluralChanged':[null,null],
 				'author':[null,null],
 				'nodeIconUpdated':[null,null], 
 				'nodeTitleChanged':[null,null], 
@@ -442,6 +443,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('stepLevelChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('autoStepChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('stepTermChanged', view.authorDispatcher, view);
+					view.eventManager.subscribe('stepTermPluralChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('stepNumberChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('author', view.authorDispatcher, view);
 					view.eventManager.subscribe('nodeIconUpdated', view.authorDispatcher, view);
@@ -634,7 +636,6 @@ var componentloader = function(em, sl){
 				'constraintStatusUpdated':[null,null],
 				'nodeLinkClicked':[null,null],
 				'nodeStatusUpdated':[null,null],
-				'navigationLoadingCompleted':[null,null],
 				'cRaterResponseReceived':[null,null],
 				'renderNodeBlocked':[null,null]
 			},
@@ -664,7 +665,6 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('nodeLinkClicked', view.vleDispatcher, view);
-						view.eventManager.subscribe('navigationLoadingCompleted', view.navigationLoadingCompletedListener, view);
 						view.eventManager.subscribe('renderNodeBlocked', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStarted','loadingProjectCompleted','Project'],
 						                                     ['getUserAndClassInfoStarted','getUserAndClassInfoCompleted', 'Learner Data'], 

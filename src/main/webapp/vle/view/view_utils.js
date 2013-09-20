@@ -2003,6 +2003,42 @@ View.prototype.getHighestSequenceNumberInHierarchy = function(nodeId) {
 	return sequenceNumber;
 };
 
+/**
+ * Checks whether a valid step term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ * @param plural Boolean whether or not to retrieve the plural form of the step
+ * term (optional; default is singular form)
+ * 
+ */
+View.prototype.getStepTerm = function(plural){
+	var project = this.getProject(),
+		stepTerm = plural ? project.getStepTermPlural() : project.getStepTerm();
+	if(stepTerm && this.utils.isNonWSString(stepTerm)){
+		return stepTerm;
+	} else {
+		return plural ? this.getI18NString('stepTermPlural') : this.getI18NString('stepTerm');
+	}
+};
+
+/**
+ * Checks whether a valid activity term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ * @param plural Boolean whether or not to retrieve the plural form of the activity
+ * term (optional; default is singular form)
+ * 
+ */
+View.prototype.getActivityTerm = function(plural){
+	var project = this.getProject(),
+		activityTerm = plural ? project.getActivityTermPlural() : project.getActivityTerm();
+	if(activityTerm && this.utils.isNonWSString(activityTerm)){
+		return activityTerm;
+	} else {
+		return plural ? this.getI18NString('activityTermPlural') : this.getI18NString('activityTerm');
+	}
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');

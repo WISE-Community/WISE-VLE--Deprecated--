@@ -124,13 +124,14 @@ View.prototype.displayFlaggedWork = function() {
 				}
 				
 				//get the info for the node
-				var node = this.getProject().getNodeById(nodeId);
-				var position = this.getProject().getVLEPositionById(nodeId);
-				var stepTerm = this.getProject().getStepTerm();
+				var node = this.getProject().getNodeById(nodeId),
+					position = this.getProject().getVLEPositionById(nodeId),
+					stepTerm = this.getProject().getStepTerm();
+				stepTerm = this.utils.isNonWSString(stepTerm) ? stepTerm + ' ' : '';
 				
 				//add an option into the select box
 				flaggedWorkHtml += "<option value=" + nodeId + ">";
-				flaggedWorkHtml += stepTerm + " " + position + ": " + node.title;
+				flaggedWorkHtml += stepTerm + position + ": " + node.title;
 				flaggedWorkHtml += "</option>";
 			}
 		}

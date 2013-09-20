@@ -278,9 +278,9 @@ MustVisitXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed
 				var node = this.view.getProject().getNodeById(nodeIdFailed);
 				
 				if(node.type == 'sequence') {
-					stepsNumberAndTitlesFailed += this.view.getI18NString("activityTerm", "main") + stepNumberAndTitle + ' ('+ this.view.getI18NString("all_steps", "main")  +')';
+					stepsNumberAndTitlesFailed += this.view.getStepTerm(); + stepNumberAndTitle + ' ('+ this.view.getI18NString("all_steps", "main")  +')';
 				} else {
-					stepsNumberAndTitlesFailed += this.view.getI18NString("stepTerm", "main") + stepNumberAndTitle;
+					stepsNumberAndTitlesFailed += this.view.getActivityTerm() + stepNumberAndTitle;
 				}
 			}		
 		}
