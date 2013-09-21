@@ -891,7 +891,7 @@ public class VLEGetXLS extends VLEServlet {
 			
 			//get the UserInfo object for the workgroup id
 			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(workgroupIdString));
-			
+
 			if(userInfo != null) {
 				//get the workgroup id
 				Long workgroupId = userInfo.getWorkgroupId();
@@ -920,6 +920,12 @@ public class VLEGetXLS extends VLEServlet {
 					//create the sheet since we are generating an xls file
 					userIdSheet = wb.createSheet(workgroupIdString);
 				}
+				
+				//clear the step visit count
+				clearStepVisitCount();
+				
+				//clear the step revision count
+				clearStepRevisionCount();
 				
 				int rowCounter = 0;
 				
@@ -2486,6 +2492,13 @@ public class VLEGetXLS extends VLEServlet {
 	}
 	
 	/**
+	 * Clear the step visit counts for all steps
+	 */
+	private void clearStepVisitCount() {
+		nodeIdToStepVisitCount = new HashMap<String, Integer>();
+	}
+	
+	/**
 	 * Increase the step visit count for a step
 	 * @param nodeId the node id
 	 * @return the new step visit count
@@ -2523,6 +2536,13 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return count;
+	}
+	
+	/*
+	 * Clear the step revision count for all steps
+	 */
+	private void clearStepRevisionCount() {
+		nodeIdToStepRevisionCount = new HashMap<String, Integer>();
 	}
 	
 	/**
