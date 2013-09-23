@@ -595,6 +595,10 @@
         "value": "Actividad",
         "description": "Default term for an 'activity' in a WISE project"
     },
+    "all_steps": {
+        "value": "todos los pasos",
+        "description": "The text for 'all steps' in a WISE project"
+    },
     "ideaBasket_clickToSort": {
         "value": "Clic para ordenar",
         "description": "Title/tooltip for sortable rows in a table"
@@ -895,10 +899,6 @@
         "value": "Deben completar {0} antes de trabajar en este paso",
         "description": "The message shown to students telling them to complete work on a previous step before working on the current step"
     },
-    "constraint_all_steps":{
-		"value":"todos los {0}",
-		"description":"Text for the phrase 'All Steps', as in 'Activity 1: Getting Started (All Steps)'"
-	},
     "constraint_must_complete_these_before": {
         "value": "Deben completar esto antes de trabajar en este paso",
         "description": "The message shown to students telling them to complete work on multiple steps before working on the current step"
@@ -930,5 +930,21 @@
     "constraint_must_have_status": {
         "value": "El paso de acá abajo debe tener '{0}' seteado a '{1}' antes de trabajar en este paso {2}",
         "description": "The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the current step"
+    },
+    "node_annotations_instructions": {
+        "value": "Pueden acceder a la retroalimentación en cualquier momento cliqueando en el ícono de \"{0}\".",
+        "description": "The message at the bottom of the feedback popup to tell the student they can always bring the popup back up"
+    },
+    "stepTermPlural": {
+        "value": "Pasos",
+        "description": "Plural form of the default term for a 'Step' in a WISE project"
+    },
+    "activityTermPlural": {
+        "value": "Actividades",
+        "description": "Plural form of the default term for a 'Activity' in a WISE project"
+    },
+    "hints_viewAll": {
+        "value": "Debés ver todas las {0} antes de cerrar.",
+        "description": "The message in the hints popup that says the student must view all hints before closing the hints popup"
     }
 }
