@@ -137,7 +137,10 @@
 		this.addChild(this.blockText);
 
 		this.displayed_block = null;
-		this.drawMaterial(this.materialsMenu.current_material_name);
+		var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
+		var iWidth = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-1;
+		var iHeight = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1;
+		this.drawMaterial(this.materialsMenu.current_material_name,GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-iHeight);
 
 		var htmlText, htmlElement;
 
@@ -153,14 +156,14 @@
 	            }).hide();  
 
 			htmlText = '<div id="slider-diameter" style="width: 100px"></div>';
-		    $("#builder-button-holder").append(htmlText);
+			$("#builder-button-holder").append(htmlText);
 			$("#slider-diameter")
 			    .slider({
                    orientation: "horizontal",
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-1,
+                   value: iWidth,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
@@ -177,7 +180,7 @@
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1,
+                   value: iHeight,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
@@ -230,7 +233,7 @@
 			element.x = this.materialsMenu.width_px + this.width_px/3 - 100;
 			element.y = this.materialsMenu.y + this.materialsMenu.height_px - 4 * $("#slider-diameter").height();
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.diameterText = new createjs.Text("Diameter: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.diameterText = new createjs.Text("Diameter: "+ (GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth).toFixed(incPow) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.diameterText.x = element.x + 50;
 				this.diameterText.y = element.y + $("#slider-diameter").height() + 10;
 				this.diameterText.lineWidth = 60;
@@ -242,7 +245,7 @@
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
 			element.y = this.TITLE_HEIGHT*1.5;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.heightText = new createjs.Text("Height: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.heightText = new createjs.Text("Height: "+ (GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS - iHeight).toFixed(incPow) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.heightText.x = element.x + 10;
 				this.heightText.y = element.y + $("#slider-height").height() + 10;
 				this.heightText.lineWidth = 60;
@@ -381,7 +384,7 @@
 		this.drawMaterial(material_name);
 	}
 
-	p.drawMaterial = function (material_name)
+	p.drawMaterial = function (material_name, initial_diameter, initial_height)
 	{
 		var o, i;
 		// if blocks array is not empty remove these from display
@@ -390,7 +393,7 @@
 			this.removeChild(this.displayed_block);
 			this.displayed_block = null
 		}
-		o = this.newBlock(material_name);
+		o = this.newBlock(material_name, initial_diameter, initial_height);
 		this.placeBlock(o);	
 		this.updateCountText(material_name);
 		stage.ready_to_update = true;

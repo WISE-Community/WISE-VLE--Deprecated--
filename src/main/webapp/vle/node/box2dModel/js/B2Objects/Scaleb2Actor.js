@@ -122,7 +122,6 @@
 
 		var panPrismJointDef = this.panPrismJointDef = new Box2D.Dynamics.Joints.b2PrismaticJointDef();
 		var panDistJointDef = this.panDistJointDef = new Box2D.Dynamics.Joints.b2DistanceJointDef();		
-	
 	}
 
 	p.setupInWorld = function (position_x, position_y, b2world){
@@ -161,14 +160,16 @@
 		var panPrismJointDef = this.panPrismJointDef;
 		var vec = new b2Vec2(); vec.Set(0, 1);
 		panPrismJointDef.Initialize(base, pan, base.GetPosition(), vec);
-		panPrismJointDef.localAnchorA = new b2Vec2(0, -this.pan_dy_units);
-		panPrismJointDef.localAnchorB = new b2Vec2(0, 0);
+		//panPrismJointDef.localAnchorA = new b2Vec2(-this.base_width_top_units/2, 0);
+		//panPrismJointDef.localAnchorB = new b2Vec2(-this.base_width_top_units/2, 0);
 		panPrismJointDef.referenceAngle = 0;
 		panPrismJointDef.collideConnected = true;
 		this.panPrismJoint = this.b2world.CreateJoint (panPrismJointDef);
 		
 		var panDistJointDef = this.panDistJointDef;
 		panDistJointDef.Initialize(pan, base, pan.GetPosition(), base.GetPosition());
+		//panDistJointDef.localAnchorA = new b2Vec2(-this.base_width_top_units/2, 0);
+		//panDistJointDef.localAnchorB = new b2Vec2(-this.base_width_top_units/2, 0);
 		panDistJointDef.dampingRatio = 0.008;
 		panDistJointDef.frequencyHz = 1.0;
 		this.panDistJoint = this.b2world.CreateJoint (panDistJointDef);

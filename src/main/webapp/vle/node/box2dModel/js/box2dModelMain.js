@@ -47,6 +47,7 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 	GLOBAL_PARAMETERS["INCLUDE_LIBRARY"] = true;
 	GLOBAL_PARAMETERS["ALLOW_REVISION"] = true;
 	GLOBAL_PARAMETERS["BUILDER_SHOW_SLIDER_VALUES"] = true;
+	GLOBAL_PARAMETERS["BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES"] = false;
 	GLOBAL_PARAMETERS["BUILDER_SLIDER_INCREMENTS"] =1.0;	
 	GLOBAL_PARAMETERS["BUILDER_SHOW_SPOUT"] = false;
 	GLOBAL_PARAMETERS["INCLUDE_EMPTY"] =false;
@@ -108,11 +109,39 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 		GLOBAL_PARAMETERS.STAGE_WIDTH = $("#b2canvas").width();
 		//GLOBAL_PARAMETERS.LAB_HEIGHT = $("#b2canvas").height();
 		// load from WISE
+		var obj;
 		if (typeof wiseData !== "undefined"){
-			for (var key in wiseData){ GLOBAL_PARAMETERS[key] = wiseData[key];}	
+			for (var key in wiseData){ 
+				obj = wiseData[key];
+				if (typeof obj === "object" && typeof obj.branching !== "undefined"){
+					if (typeof obj.branching.branchingFunction !== "undefined"){
+						var fun = obj.branching.branchingFunction;
+						if (fun == "mod" && typeof obj.branching.branchingFunctionParams !== "undefined" && obj.branching.branchingFunctionParams.length == 2){
+							if (obj.branching.branchingFunctionParams[0] == "WISE_WORKGROUP_ID"){
+								var wg = box2dModel.view.getUserAndClassInfo().getWorkgroupId();
+								if (typeof wg !== "undefined" && !isNaN(wg)){
+									var map = wg % obj.branching.branchingFunctionParams[1].length;
+									GLOBAL_PARAMETERS[key] = obj.branching.branchingFunctionParams[1][map];
+								} else if (typeof obj.branching.default !== "undefined"){
+									GLOBAL_PARAMETERS[key] = obj.branching.default;
+								}	
+							} else if (typeof obj.branching.default !== "undefined"){
+								GLOBAL_PARAMETERS[key] = obj.branching.default;
+							}		
+						} else if (typeof obj.branching.default !== "undefined"){
+							GLOBAL_PARAMETERS[key] = obj.branching.default;
+						}	
+					}
+				} else {
+					GLOBAL_PARAMETERS[key] = obj;
+				}
+			}	
 		} else {
 			$.getJSON('box2dModelTemplate.b2m', function(data) {
-				for (var key in data) { GLOBAL_PARAMETERS[key] = data[key]; }
+				for (var key in data) { 
+					if (typeof obj !== "object" || typeof obj.branching === "undefined")
+						GLOBAL_PARAMETERS[key] = data[key]; 
+				}
 			});
 		}
 	// can't manually change stage height, only lab height
