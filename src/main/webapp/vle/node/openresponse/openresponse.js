@@ -199,6 +199,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 * we are not displaying the check answer button to them.
 					 */
 					orState.isCRaterSubmit = true;
+					checkAnswer = true; // we want to also check the answer immediately, just not show the score or feedback.
 				}
 				
 				if(!checkAnswer && this.content.cRater != null && 
