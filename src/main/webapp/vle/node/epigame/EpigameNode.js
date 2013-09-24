@@ -218,52 +218,27 @@ EpigameNode.prototype.processStudentWork = function(nodeVisits) {
 		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
 		
 		if(nodeState != null) {
+			//the student has completed this step
+			this.setStatus('isCompleted', true);
+			
 			var response = nodeState.response;
 			
 			if(response != null && response != "") {
-				var content = this.content.getContentJSON();
+				var highScore_explanation = nodeState.response.highScore_explanation;
+				var highScore_performance = nodeState.response.highScore_performance;
 				
-				if(content != null) {
-					var mode = content.mode;
-					
-					if(mode == null) {
-						
-					} else if(mode == 'adaptiveQuiz') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
-					} else if(mode == 'tutorial') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
-					} else if(mode == 'mission') {
-						//var highScore_explanation = nodeState.response.highScore_explanation;
-						var highScore_performance = nodeState.response.highScore_performance;
-						
-						//var highScore_average = (highScore_explanation + highScore_explanation) / 2;
-						var statusValue = null;
-						
-						if(highScore_performance >= 350) {
-							statusValue = 'gold';
-						} else if(highScore_performance >= 300) {
-							statusValue = 'silver';
-						} else if(highScore_performance >= 200) {
-							statusValue = 'bronze';
-						}
-
-						if(statusValue != null) {
-							//the student has completed this step
-							this.setStatus('isCompleted', true);
-							
-							//set the status value
-							this.setStatus('epigameMedal', statusValue);
-						}
-					} else if(mode == 'adaptiveMission') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
-					} else if(mode == 'adaptivePostQuiz') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
-					}
+				var highScore_average = (highScore_explanation + highScore_explanation) / 2;
+				
+				if(highScore_average == 100) {
+					statusValue = 'gold';
+				} else if(highScore_average >= 90) {
+					statusValue = 'silver';
+				} else {
+					statusValue = 'bronze';
 				}
+
+				//set the status value
+				this.setStatus('epigameMedal', statusValue);
 			}
 		}
 	}
