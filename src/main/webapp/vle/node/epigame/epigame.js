@@ -1305,8 +1305,11 @@ Epigame.prototype.save = function(st) {
 		console.log("pushing state: " + epigameState.response);		
 	}
 	
+	//get all the node visits for this step
+	var nodeVisits = this.view.getState().getNodeVisitsByNodeId(this.node.id);
+	
 	// Process the student work for nav display
-	this.node.processStudentWork(epigameState);
+	this.node.processStudentWork(nodeVisits);
 	
 	//Post the current node visit to the DB immediately without waiting for exit.
 	this.node.view.postCurrentNodeVisit();
