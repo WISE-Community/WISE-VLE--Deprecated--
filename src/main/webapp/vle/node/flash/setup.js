@@ -45,7 +45,7 @@ scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 
 var css = [
-	//"vle/node/flash/flash.css"
+	"vle/node/flash/flash.css"
 ];
 
 scriptloader.addCssToComponent('flash', css);
