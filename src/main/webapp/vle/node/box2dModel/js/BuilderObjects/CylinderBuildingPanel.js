@@ -614,8 +614,8 @@
 			var index = blockArray.length - i - 1;
 			cylinderArrays.heights[index] = blockArray[i].height_units;
 			cylinderArrays.diameters[index] = blockArray[i].depth_units;
-			cylinderArrays.depths[index] = blockArray[i].depth_units;
-			cylinderArrays.widths[index] = blockArray[i].depth_units;
+			//cylinderArrays.depths[index] = blockArray[i].depth_units;
+			//cylinderArrays.widths[index] = blockArray[i].depth_units;
 			cylinderArrays.materials[index] = blockArray[i].material_name;
 			if (!GLOBAL_PARAMETERS.materials[blockArray[i].material_name].is_container) is_container = false;
 		}
