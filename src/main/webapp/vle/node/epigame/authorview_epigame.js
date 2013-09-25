@@ -152,6 +152,9 @@ View.prototype.EpigameNode.generatePage = function(view){
 
 	var hideQuizScoreToggle = createElement(document, "input", {id:'hideQuizScoreToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});	
 	var hideQuizScoreLabel = $(createElement(document, 'label', {id:'hideQuizScore', "for":"hideQuizScore"})).text('Hide Quiz Score');
+
+	var disableEncyclopediaToggle = createElement(document, "input", {id:'disableEncyclopediaToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});	
+	var disableEncyclopediaLabel = $(createElement(document, 'label', {id:'disableEncyclopediaScore', "for":"hideQuizScore"})).text('Disable Encyclopedia');
 	
 	//get document mode
 	var levelString = "";
@@ -188,6 +191,7 @@ View.prototype.EpigameNode.generatePage = function(view){
 
 	settingsDiv.append(createBreak()).append(forceRestrictionToggle).append(forceRestrictionLabel).append(createBreak());
 	settingsDiv.append(createBreak()).append(hideQuizScoreToggle).append(hideQuizScoreLabel).append(createBreak());
+	settingsDiv.append(createBreak()).append(disableEncyclopediaToggle).append(disableEncyclopediaLabel).append(createBreak());
 	
 	//add the authoring components to the page
 	$(pageDiv)
