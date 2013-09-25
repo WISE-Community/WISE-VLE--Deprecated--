@@ -381,11 +381,13 @@ NavigationPanel.prototype.render = function(forceReRender) {
 			nodeAttributes = {};
 
 		// create map of project node ids and corresponding layout settings (position, etc.) if any exist in the project metadata
-		if(projectMeta.settings && projectMeta.settings.navSettings) {
-			var navSettings = projectMeta.settings.navSettings,
+		if(projectMeta.hasOwnProperty('tools') && projectMeta.tools.navSettings) {
+			var navSettings = projectMeta.tools.navSettings,
 				i = navSettings.length-1;
 			for(; i>-1; --i){
-				if(navSettings.themeName === theme && navSettings.navMode === navMode && navSettings[i].nodeSettings){
+				if(navSettings[i].hasOwnProperty('theme') && navSettings[i].theme === theme && 
+						navSettings[i].hasOwnProperty('navMode') && navSettings[i].navMode === navMode && 
+						navSettings[i].hasOwnProperty('nodeSettings')){
 					nodeAttributes = navSettings[i].nodeSettings;
 					break;
 				}
