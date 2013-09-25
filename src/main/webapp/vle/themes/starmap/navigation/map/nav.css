@@ -2,10 +2,10 @@
 
 @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,400);
 
-#vle_body #toggleNavLink.menu {
+/*#vle_body #toggleNavLink.menu {
 	padding-left:28px;
 	background:transparent url('images/menu.png') no-repeat left center;
-}
+}*/
 
 #vle_body #my_menu {
 	height:100%;
@@ -355,7 +355,7 @@ svg#chart {
 #activityControls {
 	position: absolute;
 	right: 25px;
-	top: 25px;
+	top: 50px;
 	background: transparent url('images/levelController.png') 0 0 no-repeat;
 	display: none;
 	width: 277px;
@@ -513,12 +513,19 @@ path.target.active {
 	position:absolute;
 	left:50px;
 	bottom:25px;
+	display:none;
 }
 
-#toggleView {
-	position:absolute;
-	left:50px;
-	top:50px;
+.globalTagMap-item {
+	-webkit-transition: opacity .75s ease;
+    -moz-transition: opacity .75s ease;
+    -o-transition: opacity .75s ease;
+    transition: opacity .75s ease;
+    opacity:1;
+}
+
+.zoom .globalTagMap-item {
+	opacity: 0;
 }
 
 #stepHeader {
