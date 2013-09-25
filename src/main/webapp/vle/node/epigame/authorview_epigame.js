@@ -381,6 +381,7 @@ View.prototype.EpigameNode.updateSettings = function() {
 			rank5Val: $("#rank5Text").val(),
 			forceRestriction: Boolean($("#forceRestrictionToggle").prop("checked")),
 			hideQuizScore: Boolean($("#hideQuizScoreToggle").prop("checked"))
+			disableEncyclopedia: Boolean($("#disableEncyclopediaToggle").prop("checked"))			
 		};
 	} else {
 		delete this.content.settings;
@@ -422,6 +423,7 @@ View.prototype.EpigameNode.updateSettingsDisplay = function() {
 		$("#rank5Text").val(this.content.settings.rank5Val);
 		$("#forceRestrictionToggle").prop("checked", Boolean(this.content.settings.forceRestriction));	
 		$("#hideQuizScoreToggle").prop("checked", Boolean(this.content.settings.hideQuizScore));
+		$("#disableEncyclopediaToggle").prop("checked", Boolean(this.content.settings.disableEncyclopedia));
 
 		//Settings enabled, so check the checkbox and show UI
 		$("#settingsToggle").prop("checked", true);
@@ -458,7 +460,8 @@ View.prototype.EpigameNode.toggleSettings = function() {
 			rank4Val: 7200,
 			rank5Val: 11000,
 			forceRestriction: false,
-			hideQuizScore: false
+			hideQuizScore: false,
+			disableEncyclopedia: false
 		};
 		
 		console.log("applying ui settings");
@@ -482,6 +485,7 @@ View.prototype.EpigameNode.toggleSettings = function() {
 		$("#rank5Text").val(this.content.settings.rank5Val);
 		$("#forceRestrictionToggle").val(this.content.settings.forceRestrictionToggle);
 		$("#hideQuizScoreToggle").val(this.content.settings.hideQuizScoreToggle);
+		$("#disableEncyclopediaToggle").val(this.content.settings.disableEncyclopediaToggle);
 		
 		//Show UI
 		$("#settingsDiv").show();

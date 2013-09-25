@@ -962,6 +962,7 @@ Epigame.prototype.serializeCampaignSettings = function(settings) {
 		+ "|@" + (settings.rank5Val)
 		+ (settings.forceRestriction ? "|@1" : "|@0")
 		+ (settings.hideQuizScore ? "|@1" : "|@0")
+		+ (settings.disableEncyclopedia ? "|@1" : "|@0")
 };
 
 Epigame.prototype.serializeUserSettings = function(settings) {
