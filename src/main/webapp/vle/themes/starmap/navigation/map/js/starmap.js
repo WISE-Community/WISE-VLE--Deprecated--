@@ -8,7 +8,6 @@ function starmap() {
 		title = '',
 		stepTerm = '',
 		editable = false, // default for whether project nodes (positions, etc.) can be edited (authoring mode)
-		backgroundCss = '', // optional background CSS
 		attributes = {}, // optional object of node IDs and any corresponding layout attributes (currently only 'x' and 'y' values are supported, which define set coordinate positions for a node)
 		view = {}, // object to hold WISE view object (provides access to WISE project and its nodes)
 		complete = function(){}; // optional callback function to execute once map has finished loading
@@ -20,17 +19,34 @@ function starmap() {
 		layoutIsSet = true,
 		zoomed = false,
 		zoomInit = false,
-		loaded = false;
+		loaded = false,
+		forceW = width,
+		forceH = height,
+		forceX1 = 0,
+		forceY1 = 0,
+		forceX2 = width,
+		forceY2 = height,
+		forceXMid = forceW/2,
+		forceYMid = forceH/2;
 
 	function chart(selection) {
 		selection.each(function(data) {
 
 			var map = $(this);
+			
+			forceW = width - margin.left - margin.right;
+			forceH = height - margin.top - margin.bottom;
+			forceX1 = margin.left;
+			forceY1 = margin.top;
+			forceX2 = width - margin.right;
+			forceY2 = height - margin.bottom;
+			forceXMid = forceW/2 + forceX1;
+			forceYMid = forceH/2 + forceY1;
 
 			// get the start sequence, step term
 			start = data.startPoint;
 			var stepTerm = data.stepTerm,
-				k = 2.25;  // zoom (scale level) when zooming in on an activity
+				k = 2.5;  // zoom (scale level) when zooming in on an activity
 				//r = 6; // radius for step node circles
 
 			// get the activities and steps
@@ -57,7 +73,7 @@ function starmap() {
 				if(nodeId === start){
 					fullNodes.splice(i,1);
 				} else {
-					if(o.type === "sequence"){
+					if(o.master){
 						o.radius = 20;
 					} else {
 						o.radius = 16;
@@ -99,7 +115,7 @@ function starmap() {
 					.attr('width', width)
 					.attr('height', height)
 					.attr('id','mapBg')
-					.attr('fill', 'rgba(255,255,255,.05)');
+					.attr('fill', 'rgba(255,255,255,.03)');
 				
 				// create activity controls
 				map.append('<div id="activityControls">' +
@@ -155,7 +171,7 @@ function starmap() {
 				if(i<projectFull.children.length-1){
 					var next = projectFull.children[i+1];
 					o.next = next;
-					links.push({source: o.index, target: next.index, type: 'sequence'});
+					links.push({source: o.index, target: next.index, type: 'seq-seq'});
 				}
 				if(i>0){
 					var prev = projectFull.children[i-1];
@@ -176,7 +192,7 @@ function starmap() {
 									target = u.index;
 								}
 							});
-							links.push({source: source, target: target, type: 'path', group: group});
+							links.push({source: source, target: target, type: 'seq-node', group: group});
 							//links.push({source: o.index, target: target, type: 'seqToPath', group: group});
 						}
 					});
@@ -186,15 +202,15 @@ function starmap() {
 			// add links to force layout
 			force.links(links)
 				.linkDistance(function(d) { 
-					if(d.type === 'path'){
+					if(d.type === 'seq-node'){
 						return 26;
-					} else if(d.type === 'sequence'){
+					} else if(d.type === 'seq-seq'){
 						return 50;
 					} else {
 						return 6;
 					}
 				})
-				.charge(function(d) { return d.type === 'sequence' ? -500 : -500 });
+				.charge(function(d) { return d.master ? -600 : -500 });
 
 			function sDragStart(d,i) {
 				forceSeq.each(function(s) { s.fixed = true; }); // set all activities to fixed position
@@ -291,7 +307,7 @@ function starmap() {
 
 			// Resolves collisions between node and all other nodes
 			function collide(node) {
-				var r = node.radius + 2,
+				var r = node.radius,
 					nx1 = node.x - r,
 					nx2 = node.x + r,
 					ny1 = node.y - r,
@@ -418,13 +434,6 @@ function starmap() {
 
 			function draw(){
 				var zoomRatio = 1.5/k;
-				// add loading message
-				var svgLoading = svg.append("text")
-					.attr("x", width / 2)
-					.attr("y", height / 2)
-					.attr("dy", ".35em")
-					.attr("text-anchor", "middle")
-					.text("Loading...");
 
 				// Use a timeout to allow the rest of the page to load first.
 				setTimeout(function() {
@@ -449,8 +458,11 @@ function starmap() {
 						.attr("data-group", function(d){ return d.group; })
 						.attr("id", function(d){ return d.identifier })
 						.on("click", function(d){ renderNode(d); })
-						.on("touchstart", function(d){ renderNode(d); })
-						.call(force.drag);
+						.on("touchstart", function(d){ renderNode(d); });
+					if(editable){
+						// map is editable (authoring mode), so allow dragging of step items
+						forceNode.call(force.drag);
+					}
 					/*forceCircle = forceNode.append("svg:circle")
 						.attr("id",function(d){ return "anchor_" + d.identifier; })
 						.attr("class","main")
@@ -578,8 +590,11 @@ function starmap() {
 								renderNode(d);
 							}
 						})
-						.on("touchstart", function(d){ zoom(this, d); })
-						.call(sDrag);
+						.on("touchstart", function(d){ zoom(this, d); });
+					if(editable){
+						// map is editable (authoring mode), so allow dragging of activity items
+						forceSeq.call(sDrag);
+					}
 	
 					forceSeq.append("svg:image")
 						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-radial.png")
@@ -691,9 +706,9 @@ function starmap() {
 						.data(force.links().filter(function(d){ return d.type; }))
 						.enter().insert("path", ".node")
 						.attr("class", function(d){
-							if(d.type==="path"){
+							if(d.type==="seq-path"){
 								return "link path";
-							} else if(d.type==="sequence"){
+							} else if(d.type==="seq-seq"){
 								return "link seq";
 							}
 						})
@@ -745,16 +760,13 @@ function starmap() {
 						d.fixed = true; 
 					});
 					loaded = true;
-
-					// remove loading message
-					svgLoading.remove();
 					
 					// fire completion callback
 					complete();
 				}, 10);
 			}
 
-			function tick(){
+			function tick(e){
 				//g.selectAll("circle.item")
 					//.attr("cx", function(d) { return d.x; })
 					//.attr("cy", function(d) { return d.y; });
@@ -768,6 +780,46 @@ function starmap() {
 				/*g.selectAll("g.item circle.main").attr("r", function(d){
 					return (d3.select(this).classed('mouseover') || d.current) ? r+2 : r;
 				});*/
+				
+				// adjust positions for offset
+				g.selectAll("g.item.seq").each(function(d) {
+					// adjust positions for offset
+					d.x += (forceXMid - width/2)*.2*e.alpha;
+					d.y += (forceYMid - height/2)*.2*e.alpha;
+				});
+				
+				// move children towards parents
+				/*g.selectAll("g.item.node").each(function(d) {
+					var groupX = 0,
+						groupY = 0;
+					d3.selectAll(view.escapeIdForJquery('#' + d.group)).each(function(t){
+						groupX = t.x;
+						groupY = t.y;
+					});
+					d.x += (d.x-groupX)*.005*e.alpha;
+					d.y += (d.y-groupY)*.005*e.alpha;
+				});*/
+
+				// constrain items to map bounds
+				g.selectAll("g.item").each(function(d) {
+					// ensure node positions are numerical
+					// TODO: not sure if this is helping at all; need to figure out why we sometimes get NaN values
+					if(isNaN(d.x)) d.x = width/2;
+					if(isNaN(d.y)) d.y = height/2;
+					if(isNaN(d.px)) d.px = d.x;
+					if(isNaN(d.py)) d.py = d.y;
+					
+					var pad = d.master ? 0 : 20,
+						xMax = forceX2+pad,
+						xMin = forceX1-pad,
+						yMax = forceY2+pad,
+						yMin = forceY1-pad;
+						
+					if(d.x > xMax) d.x = xMax;
+					if(d.x < xMin) d.x = xMin;
+					if(d.y > yMax) d.y = yMax;
+					if(d.y < yMin) d.y = yMin;
+				});
 				
 				if(!loaded){
 					var i = 0,
@@ -785,24 +837,24 @@ function starmap() {
 						qc.visit(collide(force.nodes()[i]));
 					}
 				}
-
-				// constrain items to map bounds
-				g.selectAll("g.item").each(function(d) {
-					// ensure node positions are numerical
-					// TODO: not sure if this is helping at all; need to figure out why we sometimes get NaN values
-					if(isNaN(d.x)) d.x = width/2;
-					if(isNaN(d.y)) d.y = height/2;
-					if(isNaN(d.px)) d.px = d.x;
-					if(isNaN(d.py)) d.py = d.y;
-					
-					if(d.master){
-						d.x = Math.max(margin.left, Math.min(width - margin.left, d.x));
-						d.y = Math.max(margin.top, Math.min(height - margin.top, d.y)); 
-					} else {
-						d.x = Math.max(margin.left/2, Math.min(width - margin.left/2, d.x));
-						d.y = Math.max(margin.top/2, Math.min(height - margin.top/2, d.y));
+				
+				/*if(!loaded){
+					var i = 0,
+						n = masters.length,
+						qm = d3.geom.quadtree(masters),
+						qc = d3.geom.quadtree(children);
+						q = d3.geom.quadtree(force.nodes());
+					var group = [];
+					while (++i < n) {
+						qm.visit(collide(masters[i]));
+						var a = 
+						group = d3.selectAll(view.escapeIdForJquery('#' + masters[i].group));
+						qg = d3.geom.quadtree(group);
+						for(var a=0; a<qg.length; a++){
+							qg.visit(collide(group[a]));
+						}
 					}
-				});
+				}*/
 
 				g.selectAll("g.item").attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
@@ -814,29 +866,10 @@ function starmap() {
 			};
 
 			force.on("tick", function(e) {
-				tick();
+				tick(e);
 			});
 
 			draw();
-
-			/*$('#toggleView').on('click',function(){
-		  if(canEdit){
-			  canEdit = false;
-			  force.stop();
-			  g.selectAll('.node, .seq').each(function(d){
-				 d.fixed = true; 
-			  });
-			  $(this).text('Student View');
-		  } else {
-			  canEdit = true;
-			  force.resume();
-			  g.selectAll('.node, .seq').each(function(d){
-				 d.fixed = false; 
-			  });
-			  $(this).text('Author View');
-		  }
-	  });*/
-
 		});
 	};
 	
@@ -844,16 +877,19 @@ function starmap() {
 	
 	// returns a list of all nodes under the root
 	function flatten(root) {
-		var nodes = [], a = 0, s = 0, spacing = width/masterIds.length;
+		var nodes = [], a = 0, s = 0,
+			n = masterIds.length,
+			spacing = forceW/n,
+			startX = forceXMid - spacing*n/2;
 
 		function recurse(node,id) {
 			var isMaster = ($.inArray(node.identifier,masterIds) > -1),
 				hasChildren = (typeof node.children !== "undefined");
 			if (hasChildren || isMaster) {
 				node.group = node.identifier;
-				var x = 10 + s*spacing;
+				var x = startX + s*spacing;
 				//var y = Math.random()*height;
-				var y = height/2 + Math.random()*6 - 6;
+				var y = forceYMid + Math.random()*6 - 6;
 				//var x = 10*(s%10);
 				node.x = x;
 				node.y = y;
