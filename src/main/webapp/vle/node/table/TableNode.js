@@ -821,6 +821,14 @@ TableNode.prototype.displayAggregateGraph = function(dom, aggregateDataArray, gr
 	dom.show();
 };
 
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+TableNode.prototype.canSpecialExport = function() {
+	return true;
+};
+
 /*
  * Add this node to the node factory so the vle knows it exists.
  * TODO: rename both occurrences of TemplateNode
