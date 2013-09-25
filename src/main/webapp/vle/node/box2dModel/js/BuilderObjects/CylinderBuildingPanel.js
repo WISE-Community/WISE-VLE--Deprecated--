@@ -140,8 +140,9 @@
 		var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
 		var iWidth = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-1;
 		var iHeight = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1;
-		this.drawMaterial(this.materialsMenu.current_material_name,GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-iHeight);
-
+		this.width_units = GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth;
+		this.height_units = GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS -iHeight;
+		
 		var htmlText, htmlElement;
 
 		// jquery ui
@@ -265,6 +266,9 @@
 			$("#slider-height").show();
 			$("#slider-sideAngle").show();
 			$("#slider-topAngle").show();
+
+			this.drawMaterial(this.materialsMenu.current_material_name);
+
 		}
 		this.enabled = true;
 		stage.ready_to_update = true; 
@@ -350,12 +354,14 @@
 	}
 
 	////////////////////// CLASS SPECIFIC ////////////////////
-	p.update_diameter = function (units){if (this.displayed_block != null){
+	p.update_diameter = function (units){
+		if (this.displayed_block != null){
 			this.displayed_block.set_diameter_units(units);
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
 				this.diameterText.text = "Diameter: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
 			}
-		}				
+		}	
+		this.width_units = units;			
 	}
 	p.update_height = function (units){
 		if (this.displayed_block != null){
@@ -364,6 +370,7 @@
 				this.heightText.text = "Height: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
 			}
 		}
+		this.height_units = units;
 	}
 	p.update_view_sideAngle = function (degrees)
 	{
@@ -384,7 +391,7 @@
 		this.drawMaterial(material_name);
 	}
 
-	p.drawMaterial = function (material_name, initial_diameter, initial_height)
+	p.drawMaterial = function (material_name)
 	{
 		var o, i;
 		// if blocks array is not empty remove these from display
@@ -393,27 +400,50 @@
 			this.removeChild(this.displayed_block);
 			this.displayed_block = null
 		}
-		o = this.newBlock(material_name, initial_diameter, initial_height);
+		o = this.newBlock(material_name);
 		this.placeBlock(o);	
 		this.updateCountText(material_name);
 		stage.ready_to_update = true;
 	}
 	
 	/** Create a new block with the given material name and index along the depth_arrays array */
-	p.newBlock = function (material_name, initial_diameter, initial_height)
+	p.newBlock = function (material_name)
 	{
 		if (GLOBAL_PARAMETERS.materials[material_name].block_count[0] < GLOBAL_PARAMETERS.materials[material_name].block_max[0])
 		{
+			// if necessary re-randomize
+			if (GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES){
+				var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
+				var iWidth = Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS;
+				var iHeight = Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS;
+				this.width_units = GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth;
+				this.height_units = GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS -iHeight;
+				$('#slider-diameter').slider('option','value',iWidth);
+				$('#slider-height').slider('option','value',iHeight);
+				if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+					this.diameterText.text = "Diameter: " + Math.round(10*this.width_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.heightText.text = "Height: " + Math.round(10*this.height_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+				}
+			} else {
+				this.width_units = 1;
+				this.height_units = 1;
+				$('#slider-diameter').slider('option','value',GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - this.width_units);
+				$('#slider-height').slider('option','value',GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS - this.height_units);
+				if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+					this.diameterText.text = "Diameter: " + Math.round(10*this.width_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.heightText.text = "Height: " + Math.round(10*this.height_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+				}
+			}
+			
 			var o = new CylinderShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
-			if (typeof initial_diameter != "undefined") o.set_diameter_units(initial_diameter);
-			if (typeof initial_height != "undefined") o.set_height_units(initial_height)
+			o.set_diameter_units(this.width_units);
+			o.set_height_units(this.height_units)
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
 			o.depth_array_index = 0;
 			this.updateCountText(material_name);
-			$("#slider-diameter").slider('value', 4);
-			$("#slider-height").slider('value', 4);
+			
 			return o;
 		} else
 		{
@@ -584,6 +614,8 @@
 			var index = blockArray.length - i - 1;
 			cylinderArrays.heights[index] = blockArray[i].height_units;
 			cylinderArrays.diameters[index] = blockArray[i].depth_units;
+			cylinderArrays.depths[index] = blockArray[i].depth_units;
+			cylinderArrays.widths[index] = blockArray[i].depth_units;
 			cylinderArrays.materials[index] = blockArray[i].material_name;
 			if (!GLOBAL_PARAMETERS.materials[blockArray[i].material_name].is_container) is_container = false;
 		}

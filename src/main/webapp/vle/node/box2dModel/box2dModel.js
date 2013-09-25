@@ -77,7 +77,7 @@ Box2dModel.prototype.checkPreviousModelsForTags = function(tagName, functionArgs
 					//get the latest work for the node
 					var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 					//console.log(latestWork, latestWork.response.savedModels, result.previousModels,  result.previousModels.concat(latestWork.response.savedModels))
-					result.previousModels = result.previousModels.concat(latestWork.response.savedModels);					
+					if (typeof latestWork.response !== "undefined") result.previousModels = result.previousModels.concat(latestWork.response.savedModels);					
 				}
 			}
 		}		

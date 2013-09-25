@@ -534,10 +534,10 @@ Table.prototype.getStudentWorkHtmlView = function(work) {
 			html += "<td>";
 			
 			//get the values for the cell from the content
-			var cellData = tableData[x][y];
-			var cellText = cellData.text;
-			var cellUneditable = cellData.uneditable;
-			var cellSize = cellData.cellSize;
+			var cellData = typeof tableData[x] !== "undefined" ? tableData[x][y] : undefined;
+			var cellText = typeof cellData !== "undefined" ? cellData.text : '';
+			var cellUneditable = typeof cellData !== "undefined" ? cellData.uneditable: false;
+			var cellSize = typeof cellData !== "undefined" ? cellData.cellSize: null;
 			
 			if(cellSize == null || cellSize == '') {
 				//cell size is not defined so we will just use the global cell size
@@ -2369,11 +2369,11 @@ Table.prototype.processTagMaps = function() {
 						}
 
 						// use only specified column names
-						var arrColumnNamesToUse = functionArgs.length > 0 ? functionArgs[0].split(/ *, */) : [];
-						if (arrColumnNamesToUse.length > 0){
+						var arrColumnNamesToImport = functionArgs.length > 0 ? functionArgs[0].split(/ *, */) : [];
+						if (arrColumnNamesToImport.length > 0){
 							var ntableData = [];
-							for (var c = arrColumnNamesToUse.length-1; c >= 0; c--){
-								var colName = arrColumnNamesToUse[c];
+							for (var c = arrColumnNamesToImport.length-1; c >= 0; c--){
+								var colName = arrColumnNamesToImport[c];
 								for (var i = tableData.length-1; i >= 0; i--){
 									if (tableData[i][0].text.match(colName) != null){
 										//console.log(colName,"in?", tableData[i][0].text, "because",tableData[i][0].text.match(colName));
@@ -2382,6 +2382,19 @@ Table.prototype.processTagMaps = function() {
 								}
 							}
 							tableData = ntableData;
+						}
+
+						// replace names if argument given
+						var arrColumnNamesToDisplay = functionArgs.length > 0 && typeof functionArgs[1] === "string" ? functionArgs[1].split(/ *, */) : [];
+						if (arrColumnNamesToDisplay.length > 0){
+							for (var c = 0; c < arrColumnNamesToDisplay.length; c++){
+								var colName = arrColumnNamesToDisplay[c];
+								// is there a corresponding column at this index in the table?
+								// and is the text in the colName valid (i.e. greater than zero length)
+								if (c < tableData.length && colName.length > 0){
+									tableData[c][0].text = colName;
+								}
+							}
 						}
 
 						var tableState = {
@@ -2403,6 +2416,9 @@ Table.prototype.processTagMaps = function() {
 					//get the work to import
 					var bstate = this.node.getWorkToImport(tagName, functionArgs)[0];
 					if (typeof bstate !== "undefined" && typeof bstate.response !== "undefined" && typeof bstate.response.tableData !== "undefined"){
+						// we want to use previous work to show box2d models below prompt
+						$('#previousWorkDiv').before($('#promptDiv'));
+
 						var ptableData = bstate.response.tableData;
 						// must copy all values in table so that we don't change them when we go back to box2d
 						// can pull from more than one step
@@ -2442,7 +2458,7 @@ Table.prototype.processTagMaps = function() {
 						
 						var showTestedMassValuesOnly = functionArgs[0] == "true" ||  functionArgs[0] == "1" ? true: false;
 						var showTestedLiquidValuesOnly = functionArgs[1] == "true" ||  functionArgs[1] == "1" ? true: false;
-						var arrColumnNamesToUse = functionArgs.length > 2 ? functionArgs[2].split(/ *, */) : [];
+						var arrColumnNamesToImport = functionArgs.length > 2 ? functionArgs[2].split(/ *, */) : [];
 						// if showTestedValuesOnly make any values associated with mass or volume correspond to test on scale or beaker
 						if (showTestedLiquidValuesOnly){
 							var tested_in_any_beaker = [];
@@ -2500,8 +2516,8 @@ Table.prototype.processTagMaps = function() {
 								tableData.splice(i,1);
 							}
 						}
-						// remove "id if we are not showing previous work"
-						if ($("#previousWorkDiv").children().length == 0){
+						// remove "id" if we are not showing previous work and we are not specifying columns
+						if ($("#previousWorkDiv").children().length == 0 && arrColumnNamesToImport.length == 0){
 							for (var i = tableData.length-1; i >= 0; i--){
 								if (tableData[i][0].text=="id"){
 									tableData.splice(i,1);
@@ -2513,10 +2529,10 @@ Table.prototype.processTagMaps = function() {
 							tableData[i][0].text = tableData[i][0].text.replace(/_/g, " ");
 						}
 						// use only specified column names
-						if (arrColumnNamesToUse.length > 0){
+						if (arrColumnNamesToImport.length > 0){
 							var ntableData = [];
-							for (var c = arrColumnNamesToUse.length-1; c >= 0; c--){
-								var colName = arrColumnNamesToUse[c];
+							for (var c = arrColumnNamesToImport.length-1; c >= 0; c--){
+								var colName = arrColumnNamesToImport[c];
 								for (var i = tableData.length-1; i >= 0; i--){
 									if (tableData[i][0].text.match(colName) != null){
 										//console.log(colName,"in?", tableData[i][0].text, "because",tableData[i][0].text.match(colName));
@@ -2526,12 +2542,31 @@ Table.prototype.processTagMaps = function() {
 							}
 							tableData = ntableData;
 						}
+						// replace names if argument given
+						var arrColumnNamesToDisplay = functionArgs.length > 0 && typeof functionArgs[3] === "string" ? functionArgs[3].split(/ *, */) : [];
+						if (arrColumnNamesToDisplay.length > 0){
+							for (var c = 0; c < arrColumnNamesToDisplay.length; c++){
+								var colName = arrColumnNamesToDisplay[c];
+								// is there a corresponding column at this index in the table?
+								// and is the text in the colName valid (i.e. greater than zero length)
+								if (c < tableData.length && colName.length > 0){
+									tableData[c][0].text = colName;
+								}
+							}
+						}
 
 						// round numbers
 						for (var i = tableData.length-1; i >= 0; i--){
 							for (var j = 1; j < tableData[i].length; j++){
-								if (!isNaN(tableData[i][j].text)){
-									tableData[i][j].text = Math.round(tableData[i][j].text*100)/100;
+								if (!isNaN(parseFloat(tableData[i][j].text))){
+									// is this an array of numbers?
+									if (typeof tableData[i][j].text.length !== "undefined"){
+										for (var l = 0; l < tableData[i][j].text.length; l++){
+											tableData[i][j].text[l] = Math.round(tableData[i][j].text[l]*100)/100;
+										}
+									} else {
+										tableData[i][j].text = Math.round(tableData[i][j].text*100)/100;
+									}
 								}
 							}
 						}

@@ -38,8 +38,8 @@ TableNode.authoringToolDescription = "Students fill out a table"; //TODO: rename
 TableNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
 	{functionName:'showPreviousWork', functionArgs:[]},
-	{functionName:'importWorkFromBox2d', functionArgs:['showTestedMassValuesOnly', 'showTestedLiquidValuesOnly','arrColumnNamesToUse']},
-	{functionName:'importWorkFromNetLogo', functionArgs:['arrColumnNamesToUse']}
+	{functionName:'importWorkFromBox2d', functionArgs:['showTestedMassValuesOnly', 'showTestedLiquidValuesOnly','arrColumnNamesToImport','arrColumnNamesToDisplay']},
+	{functionName:'importWorkFromNetLogo', functionArgs:['arrColumnNamesToImport', 'arrColumnNamesToDisplay']}
 ];
 
 /**
