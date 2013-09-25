@@ -380,7 +380,7 @@ View.prototype.EpigameNode.updateSettings = function() {
 			rank4Val: $("#rank4Text").val(),
 			rank5Val: $("#rank5Text").val(),
 			forceRestriction: Boolean($("#forceRestrictionToggle").prop("checked")),
-			hideQuizScore: Boolean($("#hideQuizScoreToggle").prop("checked"))
+			hideQuizScore: Boolean($("#hideQuizScoreToggle").prop("checked")),
 			disableEncyclopedia: Boolean($("#disableEncyclopediaToggle").prop("checked"))			
 		};
 	} else {
