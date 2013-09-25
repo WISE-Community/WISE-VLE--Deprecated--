@@ -229,6 +229,7 @@ var scriptloader = function(){
 					// add jqueryui css (either from theme or WISE default)
 					if(data.jqueryui_css && typeof data.jqueryui_css == 'string'){
 						var csspath = 'vle/' + themepath + data.jqueryui_css;
+						jqueryUICss = csspath;
 						c.push(csspath);
 					} else {
 						c.push(jqueryUICss);

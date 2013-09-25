@@ -13,7 +13,9 @@
 	<div id="projectTools" class="toolbar gradient">
 		<ul>
 			<!-- SUGGESTED ELEMENT: toggleNav toggles the project navigation UI (You can customize the link's behavior for each navigation mode included with this theme; see README.txt for more details) -->
-			<li id="toggleNav"></li>
+			<li id="toggleNavLinks">
+				<span id="toggleNav"></span>
+			</li>
 			
 			<!-- REQUIRED ELEMENTS: viewIdeaBasket, addIdea, viewMyWork, viewMyFiles, viewFlagged (links to core WISE project features are inserted; okay to move/style, convert to <div> elements, etc.) -->
 			<li id="ideaBasketLinks" class="menuGroup">
@@ -28,7 +30,9 @@
 			</li>
 			
 			<!-- SUGGESTED ELEMENT: sign out and exit to home links inserted here (Okay to move/style, convert to buttons, etc.) -->
-			<li id="signOutLinks" class="menuGroup"></li>
+			<li id="signOutLinks" class="menuGroup">
+				<span id="exit"></span> / <span id="signOut"></span>
+			</li>
 		</ul>
 	</div>
 </header>
@@ -74,7 +78,10 @@
 	        </ul>
 	        
 	        <!-- SUGGESTED ELEMENT - links to quickly navigate forward and backward through project steps are inserted here (Okay to move/style) -->
-			<div id="stepNav"></div>
+			<div id="stepNav">
+				<span id="prevNode"></span>
+				<span id="nextNode"></span>
+			</div>
 		</div>
 	</section>
 </div>

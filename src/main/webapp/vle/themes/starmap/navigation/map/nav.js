@@ -20,10 +20,10 @@
  * navigation menu should be included here. (It is okay to leave this function empty.)
  */
 NavigationPanel.prototype.menuCreated = function() {
-	$('#navigation').fadeIn();
-	
 	// set the text and title for the toggle navigation menu button
-	$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title","theme")).html(view.getI18NString("toggle_nav_button_text","theme"));
+	$('#toggleNavLink > span').eq(1).attr('title',view.getI18NString("toggle_nav_button_title","theme")).html(view.getI18NString("toggle_nav_button_text","theme"));
+	
+	$('#navigation').fadeIn();
 	
 	// on stepHeader hover show step title, vice versa
 	/*$('#stepHeader').hover(
@@ -51,6 +51,9 @@ NavigationPanel.prototype.menuCreated = function() {
 
 	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
 	view.eventManager.subscribe('constraintStatusUpdated', this.constraintStatusUpdatedListener, this);
+	
+	// hide loading image
+	setTimeout(function(){ $('#navLoading').fadeOut('fast'); }, 1000);
 };
 
 /**
@@ -335,9 +338,14 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		}
 
 	} else {
+		//the nav ui is empty so we need to build it
 		this.mode = 'nav'; // variable to hold current mode of the vle: 'nav' (viewing menu) or 'node' (viewing a step)
 		
-		//the nav ui is empty so we need to build it
+		// insert top menu link icons
+		$('#toggleNavLink').html('<span class="icon"></span><span>' + $('#toggleNavLink').html() + '</span>');
+		$('#exitLink').html('<span class="icon"></span><span>' + $('#exitLink').html() + '</span>');
+		$('#signOutLink').html('<span class="icon"></span><span>' + $('#signOutLink').html() + '</span>');
+		
 		$('#navigation').append('<a id="export">Export</a>');
 		
 		this.map = starmap() // create map instance
@@ -385,13 +393,22 @@ NavigationPanel.prototype.render = function(forceReRender) {
 		}
 		map.attributes(nodeAttributes);
 		map.complete(function(){ view.eventManager.fire('navigationMenuCreated'); });
+		// set margin left to 220, to ensure items don't overlap tag map icons
+		// TODO: make more flexible - programmatically add repellent regions in d3 force layout for each tag map display item
+		//map.margin({top: 50, right: 50, bottom: 50, left: 220});
+		
+		if(view.config.getConfigParam('mode') === "portalpreview"){
+			// we're in preview mode, so allow position editing and item position export
+			map.editable(true);
+			$('#export').show();
+			$('#export').on('click', function(){
+				alert(JSON.stringify(map.attributes()));
+			});
+		}
+		
 		d3.select('#my_menu')
 			.datum(projectJSON)
 			.call(map);
-		
-		$('#export').on('click', function(){
-			alert(JSON.stringify(map.attributes()));
-		});
 	};
 
 	/* add appropriate classes for any constraints that may apply to 
@@ -460,6 +477,7 @@ function PilotRatingGlobalTagMap(view, parameters) {
 	//create the img element to display the pilot rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
 	img.setAttributeNS(null, 'id', pilotRatingId);
+	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
 	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
@@ -625,7 +643,6 @@ PilotRatingGlobalTagMap.prototype.getIconFromScore = function(score) {
 	return icon;
 };
 
-
 WarpRatingGlobalTagMap.prototype = new GlobalTagMap();
 WarpRatingGlobalTagMap.prototype.constructor = WarpRatingGlobalTagMap;
 WarpRatingGlobalTagMap.prototype.parent = GlobalTagMap.prototype;
@@ -691,6 +708,7 @@ function WarpRatingGlobalTagMap(view, parameters) {
 	//create the img element to display the warp rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
 	img.setAttributeNS(null, 'id', warpRatingId);
+	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
 	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
@@ -932,6 +950,7 @@ function AdvisorRatingGlobalTagMap(view, parameters) {
 	//create the img element to display the warp rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
 	img.setAttributeNS(null, 'id', 'advisorRating');
+	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
 	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);

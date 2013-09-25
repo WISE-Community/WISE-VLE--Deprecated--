@@ -161,7 +161,8 @@ View.prototype.displayGlobalTools = function() {
 	// Insert previous and next step links 
 	var prevNodeLink = "<a id='previousStepLink' onclick='eventManager.fire(\"navigationPanelPrevButtonClicked\")' title='"+this.getI18NString("previous_step_title")+"'></a>";	
 	var nextNodeLink = "<a id='nextStepLink' onclick='eventManager.fire(\"navigationPanelNextButtonClicked\")' title='"+this.getI18NString("next_step_title")+"'></a>";
-	$('#stepNav').html(prevNodeLink + ' ' + nextNodeLink);
+	$('#prevNode').html(prevNodeLink);
+	$('#nextNode').html(nextNodeLink);
 	
 	// Insert sign out and exit to home links
 	var goHomeHref = "/webapp/student/index.html";
@@ -171,7 +172,8 @@ View.prototype.displayGlobalTools = function() {
 	}
 	var signOutLink = '<a id="signOutLink" title="'+this.getI18NString("signout_button_title")+'" onclick="view.logout()">'+this.getI18NString("signout_button_text")+'</a>';
 	var exitLink = '<a id="exitLink" target="_parent" title="'+this.getI18NString("gohome_button_title")+'" onclick="window.parent.location=\'' + goHomeHref + '\'">'+this.getI18NString("gohome_button_text")+'</a>';
-	$("#signOutLinks").html(exitLink +  ' / ' + signOutLink);
+	$("#signOut").html(signOutLink);
+	$("#exit").html(exitLink);
 	
 	// Insert default text for userNames
 	if($('#userNames').html() == ''){
@@ -897,7 +899,7 @@ View.prototype.renderNodeCompletedListener = function(position){
  * 4. Render Node Complete.
  */
 View.prototype.renderNode = function(position){
-	this.notificationManager.notify('rendering  node, pos: ' + position,4);
+	this.notificationManager.notify('rendering node, pos: ' + position,4);
 	
     var nodeToVisit = null;
     if (position == null) {
