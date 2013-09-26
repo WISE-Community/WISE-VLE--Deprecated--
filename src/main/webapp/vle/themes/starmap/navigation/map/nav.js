@@ -140,12 +140,13 @@ NavigationPanel.prototype.toggleVisibility = function() {
 			.attr('data-iconPath', '')
 			.classed('iconChanged', false)
 			.transition()
-			.duration(250)
+			.duration(1000)
 			.delay(500)
-			.attr('width', 44)
-			.attr('height', 44)
-			.attr('x', -22)
-			.attr('y', -22)
+			.ease('elastic-out')
+			.attr('width', 50)
+			.attr('height', 50)
+			.attr('x', -25)
+			.attr('y', -25)
 			.transition()
 			.duration(1500)
 			.ease('bounce')
@@ -1421,20 +1422,22 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
 		//the step is not visitable so we will grey out the step
 		
 		//get the position of the step
-		var position = thisView.getProject().getPositionById(nodeId);
-		var positionEscaped = thisView.escapeIdForJquery(position);
+		//var position = thisView.getProject().getPositionById(nodeId);
+		//var positionEscaped = thisView.escapeIdForJquery(position);
+		var idEscaped = thisView.escapeIdForJquery(nodeId);
 
 		//grey out the step
-		$('#node_' + positionEscaped).addClass('constraintDisable');
+		d3.select('#' + idEscaped).classed('constraintDisable',true);
 	} else if(statusType == 'isVisitable' && statusValue == true) {
 		//the step is visitable so we will make sure it is not greyed out
 		
 		//get the position of the step
-		var position = thisView.getProject().getPositionById(nodeId);
-		var positionEscaped = thisView.escapeIdForJquery(position);
+		//var position = thisView.getProject().getPositionById(nodeId);
+		//var positionEscaped = thisView.escapeIdForJquery(position);
+		var idEscaped = thisView.escapeIdForJquery(nodeId);
 
 		//remove the class that greys out the step
-		$('#node_' + positionEscaped).removeClass('constraintDisable');
+		d3.select('#' + idEscaped).classed('constraintDisable',false);
 	}
 };
 

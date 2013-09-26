@@ -350,6 +350,18 @@ svg#chart {
 	fill: #d1ffef;
 }
 
+.seqInfo, .nodeInfo {
+	z-index: 1;
+}
+
+.item .locked {
+	opacity: 0;
+}
+
+.item.constraintDisable .locked {
+	opacity: 1;
+}
+
 #activityControls {
 	position: absolute;
 	right: 25px;
@@ -364,7 +376,7 @@ svg#chart {
 	color: #cfff4a;
 	font-family: 'Yanone Kaffeesatz', sans-serif;
 	font-weight: 200;
-	font-size: 1.05em;
+	font-size: 1.1em;
 	left: 12px;
     line-height: 48px;
     position: absolute;

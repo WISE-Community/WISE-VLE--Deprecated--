@@ -487,15 +487,19 @@ function starmap() {
 						.on("mouseover", function(d){
 							this.parentNode.parentNode.appendChild(this.parentNode);
 							// adjust position of rollover info (left or right of icon) to ensure it doesn't get cut off by edge of layout
-							var bgX = 12/k + 5*zoomRatio,
-							titleOffset = 14/k + 5*zoomRatio,
+							var bgX = 16/k,
+							titleOffset = 14/k,
+							lockedOffset = 168/k,
 							bgWidth = 199/k + 4/k;
 							if(d.x > (width-bgWidth)){
 								bgX = -bgWidth - bgX;
 							}
-							var titleX = bgX + titleOffset
+							
+							var titleX = bgX + titleOffset,
+								lockedX = bgX + lockedOffset;
 							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".titleBg").attr("x",bgX);
 							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".title").attr("x",titleX);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".locked").attr("x",lockedX);
 							if(d3.select(view.escapeIdForJquery("#" + d.identifier)).classed("active")){
 								d3.select(view.escapeIdForJquery("#" + d.identifier + "_radial"))
 									.transition()
@@ -529,18 +533,26 @@ function starmap() {
 					var forceNodeInfo = forceNode.append("svg:g")
 						.attr("class","nodeInfo")
 						.attr("id", function(d){ return d.identifier + "_info"; });
+					
+					forceNodeInfo.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-locked.png")
+						.attr("width", 24/k)
+						.attr("height", 16/k)
+						.attr("x", 168/k)
+						.attr("y", -52/k)
+						.attr("class", "locked");
 	
 					forceNodeInfo.append("svg:image")
 						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-header-blank.png")
 						.attr("width", 199/k)
 						.attr("height", 36/k)
-						.attr("x", 12/k)
-						.attr("y", -30/k)
+						.attr("x", 16/k)
+						.attr("y", -36/k)
 						.attr("class", "titleBg");
 	
 					var forceNodeText = forceNodeInfo.append("svg:text")
-						.attr("x", 26/k)
-						.attr("y", -7/k)
+						.attr("x", 30/k)
+						.attr("y", -13/k)
 						.attr("class", "title")
 						.style("font-size", function(){ return 12/k + 'pt'; });
 	
@@ -636,22 +648,26 @@ function starmap() {
 						.on("mouseover", function(d){
 							this.parentNode.parentNode.appendChild(this.parentNode);
 							// adjust position of rollover info (left or right of icon) to ensure it doesn't get cut off by edge of layout
-							var bgX = 12,
+							var bgX = 16,
 							titleOffset = 14,
+							lockedOffset = 168,
 							bgWidth = 199 + 4;
 							if(d.x > (width-bgWidth)){
 								bgX = -bgWidth - bgX;
 							}
-							var titleX = bgX + titleOffset
+							
+							var titleX = bgX + titleOffset,
+								lockedX = bgX + lockedOffset;
 							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".titleBg").attr("x",bgX);
 							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".title").attr("x",titleX);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".locked").attr("x",lockedX);
 							if(!d3.select(view.escapeIdForJquery("#" + d.identifier)).classed("active")){
 								d3.select(view.escapeIdForJquery("#" + d.identifier + "_radial"))
 									.transition()
-										.attr("width", 80)
-										.attr("height", 80)
-										.attr("x", -40)
-										.attr("y", -40)
+										.attr("width", 96)
+										.attr("height", 96)
+										.attr("x", -48)
+										.attr("y", -48)
 										.duration(125);
 								d3.select(view.escapeIdForJquery("#" + d.identifier + "_info"))
 									.transition()
@@ -683,13 +699,21 @@ function starmap() {
 						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-header-blank.png")
 						.attr("width", 199)
 						.attr("height", 36)
-						.attr("x", 12)
-						.attr("y", -30)
+						.attr("x", 16)
+						.attr("y", -36)
 						.attr("class", "titleBg");
+					
+					forceSeqInfo.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-locked.png")
+						.attr("width", 24)
+						.attr("height", 16)
+						.attr("x", 168)
+						.attr("y", -52)
+						.attr("class", "locked");
 	
 					var forceSeqText = forceSeqInfo.append("svg:text")
-						.attr("x", 26)
-						.attr("y", -7)
+						.attr("x", 30)
+						.attr("y", -13)
 						.attr("class", "title");
 	
 					forceSeqText.append("svg:tspan")
@@ -757,7 +781,9 @@ function starmap() {
 					}
 					force.stop();
 					g.selectAll('.item').each(function(d){
-						d.fixed = true; 
+						d.fixed = true;
+						// ensure each node item is rendered above links
+						this.parentNode.appendChild(this);
 					});
 					loaded = true;
 					

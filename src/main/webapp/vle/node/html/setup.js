@@ -38,6 +38,10 @@ var nodeClasses = [
 var nodeIconPath = 'node/html/icons/';
 componentloader.addNodeIconPath('HtmlNode', nodeIconPath);
 
+var css = [
+	'vle/node/html/html.css'
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('html', studentVLEScripts);
@@ -45,6 +49,7 @@ scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
+scriptloader.addCssToComponent('html', css);
 
 componentloader.addNodeClasses('HtmlNode', nodeClasses);
 
