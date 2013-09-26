@@ -39,7 +39,7 @@ var nodeIconPath = 'node/html/icons/';
 componentloader.addNodeIconPath('HtmlNode', nodeIconPath);
 
 var css = [
-	'vle/node/html/html.css'
+	//'vle/node/html/html.css'
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
