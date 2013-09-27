@@ -415,6 +415,10 @@ Node.prototype.renderSummaryView = function(workgroupIdToWork,dom) {
  * and the event is fired from the page's window.onload function.
  */
 Node.prototype.pageRenderCompletedListener = function(type, args, obj){
+	if (obj.type == "HtmlNode") {
+		// no need to load content for HTML
+		return;
+	}
 	/* args[0] is the id of node's page that has been rendered */
 	if(obj.id==args[0] && obj.contentPanel && obj.contentPanel.loadContent){
 		obj.contentPanel.loadContent(obj);
