@@ -1375,19 +1375,20 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 			// In some cases we want to use the identical axes limits for x and y. Use the min and max of each axes
 			if (typeof this.content.graphOptions.useSquareAxesLimits !== "undefined" && this.content.graphOptions.useSquareAxesLimits && graphType != null && (graphType == 'scatterPlot' || graphType == 'scatterPlotbySeries') && typeof this.content.graphOptions.graphWhoSetAxesLimitsType !== "undefined" && this.content.graphOptions.graphWhoSetAxesLimitsType == 'auto' ){
 				var xMin = Infinity, yMin = Infinity, xMax = -Infinity, yMax = -Infinity;
-				// first column is x, top row is header, skip it
-				if (typeof data['K'] !== "undefined"){
-					for (var r = 0; r < data['K'].length; r ++){
-						if (!isNaN(data['K'][r]['c'][0].v) && data['K'][r]['c'][0].v != null){
-							var val = data['K'][r]['c'][0].v;
+				// I don't really understand Google's format, it seems like K was a key, but now its J... maybe I'll figure this out one day.
+				var key = typeof data['K'] !== "undefined" ? 'K' : (typeof data['J'] !== "undefined" ? 'J' : undefined);
+				if (typeof data[key] !== "undefined"){
+					for (var r = 0; r < data[key].length; r ++){
+						if (!isNaN(data[key][r]['c'][0].v) && data[key][r]['c'][0].v != null){
+							var val = data[key][r]['c'][0].v;
 							if (val < xMin) xMin = val;
 							if (val > xMax) xMax = val;
 						}
-						if (data['K'][r]['c'].length > 1){
+						if (data[key][r]['c'].length > 1){
 							// there may be more than one column for y vals iterate starting at 1
-							for (var c = 1; c < data['K'][r]['c'].length; c ++){
-								if (!isNaN(data['K'][r]['c'][c].v && data['K'][r]['c'][c].v != null)){
-									var val = data['K'][r]['c'][c].v;
+							for (var c = 1; c < data[key][r]['c'].length; c ++){
+								if (!isNaN(data[key][r]['c'][c].v && data[key][r]['c'][c].v != null)){
+									var val = data[key][r]['c'][c].v;
 									if (val < yMin) yMin = val;
 									if (val > yMax) yMax = val;
 								}

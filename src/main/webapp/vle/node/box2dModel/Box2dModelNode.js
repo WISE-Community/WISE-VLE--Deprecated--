@@ -176,9 +176,9 @@ Box2dModelNode.prototype.isCompleted = function(nodeVisits) {
 Box2dModelNode.prototype.onExit = function() {
 	//check if the content panel has been set
 	if(this.contentPanel) {
-		if (typeof this.contentPanel.tester != "undefined") this.contentPanel.tester = null
-		if (typeof this.contentPanel.builder != "undefined") this.contentPanel.builder = null;
-		if (typeof this.contentPanel.stage != "undefined"){
+		if (typeof this.contentPanel.tester !== "undefined") this.contentPanel.tester = null
+		if (typeof this.contentPanel.builder !== "undefined") this.contentPanel.builder = null;
+		if (typeof this.contentPanel.stage !== "undefined" && this.contentPanel.stage != null){
 			this.contentPanel.stage.removeAllChildren();
 			this.contentPanel.stage = null;
 		}
