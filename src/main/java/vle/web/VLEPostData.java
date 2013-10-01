@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import utils.SecurityUtils;
 import utils.VLEDataUtils;
 import vle.VLEServlet;
 import vle.domain.cRater.CRaterRequest;
@@ -65,6 +66,13 @@ public class VLEPostData extends VLEServlet {
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		String runId = request.getParameter("runId");
 		String userId = request.getParameter("userId");
 		String periodId = request.getParameter("periodId");
