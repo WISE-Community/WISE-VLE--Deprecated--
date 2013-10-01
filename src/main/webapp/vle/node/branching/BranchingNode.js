@@ -20,7 +20,11 @@ BranchingNode.prototype.parentNode = Node.prototype; //TODO: rename BranchingNod
 BranchingNode.prototype.i18nEnabled = true;
 BranchingNode.prototype.i18nPath = "/vlewrapper/vle/node/branching/i18n/";
 BranchingNode.prototype.supportedLocales = {
-	"en_US":"en_US"
+	"en_US":"en_US",
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"	
 };
 
 /*

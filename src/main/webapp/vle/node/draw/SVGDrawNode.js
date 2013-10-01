@@ -8,7 +8,10 @@ SVGDrawNode.prototype.i18nEnabled = true;
 SVGDrawNode.prototype.i18nPath = "/vlewrapper/vle/node/draw/i18n/";
 SVGDrawNode.prototype.supportedLocales = {
 	"en_US":"en_US",
-	"es":"es"
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"	
 };
 
 SVGDrawNode.tagMapFunctions = [

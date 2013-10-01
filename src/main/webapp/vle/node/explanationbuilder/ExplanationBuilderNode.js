@@ -32,7 +32,10 @@ ExplanationBuilderNode.prototype.i18nEnabled = true;
 ExplanationBuilderNode.prototype.i18nPath = "/vlewrapper/vle/node/explanationbuilder/i18n/";
 ExplanationBuilderNode.prototype.supportedLocales = {
 	"en_US":"en_US",
-	"es":"es"	
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"	
 };
 
 ExplanationBuilderNode.tagMapFunctions = [

@@ -4,7 +4,7 @@
         "description": "Text on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "toggle_nav_button_title": {
-        "value": "Volledig scherm (Verberg navigatiemenu) ",
+        "value": "Volledig scherm (Verberg navigatiemenu)",
         "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "toggle_nav_button_text_off": {
@@ -12,7 +12,7 @@
         "description": "Text on the Toggle Navigation button when navigation UI is off (hidden)"
     },
     "toggle_nav_button_title_off": {
-        "value": "Toon navigatiemenu ",
+        "value": "Toon navigatiemenu",
         "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "navigation_expand_all": {
@@ -20,7 +20,7 @@
         "description": "Text on a button to show all navigation items"
     },
     "navigation_collapse_all": {
-        "value": "Verberg alle items ",
+        "value": "Verberg alle items",
         "description": "Text on a button to hide all navigation items"
     }
 }
