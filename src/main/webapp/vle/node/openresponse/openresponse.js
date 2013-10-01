@@ -338,7 +338,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					
 					if(!completed) {
 						//the student has not submitted and revised so we will lock them in the step until they revise
-						this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeExiting', null, null);				
+						this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeAdvancing', null, null);				
 					}
 				}
 			}
