@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import utils.SecurityUtils;
 import vle.VLEServlet;
 import vle.domain.status.StudentStatus;
 
@@ -24,8 +25,16 @@ public class StudentStatusController extends VLEServlet {
 	 * statuses for a given run id
 	 * @param rquest
 	 * @param response
+	 * @throws IOException 
 	 */
-	public void doGet(HttpServletRequest request, HttpServletResponse response) {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		//get the run id
 		String runIdString = request.getParameter("runId");
 		
@@ -80,9 +89,16 @@ public class StudentStatusController extends VLEServlet {
 	 * so we can keep track of their latest status
 	 * @param request
 	 * @param response
+	 * @throws IOException 
 	 */
-	public void doPost(HttpServletRequest request, HttpServletResponse response) {
-		
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		//get the post parameters
 		String runIdString = request.getParameter("runId");
 		String periodIdString = request.getParameter("periodId");
