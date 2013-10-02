@@ -222,12 +222,15 @@ EpigameNode.prototype.processStudentWork = function(nodeVisits) {
 			if(mode == null) {
 				
 			} else if(mode == 'adaptiveQuiz') {
+				//get the latest node state
+				var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+				
 				if(nodeState != null) {
 					if(nodeState.response != null) {
 						if(nodeState.response.success == 'finished') {
 							//the student has completed this step
 							this.setStatus('isCompleted', true);
-						}						
+						}
 					}
 				}
 			} else if(mode == 'tutorial') {
