@@ -21,7 +21,10 @@ TableNode.prototype.i18nEnabled = true;
 TableNode.prototype.i18nPath = "/vlewrapper/vle/node/table/i18n/";
 TableNode.prototype.supportedLocales = {
 	"en_US":"en_US",
-	"es":"es"	
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"		
 };
 
 /*
