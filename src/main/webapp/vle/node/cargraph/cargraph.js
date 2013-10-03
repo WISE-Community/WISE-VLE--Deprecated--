@@ -2436,6 +2436,12 @@ CARGRAPH.prototype.setupAxisValues = function() {
 		$('#yMinInput').attr("disabled","disabled");		
 		$('#yMaxInput').attr("disabled","disabled");
 		$('#resetDefaultAxisLimitsButton').hide();		
+	} else {
+		//enable the student to change the axis limits
+		$('#xMinInput').attr("disabled", null);		
+		$('#xMaxInput').attr("disabled", null);		
+		$('#yMinInput').attr("disabled", null);		
+		$('#yMaxInput').attr("disabled", null);
 	}
 };
 

@@ -2808,10 +2808,10 @@ SENSOR.prototype.setupAxisValues = function() {
 		$('#yMaxInput').attr("disabled","disabled");		
 	} else {
 		//enable the student to change the axis limits
-		$('#xMinInput').attr("disabled","");		
-		$('#xMaxInput').attr("disabled","");		
-		$('#yMinInput').attr("disabled","");		
-		$('#yMaxInput').attr("disabled","");
+		$('#xMinInput').attr("disabled", null);		
+		$('#xMaxInput').attr("disabled", null);		
+		$('#yMinInput').attr("disabled", null);		
+		$('#yMaxInput').attr("disabled", null);
 	}
 };
 
