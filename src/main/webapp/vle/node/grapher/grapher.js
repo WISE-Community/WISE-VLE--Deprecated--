@@ -575,9 +575,10 @@ Grapher.prototype.parseGraphParams = function(contentGraphParams) {
 	graphParams.grid = {hoverable:true, clickable:true};
 	// if an easyClickExtremes variable exists and is true in params set up grid to have wide left and right margins to allow clicking of extremes
 	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-		graphParams.grid.borderWidth = 10;
+		//graphParams.grid.borderWidth = 10;
 		// when we have the 0.8 version of flot use this:
-		//graphParams.grid.borderWidth = {"left":10, "right":10, "top":1, "bottom":1};
+		graphParams.grid.borderWidth = {"left":10, "right":10, "top":10, "bottom":10};
+		graphParams.grid.labelMargin = 12;
 	}
 
 	graphParams.crosshair = { mode: "x" };
