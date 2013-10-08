@@ -8,7 +8,10 @@ SensorNode.prototype.i18nEnabled = true;
 SensorNode.prototype.i18nPath = "/vlewrapper/vle/node/sensor/i18n/";
 SensorNode.prototype.supportedLocales = {
 	"en_US":"en_US",
-	"es":"es"	
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"				
 };
 
 SensorNode.tagMapFunctions = [
