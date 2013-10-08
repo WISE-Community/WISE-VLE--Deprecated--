@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import utils.SecurityUtils;
 import vle.domain.webservice.crater.CRaterHttpClient;
 
 public class CRaterController extends HttpServlet {
@@ -35,8 +36,17 @@ public class CRaterController extends HttpServlet {
 	 * Handle requests to the CRater server
 	 * @param request
 	 * @param response
+	 * @throws IOException 
 	 */
-	private void handleRequest(HttpServletRequest request, HttpServletResponse response) {
+	private void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		//get the CRater request type which will be "scoring" or "verify"
 		String cRaterRequestType = request.getParameter("cRaterRequestType");
 		

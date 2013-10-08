@@ -1075,7 +1075,7 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 					}
 
 					//display the previous work step number and title along with the work
-					html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
+					html += 'Remember, your work from "Step ' + stepNumberAndTitle + '" was<br>' + work + '</br></br>';
 				};
 			}
 		};

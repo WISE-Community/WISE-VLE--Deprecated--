@@ -460,15 +460,14 @@ function PilotRatingGlobalTagMap(view, parameters) {
 	//get the possible scores
 	this.scores = parameters.scores;
 	
-	//get the id for the img element we will create
-	var pilotRatingId = PilotRatingGlobalTagMap.functionName;
-	this.pilotRatingId = pilotRatingId;
-	
 	//get the student's total score for all the steps
 	var totalScore = this.getTotalScore();
 	
 	//get the icon to initially display
 	var icon = this.getIconFromScore(totalScore);
+	
+	//get the rank from the score
+	var rank = this.getRankFromScore(totalScore);
 	
 	/*
 	 * subscribe to the studentWorkUpdated event so this tag map
@@ -479,7 +478,7 @@ function PilotRatingGlobalTagMap(view, parameters) {
 	
 	//create the img element to display the pilot rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
-	img.setAttributeNS(null, 'id', pilotRatingId);
+	img.setAttributeNS(null, 'id', 'pilotRankIconId');
 	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
@@ -490,6 +489,36 @@ function PilotRatingGlobalTagMap(view, parameters) {
 	
 	//add the img element to the starmap
 	$('#wrap').append(img);
+	
+	//create the text element to display the pilot rank
+	var pilotRatingRankText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	pilotRatingRankText.setAttributeNS(null, 'id', 'pilotRankTextId');
+	pilotRatingRankText.setAttributeNS(null, 'x', '10');
+	pilotRatingRankText.setAttributeNS(null, 'y', '20');
+	pilotRatingRankText.setAttributeNS(null, 'font-size', '12');
+	pilotRatingRankText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var pilotRatingTextNode = document.createTextNode(rank); //change me
+	pilotRatingRankText.appendChild(pilotRatingTextNode);
+	
+	//append the pilot rank text element into the dom
+	document.getElementById('wrap').appendChild(pilotRatingRankText);
+	
+	//create the text element to display the total score
+	var pilotRatingScoreText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	pilotRatingScoreText.setAttributeNS(null, 'id', 'pilotRankScoreId');
+	pilotRatingScoreText.setAttributeNS(null, 'x', '10');
+	pilotRatingScoreText.setAttributeNS(null, 'y', '110');
+	pilotRatingScoreText.setAttributeNS(null, 'font-size', '12');
+	pilotRatingScoreText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var pilotRatingScoreTextNode = document.createTextNode('Total Score: ' + totalScore); //change me
+	pilotRatingScoreText.appendChild(pilotRatingScoreTextNode);
+	
+	//append the total score text element into the dom
+	document.getElementById('wrap').appendChild(pilotRatingScoreText);
 };
 
 /**
@@ -522,7 +551,17 @@ PilotRatingGlobalTagMap.prototype.studentWorkUpdatedHandler = function() {
 
 	if(icon != null) {
 		//update the icon path to display for the pilot rating
-		$('#' + this.pilotRatingId).attr('href', icon);	
+		$('#pilotRankIconId').attr('href', icon);
+	}
+	
+	if(rank != null) {
+		//set the pilot rank e.g. 'Pilot Rank 1'
+		$('#pilotRankTextId').text(rank);		
+	}
+	
+	if(totalScore != null) {
+		//set the score e.g. 'Total Score: 550'
+		$('#pilotRankScoreId').text('Total Score: ' + totalScore);		
 	}
 };
 
@@ -548,19 +587,46 @@ PilotRatingGlobalTagMap.prototype.getTotalScore = function() {
 		var node = this.view.getProject().getNodeById(nodeId);
 		
 		if(node != null) {
-			//get the latest work for the step
-			var latestWork = vleState.getLatestWorkByNodeId(nodeId);
+			var maxScoreForNodeId = null;
 			
-			//get the score for the work
-			var score = node.getScore(latestWork);
+			//get the node visits for the step
+			var nodeVisits = vleState.getNodeVisitsByNodeId(nodeId);
 			
-			if(score != null) {
+			if(nodeVisits != null) {
+				//loop through all the node visits
+				for(var y=0; y<nodeVisits.length; y++) {
+					//get a node visit
+					var nodeVisit = nodeVisits[y];
+					
+					//get the node states
+					var nodeStates = nodeVisit.nodeStates;
+					
+					if(nodeStates != null) {
+						//loop through all the node states
+						for(var z=0; z<nodeStates.length; z++) {
+							//get a node state
+							var nodeState = nodeStates[z];
+							
+							//get the score from the node state
+							var tempScore = node.getScore(nodeState);
+							
+							//check if the score is greater than any we have seen so far
+							if(tempScore > maxScoreForNodeId) {
+								//the score is greater so we will remember it
+								maxScoreForNodeId = tempScore;
+							}
+						}
+					}
+				}
+			}
+			
+			if(maxScoreForNodeId != null) {
 				//accumulate the score
-				totalScore += score;
+				totalScore += maxScoreForNodeId;
 			}
 		}
 	}
-	
+
 	return totalScore;
 };
 
@@ -695,10 +761,6 @@ function WarpRatingGlobalTagMap(view, parameters) {
 	var warpNumber = WarpRatingGlobalTagMap.warpCount;
 	this.warpNumber = warpNumber;
 	
-	//get the id for the img element we will create
-	var warpRatingId = WarpRatingGlobalTagMap.functionName + warpNumber;
-	this.warpRatingId = warpRatingId;
-	
 	//get the student's score for the tagged step(s)
 	var score = this.getScore();
 	
@@ -708,9 +770,18 @@ function WarpRatingGlobalTagMap(view, parameters) {
 	//get the y position where we will place the icon
 	var y = 10 + (100 * warpNumber);
 	
+	//get the rank
+	var rank = this.getRankFromScore(score);
+	
+	//get the color
+	var color = this.getWarpColorFromIcon(icon);
+	
+	//create the id for the icon element
+	var warpRankIconId = 'warpRankIconId' + warpNumber;
+	
 	//create the img element to display the warp rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
-	img.setAttributeNS(null, 'id', warpRatingId);
+	img.setAttributeNS(null, 'id', warpRankIconId);
 	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
@@ -721,6 +792,70 @@ function WarpRatingGlobalTagMap(view, parameters) {
 	
 	//add the img element to the starmap
 	$('#wrap').append(img);
+	
+	//create the id for the text element
+	var warpRankTextId = 'warpRankTextId' + warpNumber;
+	
+	//create the text element to display the pilot rank
+	var warpRatingRankText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	warpRatingRankText.setAttributeNS(null, 'id', warpRankTextId);
+	warpRatingRankText.setAttributeNS(null, 'x', '10');
+	warpRatingRankText.setAttributeNS(null, 'y', y + 10);
+	warpRatingRankText.setAttributeNS(null, 'font-size', '12');
+	warpRatingRankText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var warpRatingTextNode = document.createTextNode(rank);
+	warpRatingRankText.appendChild(warpRatingTextNode);
+	
+	//append the pilot rank text element into the dom
+	document.getElementById('wrap').appendChild(warpRatingRankText);
+	
+	//create the id for the score element
+	var warpRankScoreId = 'warpRankScoreId' + warpNumber;
+	
+	//create the text element to display the total score
+	var warpRatingScoreText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	warpRatingScoreText.setAttributeNS(null, 'id', warpRankScoreId);
+	warpRatingScoreText.setAttributeNS(null, 'x', '10');
+	warpRatingScoreText.setAttributeNS(null, 'y', y + 100);
+	warpRatingScoreText.setAttributeNS(null, 'font-size', '12');
+	warpRatingScoreText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var warpRatingScoreTextNode = document.createTextNode(color + ' Warp Score: ' + score);
+	warpRatingScoreText.appendChild(warpRatingScoreTextNode);
+	
+	//append the total score text element into the dom
+	document.getElementById('wrap').appendChild(warpRatingScoreText);
+};
+
+/**
+ * Get the warp color from the icon path
+ * @param icon the icon path
+ */
+WarpRatingGlobalTagMap.prototype.getWarpColorFromIcon = function(icon) {
+	var color = null;
+	
+	if(icon != null) {
+		var iconLowerCase = icon.toLowerCase();
+		
+		if(iconLowerCase.indexOf('green') != -1) {
+			color = 'Green';
+		} else if(iconLowerCase.indexOf('blue') != -1) {
+			color = 'Blue';
+		} else if(iconLowerCase.indexOf('red') != -1) {
+			color = 'Red';
+		} else if(iconLowerCase.indexOf('purple') != -1) {
+			color = 'Purple';
+		} else if(iconLowerCase.indexOf('yellow') != -1) {
+			color = 'Yellow';
+		} else if(iconLowerCase.indexOf('orange') != -1) {
+			color = 'Orange';
+		}
+	}
+	
+	return color;
 };
 
 /**
@@ -768,8 +903,21 @@ WarpRatingGlobalTagMap.prototype.studentWorkUpdatedHandler = function(nodeId, no
 			//get the icon path
 			var icon = this.getIconFromScore(score);
 			
+			//get the color
+			var color = this.getWarpColorFromIcon(icon);
+			
 			//update the icon path for the warp rating
-			$('#' + this.warpRatingId).attr('href', icon);
+			$('#warpRankIconId' + this.warpNumber).attr('href', icon);
+			
+			if(rank != null) {
+				//set the pilot rank e.g. 'Pilot Rank 1'
+				$('#warpRankTextId' + this.warpNumber).text(rank);		
+			}
+			
+			if(score != null) {
+				//set the score e.g. 'Score: 550'
+				$('#warpRankScoreId' + this.warpNumber).text(color + ' Warp Score: ' + score);		
+			}
 		}
 	}
 };
@@ -805,18 +953,22 @@ WarpRatingGlobalTagMap.prototype.getScore = function() {
 				
 				if(latestWork != null) {
 					
-					//get the score
-					var stepScore = node.getScore(latestWork);
+					var response = latestWork.response;
 					
-					if(stepScore != null) {
-						//accumulate the score
-						score += stepScore;						
+					if(response != null) {
+						//get the final score for this warp step
+						var stepScore = response.finalScore;
+						
+						if(stepScore != null) {
+							//accumulate the score
+							score += stepScore;						
+						}
 					}
 				}
 			}
 		}
 	}
-	
+
 	return score;
 };
 

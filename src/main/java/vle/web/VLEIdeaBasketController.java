@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import utils.SecurityUtils;
 import vle.domain.ideabasket.IdeaBasket;
 
 public class VLEIdeaBasketController extends HttpServlet {
@@ -22,6 +23,15 @@ public class VLEIdeaBasketController extends HttpServlet {
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
+		
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		
 		//get all the params
 		String runId = request.getParameter("runId");
 		String periodId = request.getParameter("periodId");
@@ -502,6 +512,15 @@ public class VLEIdeaBasketController extends HttpServlet {
 	public void doGet(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
+		
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		
 		//get all the params
 		String runId = request.getParameter("runId");
 		String workgroupId = request.getParameter("workgroupId");

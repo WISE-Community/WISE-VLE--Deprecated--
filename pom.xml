@@ -19,7 +19,7 @@
 	<artifactId>vlewrapper</artifactId>
 	<packaging>war</packaging>
 	<name>VLE Wrapper</name>
-	<version>4.7</version>
+	<version>4.8</version>
 	<url>http://wise4.org</url>
 	<developers>
 		<developer>

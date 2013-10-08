@@ -32,7 +32,10 @@ ExplanationBuilderNode.prototype.i18nEnabled = true;
 ExplanationBuilderNode.prototype.i18nPath = "/vlewrapper/vle/node/explanationbuilder/i18n/";
 ExplanationBuilderNode.prototype.supportedLocales = {
 	"en_US":"en_US",
-	"es":"es"	
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"	
 };
 
 ExplanationBuilderNode.tagMapFunctions = [
@@ -517,6 +520,24 @@ ExplanationBuilderNode.prototype.isCompleted = function(nodeVisits) {
 	}
 	
 	return result;
+};
+
+/**
+ * Return the student work in html format so it can be displayed
+ * @param work the student node state for this step
+ * @return a string containing the html that will display the student
+ * work for this step
+ */
+ExplanationBuilderNode.prototype.getStudentWorkHtmlView = function(work) {
+	var html = '';
+	
+	if(work != null) {
+		if(work.answer != null) {
+			html = work.answer;
+		}
+	}
+	
+	return html;
 };
 
 /*

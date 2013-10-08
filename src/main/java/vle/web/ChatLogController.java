@@ -1,11 +1,13 @@
 package vle.web;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import utils.SecurityUtils;
 import vle.VLEServlet;
 import vle.domain.xmpp.ChatLog;
 
@@ -26,8 +28,16 @@ public class ChatLogController extends VLEServlet {
 	 * Handle POST requests
 	 * @param request
 	 * @param response
+	 * @throws IOException 
 	 */
-	public void doPost(HttpServletRequest request, HttpServletResponse response) {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		//get all the parameters
 		String chatEventType = request.getParameter("chatEventType");
 		String runId = request.getParameter("runId");

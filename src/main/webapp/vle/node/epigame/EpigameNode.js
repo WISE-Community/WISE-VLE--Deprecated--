@@ -214,59 +214,113 @@ EpigameNode.prototype.processStudentWork = function(nodeVisits) {
 	}
 	
 	if(nodeVisits != null) {
-		//get the latest node state
-		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+		var content = this.content.getContentJSON();
 		
-		if(nodeState != null) {
-			var response = nodeState.response;
+		if(content != null) {
+			var mode = content.mode;
 			
-			if(response != null && response != "") {
-				var content = this.content.getContentJSON();
+			if(mode == null) {
 				
-				if(content != null) {
-					var mode = content.mode;
-					
-					if(mode == null) {
-						
-					} else if(mode == 'adaptiveQuiz') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
-					} else if(mode == 'tutorial') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
-					} else if(mode == 'mission') {
-						//var highScore_explanation = nodeState.response.highScore_explanation;
-						var highScore_performance = nodeState.response.highScore_performance;
-						
-						//var highScore_average = (highScore_explanation + highScore_explanation) / 2;
-						var statusValue = null;
-						
-						if(highScore_performance >= 350) {
-							statusValue = 'gold';
-						} else if(highScore_performance >= 300) {
-							statusValue = 'silver';
-						} else if(highScore_performance >= 200) {
-							statusValue = 'bronze';
-						}
-
-						if(statusValue != null) {
+			} else if(mode == 'adaptiveQuiz') {
+				//get the latest node state
+				var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+				
+				if(nodeState != null) {
+					if(nodeState.response != null) {
+						if(nodeState.response.success == 'finished') {
 							//the student has completed this step
 							this.setStatus('isCompleted', true);
-							
-							//set the status value
-							this.setStatus('epigameMedal', statusValue);
 						}
-					} else if(mode == 'adaptiveMission') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
-					} else if(mode == 'adaptivePostQuiz') {
-						//the student has completed this step
-						this.setStatus('isCompleted', true);
+					}
+				}
+			} else if(mode == 'tutorial') {
+				//the student has completed this step
+				this.setStatus('isCompleted', true);
+			} else if(mode == 'mission') {
+				//get the highest mission score from the node visits
+				var score = this.getHighestMissionScore(nodeVisits);
+				
+				var statusValue = null;
+				
+				if(score == null) {
+					
+				} else if(score >= 350) {
+					statusValue = 'gold';
+				} else if(score >= 300) {
+					statusValue = 'silver';
+				} else if(score >= 200) {
+					statusValue = 'bronze';
+				}
+
+				if(statusValue != null) {
+					//the student has completed this step
+					this.setStatus('isCompleted', true);
+					
+					//set the status value
+					this.setStatus('epigameMedal', statusValue);
+				}
+			} else if(mode == 'adaptiveMission') {
+				//get the latest node state
+				var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
+				
+				if(nodeState != null) {
+					var response = nodeState.response;
+					
+					if(response != null && response != "") {
+						if(response.finalScore > 0) {
+							//the student has completed this step
+							this.setStatus('isCompleted', true);
+						}
+					}
+				}
+			} else if(mode == 'adaptivePostQuiz') {
+				//the student has completed this step
+				this.setStatus('isCompleted', true);
+			}
+		}
+	}
+};
+
+/**
+ * Get the highest mission score from the node visits
+ */
+EpigameNode.prototype.getHighestMissionScore = function(nodeVisits) {
+	var score = null;
+	
+	if(nodeVisits != null) {
+		//loop through all the node visits
+		for(var x=0; x<nodeVisits.length; x++) {
+			var nodeVisit = nodeVisits[x];
+			
+			if(nodeVisit != null) {
+				var nodeStates = nodeVisit.nodeStates;
+				
+				if(nodeStates != null) {
+					//loop through all the node states
+					for(var y=0; y<nodeStates.length; y++) {
+						var nodeState = nodeStates[y];
+						
+						if(nodeState != null) {
+							var response = nodeState.response;
+							
+							if(response != null) {
+								//get the score for this node state
+								var highScore_performance = response.highScore_performance;
+								
+								//check if the score for the node state is higher than any we have seen before
+								if(highScore_performance > score) {
+									//the score for this node state is higher so we will remember it
+									score = highScore_performance;
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 	}
+	
+	return score;
 };
 
 /**
@@ -435,7 +489,6 @@ EpigameNode.prototype.getTotalScore = function(nodeState) {
 	var totalScore = null;
 	
 	if(nodeState != null && nodeState.response != null) {
-		
 		//check if there is an explanation high score or performance high score
 		if(nodeState.response.highScore_explanation != null || 
 				nodeState.response.highScore_performance != null) {
@@ -445,7 +498,7 @@ EpigameNode.prototype.getTotalScore = function(nodeState) {
 			if(nodeState.response.highScore_explanation != null) {
 				//add the explanation high score
 				var highScoreExplanation = nodeState.response.highScore_explanation;
-				totalScore += highScoreExplanation;
+				//totalScore += highScoreExplanation;
 			}
 			
 			if(nodeState.response.highScore_performance != null) {

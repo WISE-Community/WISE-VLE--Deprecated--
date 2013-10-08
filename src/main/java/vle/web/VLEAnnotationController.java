@@ -46,37 +46,28 @@ public class VLEAnnotationController extends HttpServlet {
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
-		/* check to see if we are in portal mode */
-		if(!this.modeRetrieved){
-			this.standAlone = !SecurityUtils.isPortalMode(request);
-			this.modeRetrieved = true;
-		}
 		
 		/* make sure that this request is authenticated through the portal before proceeding */
-		if(this.standAlone || SecurityUtils.isAuthenticated(request)){
-			doPostJSON(request, response);
-		} else {
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
 			/* not authenticated send not authorized status */
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
 		}
+
+		doPostJSON(request, response);
     }
 	
 	public void doGet(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
-		/* check to see if we are in portal mode */
-		if(!this.modeRetrieved){
-			this.standAlone = !SecurityUtils.isPortalMode(request);
-			this.modeRetrieved = true;
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
 		}
 		
-		/* make sure that this request is authenticated through the portal before proceeding */
-		if(this.standAlone || SecurityUtils.isAuthenticated(request)){
-			doGetJSON(request, response);
-		} else {
-			/* not authenticated send not authorized status */
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		}
+		doGetJSON(request, response);
     }
 	
 	/**

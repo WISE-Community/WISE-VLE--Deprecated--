@@ -252,6 +252,9 @@ View.prototype.sendStudentStatusWebSocketMessage = function(currentNodeId, previ
 	//get the student status as a string
 	var status = JSON.stringify(studentStatusJSON);
 	
+	//encode the student status data
+	status = encodeURIComponent(status);
+	
 	/*
 	 * create the params for the message that will be sent 
 	 * to the StudentStatusController and saved in the
