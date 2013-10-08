@@ -522,6 +522,24 @@ ExplanationBuilderNode.prototype.isCompleted = function(nodeVisits) {
 	return result;
 };
 
+/**
+ * Return the student work in html format so it can be displayed
+ * @param work the student node state for this step
+ * @return a string containing the html that will display the student
+ * work for this step
+ */
+ExplanationBuilderNode.prototype.getStudentWorkHtmlView = function(work) {
+	var html = '';
+	
+	if(work != null) {
+		if(work.answer != null) {
+			html = work.answer;
+		}
+	}
+	
+	return html;
+};
+
 /*
  * Add this node to the node factory so the vle knows it exists.
  * xTODO: rename both occurrences of TemplateNode
