@@ -1060,14 +1060,6 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							annotationHtml += annotationCommentHtml;							
 						}
 						
-						if(nodeVisitsWithWork.length > 0 && annotationHtml == "") {
-							//the student has submitted work for the step but the teacher has not given feedback
-							var your_teacher_hasnt_graded = view.getI18NString('your_teacher_hasnt_graded');
-							
-							//there were no annotations
-							annotationHtml += "<tr><td class='teachermsg3'>" + your_teacher_hasnt_graded + "<td></tr>";
-						}
-						
 						commonFeedback += annotationHtml;
 						
 						commonFeedback += "</table></div></div>";
