@@ -12,6 +12,9 @@ View.prototype.initializeCreateProjectDialog = function(){
 	var view = this;
 	
 	var submit = function(){
+		// disable further clicking of the submit button
+		$("#createProjectDialogSubmitButton").attr("disabled","disabled"); 
+		
 		var name = $('#projectInput').val();
 		
 		/* failure callback function for creating a new project */
@@ -47,8 +50,11 @@ View.prototype.initializeCreateProjectDialog = function(){
 			 */
 			document.getElementById('projectInput').value = "";
 		
-			/* close the dialog when done */
-			$('#createProjectDialog').dialog('close');
+			// re-enable the submit button
+			$("#createProjectDialogSubmitButton").attr("disabled", null); 
+			
+			/* close the dialog when done */			
+			$('#createProjectDialog').dialog('close');			
 		};
 		
 		/* make request if name input field is not empty */
