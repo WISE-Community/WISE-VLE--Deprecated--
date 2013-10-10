@@ -53,7 +53,7 @@ Netlogo.prototype = {
     }
 
     // Someone needs to do something with this
-    var imageStr = this.nlCmdReport("web-image:base64-encode web-image:get-view-bytes");
+    //var imageStr = this.nlCmdReport("web-image:base64-encode web-image:get-view-bytes");
 
     nlState = new NetlogoState(modelDataObject);
 
