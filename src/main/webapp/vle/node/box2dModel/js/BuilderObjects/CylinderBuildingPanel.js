@@ -267,6 +267,7 @@
 			$("#slider-sideAngle").show();
 			$("#slider-topAngle").show();
 
+			this.reachedMax = false;
 			this.drawMaterial(this.materialsMenu.current_material_name);
 
 		}
@@ -274,8 +275,7 @@
 		stage.ready_to_update = true; 
 	}
 
-	p.createObject = function() 
-	{
+	p.createObject = function()	{
 		if (this.validObject())
 		{
 			var savedObject = this.saveObject();
@@ -283,6 +283,7 @@
 			// save to global parameters
 			if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
 			labWorld.createObjectInWorld(savedObject, 0, -1, 0, "dynamic");
+			this.resetMaterials();
 		} else 
 		{
 			console.log("no object to make");
@@ -391,23 +392,46 @@
 		this.drawMaterial(material_name);
 	}
 
+	p.drawCurrentMaterial = function (){
+		this.drawMaterial(this.materialsMenu.current_material_name);
+	}
+
 	p.drawMaterial = function (material_name)
 	{
-		var o, i;
+		var o;
 		// if blocks array is not empty remove these from display
 		if (this.displayed_block != null)
 		{
 			this.removeChild(this.displayed_block);
 			this.displayed_block = null
 		}
-		o = this.newBlock(material_name);
-		this.placeBlock(o);	
-		this.updateCountText(material_name);
-		stage.ready_to_update = true;
+		// check to make sure the max object limit has not been reached
+		// get # of undeleted objects
+		var object_count = 0;
+		for (var i = 0; i < GLOBAL_PARAMETERS.objects_made.length; i++) if (!GLOBAL_PARAMETERS.objects_made[i].is_deleted) object_count++;
+		if (object_count < GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD){
+			if (this.reachedMax){
+				this.removeChild(this.reachedMaxText);
+				this.reachedMax = false;
+			}
+			o = this.newBlock(material_name);
+			this.placeBlock(o);	
+			this.updateCountText(material_name);
+			stage.ready_to_update = true;
+		} else {
+			if (!this.reachedMax){
+				// we have reached the limit, display a textField to tell user to delete an object
+				this.reachedMaxText  = new createjs.Text("Reached max number of objects. \nDelete an object to make more.", "20px Arial","#880000");
+				this.addChild(this.reachedMaxText);
+				this.reachedMaxText.x = this.materialsMenu.x + this.materialsMenu.width_px + 80;
+				this.reachedMaxText.y = this.TITLE_HEIGHT + 30;
+				this.reachedMax = true;
+			}
+		}
 	}
 	
 	/** Create a new block with the given material name and index along the depth_arrays array */
-	p.newBlock = function (material_name)
+	p.newBlock = function (material_name, diameter_override, height_override)
 	{
 		if (GLOBAL_PARAMETERS.materials[material_name].block_count[0] < GLOBAL_PARAMETERS.materials[material_name].block_max[0])
 		{
@@ -436,8 +460,13 @@
 			}
 			
 			var o = new CylinderShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
-			o.set_diameter_units(this.width_units);
-			o.set_height_units(this.height_units)
+			if (typeof diameter_override !== "undefined" && typeof height_override !== "undefined"){
+				o.set_diameter_units(diameter_override);
+				o.set_height_units(height_override);
+			} else {
+				o.set_diameter_units(this.width_units);
+				o.set_height_units(this.height_units);
+			}
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
@@ -637,8 +666,6 @@
 		savedObject.is_deletable = true;
 		savedObject.is_revisable = true;
 		
-
-		this.resetMaterials();
 		return savedObject;
 	}
 

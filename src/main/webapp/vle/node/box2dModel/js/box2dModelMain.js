@@ -256,100 +256,100 @@ function init(wiseData, previousModels, forceDensityValue, tableData){
 	});
 }
 
-		function start(previousModels){
-			canvas = document.getElementById("b2canvas");
-			stage = new createjs.Stage(canvas);
-			stage.mouseEventsEnabled = true;
-			stage.enableMouseOver();
-			createjs.Touch.enable(stage);
-			stage.needs_to_update = false;
-			imgstage = new createjs.Stage(document.getElementById("imgcanvas"));
-			// setup builder
-			var labWorld_y;
-			var wall_width_units = 0.3;
-			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
-			{
-				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
-				labWorld_y = builder.height_px;	
-			} else if (GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
-				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
-				labWorld_y = builder.height_px;	
-			} else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
-				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
-				labWorld_y = builder.height_px;	
-			} else if (GLOBAL_PARAMETERS.INCLUDE_BEAKER_BUILDER){
-				builder = new BeakerBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
-				labWorld_y = builder.height_px;	
-			} else {
-				labWorld_y = 0;	
-			}
-			var world_width_units = GLOBAL_PARAMETERS.STAGE_WIDTH / GLOBAL_PARAMETERS.SCALE;
-			var world_height_units = GLOBAL_PARAMETERS.TESTER_HEIGHT / GLOBAL_PARAMETERS.SCALE
-			var labWorld = this.labWorld = new Labb2World(world_width_units , world_height_units , 7, wall_width_units, 0, labWorld_y / GLOBAL_PARAMETERS.SCALE) ;
-			stage.addChild(labWorld);
-			labWorld.y = labWorld_y;
-			if (builder != null) stage.addChild(builder);
+function start(previousModels){
+	canvas = document.getElementById("b2canvas");
+	stage = new createjs.Stage(canvas);
+	stage.mouseEventsEnabled = true;
+	stage.enableMouseOver();
+	createjs.Touch.enable(stage);
+	stage.needs_to_update = false;
+	imgstage = new createjs.Stage(document.getElementById("imgcanvas"));
+	// setup builder
+	var labWorld_y;
+	var wall_width_units = 0.3;
+	if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
+	{
+		builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+		labWorld_y = builder.height_px;	
+	} else if (GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
+		builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+		labWorld_y = builder.height_px;	
+	} else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
+		builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+		labWorld_y = builder.height_px;	
+	} else if (GLOBAL_PARAMETERS.INCLUDE_BEAKER_BUILDER){
+		builder = new BeakerBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT, wall_width_units*GLOBAL_PARAMETERS.SCALE);
+		labWorld_y = builder.height_px;	
+	} else {
+		labWorld_y = 0;	
+	}
+	var world_width_units = GLOBAL_PARAMETERS.STAGE_WIDTH / GLOBAL_PARAMETERS.SCALE;
+	var world_height_units = GLOBAL_PARAMETERS.TESTER_HEIGHT / GLOBAL_PARAMETERS.SCALE
+	var labWorld = this.labWorld = new Labb2World(world_width_units , world_height_units , 7, wall_width_units, 0, labWorld_y / GLOBAL_PARAMETERS.SCALE) ;
+	stage.addChild(labWorld);
+	labWorld.y = labWorld_y;
+	if (builder != null) stage.addChild(builder);
 
-			// make scale or balance
-			if (GLOBAL_PARAMETERS.INCLUDE_SCALE) {
-				labWorld.createScaleInWorld(world_width_units * 2/3, 0, 5, "dynamic");
-			} else if (GLOBAL_PARAMETERS.INCLUDE_BALANCE) {
-				labWorld.createBalanceInWorld(world_width_units * 2/3, 0, 10, 5, "dynamic");
-			}	
-			// make beakers
-			for (var i = 0; i < GLOBAL_PARAMETERS.beakers_in_world.length; i++){
-				var premade = GLOBAL_PARAMETERS.beakers_in_world[i];
-				var px = typeof premade.x !== "undefined" ? premade.x : 0;
-				var py = typeof premade.y !== "undefined" ? premade.y : 0; 
-				var ptype = typeof premade.type !== "undefined" ? premade.type : "dynamic"; 
-				// rename some old variables
-				if (typeof premade.width_units === "undefined" && typeof premade.width !== "undefined") premade.width_units = premade.width;
-				if (typeof premade.height_units === "undefined" && typeof premade.height !== "undefined") premade.height_units = premade.height;
-				if (typeof premade.depth_units === "undefined" && typeof premade.depth !== "undefined") premade.depth_units = premade.depth;
-				if (typeof premade.material_name === "undefined" && typeof premade.material !== "undefined") premade.material_name = premade.material;
-				if (typeof premade.liquid_name === "undefined" && typeof premade.liquid !== "undefined") premade.liquid_name = premade.liquid;
-				// add liquid in the beaker to the list of liquids in the world
-				if (GLOBAL_PARAMETERS.liquids_in_world.indexOf(premade.liquid_name) == -1){
-					GLOBAL_PARAMETERS.liquids_in_world.push(premade.liquid_name);
-				}
-
-				labWorld.createBeakerInWorld(premade, px, py, ptype);
-			}
-
-			// make premades in world
-			if (GLOBAL_PARAMETERS.premades_available.length > 0){
-				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++){
-					var premade_in_world = {};
-					premade_in_world.premade = GLOBAL_PARAMETERS.premades_available[i];
-					premade_in_world.x = 0;
-					premade_in_world.y = -1;
-					if (GLOBAL_PARAMETERS.premades_in_world.indexOf(premade_in_world) == -1)
-						GLOBAL_PARAMETERS.premades_in_world.push(premade_in_world);
-				}		
-			}
-			
-			for (i = 0; i < GLOBAL_PARAMETERS.premades_in_world.length; i++){
-				var premade = GLOBAL_PARAMETERS.premades_in_world[i];
-				if(typeof premade.premade !== "undefined" && GLOBAL_PARAMETERS.premades[premade.premade] !== "undefined"){
-					var px = typeof premade.x !== "undefined" ? premade.x : 0;
-					var py = typeof premade.y !== "undefined" ? premade.y : -1; 
-					var protation = typeof premade.rotation !== "undefined" ? premade.rotation : 0; 
-					var ptype = typeof premade.type !== "undefined" ? premade.type : "dynamic"; 
-					if (GLOBAL_PARAMETERS.objects_made.indexOf(GLOBAL_PARAMETERS.premades[premade.premade]) == -1 && typeof GLOBAL_PARAMETERS.premades[premade.premade] !== "undefined")
-						labWorld.createObjectInWorld(GLOBAL_PARAMETERS.premades[premade.premade], px, py, protation, ptype);
-				} 
-			}
-
-			// custom models built on previous visits (ones not already here)
-			for (i = 0; i < previousModels.length; i++){
-				if (GLOBAL_PARAMETERS.objects_made.indexOf(previousModels[i]) == -1){
-					labWorld.createObjectInWorld(previousModels[i], 0, -1, 0, "dynamic");
-				}				
-			}
-
-			createjs.Ticker.setFPS(24);
-			createjs.Ticker.addListener(window);
+	// make scale or balance
+	if (GLOBAL_PARAMETERS.INCLUDE_SCALE) {
+		labWorld.createScaleInWorld(world_width_units * 2/3, 0, 5, "dynamic");
+	} else if (GLOBAL_PARAMETERS.INCLUDE_BALANCE) {
+		labWorld.createBalanceInWorld(world_width_units * 2/3, 0, 10, 5, "dynamic");
+	}	
+	// make beakers
+	for (var i = 0; i < GLOBAL_PARAMETERS.beakers_in_world.length; i++){
+		var premade = GLOBAL_PARAMETERS.beakers_in_world[i];
+		var px = typeof premade.x !== "undefined" ? premade.x : 0;
+		var py = typeof premade.y !== "undefined" ? premade.y : 0; 
+		var ptype = typeof premade.type !== "undefined" ? premade.type : "dynamic"; 
+		// rename some old variables
+		if (typeof premade.width_units === "undefined" && typeof premade.width !== "undefined") premade.width_units = premade.width;
+		if (typeof premade.height_units === "undefined" && typeof premade.height !== "undefined") premade.height_units = premade.height;
+		if (typeof premade.depth_units === "undefined" && typeof premade.depth !== "undefined") premade.depth_units = premade.depth;
+		if (typeof premade.material_name === "undefined" && typeof premade.material !== "undefined") premade.material_name = premade.material;
+		if (typeof premade.liquid_name === "undefined" && typeof premade.liquid !== "undefined") premade.liquid_name = premade.liquid;
+		// add liquid in the beaker to the list of liquids in the world
+		if (GLOBAL_PARAMETERS.liquids_in_world.indexOf(premade.liquid_name) == -1){
+			GLOBAL_PARAMETERS.liquids_in_world.push(premade.liquid_name);
 		}
+
+		labWorld.createBeakerInWorld(premade, px, py, ptype);
+	}
+
+	// make premades in world
+	if (GLOBAL_PARAMETERS.premades_available.length > 0){
+		for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++){
+			var premade_in_world = {};
+			premade_in_world.premade = GLOBAL_PARAMETERS.premades_available[i];
+			premade_in_world.x = 0;
+			premade_in_world.y = -1;
+			if (GLOBAL_PARAMETERS.premades_in_world.indexOf(premade_in_world) == -1)
+				GLOBAL_PARAMETERS.premades_in_world.push(premade_in_world);
+		}		
+	}
+	
+	for (i = 0; i < GLOBAL_PARAMETERS.premades_in_world.length; i++){
+		var premade = GLOBAL_PARAMETERS.premades_in_world[i];
+		if(typeof premade.premade !== "undefined" && GLOBAL_PARAMETERS.premades[premade.premade] !== "undefined"){
+			var px = typeof premade.x !== "undefined" ? premade.x : 0;
+			var py = typeof premade.y !== "undefined" ? premade.y : -1; 
+			var protation = typeof premade.rotation !== "undefined" ? premade.rotation : 0; 
+			var ptype = typeof premade.type !== "undefined" ? premade.type : "dynamic"; 
+			if (GLOBAL_PARAMETERS.objects_made.indexOf(GLOBAL_PARAMETERS.premades[premade.premade]) == -1 && typeof GLOBAL_PARAMETERS.premades[premade.premade] !== "undefined")
+				labWorld.createObjectInWorld(GLOBAL_PARAMETERS.premades[premade.premade], px, py, protation, ptype);
+		} 
+	}
+
+	// custom models built on previous visits (ones not already here)
+	for (i = 0; i < previousModels.length; i++){
+		if (GLOBAL_PARAMETERS.objects_made.indexOf(previousModels[i]) == -1){
+			labWorld.createObjectInWorld(previousModels[i], 0, -1, 0, "dynamic");
+		}				
+	}
+
+	createjs.Ticker.setFPS(24);
+	createjs.Ticker.addListener(window);
+}		
 
 function tick() { 
 	if (labWorld != null) labWorld._tick();

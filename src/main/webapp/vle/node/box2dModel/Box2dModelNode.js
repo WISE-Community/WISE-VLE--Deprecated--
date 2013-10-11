@@ -57,7 +57,27 @@ function Box2dModelNode(nodeType, view) {
 	/////
 	////	THESE NEED TO BE PLACED IN box2dModelEvents as well;
 
-	this.customEventTypes = ['make-model', 'delete-model', 'make-beaker', 'delete-beaker', 'make-scale', 'delete-scale', 'make-beaker', 'delete-beaker', 'add-to-beaker', 'add-to-scale', 'add-to-balance', 'remove-from-beaker', 'remove-from-scale', 'remove-from-balance', 'test-in-beaker', 'test-on-scale', 'test-on-balance','gave-feedback'];	
+	this.customEventTypes = [
+		'make-model', 
+		'revise-model',
+		'duplicate-model', 
+		'delete-model', 
+		'make-beaker', 
+		'delete-beaker', 
+		'make-scale', 
+		'delete-scale', 
+		'add-to-beaker', 
+		'add-to-scale', 
+		'add-to-balance', 
+		'remove-from-beaker', 
+		'remove-from-scale', 
+		'remove-from-balance', 
+		'test-in-beaker', 
+		'test-on-scale', 
+		'test-on-balance',
+		'release-from-beaker',
+		'gave-feedback'
+	];	
 }
 
 /**

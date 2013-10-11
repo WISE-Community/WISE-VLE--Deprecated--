@@ -414,7 +414,7 @@
 			"block_max":[10, 10, 10, 10],
 			"block_count":[0, 0, 0, 0],
 			"is_container":false	
-		}
+		},
 		"Cement":
 		{
 			"display_name":"Cement",

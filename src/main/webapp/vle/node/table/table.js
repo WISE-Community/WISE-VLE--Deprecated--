@@ -2414,12 +2414,17 @@ Table.prototype.processTagMaps = function() {
 						delete nlstate;
 					}
 				} else if (functionName == "importWorkFromBox2d"){
+					// we want to use previous work to show box2d models below prompt
+					$('#previousWorkDiv').before($('#promptDiv'));
 					//get the work to import
 					var bstate = this.node.getWorkToImport(tagName, functionArgs)[0];
-					if (typeof bstate !== "undefined" && typeof bstate.response !== "undefined" && typeof bstate.response.tableData !== "undefined"){
-						// we want to use previous work to show box2d models below prompt
-						$('#previousWorkDiv').before($('#promptDiv'));
-
+					if (typeof bstate !== "undefined" && typeof bstate.response !== "undefined" && typeof bstate.response.tableData !== "undefined" &&
+							// also compare timestamps use more recent box2d or previous work from latest state
+							(this.states.length == 0 || typeof this.states[this.states.length-1].timestamp === "undefined" || typeof bstate.timestamp === "undefined" ||
+								this.states[this.states.length-1].timestamp < bstate.timestamp
+							)
+						){
+						
 						var ptableData = bstate.response.tableData;
 						// must copy all values in table so that we don't change them when we go back to box2d
 						// can pull from more than one step

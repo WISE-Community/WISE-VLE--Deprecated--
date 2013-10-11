@@ -45,6 +45,7 @@ function Box2dModelState(response) {
 		//set the response
 		this.response = response;
 	}
+	this.timestamp = (new Date()).getTime();
 };
 
 /**

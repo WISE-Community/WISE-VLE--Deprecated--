@@ -49,6 +49,7 @@
          this.eventTypes = eventTypes;
          this.initialTimestamp = new Date().getTime();
          this.history = []; // stores all previous events;
+         this.modelTable = null;
          this.eventCount = 0;
          this.DEBUG = false;
           
@@ -100,17 +101,50 @@
     *    i.e., any property that will be checked should be on the top level.
     *     if properties are nested in objects, a "flattening" function should be applied first
     */
-    p.checkEvent = function (evt){
-        console.log(evt.type, evt);
-        evt = this.flattenObject(evt,"",{});
+    p.checkEvent = function (obj, modelTable){
+        if (typeof modelTable !== "undefined") this.modelTable = modelTable;
+        var evt = this.flattenObject(obj,"",{});
+        if(GLOBAL_PARAMETERS.DEBUG) console.log(evt.type, evt);
+        evt.index = this.eventCount;
         evt.id = evt.type+"_"+this.eventCount;
-        // in case the time was not defined.
         if (typeof evt.time === "undefined"){var d = new Date(); evt.time = d.getTime();}
-        this.history.push(evt);
+        var stored = {'index':evt.index, 'id':evt.id, 'type':evt.type, 'time':evt.time};
+        
+        // look for models and add ids to the stored object
+        if (typeof obj.models !== "undefined"){
+            for (var i = 0; i < obj.models.length; i++){
+                if (typeof obj.models[i].id !== "undefined"){
+                    stored["models["+i+"].id"] = obj.models[i].id;
+                }
+            }
+        }
+        // look for additional details and add directly to stored history
+        if (typeof obj.details !== "undefined"){
+            for (var key in obj.details){
+                stored[key] = obj.details[key];
+            }
+        }
+
+        this.history.push(stored);
        // this.printEventHistory(false);
         this.eventCount++;
+
+        var minOrder = 10000;
+        var minFound = false;
+        // get the minimum order of existing feedbackEvents (which have not been given)
+        for (var i = 0; i < this.feedbackEvents.length; i++){
+            if (this.feedbackEvents[i].feedback.repeatCount == -1 && typeof this.feedbackEvents[i].query.order !== "undefined"){
+                if (this.feedbackEvents[i].query.order < minOrder){
+                    minOrder = this.feedbackEvents[i].query.order;
+                    minFound = true;
+                }
+            }
+        }
+
         // iterate through each feedbackEvent
         for (var i = this.feedbackEvents.length-1; i >= 0; i--){
+            // if this event doesn't match a found minimum order then skip
+            if (minFound && this.feedbackEvents[i].query.order != minOrder) continue;
             // don't bother checking events prior to window
             var startingIndex = this.feedbackEvents[i].feedback.lastGivenIndex+1;
             if (typeof this.feedbackEvents[i].query.within != "undefined"){
@@ -181,23 +215,27 @@
     *        "ObjectProperties.id":1,
     *        "ObjectProperties.size":5
     *    }
+    *  Arrays objects will be expanded with index between straight brackets
+    *  models[objX, objY, objZ, ...]  ->  models[0], models[1], models[2], ...  
+    *  
+    *  }
+    *
     */
     p.flattenObject = function(obj, prefix, returnObj) {
         if (typeof obj == "object"){
             if (Object.prototype.toString.call(obj) == "[object Object]"){
                 if (prefix.length > 0) prefix += ".";
                 for (var key in obj){
-                    if (typeof obj[key] != "object"){
+                    if (typeof obj[key] !== "object"){
                         returnObj[prefix+key] = obj[key];
                     } else {
                         returnObj = this.flattenObject(obj[key], prefix+key, returnObj);
                     }   
                 } 
                 return returnObj;
-            } else if (Object.prototype.toString.call(obj) == "[object Array]"){
-                
+            } else if (Object.prototype.toString.call(obj) == "[object Array]"){             
                 for (var i = 0; i < obj.length; i++){
-                    if (typeof obj[i] != "object"){
+                    if (typeof obj[i] !== "object"){
                         returnObj[prefix+"["+i+"]"] = obj[i];
                     } else {
                         returnObj = this.flattenObject(obj[i], prefix+"["+i+"]", returnObj);
@@ -295,7 +333,7 @@
                 var index = this.matchHistoryForEvent(lindex, this.history.length-1, args[i].eventType, skipArr);
                 if (index < this.history.length){
                    if (typeof args[i].variable != "undefined"){
-                        theseVars[args[i].variable] = this.history[index];
+                        theseVars[args[i].variable] = this.getEventFromHistory(index);
                     }  
                     return [index];
                 }
@@ -366,7 +404,7 @@
                     returnArr.push(index);
                     skipArr.push(index);
                     if (typeof args[i].variable != "undefined"){
-                        theseVars[args[i].variable] = this.history[index];
+                        theseVars[args[i].variable] = this.getEventFromHistory(index);
                     }  
                 }
                 else {
@@ -462,7 +500,7 @@
                     notCalls = []; 
                     returnArr.push(index);
                     if (typeof args[i].variable != "undefined"){
-                        theseVars[args[i].variable] = this.history[index];
+                        theseVars[args[i].variable] = this.getEventFromHistory(index);
                     }                    
                     index++;
                 }
@@ -531,7 +569,7 @@
             var index = this.matchHistoryForEvent(lindex, uindex, arg.eventType, skipArr);
             if (index < this.history.length){
                 if (typeof arg.variable != "undefined"){
-                    theseVars[arg.variable] = this.history[index];
+                    theseVars[arg.variable] = this.getEventFromHistory(index);
                 } 
                 if (exp != null){
                     if (this.evalExpression(exp, theseVars)){
@@ -573,6 +611,46 @@
         }
         return history.length;
     };
+
+    /** The history array currently only contains the model id. Use the table to retreive the model info and append to event */
+    p.getEventFromHistory = function (index){
+        var evt = this.history[index];
+        evt.models = [];
+        for (var key in evt){
+            var matches = key.match(/^models\[[0-9]+\].id$/);
+            if (matches != null && matches.length > 0){
+                var model = {};
+                var id = evt[key];
+                // iterate through modelTable to find the matching id
+                var idIndex = -1;
+                // find column with id (should be first, but lets be safe)
+                for (var i=0; i < this.modelTable.length; i++){
+                    if (this.modelTable[i][0].text == "id"){
+                        idIndex = i;
+                        break;
+                    }
+                }
+                if (idIndex > -1){
+                    // find matching id
+                    var objIndex = -1;
+                    for (var j = 0; j < this.modelTable[idIndex].length; j++){
+                        if (this.modelTable[idIndex][j].text == id){
+                            objIndex = j;
+                        }
+                    }
+                    // we have the correct index, attach all information to model object and attach to event
+                    if (objIndex > -1){
+                        for (var i=0; i < this.modelTable.length; i++){
+                            model[this.modelTable[i][0].text] = this.modelTable[i][objIndex].text;
+                        }
+                        evt.models.push(model);
+                    }
+                }
+            }
+        }
+        evt = this.flattenObject(evt,"",{});
+        return (evt);
+    }
 
     /**
     *   Given an expression of the form [a].prop == [b].prop,

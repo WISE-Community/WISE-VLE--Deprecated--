@@ -122,102 +122,106 @@
 	}
 
 	/** Place an object directly in the world */
-	p.createObjectInWorld = function (savedObject, x, y, rotation, type)
+	p.createObjectInWorld = function (savedObject, x, y, rotation, type, overrideEvent)
 	{
-		if (GLOBAL_PARAMETERS.objects_made.length >= GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD) return false;
+		// when loading previous models, may load a deleted model, we don't make it but we do add to the objects made array
+		if (typeof savedObject.is_deleted === "undefined" || !savedObject.is_deleted){
+			var object_count = 0;
+			for (var i = 0; i < GLOBAL_PARAMETERS.objects_made.length; i++) if (!GLOBAL_PARAMETERS.objects_made[i].is_deleted) object_count++;
+			if (object_count >= GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD) return false;
 
-		var compShape;
-		if (typeof savedObject.blockArray3d != "undefined"){
-			if (savedObject.is_container){
-				compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
-			} else{
-				compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
-			} 
-		} else if (typeof savedObject.cylinderArrays != "undefined"){
-			compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5,  savedObject);
-		} else if (typeof savedObject.rectPrismArrays != "undefined"){
-			compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
+			var compShape;
+			if (typeof savedObject.blockArray3d != "undefined"){
+				if (savedObject.is_container){
+					compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				} else{
+					compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				} 
+			} else if (typeof savedObject.cylinderArrays != "undefined"){
+				compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5,  savedObject);
+			} else if (typeof savedObject.rectPrismArrays != "undefined"){
+				compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
+			}
+
+			savedObject.id = "Obj-" + GLOBAL_PARAMETERS.objects_made.length;
+
+			// draw to imgstage
+			if (typeof compShape.shape !== "undefined" && compShape.shape != null){
+				//imgstage.drawQueue.push(compShape);
+				var s = new createjs.Shape(compShape.shape.graphics);
+				s.x = compShape.width_px_left;
+				s.y = 220 - compShape.height_px_below;
+				imgstage.addChild(s);
+				imgstage.update();
+				var png = Canvas2Image.convertToPNG($("#imgcanvas")[0], 220*GLOBAL_PARAMETERS.IMAGE_SCALE, 220*GLOBAL_PARAMETERS.IMAGE_SCALE);
+				png.setAttribute('id', savedObject.id);
+				// simplify object
+				var img = {"id":png.id, "src":png.src, "width":220*GLOBAL_PARAMETERS.IMAGE_SCALE, "height":220*GLOBAL_PARAMETERS.IMAGE_SCALE};
+				GLOBAL_PARAMETERS.images.push(img);
+				imgstage.removeChild(s);
+				imgstage.update();
+			}
+			
+			var actor;
+			if (compShape.is_blockComp){
+				actor = new BlockCompb2Actor(compShape); 
+			} else if (compShape.is_cylinder){
+				actor = new Cylinderb2Actor(compShape); 
+			} else if (compShape.is_rectPrism){
+				actor = new RectPrismb2Actor(compShape); 
+			}
+			
+			if (y < 0) y = this.height_units;
+			
+			this.addActor(actor, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
+			actor.orig_parent = this;
+			if (type == "dynamic"){
+				actor.onPress = this.actorPressHandler.bind(this);
+			}
+			GLOBAL_PARAMETERS.objects_made.push(savedObject);
+			if (typeof overrideEvent === "undefined" || !overrideEvent) eventManager.fire('make-model',[actor.skin.savedObject], box2dModel);
+		} else {
+			GLOBAL_PARAMETERS.objects_made.push(savedObject);
 		}
-
-
-		savedObject.id = "Obj-" + GLOBAL_PARAMETERS.objects_made.length;
-
-		// draw to imgstage
-		if (typeof compShape.shape !== "undefined" && compShape.shape != null){
-			//imgstage.drawQueue.push(compShape);
-			var s = new createjs.Shape(compShape.shape.graphics);
-			s.x = compShape.width_px_left;
-			s.y = 220 - compShape.height_px_below;
-			imgstage.addChild(s);
-			imgstage.update();
-			var png = Canvas2Image.convertToPNG($("#imgcanvas")[0], 220*GLOBAL_PARAMETERS.IMAGE_SCALE, 220*GLOBAL_PARAMETERS.IMAGE_SCALE);
-			png.setAttribute('id', savedObject.id);
-			// simplify object
-			var img = {"id":png.id, "src":png.src, "width":220*GLOBAL_PARAMETERS.IMAGE_SCALE, "height":220*GLOBAL_PARAMETERS.IMAGE_SCALE};
-			GLOBAL_PARAMETERS.images.push(img);
-			imgstage.removeChild(s);
-			imgstage.update();
-		}
-		
-		var actor;
-		if (compShape.is_blockComp){
-			actor = new BlockCompb2Actor(compShape); 
-		} else if (compShape.is_cylinder){
-			actor = new Cylinderb2Actor(compShape); 
-		} else if (compShape.is_rectPrism){
-			actor = new RectPrismb2Actor(compShape); 
-		}
-		
-		if (y < 0) y = this.height_units;
-		
-		eventManager.fire('make-model',[actor.skin.savedObject], box2dModel);
-		this.addActor(actor, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
-		actor.orig_parent = this;
-		if (type == "dynamic"){
-			actor.onPress = this.actorPressHandler.bind(this);
-		}
-		GLOBAL_PARAMETERS.objects_made.push(savedObject)
-
-		return true;
+		return actor;
 	}	
 
 	/** Place an interactive beaker in the testing world */
 	p.createBeakerInWorld = function (b, x, y, type){
 		var beaker = new Beakerb2Actor(GLOBAL_PARAMETERS.materials[b.material_name], GLOBAL_PARAMETERS.liquids[b.liquid_name], b.width_units, b.height_units, b.depth_units, b.init_liquid_volume_perc, b.spilloff_volume_perc, b.showRuler);
 		if (y < 0) y = this.height_units;
-		eventManager.fire('make-beaker',[beaker.skin.savedObject], box2dModel);
 		this.addBeaker(beaker, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		beaker.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
 			beaker.skin.backContainer.onPress = this.actorPressHandler.bind(this);
 		}
-
+		eventManager.fire('make-beaker',[beaker.skin.savedObject], box2dModel);
 		return true;		
 	}
 
 	p.createScaleInWorld = function (x, y, pan_width_units, type){
 		var scale = new Scaleb2Actor(pan_width_units, 0.1);
 		if (y < 0) y = this.height_units;
-		eventManager.fire('make-scale',[scale.skin.savedObject], box2dModel);
 		this.addScale (scale, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		scale.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
 			scale.onPress = this.actorPressHandler.bind(this);
 		}
 
+		eventManager.fire('make-scale',[scale.skin.savedObject], box2dModel);
 		return true;
 	}
 
 	p.createBalanceInWorld = function (x, y, height_units, pan_width_units, type){
 		var balance = new Balanceb2Actor(height_units, pan_width_units, 0.1);
 		if (y < 0) y = this.height_units;
-		eventManager.fire('make-balance',[balance.skin.savedObject], box2dModel);
 		this.addBalance (balance, x, this.height_units - this.FLOOR_HEIGHT_UNITS - y);
 		balance.orig_parent = this;
 		if (typeof type !== "undefined" && type == "dynamic"){
 			balance.onPress = this.actorPressHandler.bind(this);
 		}
 
+		eventManager.fire('make-balance',[balance.skin.savedObject], box2dModel);
 		return true;
 	}
 	
@@ -344,10 +348,10 @@
 
 	p.removeActor = function (actor)
 	{
+		var savedObject = actor.skin.savedObject;
 		this.justRemovedActor = actor;
 		this.justAddedActor = null;
 		
-		eventManager.fire('delete-actor',[actor.skin.savedObject], box2dModel);
 		this.removeActorFromShelf(actor);
 		this.actors.splice(this.actors.indexOf(actor), 1);
 		
@@ -360,45 +364,57 @@
 		if (typeof actor.button !== "undefined") this.removeChild(actor.button);
 		if (typeof actor.html !== "undefined" && actor.html != null) actor.html.remove();
 		actor.parent.removeChild(actor);
+		//eventManager.fire('delete-model',[savedObject], box2dModel);
+
 		this.sortActorsDisplayDepth();
+		// since we are deleting an actor we may be opening a spot for a new actor
+		if(typeof builder !== "undefined" && builder != null && typeof builder.reachedMax !== "undefined" && builder.reachedMax){
+			builder.drawCurrentMaterial();
+		}
 	}
 
 	/** When a beaker is removed from this world take the skin objects that were on the world and put them on the beaker */
 	p.removeBeaker = function (beaker){
 		// set skin containers to zero because they are now nested in single beaker object
+		var savedObject = beaker.skin.savedObject;
 		this.removeActorFromShelf(beaker);
 		this.beakers.splice(this.beakers.indexOf(beaker), 1);
 		
-		eventManager.fire('delete-beaker',[beaker.skin.savedObject], box2dModel);
 		if (beaker.controlledByBuoyancy){
 			beaker.containedWithin.removeActor(beaker);	
 		}
 
 		beaker.removeFromWorld();
+		//eventManager.fire('delete-beaker',[savedObject], box2dModel);
+		
 	}
 
 	p.removeScale = function (scale){
 		// set skin containers to zero because they are now nested in single beaker object
+		var savedObject = scale.skin.savedObject;
 		this.removeActorFromShelf(scale);
 		this.scales.splice(this.scales.indexOf(scale), 1);
 		
-		eventManager.fire('delete-scale',[scale.skin.savedObject], box2dModel);
 		if (scale.controlledByBuoyancy){
 			scale.containedWithin.removeActor(scale);	
 		}
 		scale.removeFromWorld();
+		//eventManager.fire('delete-scale',[savedObject], box2dModel);
+		
 	}
 
 	p.removeBalance = function (balance){
 		// set skin containers to zero because they are now nested in single beaker object
+		var savedObject = balance.skin.savedObject;
 		this.removeActorFromShelf(balance);
 		this.balances.splice(this.balances.indexOf(balance), 1);
 		
-		eventManager.fire('delete-balance',[balance.skin.savedObject], box2dModel);
 		if (balance.controlledByBuoyancy){
 			balance.containedWithin.removeActor(balance);	
 		}
 		balance.removeFromWorld();
+		//eventManager.fire('delete-balance',[savedObject], box2dModel);
+		
 	}
 
 	p.removeActorFromShelf = function(actor){
@@ -544,7 +560,21 @@
 						var bodyj = typeof actors[j].body !== "undefined" ? actors[j].body : actors[j].base; 
 						// do the position of these two objects overlap vertically?
 						//console.log(actors[i].x - actors[i].width_px_left , "[",actors[j].x- actors[j].width_px_left, actors[j].x + actors[j].width_px_right, "] OR ", actors[i].x + actors[i].width_px_right, "[", actors[j].x - actors[j].width_px_left, actors[j].x + actors[j].width_px_right,"]");
-						if ( (actors[i].x - actors[i].width_px_left >= actors[j].x - actors[j].width_px_left && actors[i].x - actors[i].width_px_left <= actors[j].x + actors[j].width_px_right) || (actors[i].x + actors[i].width_px_right >= actors[j].x - actors[j].width_px_left && actors[i].x + actors[i].width_px_left <= actors[j].x + actors[j].width_px_right)){
+						// is one object completely above the other object?
+						if (actors[i].y + actors[i].height_px_below <= actors[j].y - actors[j].height_px_above){
+							// actor i is above actor j
+							if (i_index < j_index){
+								this.swapChildrenAt(i_index, j_index);
+								i_index = j_index;
+							}
+						} else if (actors[j].y + actors[j].height_px_below <= actors[i].y - actors[i].height_px_above){
+							// actor j is above actor i
+							if (j_index < i_index){
+								this.swapChildrenAt(j_index, i_index);
+								j_index = i_index;
+							}
+						} 
+						else if ( (actors[i].x - actors[i].width_px_left >= actors[j].x - actors[j].width_px_left && actors[i].x - actors[i].width_px_left <= actors[j].x + actors[j].width_px_right) || (actors[i].x + actors[i].width_px_right >= actors[j].x - actors[j].width_px_left && actors[i].x + actors[i].width_px_left <= actors[j].x + actors[j].width_px_right)){
 							// compare center of mass
 							// is object i higher than j, and therefore should have a larger display index?
 							if (bodyi.GetWorldCenter().y < bodyj.GetWorldCenter().y){
@@ -604,11 +634,12 @@
 			this.addToPuddle(x, volume, beaker);
 			// draw from beaker to ground
 			this.skin.drawPour(beaker.liquid.fill_color, x-4, y, 4, this.height_px - this.FLOOR_HEIGHT/2 - y);
-			
+			return null;
 		} else {
 			beaker_underneath.addLiquidVolume(volume, beaker);
 			// draw from beaker to beaker
 			this.skin.drawPour(beaker.liquid.fill_color, x - 4, y, 4, beaker_underneath.y - beaker_underneath.width_from_depth/2 - y);
+			return beaker_underneath;
 		}
 	}
 
@@ -834,8 +865,9 @@
 	p.reviseObjectFromHTML = function (html){
 		for (var i = 0; i < this.actors.length; i++){
 			if (this.actors[i].html.attr("id") == html.attr("id")){
-				eventManager.fire("revise-model", [this.actors[i].skin.savedObject]);
+				var savedObject = this.actors[i].skin.savedObject;
 				this.reviseObject(this.actors[i]);
+				eventManager.fire("revise-model", [savedObject]);
 				return true;
 			}
 		}
@@ -856,8 +888,8 @@
 	p.duplicateObjectFromHTML = function (html){
 		for (var i = 0; i < this.actors.length; i++){
 			if (this.actors[i].html.attr("id") == html.attr("id")){
-				this.duplicateObject(this.actors[i]);
-				eventManager.fire("duplicate-model", [this.actors[i].skin.savedObject]);
+				var savedObject = this.duplicateObject(this.actors[i]).skin.savedObject;	
+				eventManager.fire("duplicate-model", [savedObject]);
 				return true;
 			}
 		}
@@ -867,15 +899,21 @@
 		p.duplicateObject = function (o){
 			// always make duplicates deletable
 			o.skin.savedObject.is_deletable = true;
-			this.createObjectInWorld(this.duplicateSavedObject(o.skin.savedObject), 0, -1, 0, "dynamic");
+			var actor = this.createObjectInWorld(this.duplicateSavedObject(o.skin.savedObject), 0, -1, 0, "dynamic", true);
+			// since we are deleting an actor we may be opening a spot for a new actor
+			if(typeof builder !== "undefined" && builder != null ){
+				builder.drawCurrentMaterial();
+			}
+			return actor;
 		}
 
 	p.deleteObjectFromHTML = function (html){
 		for (var i = 0; i < this.actors.length; i++){
 			if (this.actors[i].html.attr("id") == html.attr("id")){
+				var savedObject = this.actors[i].skin.savedObject;
 				this.actors[i].skin.savedObject.is_deleted = true;
-				eventManager.fire("delete-model", [this.actors[i].skin.savedObject]);
 				this.removeActor(this.actors[i]);
+				eventManager.fire("delete-model", [savedObject]);
 				return true;
 			}
 		}

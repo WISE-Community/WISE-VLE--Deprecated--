@@ -72,6 +72,8 @@ function TableState(response, tableData, graphRendered, graphOptions, tableOptio
 		//set the tableOptions
 		this.tableOptions = tableOptions;
 	}
+
+	this.timestamp = (new Date()).getTime();
 };
 
 /**
