@@ -83,12 +83,16 @@ FlashNode.prototype.translateStudentWork = function(studentWork) {
  * Save student data onExit
  */
 FlashNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
 		}
+	} catch(e) {
+		
 	}
 };
 

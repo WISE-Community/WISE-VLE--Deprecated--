@@ -191,11 +191,15 @@ OpenResponseNode.prototype.render = function(contentPanel,studentWork, disable) 
  * Called when the step is exited. This is used for auto-saving.
  */
 OpenResponseNode.prototype.onExit = function() {
-	//check if the content panel exists
-	if(this.contentPanel && this.contentPanel.save) {
-		//tell the content panel to save
-		this.contentPanel.save();
-	};
+	try {
+		//check if the content panel exists
+		if(this.contentPanel && this.contentPanel.save) {
+			//tell the content panel to save
+			this.contentPanel.save();
+		};		
+	} catch(e) {
+		
+	}
 };
 
 /**

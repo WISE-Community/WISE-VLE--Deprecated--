@@ -174,18 +174,22 @@ Box2dModelNode.prototype.isCompleted = function(nodeVisits) {
  * Note: In most cases you will not have to change anything here.
  */
 Box2dModelNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		if (typeof this.contentPanel.tester !== "undefined") this.contentPanel.tester = null
-		if (typeof this.contentPanel.builder !== "undefined") this.contentPanel.builder = null;
-		if (typeof this.contentPanel.stage !== "undefined" && this.contentPanel.stage != null){
-			this.contentPanel.stage.removeAllChildren();
-			this.contentPanel.stage = null;
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			if (typeof this.contentPanel.tester !== "undefined") this.contentPanel.tester = null
+			if (typeof this.contentPanel.builder !== "undefined") this.contentPanel.builder = null;
+			if (typeof this.contentPanel.stage !== "undefined" && this.contentPanel.stage != null){
+				this.contentPanel.stage.removeAllChildren();
+				this.contentPanel.stage = null;
+			}
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
 		}
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
-		}
+	} catch(e) {
+		
 	}
 };
 

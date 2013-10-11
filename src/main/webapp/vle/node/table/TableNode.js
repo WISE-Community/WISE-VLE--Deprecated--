@@ -129,15 +129,15 @@ TableNode.prototype.translateStudentWork = function(studentWork) {
  * Note: In most cases you will not have to change anything here.
  */
 TableNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
-		}
-		
-		try {
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
+			
 			/*
 			 * check if the onExit function has been implemented or if we
 			 * can access attributes of this.contentPanel. if the user
@@ -147,21 +147,12 @@ TableNode.prototype.onExit = function() {
 			 * server.
 			 */
 			if(this.contentPanel.onExit) {
-				try {
-					//run the on exit cleanup
-					this.contentPanel.onExit();					
-				} catch(err) {
-					//error when onExit() was called, e.g. mysystem editor undefined
-				}
-			}	
-		} catch(err) {
-			/*
-			 * an exception was thrown because this.contentPanel is an
-			 * outside link. we will need to go back in the history
-			 * and then trying to render the original node.
-			 */
-			history.back();
+				//run the on exit cleanup
+				this.contentPanel.onExit();	
+			}
 		}
+	} catch(e) {
+		
 	}
 };
 

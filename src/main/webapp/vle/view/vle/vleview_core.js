@@ -49,7 +49,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='retrieveRunExtrasCompleted') {
 		obj.displayShowAllWork();
 	} else if(type=='ifrmLoaded'){
-		obj.createKeystrokeManagerForFrame();
 		obj.onFrameLoaded();
 	} else if(type=='noteEditorKeyPressed'){
 		if(obj.activeNote){

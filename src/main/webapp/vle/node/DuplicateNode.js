@@ -91,7 +91,11 @@ DuplicateNode.prototype.render = function(contentPanel, studentWork){
  * Calls the onExit function of the node that this node represents.
  */
 DuplicateNode.prototype.onExit = function(){
-	this.realNode.onExit();
+	try {
+		this.realNode.onExit();		
+	} catch(e) {
+		
+	}
 };
 
 /**

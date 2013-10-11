@@ -127,12 +127,16 @@ BranchingNode.prototype.translateStudentWork = function(studentWork) {
  * Note: In most cases you will not have to change anything here.
  */
 BranchingNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
 		}
+	} catch(e) {
+		
 	}
 };
 

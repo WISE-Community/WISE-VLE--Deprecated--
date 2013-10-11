@@ -78,9 +78,13 @@ NoteNode.prototype.render = function(contentPanel, studentWork){
  * Called when the step is exited. This is used for auto-saving.
  */
 NoteNode.prototype.onExit = function() {
-	/* check if there is an active note and tell it to save */
-	if(this.view.activeNote) {
-		this.view.activeNote.save();
+	try {
+		/* check if there is an active note and tell it to save */
+		if(this.view.activeNote) {
+			this.view.activeNote.save();
+		}
+	} catch(e) {
+		
 	}
 };
 
