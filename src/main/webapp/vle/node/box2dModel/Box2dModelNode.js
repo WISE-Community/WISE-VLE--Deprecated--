@@ -160,7 +160,7 @@ Box2dModelNode.prototype.render = function(contentPanel,studentWork, disable) {
  * student must complete work before exiting to another step
  */
 Box2dModelNode.prototype.addConstraints = function() {
-	if (!this.isCompleted()){
+	if (!this.isCompleted() && (typeof this.view.authoringMode === "undefined" || this.view.authoringMode == null || !this.view.authoringMode)){
 		this.view.addActiveTagMapConstraint(this.id, null, 'mustCompleteBeforeAdvancing', null, null);
 	}
 		
