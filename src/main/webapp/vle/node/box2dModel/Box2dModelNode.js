@@ -160,7 +160,7 @@ Box2dModelNode.prototype.render = function(contentPanel,studentWork, disable) {
  * student must complete work before exiting to another step
  */
 Box2dModelNode.prototype.addConstraints = function() {
-	if (!this.isCompleted()){
+	if (!this.isCompleted() && (typeof this.view.authoringMode === "undefined" || this.view.authoringMode == null || !this.view.authoringMode)){
 		this.view.addActiveTagMapConstraint(this.id, null, 'mustCompleteBeforeAdvancing', null, null);
 	}
 		
@@ -231,7 +231,7 @@ Box2dModelNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-Box2dModelNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+Box2dModelNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	/*
 	 * Get the latest student state object for this step
 	 * TODO: rename box2dModelState to reflect your new step type
@@ -255,7 +255,7 @@ Box2dModelNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 	var studentWork = box2dModelState.getStudentWork();
 	
 	//put the student work into the div
-	$('#' + divId).html(studentWork.response);
+	$(displayStudentWorkDiv).html(studentWork.response);
 };
 
 /**

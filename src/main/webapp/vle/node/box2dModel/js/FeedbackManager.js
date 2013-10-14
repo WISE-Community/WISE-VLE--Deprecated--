@@ -686,7 +686,9 @@
                     var post = exp.substr(index+pre.length).match(/[A-Za-z0-0_\-\.\[\]]*/)[0];
                     var full = pre + post;
                     if (post.substr(0,1) == ".") post = post.substr(1);
-                    expression = expression.replace(full, variables[key][post]);
+                    var replacement = variables[key][post];
+                    if (typeof replacement == "string") replacement = "'"+replacement+"'";
+                    expression = expression.replace(full, replacement);
                     if (exp.length > 1){
                         exp = exp.substr(index+1);
                     } else {

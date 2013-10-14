@@ -195,7 +195,7 @@
 	/** Remove the body of this beaker as well as the buoyancy controller */
 	p.removeFromWorld = function (){
 		for (var i = this.actors.length-1; i >= 0; i--){
-			this.removeActor(this.actors.splice(i, 1)[0]);
+			this.removeActor(this.actors[i]);
 		}
 		
 		this.contents_volume = 0;
