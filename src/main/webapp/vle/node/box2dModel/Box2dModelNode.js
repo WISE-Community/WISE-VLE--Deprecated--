@@ -255,7 +255,7 @@ Box2dModelNode.prototype.renderGradingView = function(displayStudentWorkDiv, nod
 	var studentWork = box2dModelState.getStudentWork();
 	
 	//put the student work into the div
-	$(displayStudentWorkDiv).html(studentWork.response);
+	$(displayStudentWorkDiv).html(this.getStudentWorkHtmlView(studentWork));
 };
 
 /**
