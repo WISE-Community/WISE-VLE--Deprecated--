@@ -88,7 +88,7 @@
 		var vecs, vec;
 
 		var baseFixtureDef = this.baseFixtureDef = new b2FixtureDef;
-		baseFixtureDef.density = 1000;
+		baseFixtureDef.density = 600;
 		baseFixtureDef.restitution = 0.2;
 		baseFixtureDef.friction = 1.0;
 		baseFixtureDef.filter.categoryBits = 2;
@@ -104,7 +104,7 @@
 		baseBodyDef.type = b2Body.b2_dynamicBody;
 		
 		var panFixtureDef = this.panFixtureDef = new b2FixtureDef;
-		panFixtureDef.density = 1000;
+		panFixtureDef.density = 600;
 		panFixtureDef.restitution = 0.0;
 		panFixtureDef.linearDamping = 1.0;
 		panFixtureDef.friction = 5.0;
