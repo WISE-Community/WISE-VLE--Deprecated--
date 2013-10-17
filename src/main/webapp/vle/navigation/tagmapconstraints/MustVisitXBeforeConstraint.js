@@ -1,3 +1,9 @@
+/**
+ * NOTE: This constraint has been deprecated - WISE now creates an 'XMustHaveStatusYConstraint'
+ * with a statusType of 'isVisited' and statusValue of 'true' for all
+ * 'MustVisitXBeforeConstraint' instances
+ */
+
 MustVisitXBeforeConstraint.prototype = new TagMapConstraint();
 MustVisitXBeforeConstraint.prototype.constructor = MustVisitXBeforeConstraint;
 MustVisitXBeforeConstraint.prototype.parent = TagMapConstraint.prototype;

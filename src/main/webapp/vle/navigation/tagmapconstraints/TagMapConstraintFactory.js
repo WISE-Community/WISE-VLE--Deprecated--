@@ -23,9 +23,9 @@ TagMapConstraintFactory.createTagMapConstraint = function(view, nodeId, tagName,
 	} else if(functionName == 'mustCompleteBeforeExiting') {
 		return new MustCompleteBeforeExitingConstraint(view, nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
 	} else if(functionName == 'mustCompleteXBefore') {
-		return new MustCompleteXBeforeConstraint(view, nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
+		return new XMustHaveStatusYConstraint(view, nodeId, tagName, functionName, ['isCompleted','true'], additionalFunctionArgs, customMessage);
 	} else if(functionName == 'mustVisitXBefore') {
-		return new MustVisitXBeforeConstraint(view, nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
+		return new XMustHaveStatusYConstraint(view, nodeId, tagName, functionName, ['isVisited','true'], additionalFunctionArgs, customMessage);
 	} else if(functionName == 'xMustHaveStatusY') {
 		return new XMustHaveStatusYConstraint(view, nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
 	}

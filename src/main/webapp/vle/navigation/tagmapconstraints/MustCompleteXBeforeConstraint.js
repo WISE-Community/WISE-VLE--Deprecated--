@@ -1,3 +1,9 @@
+/**
+ * NOTE: This constraint has been deprecated - WISE now creates an 'XMustHaveStatusYConstraint'
+ * with a statusType of 'isCompleted' and statusValue of 'true' for all
+ * 'MustCompleteXBeforeConstraint' instances
+ */
+
 MustCompleteXBeforeConstraint.prototype = new TagMapConstraint();
 MustCompleteXBeforeConstraint.prototype.constructor = MustCompleteXBeforeConstraint;
 MustCompleteXBeforeConstraint.prototype.parent = TagMapConstraint.prototype;
