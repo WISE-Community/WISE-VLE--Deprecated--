@@ -150,7 +150,10 @@ View.prototype.i18n.getStringWithParams = function(key,locale,params, componentN
  * Synchronously retrieves specified locale json mapping file
  */
 View.prototype.retrieveLocale = function(locale,componentName,localePath) {
-	var isAsync = true;
+	var isAsync = false;
+	if(componentName == "theme"){
+		isAsync = true;
+	}
 	if (componentName == "main") {
 		isAsync = false;  // fetching i18n files for vle needs to happen synchronously.
 		localePath = "/vlewrapper/vle/view/i18n/i18n_" + locale + ".json";		

@@ -64,6 +64,19 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			
 			for (var i=0; i < jsonNodes.length; i++) {
 				var currNode = jsonNodes[i];
+				if(usedNodeTypes.indexOf(currNode.type) == -1) {
+					//add current node type to our array of node types if it is not already in the array
+					usedNodeTypes.push(currNode.type);
+					var nodePrototype = NodeFactory.nodeConstructors[currNode.type].prototype;
+					// also fetch i18n files
+					if (nodePrototype.i18nEnabled) {		
+						// check to see if we've already fetched i18n files for this node type
+						if (!view.i18n.supportedLocales[currNode.type]) {
+							view.i18n.supportedLocales[currNode.type] = nodePrototype.supportedLocales;
+							view.retrieveLocales(currNode.type,nodePrototype.i18nPath);								
+						} 
+					}							
+				}
 				var thisNode = NodeFactory.createNode(currNode, view);
 				if(thisNode == null) {
 					/* unable to create the specified node type probably because it does not exist in wise4 */
@@ -80,18 +93,6 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					}
 
 					if(currNode.type != 'DuplicateNode'){
-						if(usedNodeTypes.indexOf(currNode.type) == -1) {
-							//add current node type to our array of node types if it is not already in the array
-							usedNodeTypes.push(currNode.type);
-							// also fetch i18n files
-							if (thisNode.i18nEnabled) {		
-								// check to see if we've already fetched i18n files for this node type
-								if (!view.i18n.supportedLocales[currNode.type]) {
-									view.i18n.supportedLocales[currNode.type] = thisNode.supportedLocales;
-									view.retrieveLocales(currNode.type,thisNode.i18nPath);								
-								} 
-							}							
-						}
 						
 						/* validate and set title attribute */
 						if(!currNode.title || currNode.title==''){
