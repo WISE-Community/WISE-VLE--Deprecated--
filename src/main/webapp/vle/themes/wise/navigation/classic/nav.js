@@ -1498,21 +1498,23 @@ NavigationPanel.prototype.navigationLoadingCompletedListener = function(type, ar
  */
 NavigationPanel.prototype.getFullNodeName = function(nodeId) {
 	//get the step number and title
-	var fullStepName = view.getProject().getStepNumberAndTitle(nodeId);
+	var fullNodeName = view.getProject().getStepNumberAndTitle(nodeId);
 	
-	var nodeType = '';
-	var node = this.view.getProject().getNodeById(nodeId);
+	var nodeType = '',
+		node = view.getProject().getNodeById(nodeId);
 	
 	//get whether the node is an activity or step
 	if(node.type == 'sequence') {
-		nodeType = 'Activity';
+		var stepTerm = view.getProject().getStepTerm();
+		nodeType = view.utils.isNonWSString(stepTerm) ? stepTerm + ' ' : '';
 	} else {
-		nodeType = 'Step';
+		var activityTerm = view.getProject().getActivityTerm();
+		nodeType = view.utils.isNonWSString(activityTerm) ? activityTerm + ' ' : '';
 	}
 	
-	fullStepName = nodeType + ' ' + fullStepName;
+	fullNodeName = nodeType + ' ' + fullNodeName;
 	
-	return fullStepName;
+	return fullNodeName;
 };
 
 /**
