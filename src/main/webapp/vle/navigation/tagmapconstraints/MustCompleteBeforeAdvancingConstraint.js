@@ -49,7 +49,7 @@ MustCompleteBeforeAdvancingConstraint.prototype.isSatisfied = function() {
 
 /**
  * Check the constraint and determine if the student is allowed to move
- * to the next step they are trying to move to. Also grey out any steps
+ * to the next step they are trying to move to. Also disable any steps
  * in the navigation menu that are not visitable due to this constraint.
  * @param currentNodeId the id of current step the student is on
  * @param nextNodeId the id of the next step the student is trying to move to
@@ -83,7 +83,7 @@ MustCompleteBeforeAdvancingConstraint.prototype.checkConstraint = function(curre
 			results.message = this.getConstraintMessage();
 
 			/*
-			 * grey out the steps in the navigation menu that the 
+			 * disable the steps in the navigation menu that the 
 			 * student is not allowed to visit
 			 */
 			this.constrainNavigation();
@@ -95,24 +95,23 @@ MustCompleteBeforeAdvancingConstraint.prototype.checkConstraint = function(curre
 
 /**
  * Get the message to display to the student when this constraint
- * prevents them from moving to the next step they are trying to move to.
+ * prevents them from moving to the step they are trying to move to.
  * @return a message that we will notify the student of the constraint
  */
 MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function() {
-	var message = '',
-		stepTermPlural = this.view.getStepTermPlural();
+	var message = '';
 	
 	if(this.customMessage != null && this.customMessage != '') {
 		message = this.customMessage;
 	} else {
-		var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(this.nodeId);
-		
 		var node = this.view.getProject().getNodeById(this.nodeId);
 		
 		if(node.type == 'sequence') {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_activity_before_advancing", [this.view.getI18NStringWithParams("constraint_all_steps", [stepTermPlural], "main"),stepNumberAndTitle], "main");
+			var activityTerm = this.view.getActivityTerm();
+			message = this.view.getI18NStringWithParams("constraint_message_mustCompleteActivityBeforeAdvancing", [activityTerm], "main");
 		} else {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_step_before_advancing", [stepNumberAndTitle], "main");
+			var stepTerm = this.view.getStepTerm();
+			message = this.view.getI18NStringWithParams("constraint_message_mustCompleteStepBeforeAdvancing", [stepTerm], "main");
 		}		
 	}
 	
@@ -120,7 +119,7 @@ MustCompleteBeforeAdvancingConstraint.prototype.getConstraintMessage = function(
 };
 
 /**
- * Grey out the steps in the navigation menu that the student is not
+ * Disable the steps in the navigation menu that the student is not
  * allowed to visit due to this constraint.
  */
 MustCompleteBeforeAdvancingConstraint.prototype.constrainNavigation = function() {

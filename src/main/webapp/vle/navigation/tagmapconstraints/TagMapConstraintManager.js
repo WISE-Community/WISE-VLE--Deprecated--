@@ -151,7 +151,7 @@ TagMapConstraintManager.prototype.processTagMapConstraints = function(nextNodeId
 	//create the results object that we will return
 	var results = {
 		canMove:true,
-		message:''
+		activeConstraints:[]
 	};
 	
 	//get the next node the student is trying to move to
@@ -162,21 +162,18 @@ TagMapConstraintManager.prototype.processTagMapConstraints = function(nextNodeId
 	
 	//loop through all the active constraints that are on the step the student is trying to move to
 	for(var x=0; x<activeConstraints.length; x++) {
-		//get an active constraint
-		var activeConstraint = activeConstraints[x];
+		var activeConstraint = activeConstraints[x], // get the current constraint
+			nodesFailed = activeConstraint.getNodesFailed(), // get all the nodes that have not satisfied the requirements for this constraint
+			message = activeConstraint.getConstraintMessage(); // get the message to display to the student
 		
-		//get all the nodes that have not satisfied the requirements for this constraint
-		var nodesFailed = activeConstraint.getNodesFailed();
+		// construct a constraint details object for this constraint
+		var details = {
+			"nodesFailed": nodesFailed,
+			"message": message
+		};
 		
-		//get the message to display to the student
-		var message = activeConstraint.getConstraintMessage(nodesFailed);
-		
-		if(results.message != '') {
-			results.message += '\n\n';
-		}
-		
-		//append the message in case there are multiple constraints constraining the node
-		results.message += message;
+		// add the constraint details to the results.activeConstraints array
+		results.activeConstraints.push(details);
 		
 		//the student is not allowed to move to the step they are trying to move to
 		results.canMove = false;

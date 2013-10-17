@@ -51,6 +51,15 @@ function Node(nodeType, view){
 		                        ];
 	}
 	
+	// Messages to display to students when the status types are used for navigation constraints
+	if(view){
+		Node.statusConstraintMessages = [
+			{statusType: 'isVisitable', statusValue: 'true', message: view.getI18NString('constraint_message_mustUnlockXBeforeVisiting')},
+			{statusType: 'isVisited', statusValue: 'true', message: view.getI18NString('constraint_message_mustVisitXBeforeVisiting')},
+			{statusType: 'isCompleted', statusValue: 'true', message: view.getI18NString('constraint_message_mustCompleteXBeforeVisiting')}
+		];
+	}
+	
 	this.constraintStatus = 'enabled';
 	this.statuses = [];
 	this.icons = [];
@@ -2149,6 +2158,13 @@ Node.prototype.getAvailableStatusesIncludingSpecialStatusValues = function() {
 	var availableStatuses = JSON.parse(JSON.stringify(Node.availableStatuses));
 	
 	return availableStatuses;
+};
+
+/**
+ * Get the status constraint messages
+ */
+Node.prototype.getStatusConstraintMessages = function() {
+	return Node.statusConstraintMessages;
 };
 
 /**
