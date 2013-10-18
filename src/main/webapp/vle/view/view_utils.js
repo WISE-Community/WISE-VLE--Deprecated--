@@ -1950,15 +1950,15 @@ View.prototype.getIconPathFromNodeTypeNodeClass = function(nodeType, nodeClass) 
 /**
  * Get the full node name
  * @param node id
- * @return the full step name depending on the navigation used
+ * @return the full node name depending on the navigation used
  * classic will return something like 'Step 1.1: Introduction'
  * starmap will return something like '#1: First Galaxy: Bronze'
  */
 View.prototype.getFullNodeName = function(nodeId) {
-	//get the full step name
-	var fullStepName = this.navigationPanel.getFullNodeName(nodeId);
+	//get the full node name
+	var fullNodeName = this.navigationPanel.getFullNodeName(nodeId);
 
-	return fullStepName;
+	return fullNodeName;
 };
 
 /**
