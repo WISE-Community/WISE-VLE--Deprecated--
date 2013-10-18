@@ -1,25 +1,27 @@
 /* Modular Project Object */
 function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectContent){
 	return function(content, cbu, ll, view, totalProjectContent){
-		var content = content;
-		var contentBaseUrl = cbu;
-		var lazyLoading = ll;
-		var allLeafNodes = [];
-		var allSequenceNodes = [];
-		var autoStep;
-		var stepLevelNumbering;
-		var title;
-		var stepTerm;
-		var activityTerm;
-		var rootNode;
-		var view = view;
-		var copyIds = [];
-		var loggingLevel = 5; //default to log everything
-		var postLevel = 5; //default to post all steps
-		var totalProjectContent = totalProjectContent;
-		var constraints = [];
-		var usedNodeTypes = [];
-		var globalTagMaps = [];
+		var content = content,
+			contentBaseUrl = cbu,
+			lazyLoading = ll,
+			allLeafNodes = [],
+			allSequenceNodes = [],
+			autoStep,
+			stepLevelNumbering,
+			title,
+			stepTerm,
+			stepTermPlural,
+			activityTerm,
+			activityTermPlural,
+			rootNode,
+			view = view,
+			copyIds = [],
+			loggingLevel = 5, //default to log everything
+			postLevel = 5, //default to post all steps
+			totalProjectContent = totalProjectContent,
+			constraints = []
+			usedNodeTypes = []
+			globalTagMaps = [];
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/
@@ -62,6 +64,19 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			
 			for (var i=0; i < jsonNodes.length; i++) {
 				var currNode = jsonNodes[i];
+				if(usedNodeTypes.indexOf(currNode.type) == -1) {
+					//add current node type to our array of node types if it is not already in the array
+					usedNodeTypes.push(currNode.type);
+					var nodePrototype = NodeFactory.nodeConstructors[currNode.type].prototype;
+					// also fetch i18n files
+					if (nodePrototype.i18nEnabled) {		
+						// check to see if we've already fetched i18n files for this node type
+						if (!view.i18n.supportedLocales[currNode.type]) {
+							view.i18n.supportedLocales[currNode.type] = nodePrototype.supportedLocales;
+							view.retrieveLocales(currNode.type,nodePrototype.i18nPath);								
+						} 
+					}							
+				}
 				var thisNode = NodeFactory.createNode(currNode, view);
 				if(thisNode == null) {
 					/* unable to create the specified node type probably because it does not exist in wise4 */
@@ -78,18 +93,6 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					}
 
 					if(currNode.type != 'DuplicateNode'){
-						if(usedNodeTypes.indexOf(currNode.type) == -1) {
-							//add current node type to our array of node types if it is not already in the array
-							usedNodeTypes.push(currNode.type);
-							// also fetch i18n files
-							if (thisNode.i18nEnabled) {		
-								// check to see if we've already fetched i18n files for this node type
-								if (!view.i18n.supportedLocales[currNode.type]) {
-									view.i18n.supportedLocales[currNode.type] = thisNode.supportedLocales;
-									view.retrieveLocales(currNode.type,thisNode.i18nPath);								
-								} 
-							}							
-						}
 						
 						/* validate and set title attribute */
 						if(!currNode.title || currNode.title==''){
@@ -280,7 +283,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		
 		/* Returns the node at the given position in the project if it exists, returns null otherwise */
 		var getNodeByPosition = function(position){
-			if(position){
+			if(position != null) {
+				//make sure position is a string
+				position += "";
+				
 				var locs = position.split('.');
 				var parent = rootNode;
 				var current;
@@ -1055,14 +1061,6 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							annotationHtml += annotationCommentHtml;							
 						}
 						
-						if(nodeVisitsWithWork.length > 0 && annotationHtml == "") {
-							//the student has submitted work for the step but the teacher has not given feedback
-							var your_teacher_hasnt_graded = view.getI18NString('your_teacher_hasnt_graded');
-							
-							//there were no annotations
-							annotationHtml += "<tr><td class='teachermsg3'>" + your_teacher_hasnt_graded + "<td></tr>";
-						}
-						
 						commonFeedback += annotationHtml;
 						
 						commonFeedback += "</table></div></div>";
@@ -1137,7 +1135,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					autoStep: autoStep,
 					stepLevelNum: stepLevelNumbering,
 					stepTerm: stepTerm,
+					stepTermPlural: stepTermPlural,
 					activityTerm: activityTerm,
+					activityTermPlural: activityTermPlural,
 					title: title,
 					constraints: constraints,
 					nodes: [],
@@ -2413,8 +2413,14 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* set step term */
 			stepTerm = project.stepTerm;
 			
+			/* set step term plural */
+			stepTermPlural = project.stepTermPlural;
+			
 			/* set activity term */
 			activityTerm = project.activityTerm;
+			
+			/* set activity term plural */
+			activityTermPlural = project.activityTermPlural;
 			
 			/* set title */
 			title = project.title;
@@ -2460,12 +2466,20 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			setStepLevelNumbering:function(bool){stepLevelNumbering = bool;},
 			/* returns the step term to be used when displaying nodes in the navigation for this project */
 			getStepTerm:function(){return stepTerm;},
-			/* returns the activity term to be used when displaying sequences in the navigation for this project */
-			getActivityTerm:function(){return activityTerm;},
 			/* sets the step term to be used when displaying nodes in this project */
 			setStepTerm:function(term){stepTerm = term;},
-			/* sets the step term to be used when displaying nodes in this project */
+			/* returns the step term plural to be used when displaying nodes in the navigation for this project */
+			getStepTermPlural:function(){return stepTermPlural;},
+			/* sets the step term plural to be used when displaying nodes in this project */
+			setStepTermPlural:function(term){stepTermPlural = term;},
+			/* returns the activity term to be used when displaying activities in the navigation for this project */
+			getActivityTerm:function(){return activityTerm;},
+			/* sets the activity term to be used when displaying activities in this project */
 			setActivityTerm:function(term){activityTerm = term;},
+			/* returns the activity term plural to be used when displaying activities in the navigation for this project */
+			getActivityTermPlural:function(){return activityTermPlural;},
+			/* sets the activity term plural to be used when displaying activities in this project */
+			setActivityTermPlural:function(term){activityTermPlural = term;},
 			/* returns the title of this project */
 			getTitle:function(){return title;},
 			/* sets the title of this project */

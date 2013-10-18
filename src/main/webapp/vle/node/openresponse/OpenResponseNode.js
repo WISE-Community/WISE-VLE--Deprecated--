@@ -13,7 +13,10 @@ OpenResponseNode.prototype.i18nPath = "/vlewrapper/vle/node/openresponse/i18n/";
 OpenResponseNode.prototype.supportedLocales = {
 			"en_US":"en_US",
 			"ja":"ja",
-			"es":"es"
+			"es":"es",
+			"nl":"nl",
+			"nl_GE":"nl",
+			"nl_DE":"nl"			
 };
 
 OpenResponseNode.tagMapFunctions = [
@@ -188,11 +191,15 @@ OpenResponseNode.prototype.render = function(contentPanel,studentWork, disable) 
  * Called when the step is exited. This is used for auto-saving.
  */
 OpenResponseNode.prototype.onExit = function() {
-	//check if the content panel exists
-	if(this.contentPanel && this.contentPanel.save) {
-		//tell the content panel to save
-		this.contentPanel.save();
-	};
+	try {
+		//check if the content panel exists
+		if(this.contentPanel && this.contentPanel.save) {
+			//tell the content panel to save
+			this.contentPanel.save();
+		};		
+	} catch(e) {
+		
+	}
 };
 
 /**
@@ -529,15 +536,68 @@ OpenResponseNode.prototype.isCompleted = function(nodeVisits) {
 	var result = false;
 	
 	if(nodeVisits != null) {
+		//get the step content
+		var content = this.content.getContentJSON();
+		
+		if(content != null) {
+			if(content.cRater != null) {
+				//get all the student node states
+				var nodeStates = this.view.getNodeStatesFromNodeVisits(nodeVisits);
+				var foundSubmit = false;
+				var foundRevision = false;
+				
+				//loop through all the node states
+				for(var x=0; x<nodeStates.length; x++) {
+					//get a node state
+					var nodeState = nodeStates[x];
+					
+					if(nodeState != null) {
+						if(!foundSubmit) {
+							//we have not found a submit node state yet
+							
+							//check if this node state was a submit
+							var isCRaterSubmit = nodeState.isCRaterSubmit;
+							
+							if(isCRaterSubmit) {
+								//the node state was a submit so we have now found a submit
+								foundSubmit = true;
+							}
+						} else {
+							//we have previously found a submit node state so we are now looking for a revision
+							
+							//any node state is considered a revision so we have found a revision
+							foundRevision = true;
+						}
+					}
+				}
+				
+				if(content.cRater.mustSubmitAndReviseBeforeExit) {
+					//the student must submit and then revise their work in order to complete the step
+					
+					if(foundSubmit && foundRevision) {
+						//we have found a submit and a revision after it
+						result = true;
+					}
+				} else {
+					// it's a c-rater item that doesn't require revising their work. If they have submitted, consider it complete
+					if(foundSubmit) {
+						result = true;						
+					}
+				}
+				return result;
+			}
+		}
+		
+
 		//get the latest node state for this step
 		var nodeState = this.view.getLatestNodeStateWithWorkFromNodeVisits(nodeVisits);
-		
+			
 		if(nodeState != null && nodeState != '') {
 			if(nodeState.response != null && nodeState.response != '') {
 				//the student has completed this step
 				result = true;
 			}
-		}		
+		}	
 	}
 	
 	return result;

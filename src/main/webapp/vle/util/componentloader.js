@@ -329,7 +329,9 @@ var componentloader = function(em, sl){
 				'autoStepChanged':[null,null], 
 				'stepNumberChanged':[null,null],
 				'stepTermChanged':[null,null],
+				'stepTermPluralChanged':[null,null],
 				'activityTermChanged':[null,null],
+				'activityTermPluralChanged':[null,null],
 				'author':[null,null],
 				'nodeIconUpdated':[null,null], 
 				'nodeTitleChanged':[null,null], 
@@ -457,7 +459,9 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('stepLevelChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('autoStepChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('stepTermChanged', view.authorDispatcher, view);
+					view.eventManager.subscribe('stepTermPluralChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('activityTermChanged', view.authorDispatcher, view);
+					view.eventManager.subscribe('activityTermPluralChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('stepNumberChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('author', view.authorDispatcher, view);
 					view.eventManager.subscribe('nodeIconUpdated', view.authorDispatcher, view);
@@ -656,8 +660,8 @@ var componentloader = function(em, sl){
 				'constraintStatusUpdated':[null,null],
 				'nodeLinkClicked':[null,null],
 				'nodeStatusUpdated':[null,null],
-				'navigationLoadingCompleted':[null,null],
-				'cRaterResponseReceived':[null,null]
+				'cRaterResponseReceived':[null,null],
+				'renderNodeBlocked':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -685,7 +689,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('nodeLinkClicked', view.vleDispatcher, view);
-						view.eventManager.subscribe('navigationLoadingCompleted', view.navigationLoadingCompletedListener, view);
+						view.eventManager.subscribe('renderNodeBlocked', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStarted','loadingProjectCompleted','Project'],
 						                                     ['getUserAndClassInfoStarted','getUserAndClassInfoCompleted', 'Learner Data'], 
 						                                     ['getUserAndClassInfoStarted', 'renderNodeCompleted', 'Learning Environment']]);
@@ -838,6 +842,7 @@ var componentloader = function(em, sl){
 				'cRaterFeedbackChanged':[null, null],
 				'cRaterDisplayScoreToStudentChanged':[null, null],
 				'cRaterDisplayFeedbackToStudentChanged':[null, null],
+				'cRaterMustSubmitAndReviseBeforeExitChanged':[null, null],
 				'cRaterAddFeedback':[null, null],
 				'cRaterRemoveFeedback':[null, null],
 				'cRaterMaxCheckAnswersChanged':[null, null],
@@ -865,6 +870,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('cRaterFeedbackChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayScoreToStudentChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayFeedbackToStudentChanged', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterMustSubmitAndReviseBeforeExitChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterAddFeedback', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterRemoveFeedback', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterMaxCheckAnswersChanged', view.cRaterManager.dispatcher, view);

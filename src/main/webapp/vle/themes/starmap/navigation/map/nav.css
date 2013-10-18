@@ -1,16 +1,14 @@
 /* Navigation menu specific css and theme customization */
 
-@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,400);
-
-#vle_body #toggleNavLink.menu {
+/*#vle_body #toggleNavLink.menu {
 	padding-left:28px;
 	background:transparent url('images/menu.png') no-repeat left center;
-}
+}*/
 
 #vle_body #my_menu {
 	height:100%;
 	width:100%;
-	position:relative;
+	position:absolute;
 	/*background-color: #191D2E;*/
 	background: url("images/background.png") no-repeat scroll center center #191D2E;
 	background-size: cover;
@@ -184,7 +182,7 @@ svg#chart {
 }
 
 #wrap.zoom {
-	cursor: move;
+	/*cursor: move;*/
 }
 
 #mapBgImg {
@@ -330,7 +328,7 @@ svg#chart {
 	cursor:pointer;
 }
 
-.seq text {
+.seq text, .node text {
 	opacity:1;
 	font-size:10pt;
 	font-weight:200;
@@ -340,7 +338,7 @@ svg#chart {
 	stroke-width:0;
 }
 
-.seq .seqInfo {
+.seq .seqInfo, .node .nodeInfo {
 	opacity:0;
 	pointer-events: none;
 }
@@ -348,38 +346,112 @@ svg#chart {
 .seq .title.seqInfo, .seq .titleBg.seqInfo {
 }
 
-.seq tspan.pos {
+.seq tspan.pos, .node tspan.pos {
 	fill: #d1ffef;
 }
 
+.seqInfo, .nodeInfo {
+	z-index: 1;
+}
+
+.item .locked {
+	opacity: 0;
+}
+
+.item.constraintDisable .locked {
+	opacity: 1;
+}
+
 #activityControls {
-	position:absolute;
-	right:50px;
-	top:50px;
-	display:none;
+	position: absolute;
+	right: 25px;
+	top: 50px;
+	background: transparent url('images/levelController.png') 0 0 no-repeat;
+	display: none;
+	width: 277px;
+	height: 94px;
 }
 
 #activityControls #currentAct {
-	display: inline-block;
 	color: #cfff4a;
 	font-family: 'Yanone Kaffeesatz', sans-serif;
 	font-weight: 200;
-	font-size: 1.05em;
-	margin: 0 .75em;
-	background: transparent url('images/menu-header-blank.png') left center no-repeat;
-	width: 254px;
-	height: 48px;
-	line-height: 47px;
+	font-size: 1.1em;
+	left: 12px;
+    line-height: 48px;
+    position: absolute;
+    top: 4px;
 }
 
 #activityControls #currentAct .pos {
-	color:#d1ffef;
-	padding-left:16px;
+	color: #d1ffef;
+	padding: 0 2px 0 12px;
 }
 
-#activityControls a img {
-	height: 22px;
-	width: 20px;
+#activityControls #prevAct {
+	position:absolute;
+	left:58px;
+	top:57px;
+	width:39px;
+	height:25px;
+	background: transparent url('images/levelController.png') 0 -105px no-repeat;
+}
+
+#activityControls #prevAct:hover {
+	background-position: -70px -105px;
+}
+
+#activityControls #prevAct:active {
+	background-position: -140px -105px;
+}
+
+#activityControls #prevAct.disabled, #activityControls #prevAct.disabled:hover,
+#activityControls #prevAct.disabled:active {
+	background-position: -210px -105px;
+}
+
+#activityControls #nextAct {
+	position:absolute;
+	left:221px;
+	top:53px;
+	width:37px;
+	height:28px;
+	background: transparent url('images/levelController.png') 0 -140px no-repeat;
+}
+
+#activityControls #nextAct:hover {
+	background-position: -70px -140px;
+}
+
+#activityControls #nextAct:active {
+	background-position: -140px -140px;
+}
+
+#activityControls #nextAct.disabled, #activityControls #nextAct.disabled:hover,
+#activityControls #nextAct.disabled:active {
+	background-position: -210px -140px;
+}
+
+#activityControls #reset {
+	position:absolute;
+	left:99px;
+	top:54px;
+	width:120px;
+	height:34px;
+	background: transparent url('images/levelController.png') 0 -178px no-repeat;
+}
+
+#activityControls #reset:hover {
+	background-position: -150px -178px;
+}
+
+#activityControls #reset:active {
+	background-position: 0 -217px;
+}
+
+#activityControls #reset.disabled, #activityControls #nreset.disabled:hover,
+#activityControls #reset.disabled:active {
+	background-position: -150px -217px;
 }
 
 path.link {
@@ -447,22 +519,23 @@ path.target.active {
 	display:none;
 }
 
-#reset {
-	position:absolute;
-	left:50px;
-	bottom:50px;
-	display:none;
-}
 #export {
 	position:absolute;
 	left:50px;
 	bottom:25px;
+	display:none;
 }
 
-#toggleView {
-	position:absolute;
-	left:50px;
-	top:50px;
+.globalTagMap-item {
+	-webkit-transition: opacity .75s ease;
+    -moz-transition: opacity .75s ease;
+    -o-transition: opacity .75s ease;
+    transition: opacity .75s ease;
+    opacity:1;
+}
+
+.zoom .globalTagMap-item {
+	opacity: 0;
 }
 
 #stepHeader {

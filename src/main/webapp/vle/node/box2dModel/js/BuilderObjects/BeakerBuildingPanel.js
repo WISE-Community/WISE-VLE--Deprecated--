@@ -99,7 +99,14 @@
 		mtitle.y = this.wall_width_px + GLOBAL_PARAMETERS.PADDING;
 
 		var htmlText, htmlElement;
-
+		var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
+		var iWidth = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-3;
+		var iHeight = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-3;
+		var iDepth = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_DEPTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-3;
+		this.width_units = GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth;
+		this.height_units = GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS -iHeight;
+		this.depth_units = GLOBAL_PARAMETERS.MAX_DEPTH_UNITS - iDepth;
+					    
 		// jquery ui
 		if ($("#make-object").length == 0){
 			htmlText = '<input type="submit" id="make-object" value="Export Model"/>';
@@ -112,14 +119,14 @@
 	            }).hide();  
 
 			htmlText = '<div id="slider-width" style="width: 100px"></div>';
-		    $("#builder-button-holder").append(htmlText);
+			$("#builder-button-holder").append(htmlText);
 			$("#slider-width")
 			    .slider({
                    orientation: "horizontal",
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-3,
+                   value: iWidth,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
@@ -136,7 +143,7 @@
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-3,
+                   value: iHeight,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
@@ -153,7 +160,7 @@
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-3,
+                   value: iDepth,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
@@ -251,9 +258,8 @@
 			this.addChild(element);
 			element.x = this.materialsMenu.width_px + this.width_px/3 - 100;
 			element.y = this.materialsMenu.y + this.materialsMenu.height_px - 4 * $("#slider-width").height();
-			this.width_units = 3;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.widthText = new createjs.Text("Width: 3 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.widthText = new createjs.Text("Width: "+ (GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.widthText.x = element.x + 50;
 				this.widthText.y = element.y + $("#slider-width").height() + 10;
 				this.widthText.lineWidth = 60;
@@ -264,9 +270,8 @@
 			this.addChild(element);
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
 			element.y = this.TITLE_HEIGHT*1.5;
-			this.height_units = 3;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.heightText = new createjs.Text("Height: 3 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.heightText = new createjs.Text("Height: "+ (GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS - iHeight).toFixed(incPow) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.heightText.x = element.x + 10;
 				this.heightText.y = element.y + $("#slider-height").height() + 10;
 				this.heightText.lineWidth = 60;
@@ -277,9 +282,8 @@
 			this.addChild(element);
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + 50;
 			element.y = this.TITLE_HEIGHT*1.5;
-			this.depth_units = 3;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.depthText = new createjs.Text("Depth: 3 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.depthText = new createjs.Text("Depth: " + (GLOBAL_PARAMETERS.MAX_DEPTH_UNITS - iDepth).toFixed(incPow) + " "+ GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.depthText.x = element.x + 10;
 				this.depthText.y = element.y + $("#slider-depth").height() + 10;
 				this.depthText.lineWidth = 60;
@@ -296,7 +300,6 @@
 			this.addChild(element);
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 250;
 			element.y = this.TITLE_HEIGHT*1.5;
-			this.depth_units = 3;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
 				this.lpercText = new createjs.Text(this.liquid.display_name + ": 0 %", "20px Arial", this.textColor);
 				this.lpercText.x = element.x + 10;
@@ -310,7 +313,6 @@
 				this.addChild(element);
 				element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 350;
 				element.y = this.TITLE_HEIGHT*1.5;
-				this.depth_units = 3;
 				if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
 					this.spercText = new createjs.Text("Spout at: 0 %", "20px Arial", this.textColor);
 					this.spercText.x = element.x + 10;

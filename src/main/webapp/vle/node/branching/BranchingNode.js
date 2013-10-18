@@ -17,6 +17,15 @@
 BranchingNode.prototype = new Node(); //TODO: rename BranchingNode
 BranchingNode.prototype.constructor = BranchingNode; //TODO: rename both occurrences of BranchingNode
 BranchingNode.prototype.parentNode = Node.prototype; //TODO: rename BranchingNode
+BranchingNode.prototype.i18nEnabled = true;
+BranchingNode.prototype.i18nPath = "/vlewrapper/vle/node/branching/i18n/";
+BranchingNode.prototype.supportedLocales = {
+	"en_US":"en_US",
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"	
+};
 
 /*
  * the name that displays in the authoring tool when the author creates a new step
@@ -118,12 +127,16 @@ BranchingNode.prototype.translateStudentWork = function(studentWork) {
  * Note: In most cases you will not have to change anything here.
  */
 BranchingNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
 		}
+	} catch(e) {
+		
 	}
 };
 

@@ -50,7 +50,7 @@
 	text-align:center;
 }
 
-#svg_editor #description .description_header {
+#svg_editor #description #description_header {
 	font-weight:bold;
 	padding:0;
 	font-size:1em;
@@ -61,12 +61,12 @@
 	text-align:left;
 }
 
-#svg_editor .description_header_text {
+#svg_editor #description_header_text {
 	float:left;
 	margin-left:2px;
 }
 
-#svg_editor .description_header_text span {
+#svg_editor #description_header_text span {
 	font-weight:normal;
 	font-size:1em;
 	vertical-align: top;

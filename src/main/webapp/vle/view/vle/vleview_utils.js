@@ -19,19 +19,15 @@ View.prototype.getAbsoluteRemoteStudentReferencedUploadsPath = function() {
 };
 
 /**
- * Closes currently-opened dialogs. If a name is specified, it closes the specified popup.
- * @name optional, name of the poup. if none specified, 
- * tries to close all popups. Choices: {notePanel, journalPanel, hintsPanel, addAnIdeaDiv}
+ * Closes any currently-opened dialogs.
  */
 View.prototype.utils.closeDialogs = function(){
-	this.closeDialog('journalPanel');
-	this.closeDialog('notePanel');
-	this.closeDialog('hintsPanel');
-	this.closeDialog('addAnIdeaDiv');
+	$(".ui-dialog-content").dialog("close");
 };
 
 /**
- * closes specified dialog.
+ * Closes specified dialog.
+ * @param name The string id of the dialog to close
  */
 View.prototype.utils.closeDialog = function(name){
 	$('#' + name).dialog('close');

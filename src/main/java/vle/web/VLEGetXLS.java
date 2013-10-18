@@ -33,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.FileManager;
+import utils.SecurityUtils;
 import vle.VLEServlet;
 import vle.domain.annotation.Annotation;
 import vle.domain.ideabasket.IdeaBasket;
@@ -209,6 +210,13 @@ public class VLEGetXLS extends VLEServlet {
 	 * Generates and returns an excel xls of exported student data.
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		/*
 		 * clear the instance variables because only one instance of a servlet
 		 * is ever created
@@ -891,7 +899,7 @@ public class VLEGetXLS extends VLEServlet {
 			
 			//get the UserInfo object for the workgroup id
 			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(workgroupIdString));
-			
+
 			if(userInfo != null) {
 				//get the workgroup id
 				Long workgroupId = userInfo.getWorkgroupId();
@@ -920,6 +928,12 @@ public class VLEGetXLS extends VLEServlet {
 					//create the sheet since we are generating an xls file
 					userIdSheet = wb.createSheet(workgroupIdString);
 				}
+				
+				//clear the step visit count
+				clearStepVisitCount();
+				
+				//clear the step revision count
+				clearStepRevisionCount();
 				
 				int rowCounter = 0;
 				
@@ -1319,14 +1333,14 @@ public class VLEGetXLS extends VLEServlet {
     		}
     	} else {
     		//there are no rows
-    		
-    		//get the response
-    		String response = getNodeStateResponse(nodeState, nodeId);
-    		
+
     		ArrayList<Object> row = new ArrayList<Object>();
+
+    		//get the student work
+    		row = getNodeStateWorkForShowAllWork(nodeState, nodeId, nodeType);
     		
-    		//put the response in the row
-    		row.add(response);
+    		//get the column names that will be placed as comments over the student work cells
+    		columnNames = getDefaultColumnNames(nodeId, nodeType, nodeState);
 
     		//write the row to the excel
     		writeAllStudentWorkRow(userIdSheet, rowCounter, nodeId, workgroupId, wiseId1, wiseId2, wiseId3, stepWorkId, stepVisitCount, nodeTitle, nodeType, nodePrompt, nodeContent, startTime, endTime, postTime, stepWork, periodId, userInfo, stepWorksForWorkgroupId, nodeJSONObject, columnNames, row);
@@ -1336,6 +1350,208 @@ public class VLEGetXLS extends VLEServlet {
     	}
     	
     	return rowCounter;
+	}
+	
+	/**
+	 * Get the student work cells for the node state
+	 * @param nodeState the node state
+	 * @param nodeId the id for the node
+	 * @param nodeType the node type
+	 * @return an array containing the student work. each element in the
+	 * array will show up in its own column
+	 */
+	private ArrayList<Object> getNodeStateWorkForShowAllWork(JSONObject nodeState, String nodeId, String nodeType) {
+		ArrayList<Object> row = new ArrayList<Object>();
+		
+		if(nodeState != null) {
+			if(nodeType == null) {
+
+			} else if(nodeType.equals("AssessmentList")) {
+				//this is work for an assessment list
+				
+				try {
+					//get the step content
+					JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+					
+					//get the assessments array that contains the students answers for each part
+					JSONArray assessments = nodeState.getJSONArray("assessments");
+					
+					//loop through all the parts in the assessment
+					for(int x=0; x<assessments.length(); x++) {
+						//get a part
+						JSONObject assessmentPart = assessments.getJSONObject(x);
+						
+						String response = null;
+
+						//check if the response is null
+						if(!assessmentPart.isNull("response")) {
+							//get the response object
+							JSONObject responseObject = assessmentPart.optJSONObject("response");
+							
+							if(responseObject != null) {
+								//get the response text
+								String responseText = responseObject.optString("text");
+
+								if(responseText != null) {
+									response = responseText;
+								}
+							}
+						}
+						
+						if(response == null) {
+							row.add("");
+						} else {
+							row.add(response);
+						}
+					}
+					
+					boolean isLockAfterSubmit = false;
+					
+					if(nodeContent != null && nodeContent.has("isLockAfterSubmit")) {
+						try {
+							//get whether this step locks after submit
+							isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+						} catch (JSONException e) {
+							//e.printStackTrace();
+						}
+					}
+					
+					if(isLockAfterSubmit) {
+						//this step locks after submit
+						
+						//check if the student submitted
+						boolean isSubmit = nodeState.getBoolean("isSubmit");
+						
+						//add the isSubmit value
+						row.add(isSubmit);
+					}
+				} catch (JSONException e) {
+					//e.printStackTrace();
+				}
+			} else {
+	    		//get the response
+	    		String response = getNodeStateResponse(nodeState, nodeId);
+	    		
+	    		//put the response in the row
+	    		row.add(response);
+			}
+		}
+		
+		return row;
+	}
+	
+	/**
+	 * Get the default column names for the step
+	 * @param nodeId the id for the node
+	 * @param nodeType the node type
+	 * @param nodeState the student work node state
+	 * @return the column names that we will display as comments in the student work cell
+	 */
+	private ArrayList<Object> getDefaultColumnNames(String nodeId, String nodeType, JSONObject nodeState) {
+		ArrayList<Object> columnNames = new ArrayList<Object>();
+		
+		if(nodeType == null) {
+			
+		} else if(nodeType.equals("AssessmentList")) {
+			//the step is an assessment list step
+			
+			if(nodeState != null) {
+				//get the assessment parts from the student work
+				JSONArray assessments = nodeState.optJSONArray("assessments");
+				
+				if(assessments != null) {
+					//loop through all the parts
+					for(int x=0; x<assessments.length(); x++) {
+						String prompt = null;
+						
+						//get the assessment object
+						JSONObject assessment = assessments.optJSONObject(x);
+						
+						if(assessment != null) {
+							//get the assessment id
+							String assessmentId = assessment.optString("id");
+							
+							if(assessmentId != null) {
+								//get the prompt for the assessment id
+								prompt = getAssessmentPromptByAssessmentId(nodeId, assessmentId);								
+							}
+						}
+						
+						if(prompt == null) {
+							columnNames.add("");
+						} else {
+							columnNames.add(prompt);
+						}
+					}		
+				}
+
+				//get the step content
+				JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+				
+				boolean isLockAfterSubmit = false;
+				
+				if(nodeContent != null && nodeContent.has("isLockAfterSubmit")) {
+					try {
+						//get whether this step locks after submit
+						isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+					} catch (JSONException e) {
+						//e.printStackTrace();
+					}
+				}
+				
+				if(isLockAfterSubmit) {
+					//this step locks after submit
+					columnNames.add("Submit");
+				}
+			}
+		} else {
+			
+		}
+		
+		return columnNames;
+	}
+	
+	/**
+	 * Get the assessment part prompt given the assessment id
+	 * @param nodeId the node id
+	 * @param assessmentId the assessment id
+	 * @return the assessment part prompt
+	 */
+	private String getAssessmentPromptByAssessmentId(String nodeId, String assessmentId) {
+		String prompt = null;
+		
+		if(nodeId != null && assessmentId != null) {
+			//get the node content
+			JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+			
+			if(nodeContent != null) {
+				//get the assessments
+				JSONArray assessments = nodeContent.optJSONArray("assessments");
+				
+				if(assessments != null) {
+					
+					//loop through all the assessment parts
+					for(int x=0; x<assessments.length(); x++) {
+						//get an assessment
+						JSONObject tempAssessment = assessments.optJSONObject(x);
+						
+						if(tempAssessment != null) {
+							//get the assessment id
+							String tempAssessmentId = tempAssessment.optString("id");
+						
+							//check if this is the assessment id we want
+							if(assessmentId.equals(tempAssessmentId)) {
+								//this is the assessment id we want so we will get the prompt
+								prompt = tempAssessment.optString("prompt");
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return prompt;
 	}
 	
 	/**
@@ -2284,6 +2500,13 @@ public class VLEGetXLS extends VLEServlet {
 	}
 	
 	/**
+	 * Clear the step visit counts for all steps
+	 */
+	private void clearStepVisitCount() {
+		nodeIdToStepVisitCount = new HashMap<String, Integer>();
+	}
+	
+	/**
 	 * Increase the step visit count for a step
 	 * @param nodeId the node id
 	 * @return the new step visit count
@@ -2321,6 +2544,13 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return count;
+	}
+	
+	/*
+	 * Clear the step revision count for all steps
+	 */
+	private void clearStepRevisionCount() {
+		nodeIdToStepRevisionCount = new HashMap<String, Integer>();
 	}
 	
 	/**

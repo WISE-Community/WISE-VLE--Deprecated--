@@ -54,12 +54,6 @@ svgEditor.addExtension("Prompt", function(S) {
 		show: function(){
 			$('#prompt_dialog').dialog('open');
 			return this;
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
 		}
 	};
 	
@@ -71,7 +65,6 @@ svgEditor.addExtension("Prompt", function(S) {
 		if(!loaded){
 			// on first load, set extension loaded variable to true and call extension loaded listener
 			loaded = true;
-			api.loadComplete();
 		}
 	}
 	
@@ -80,7 +73,7 @@ svgEditor.addExtension("Prompt", function(S) {
 		var linktext = '<div id="tool_prompt" class="extension_link">' +
 			'<a class="label tool_prompt" title="Review Instructions">Instructions</a>' +
 			'<img class="tool_prompt" src="extensions/prompt.png" ' + // TODO: create svg icon
-			'title="Review Instructions" alt="icon" />' +
+			'alt="icon" />' +
 			'</div>';
 		var dialogtxt = '<div id="prompt_dialog" style="display:none;">' +
 			'<div id="prompt_content"></div></div>';

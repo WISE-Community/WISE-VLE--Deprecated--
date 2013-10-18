@@ -56,12 +56,12 @@
 		this.tareValue = 0;
 		// set up tare button
 		var tareButtonName = "tare-button-" + this.id;
-		$('#scale-button-holder').append('<input type="submit" id="'+tareButtonName+'" value="Reset" style="font-size:14px; position:absolute"/>');
+		$('#scale-button-holder').append('<input type="submit" id="'+tareButtonName+'" value="Set to 0" style="font-size:14px; position:absolute"/>');
 		var htmlElement = $('#' + tareButtonName).button().bind('click', {parent: this}, this.tare);
 		this.tareElement = new createjs.DOMElement(htmlElement[0]);
 		this.addChild(this.tareElement);
 			
-		this.tareElement.x = -this.base_width_top_units/2 * GLOBAL_PARAMETERS.SCALE;
+		this.tareElement.x = -this.base_width_top_units/2 * GLOBAL_PARAMETERS.SCALE-5;
 		this.tareElement.y = -this.base_height_units * GLOBAL_PARAMETERS.SCALE-4;
 
 
@@ -88,7 +88,7 @@
 		var vecs, vec;
 
 		var baseFixtureDef = this.baseFixtureDef = new b2FixtureDef;
-		baseFixtureDef.density = 1000;
+		baseFixtureDef.density = 600;
 		baseFixtureDef.restitution = 0.2;
 		baseFixtureDef.friction = 1.0;
 		baseFixtureDef.filter.categoryBits = 2;
@@ -104,7 +104,7 @@
 		baseBodyDef.type = b2Body.b2_dynamicBody;
 		
 		var panFixtureDef = this.panFixtureDef = new b2FixtureDef;
-		panFixtureDef.density = 1000;
+		panFixtureDef.density = 600;
 		panFixtureDef.restitution = 0.0;
 		panFixtureDef.linearDamping = 1.0;
 		panFixtureDef.friction = 5.0;
@@ -122,7 +122,6 @@
 
 		var panPrismJointDef = this.panPrismJointDef = new Box2D.Dynamics.Joints.b2PrismaticJointDef();
 		var panDistJointDef = this.panDistJointDef = new Box2D.Dynamics.Joints.b2DistanceJointDef();		
-	
 	}
 
 	p.setupInWorld = function (position_x, position_y, b2world){
@@ -161,14 +160,16 @@
 		var panPrismJointDef = this.panPrismJointDef;
 		var vec = new b2Vec2(); vec.Set(0, 1);
 		panPrismJointDef.Initialize(base, pan, base.GetPosition(), vec);
-		panPrismJointDef.localAnchorA = new b2Vec2(0, -this.pan_dy_units);
-		panPrismJointDef.localAnchorB = new b2Vec2(0, 0);
+		//panPrismJointDef.localAnchorA = new b2Vec2(-this.base_width_top_units/2, 0);
+		//panPrismJointDef.localAnchorB = new b2Vec2(-this.base_width_top_units/2, 0);
 		panPrismJointDef.referenceAngle = 0;
 		panPrismJointDef.collideConnected = true;
 		this.panPrismJoint = this.b2world.CreateJoint (panPrismJointDef);
 		
 		var panDistJointDef = this.panDistJointDef;
 		panDistJointDef.Initialize(pan, base, pan.GetPosition(), base.GetPosition());
+		//panDistJointDef.localAnchorA = new b2Vec2(-this.base_width_top_units/2, 0);
+		//panDistJointDef.localAnchorB = new b2Vec2(-this.base_width_top_units/2, 0);
 		panDistJointDef.dampingRatio = 0.008;
 		panDistJointDef.frequencyHz = 1.0;
 		this.panDistJoint = this.b2world.CreateJoint (panDistJointDef);
@@ -187,6 +188,8 @@
 		
 		this.contactedBodies = [this.pan];	
 		this.massOnPan = 0;
+
+		this.savedObject.mass = this.base.GetMass() + this.pan.GetMass();
 
 		this.skin.redraw(pan_y - this.y, this.panPrismJoint.GetMotorForce());
 
@@ -254,6 +257,8 @@
 				}
 			}
 		}
+		//console.log("Begin - distance", this.justAddedBody != null ? this.pan.GetPosition().y - this.justAddedBody.GetPosition().y:"");
+		
 		if (just_added){
 			this.justAddedBody.bobbing = true;
 			this.justAddedBody.stationaryCount = 0;
@@ -262,6 +267,7 @@
 		}
 	}
 	p.EndContact = function (bodyA, bodyB){
+		//console.log("End", this.justAddedBody != null ? this.pan.GetPosition().y - this.justAddedBody.GetPosition().y:"");
 		// was one body directly touching the pan?
 		if (bodyA == this.pan || bodyB == this.pan){
 			var obody = bodyA == this.pan ? bodyB : bodyA;
@@ -270,7 +276,7 @@
 				this.contactedBodies.splice(index, 1);
 				this.massOnPan -= obody.GetMass();
 				obody.contactLinkToScalePan = null;
-				if (obody == this.justAddedBody) this.justAddedBody = null;
+				//if (obody == this.justAddedBody) this.justAddedBody = null;
 				eventManager.fire('remove-from-scale',[obody.GetUserData()['actor'].skin.savedObject], box2dModel);
 			}
 		} else {
@@ -282,13 +288,13 @@
 					this.contactedBodies.splice(indexA, 1);
 					this.massOnPan -= bodyA.GetMass();
 					bodyA.contactLinkToScalePan = null;
-					if (bodyA == this.justAddedBody) this.justAddedBody = null;
+					//if (bodyA == this.justAddedBody) this.justAddedBody = null;
 					eventManager.fire('remove-from-scale',[bodyA.GetUserData()['actor'].skin.savedObject], box2dModel);
 				} else if (bodyB.contactLinkToScalePan == bodyA){
 					this.contactedBodies.splice(indexB, 1);
 					this.massOnPan -= bodyB.GetMass();
 					bodyB.contactLinkToScalePan = null;
-					if (bodyB == this.justAddedBody) this.justAddedBody = null;
+					//if (bodyB == this.justAddedBody) this.justAddedBody = null;
 					eventManager.fire('remove-from-scale',[bodyB.GetUserData()['actor'].skin.savedObject], box2dModel);
 				}				
 			}
@@ -323,55 +329,72 @@
 
 			//console.log(this.panDistJoint.GetReactionForce(1/createjs.Ticker.getFPS()).y);
 			var rF = this.panDistJoint.GetReactionForce(createjs.Ticker.getFPS()).y;
-
-			if (this.prev_rF != rF || this.tareFlagForUpdate){
-				var displayrF;
-				// acount for liqiud if necessary
-				if (false){
-					displayrF = this.massOnPan;
-				} else {
-					//console.log(rF, this.pan.GetMass(),this.pan.GetMass()/1000*10);
-					displayrF = rF/1000;
+			var displayrF;
+			// acount for liqiud if necessary
+			if (false){
+				displayrF = this.massOnPan;
+			} else {
+				//console.log(rF, this.pan.GetMass(),this.pan.GetMass()/1000*10);
+					//displayrF = rF/1000;
 					//if (typeof this.controlledByBuoyancy !== "undefined" && this.controlledByBuoyancy && this.containedWithin != null){
 					//	displayrF = (rF - this.pan.GetMass()*10 + this.pan.volume*this.containedWithin.liquid.density*10)/100;
 					//} else {
-					//	displayrF = (rF - this.pan.GetMass()*10)/100;
-					//}
-				}
-				
-				//displayrF = (rF - this.pan.GetMass()*10)/1000;
-				var displayVal = displayrF;
 				if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("lb|lbs|p|Lb") != null){
-					displayVal = displayrF*0.2248;	
+					displayrF = (rF - this.pan.GetMass())/0.2248;	
 				} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("k") != null){
-					displayVal = displayrF/10;	
+					displayrF = (rF - this.pan.GetMass()*10);	
 				} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("g|c") != null){
-					displayVal = displayrF/10*1000;	
+					displayrF = (rF - this.pan.GetMass()*10)/1000;
 				} 
-				// if we are taring, set value here
-				if (this.tareFlagForUpdate){
-					this.tareValue = displayVal;
-					this.tareFlagForUpdate = false;
-				}
-				displayVal -= this.tareValue;
+				//}
+			}
+			
+			//displayrF = (rF - this.pan.GetMass()*10)/1000;
+			var displayVal = displayrF;
+			if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("lb|lbs|p|Lb") != null){
+				displayVal = displayrF*0.2248;	
+			} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("k") != null){
+				displayVal = displayrF/10;	
+			} else if (GLOBAL_PARAMETERS.SCALE_UNITS.toLowerCase().match("g|c") != null){
+				displayVal = displayrF/10*1000;	
+			} 
+			// if we are taring, set value here
+			if (this.tareFlagForUpdate){
+				this.tareValue = displayVal;
+			}
+			displayVal -= this.tareValue;
 
+			// either update display or fire event
+			if (this.prev_rF != rF || this.tareFlagForUpdate){
 				this.skin.redraw(pan_y - this.y, displayVal);
 				this.prev_rF = rF;
-			} 
+				this.tareFlagForUpdate = false;
+			} else {
+				// is there a just added body which is bobbing?
+				if (this.justAddedBody != null && this.justAddedBody.bobbing){
+					// is it stationary-ish
+					//console.log("from (", this.justAddedBody.prevPosition.x,",",this.justAddedBody.prevPosition.y,") to (",this.justAddedBody.GetPosition().x,",",this.justAddedBody.GetPosition().y,"");
+					if (Math.abs(this.justAddedBody.prevPosition.x - this.justAddedBody.GetPosition().x) < 0.01 &&
+						Math.abs(this.justAddedBody.prevPosition.y - this.justAddedBody.GetPosition().y) < 0.01){
+						this.justAddedBody.stationaryCount++;
+						if (this.justAddedBody.stationaryCount > 5){
+							// add relevant information into this event
 
-			// is there a just added body which is bobbing?
-			if (this.justAddedBody != null && this.justAddedBody.bobbing){
-				// is it stationary-ish
-				//console.log("from (", this.justAddedBody.prevPosition.x,",",this.justAddedBody.prevPosition.y,") to (",this.justAddedBody.GetPosition().x,",",this.justAddedBody.GetPosition().y,"");
-				if (Math.abs(this.justAddedBody.prevPosition.x - this.justAddedBody.GetPosition().x) < 0.01 &&
-					Math.abs(this.justAddedBody.prevPosition.y - this.justAddedBody.GetPosition().y) < 0.01){
-					this.justAddedBody.stationaryCount++;
-					if (this.justAddedBody.stationaryCount > 5){
-						eventManager.fire('test-on-scale',[this.justAddedBody.GetUserData()['actor'].skin.savedObject, this.savedObject], box2dModel);
-						this.justAddedBody.bobbing = false;	
-					}			
+							var scaleDetails = {
+								'Weight':rF,
+								'Weight_displayed':displayVal,
+								'Units':GLOBAL_PARAMETERS.SCALE_UNITS,
+								'Mass_on_pan':this.massOnPan,
+								'Mass_of_pan':this.pan.GetMass(),
+								'Tare_amount':this.tareValue,
+							};
+							eventManager.fire('test-on-scale',[this.justAddedBody.GetUserData()['actor'].skin.savedObject, scaleDetails], box2dModel);
+							this.justAddedBody.bobbing = false;	
+							this.justAddedBody = null;
+						}			
+					}
+					if (this.justAddedBody != null) this.justAddedBody.prevPosition = new b2Vec2(this.justAddedBody.GetPosition().x, this.justAddedBody.GetPosition().y);	
 				}
-				this.justAddedBody.prevPosition = new b2Vec2(this.justAddedBody.GetPosition().x, this.justAddedBody.GetPosition().y);	
 			}
 		}
 	}

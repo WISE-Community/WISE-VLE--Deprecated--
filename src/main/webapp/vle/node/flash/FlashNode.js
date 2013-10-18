@@ -6,7 +6,10 @@ FlashNode.prototype.i18nPath = "/vlewrapper/vle/node/flash/i18n/";
 FlashNode.prototype.supportedLocales = {
 			"en_US":"en_US",
 			"ja":"ja",
-			"es":"es"
+			"es":"es",
+			"nl":"nl",
+			"nl_GE":"nl",
+			"nl_DE":"nl"			
 };
 
 /*
@@ -80,12 +83,16 @@ FlashNode.prototype.translateStudentWork = function(studentWork) {
  * Save student data onExit
  */
 FlashNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
 		}
+	} catch(e) {
+		
 	}
 };
 

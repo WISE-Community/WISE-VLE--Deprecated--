@@ -12,7 +12,10 @@ FillinNode.prototype.i18nPath = "/vlewrapper/vle/node/fillin/i18n/";
 FillinNode.prototype.supportedLocales = {
 			"en_US":"en_US",
 			"ja":"ja",
-			"es":"es"
+			"es":"es",
+			"nl":"nl",
+			"nl_GE":"nl",
+			"nl_DE":"nl"			
 };
 
 

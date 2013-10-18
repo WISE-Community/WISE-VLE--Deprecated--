@@ -208,6 +208,9 @@ SENSOR.prototype.render = function() {
 	var message = '';
 	var workToImport = [];
 	
+	//check if this step imports work from another sensor step
+	var importsWorkFromSensorStep = this.importsWorkFromSensorStep();
+	
 	//process the tag maps if we are not in authoring mode
 	if(this.view.authoringMode == null || !this.view.authoringMode) {
 		//get the tag map results
@@ -224,25 +227,91 @@ SENSOR.prototype.render = function() {
 		 * the student has not done any work for this step and
 		 * there is work to import so we will use the work to import
 		 */
-		this.sensorState = workToImport[workToImport.length - 1];
+		nodeState = workToImport[workToImport.length - 1];
+		
+		if(nodeState.constructor.name == 'SENSORSTATE') {
+			/*
+			 * the node state is a sensor state so we will create a copy
+			 * of the node state. we need to create a copy so that we don't
+			 * modify the work from the other step that this node state is from.
+			 */
+			this.sensorState = SENSORSTATE.prototype.parseDataJSONObj(nodeState);
+		}
 	}
 	
-	if(this.content.requirePredictionBeforeEnter && this.node.prevWorkNodeIds.length != 0 && this.sensorState.predictionArray.length == 0) {
+	if(this.content.requirePredictionBeforeEnter && (importsWorkFromSensorStep || this.node.prevWorkNodeIds.length != 0) && this.sensorState.predictionArray.length == 0) {
 		/*
-		 * this step requires a prediction before opening, there is an associated prevWorkNodeId
-		 * and there is no prediction so we will lock the student out of this step until they
+		 * this step requires a prediction before opening, there is a step that this step imports
+		 * work from and there is no prediction so we will lock the student out of this step until they
 		 * create the prediction in the previously associated step
 		 */
 		
-		var prevWorkNodeId = this.node.prevWorkNodeIds[0];
-		var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
+		if(importsWorkFromSensorStep) {
+			//this step imports work from another sensor step
+			
+			//get the node ids of the steps that this step imports work from
+			var sensorNodeIdsImportingFrom = this.getSensorNodeIdsImportingFrom();
+			
+			if(sensorNodeIdsImportingFrom != null && sensorNodeIdsImportingFrom.length > 0) {
+				
+				if(sensorNodeIdsImportingFrom.length == 1) {
+					//there is one step that this step imports from
+					
+					//get the node id of the step that this step imports work from
+					var nodeId = sensorNodeIdsImportingFrom[0];
+					
+					//get the node id and title
+					var importWorkNodeId = nodeId;
+					var importWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(importWorkNodeId);
+					
+					//the text that says you must make a prediction on a previous step before they can work on this step
+					var you_must_make_a_prediction = this.view.getI18NString('you_must_make_a_prediction', 'SensorNode');
+					var before_you_can_work = this.view.getI18NString('before_you_can_work', 'SensorNode');
+					
+					//display the message to tell the student to create a prediction in the previously associated step
+					$('#promptDiv').html(you_must_make_a_prediction + " <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(importWorkNodeId) + "\'])\">" + importWorkNodeTitle + "</a> " + before_you_can_work);
+				} else if(sensorNodeIdsImportingFrom.length > 1) {
+					//there are multiple steps that this step imports from
+					
+					//clear the prompt div
+					$('#promptDiv').html('');
+					
+					//the text that says you must make a prediction on a previous step before they can work on this step
+					var you_must_make_a_prediction_in_steps = this.view.getI18NString('you_must_make_a_prediction_in_steps', 'SensorNode');
+					var before_you_can_work = this.view.getI18NString('before_you_can_work', 'SensorNode');
+					
+					//display the message
+					$('#promptDiv').append(you_must_make_a_prediction_in_steps + ' ' + before_you_can_work + '<br><br>');
+					
+					//loop through all the node ids
+					for(var x=0; x<sensorNodeIdsImportingFrom.length; x++) {
+						//get a node id
+						var sensorNodeIdImportingFrom = sensorNodeIdsImportingFrom[x];
+						
+						//get the nod id and title
+						var importWorkNodeId = sensorNodeIdImportingFrom;
+						var importWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(importWorkNodeId);
+						
+						//display a link to the step
+						$('#promptDiv').append("<a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(importWorkNodeId) + "\'])\">" + importWorkNodeTitle + "</a><br>");
+					}
+				}
+			}
+		} else if(this.node.prevWorkNodeIds.length != 0) {
+			//this step shows previous work from another step
+			
+			//get the node id and title
+			var prevWorkNodeId = this.node.prevWorkNodeIds[0];
+			var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
+			
+			//the text that says you must make a prediction on a previous step before they can work on this step
+			var you_must_make_a_prediction = this.view.getI18NString('you_must_make_a_prediction', 'SensorNode');
+			var before_you_can_work = this.view.getI18NString('before_you_can_work', 'SensorNode');
+			
+			//display the message to tell the student to create a prediction in the previously associated step
+			$('#promptDiv').html(you_must_make_a_prediction + " <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> " + before_you_can_work);
+		}
 		
-		//the text that says you must make a prediction on a previous step before they can work on this step
-		var you_must_make_a_prediction = this.view.getI18NString('you_must_make_a_prediction', 'SensorNode');
-		var before_you_can_work = this.view.getI18NString('before_you_can_work', 'SensorNode');
-		
-		//display the message to tell the student to create a prediction in the previously associated step
-		$('#promptDiv').html(you_must_make_a_prediction + " <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> " + before_you_can_work);
 		this.hideAllInputFields();
 	} else {
 		//set the prompt into the step
@@ -274,9 +343,13 @@ SENSOR.prototype.render = function() {
 		$("#responseTextArea").val(response);
 		
 		//set the size of the text area
-		$("#responseTextArea").attr('rows', this.content.expectedLines);
-		$("#responseTextArea").attr('cols', 80);
-		
+		if (parseInt(this.content.expectedLines) > 0){
+			$("#responseTextArea").attr('rows', this.content.expectedLines);
+			$("#responseTextArea").attr('cols', 80);
+		} else {
+			$("#responseTextArea").hide();
+		}
+
 		if(this.content.enableSensor != null && this.content.enableSensor == false) {
 			//hide the sensor buttons
 			this.hideSensorButtons();
@@ -794,9 +867,10 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 	graphParams.grid = {hoverable:true, clickable:true};
 	// if an easyClickExtremes variable exists and is true in params set up grid to have wide left and right margins to allow clicking of extremes
 	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-		graphParams.grid.borderWidth = 10;
+		//graphParams.grid.borderWidth = 10;
 		// when we have the 0.8 version of flot use this:
-		//graphParams.grid.borderWidth = {"left":10, "right":10, "top":1, "bottom":1};
+		graphParams.grid.borderWidth = {"left":10, "right":10, "top":10, "bottom":10};
+		graphParams.grid.labelMargin = 12;
 	}
 
 	return graphParams;
@@ -2735,10 +2809,10 @@ SENSOR.prototype.setupAxisValues = function() {
 		$('#yMaxInput').attr("disabled","disabled");		
 	} else {
 		//enable the student to change the axis limits
-		$('#xMinInput').attr("disabled","");		
-		$('#xMaxInput').attr("disabled","");		
-		$('#yMinInput').attr("disabled","");		
-		$('#yMaxInput').attr("disabled","");
+		$('#xMinInput').attr("disabled", null);		
+		$('#xMaxInput').attr("disabled", null);		
+		$('#yMinInput').attr("disabled", null);		
+		$('#yMaxInput').attr("disabled", null);
 	}
 };
 
@@ -3272,6 +3346,93 @@ SENSOR.prototype.processTagMaps = function() {
 	};
 	
 	return returnObject;
+};
+
+/**
+ * Check if this step imports work from another sensor step
+ */
+SENSOR.prototype.importsWorkFromSensorStep = function() {
+	var thisStepImportsWorkFromSensorStep = false;
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//this is an importWork function
+					
+					//get all the tagged steps
+					var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
+					
+					//loop through all the tagged steps
+					for(var y=0; y<nodeIds.length; y++) {
+						//get a node id
+						var nodeId = nodeIds[y];
+						
+						if(nodeId != null) {
+							//get the node
+							var node = this.view.getProject().getNodeById(nodeId);
+							
+							if(node.type == 'SensorNode') {
+								//the step is a sensor node
+								
+								thisStepImportsWorkFromSensorStep = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return thisStepImportsWorkFromSensorStep;
+};
+
+/**
+ * Get the node ids of the sensor steps that this step imports work from
+ */
+SENSOR.prototype.getSensorNodeIdsImportingFrom = function() {
+	var nodeIds = [];
+	
+	//get the node ids this step imports work from
+	var nodeIdsImportingFrom = this.node.getNodeIdsImportingFrom();
+	
+	if(nodeIdsImportingFrom != null) {
+		
+		//loop through all the node ids
+		for(var x=0; x<nodeIdsImportingFrom.length; x++) {
+			//get a node id
+			var nodeId = nodeIdsImportingFrom[x];
+			
+			//get a node
+			var node = this.view.getProject().getNodeById(nodeId);
+			
+			if(node != null) {
+				//check if it is a SensorNode
+				if(node.type == 'SensorNode') {
+					//add the node id
+					nodeIds.push(nodeId);
+				}
+			}
+		}
+	}
+	
+	return nodeIds;
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -18,5 +18,10 @@
 		"importStudentAsset":true
 	},
    "type": "SVGDraw",
-   "excelExportStringTemplate": "{data}"
+   "exportColumns": [
+      {
+         "columnName": "Data",
+         "field": "data"
+      }
+   ]
 }

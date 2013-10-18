@@ -157,35 +157,17 @@ AssessmentListNode.prototype.getPrompt = function() {
  * @return
  */
 AssessmentListNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		try {
-			/*
-			 * check if the onExit function has been implemented or if we
-			 * can access attributes of this.contentPanel. if the user
-			 * is currently at an outside link, this.contentPanel.onExit
-			 * will throw an exception because we aren't permitted
-			 * to access attributes of pages outside the context of our
-			 * server.
-			 */
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
 			if(this.contentPanel.onExit) {
-				try {
-					//run the on exit cleanup
-					this.contentPanel.onExit();					
-				} catch(err) {
-					//error when onExit() was called, e.g. mysystem editor undefined
-				}
+				//run the on exit cleanup
+				this.contentPanel.onExit();		
 			}	
-		} catch(err) {
-			/*
-			 * an exception was thrown because this.contentPanel is an
-			 * outside link. we will need to go back in the history
-			 * and then trying to render the original node.
-			 */
-			history.back();
-			//setTimeout(function() {thisObj.render(this.ContentPanel)}, 500);
-		}
-	}	
+		}	
+	} catch(e) {
+		
+	}
 };
 
 /**

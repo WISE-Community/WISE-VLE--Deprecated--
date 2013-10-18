@@ -1,3 +1,47 @@
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('../fonts/ubuntu-light.eot');
+    src: url('../fonts/ubuntu-light.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/ubuntu-light.woff') format('woff'),
+         url('../fonts/ubuntu-light.ttf') format('truetype'),
+         url('../fonts/ubuntu-light.svg#Ubuntu') format('svg');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('../fonts/ubuntu-regular.eot');
+    src: url('../fonts/ubuntu-regular.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/ubuntu-regular.woff') format('woff'),
+         url('../fonts/ubuntu-regular.ttf') format('truetype'),
+         url('../fonts/ubuntu-regular.svg#Ubuntu') format('svg');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Yanone Kaffeesatz';
+    src: url('../fonts/yanonekaffeesatz-extralight.eot');
+    src: url('../fonts/yanonekaffeesatz-extralight.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/yanonekaffeesatz-extralight.woff') format('woff'),
+         url('../fonts/yanonekaffeesatz-extralight.ttf') format('truetype'),
+         url('../fonts/yanonekaffeesatz-extralight.svg#Yanone_Kaffeesatz') format('svg');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Yanone Kaffeesatz';
+    src: url('../fonts/yanonekaffeesatz-regular.eot');
+    src: url('../fonts/yanonekaffeesatz-regular.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/yanonekaffeesatz-regular.woff') format('woff'),
+         url('../fonts/yanonekaffeesatz-regular.ttf') format('truetype'),
+         url('../fonts/yanonekaffeesatz-regular.svg#Yanone_Kaffeesatz') format('svg');
+    font-weight: 400;
+    font-style: normal;
+}
+
 /*
  * HTML5 ✰ Boilerplate
  *
@@ -211,7 +255,7 @@ td { vertical-align: top; }
 
 /* Links */
 
-a { color: #007391;
+a { /*color: #007391;*/
 	margin: 0;
 	text-decoration:none;
 	cursor:pointer;
@@ -229,8 +273,8 @@ html, body {
 
 body#w4_vle {
 	background: #090810;
-	font-size:.9em
-	font-family: Arial, Helvetica, Tahoma, sans-serif;
+	font-size:.9em;
+	font-family: 'Ubuntu', sans-serif;
 }
 
 #vle_body {
@@ -249,19 +293,10 @@ body#w4_vle {
 }
 
 #vle_body header {
-	position:relative;
-	height:32px;
-	/*background: #005b72;  Old browsers */
-	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-	/*background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzU3OWQ5NCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDViNzIiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-	/*background: -moz-linear-gradient(top,  #579d94 0%, #005b72 100%); /* FF3.6+ */
-	/*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#579d94), color-stop(100%,#005b72)); /* Chrome,Safari4+ */
-	/*background: -webkit-linear-gradient(top,  #579d94 0%,#005b72 100%); /* Chrome10+,Safari5.1+ */
-	/*background: -o-linear-gradient(top,  #579d94 0%,#005b72 100%); /* Opera 11.10+ */
-	/*background: -ms-linear-gradient(top,  #579d94 0%,#005b72 100%); /* IE10+ */
-	/*background: linear-gradient(top,  #579d94 0%,#005b72 100%); /* W3C */
-	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#579d94', endColorstr='#005b72',GradientType=0 ); /* IE6-8 */
-	background:url("../images/banner.png") no-repeat #090810;
+	position:absolute;
+	height:36px;
+	right:0;
+	top:0;
 }
 
 #vle_body footer {
@@ -281,35 +316,36 @@ body#w4_vle {
 	position: absolute;
 	right: 0.1em;
 	top: 0.55em;*/
+	display: none;
 }
 
 
 /* Content Elements */
 
 #vle_body #logo {
-	display:inline-block;
-	line-height:28px;
+	/*display:inline-block;
+	line-height:28px;*/
+	display: none;
 }
 
 #vle_body #projectTools {
-	position:absolute;
-	right:0;
-	bottom:0;
-	color: #fff;
-}
-
-#vle_body #projectTools a {
-	color:#fff;
+	background-color: #090810;
+	background-color: rgba(9,8,16,0.9);
+    padding: 2px 10px 2px 8px;
 }
 
 #vle_body #projectTools a:hover {
-	color:#DDEFE1;
+	color:#89a3cc;
+}
+
+#vle_body #projectTools a, #vle_body #projectTools a:active {
+	color:#425572;
 }
 
 #vle_body #projectContent {
 	position: absolute;
 	left: 0;
-	top: 32px;
+	top: 0;
 	right: 0;
 	bottom: 0;
 }
@@ -322,6 +358,12 @@ body#w4_vle {
 	display:inline-block;
 	line-height:34px;
 	white-space: nowrap;
+}
+
+#vle_body #stepInfo img {
+	height: 28px;
+	max-width: 28px;
+	width: auto;
 }
 
 #vle_body #stepNav {
@@ -426,7 +468,11 @@ body#w4_vle {
     left: 0;
     position: absolute;
     right: 0;
-    top: 0;
+    top: 36px;
+}
+
+#vle_body #navigation {
+	top: 0;
 }
 
 #vle_body #vleSidebar .panelHeader {
@@ -462,10 +508,12 @@ body#w4_vle {
 #vle_body #userNames {
 	font-size:.85em;
 	padding-top:.5em !important;
+	display: none;
 }
 
 #vle_body #runTitle {
 	color:#ffffff;
+	display: none;
 }
 
 
@@ -473,7 +521,7 @@ body#w4_vle {
 
 #vle_body .toolbar {
 	padding:0 .5em;
-	font-size:.85em;
+	font-size:.95em;
 }
 
 #vle_body .toolbar ul {
@@ -487,10 +535,16 @@ body#w4_vle {
 }
 
 #vle_body .toolbar ul li a {
-	margin: 0 0.25em;
-	height: 32px;
-	line-height: 32px;
-	display:inline-block;
+	display: inline-block;
+    height: 20px;
+    line-height: 20px;
+    margin: 6px 10px;
+    -webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 #vle_body .toolbar ul li a:hover {
@@ -514,14 +568,39 @@ body#w4_vle {
 
 /* Links/Icons */
 
-#vle_body #toggleNavLink {
-	padding-left:28px;
-	background:transparent url('../images/starmapBtn_24.png') no-repeat left center;
+#vle_body #projectTools .icon {
+	vertical-align: top;
 }
 
-#vle_body #viewMyWorkLink {
-	padding-left:28px;
-	background:transparent url('../images/tools/mywork.png') no-repeat left center;
+#vle_body #toggleNavLink .icon, #vle_body #exitLink .icon, #vle_body #signOutLink .icon {
+	display:inline-block;
+	width:20px;
+	height:20px;
+	margin: 0 7px 0 2px;
+}
+
+#vle_body #toggleNavLink:hover .icon {
+	background-position: -30px -55px;
+}
+
+#vle_body #toggleNavLink .icon, #vle_body #toggleNavLink:active .icon {
+	background:transparent url('../images/tools/menu-tools.png') no-repeat -5px -55px;
+}
+
+#vle_body #exitLink:hover .icon {
+	background-position: -30px -5px;
+}
+
+#vle_body #exitLink .icon, #vle_body #signOutLink:active .icon {
+	background:transparent url('../images/tools/menu-tools.png') no-repeat -5px -5px;
+}
+
+#vle_body #signOutLink:hover .icon {
+	background-position: -30px -30px;
+}
+
+#vle_body #signOutLink .icon, #vle_body #signOutLink:active .icon {
+	background:transparent url('../images/tools/menu-tools.png') no-repeat -5px -30px;
 }
 
 #vle_body #viewFlaggedLink {
@@ -542,11 +621,6 @@ body#w4_vle {
 #vle_body #viewMyFilesLink {
 	padding-left:28px;
 	background:transparent url('../images/tools/files.png') no-repeat left center;
-}
-
-#vle_body #exitLink {
-	padding-left:28px;
-	background:transparent url('../images/tools/exit.png') no-repeat left center;
 }
 
 #vle_body #previousStepLink {
@@ -682,13 +756,12 @@ body#w4_vle {
 #loading div {
 	text-align:center;
 	padding:0.5em;
+	display:none;
 }
 
 .no-title .ui-dialog-titlebar {
 	display: none;
 }
-
-
 
 /**
  * "Required" elements not used in starmap theme

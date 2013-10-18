@@ -125,7 +125,7 @@ View.prototype.SensorNode.generatePage = function(view){
 	
 	//create the check box to require prediction before enter
 	var requirePredictionBeforeEnterCheckBox = createElement(document, 'input', {id: 'requirePredictionBeforeEnterCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateRequirePredictionBeforeEnter")'});
-	var requirePredictionBeforeEnterText = document.createTextNode('Require Prediction Before Enter (You must specify a "Show Previous Work" step for this to work)');
+	var requirePredictionBeforeEnterText = document.createTextNode('Require Prediction Before Enter (You must specify a "Show Previous Work" step or "importWork" tag map for this to work)');
 	
 	//create the check box to lock the prediction on collection start
 	var lockPredictionOnCollectionStartCheckBox = createElement(document, 'input', {id: 'lockPredictionOnCollectionStartCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateLockPredictionOnCollectionStart")'});

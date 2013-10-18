@@ -1499,14 +1499,20 @@ View.prototype.nodeIconUpdated = function(id){
 
 /**
  * Updates the project's stepTerm value
+ * 
+ * @param plural Boolean whether to update the singular or plural step term
  */
-View.prototype.stepTermChanged = function(){
+View.prototype.stepTermChanged = function(plural){
 	if(this.getProject()){
-		this.getProject().setStepTerm(document.getElementById('stepTerm').value);
+		if(plural){
+			this.getProject().setStepTermPlural(document.getElementById('stepTermPlural').value);
+		} else {
+			this.getProject().setStepTerm(document.getElementById('stepTerm').value);
+		}
 		this.saveProject();
 		this.generateAuthoring();
 		this.populateMaxScores();
-	}
+	};
 };
 
 /**
@@ -1528,9 +1534,9 @@ View.prototype.activityTermChanged = function(){
  */
 View.prototype.stepNumberChanged = function(){
 	var val = parseInt(document.getElementById('numberStepSelect').options[document.getElementById('numberStepSelect').selectedIndex].value,10);
-	if(val===0){
+	if(val==0){
 		this.autoStepChanged();
-	} else if(val===1){
+	} else if(val==1){
 		this.stepLevelChanged();
 	}
 };
@@ -2412,8 +2418,23 @@ View.prototype.onProjectLoaded = function(){
 		if(this.selectModeEngaged){
 			this.disengageSelectMode(-1);
 		}
-
-		if(this.getProject() && this.getProject().getStepTerm()){
+	
+		/*if(this.project && this.project.useAutoStep()==true){
+			document.getElementById('autoStepCheck1').checked = true;
+		} else {
+			document.getElementById('autoStepCheck1').checked = false;
+		};*/
+		
+		// TODO: remove; deprecated
+		if(this.getProject() && this.getProject().useStepLevelNumbering()==true){
+			//document.getElementById('stepLevel').checked = true;
+			document.getElementById('numberStepSelect').options[1].selected = true;
+		} else {
+			//document.getElementById('stepLevel').checked = false;
+			document.getElementById('numberStepSelect').options[0].selected = true;
+		};
+	
+		if(this.getProject() && typeof this.getProject().getStepTerm() === 'string'){
 			document.getElementById('stepTerm').value = this.getProject().getStepTerm();
 		} else {
 			var stepTerm = this.getI18NString('stepTerm');
@@ -2422,19 +2443,40 @@ View.prototype.onProjectLoaded = function(){
 			this.notificationManager.notify('Step term not set in project, setting default value: \"' + stepTerm + '\"', 2);
 		}
 
-		if(this.getProject() && this.getProject().getActivityTerm()){
-			document.getElementById('activityTerm').value = this.getProject().getActivityTerm();
+		if(this.getProject() && typeof this.getProject().getStepTermPlural() === 'string'){
+			document.getElementById('stepTermPlural').value = this.getProject().getStepTermPlural();
+		} else {
+			var stepTermPlural = this.getI18NString('stepTermPlural');
+			document.getElementById('stepTermPlural').value = stepTermPlural;
+			this.getProject().setStepTermPlural(stepTermPlural);
+			this.notificationManager.notify('stepTermPlural not set in project, setting default value: \"' + stepTermPlural + '\"', 2);
+		};
+		
+		// TODO: enable input when supported by authoring tool
+		if(this.getProject() && typeof this.getProject().getActivityTerm() === 'string'){
+			//document.getElementById('activityTerm').value = this.getProject().getActivityTerm();
 		} else {
 			var activityTerm = this.getI18NString('activityTerm');
-			document.getElementById('activityTerm').value = activityTerm;
-			this.getProject().setActivityTerm(activityTerm);
-			this.notificationManager.notify('Activity term not set in project, setting default value: \"' + activityTerm + '\"', 2);
-		}
+			//document.getElementById('activityTerm').value = activityTerm;
+			this.getProject().setActivityTerm('');
+			//this.notificationManager.notify('activityTerm not set in project, setting default value: \"' + activityTerm + '\"', 2);
+		};
+		
+		// TODO: enable input when supported by authoring tool
+		if(this.getProject() && this.getProject().getActivityTermPlural()){
+			//document.getElementById('activityTermPlural').value = this.getProject().getActivityTermPlural();
+		} else {
+			var activityTermPlural = typeof this.getI18NString('activityTermPlural') === 'string';
+			//document.getElementById('activityTermPlural').value = activityTermPlural;
+			this.getProject().setActivityTermPlural('');
+			//this.notificationManager.notify('activityTermPlural not set in project, setting default value: \"' + activityTermPlural + '\"', 2);
+		};
 
 		// clear out any data from the sequenceEditor
 		$('#sequenceEditor').removeData();
 
 		// reset logging level checkbox (default to checked, high post level)
+		// TODO: remove, deprecated
 		$('#loggingToggle').prop('checked',true);
 
 		$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');

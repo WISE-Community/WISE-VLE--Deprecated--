@@ -231,6 +231,7 @@ var scriptloader = function(){
 					// add jqueryui css (either from theme or WISE default)
 					if(data.jqueryui_css && typeof data.jqueryui_css == 'string'){
 						var csspath = 'vle/' + themepath + data.jqueryui_css;
+						jqueryUICss = csspath;
 						c.push(csspath);
 					} else {
 						c.push(jqueryUICss);
@@ -340,7 +341,7 @@ var scriptloader = function(){
                   'vle/jquery/js/jsonplugin.js',
                   'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
- 			      'vle/node/DuplicateNode.js', 
+ 			      //'vle/node/DuplicateNode.js', 
   		          'vle/node/setupNodes.js',
   		          'vle/themes/setupThemes.js'
   		          ],
@@ -572,7 +573,7 @@ var scriptloader = function(){
         "vle/node/JournalNode.js": ["vle/node/Node.js"],
         "vle/node/JournalEntryNode.js": ["vle/node/Node.js", "vle/node/OpenResponseNode.js"],
         "vle/node/BlueJNode.js": ["vle/node/Node.js"],
-        'vle/node/DuplicateNode.js': ['vle/node/Node.js', 'vle/node/nodefactory.js'],
+        //'vle/node/DuplicateNode.js': ['vle/node/Node.js', 'vle/node/nodefactory.js'],
         'vle/node/BranchNode.js':['vle/node/Node.js','vle/node/MultipleChoiceNode.js'],
         "vle/ui/vleui.js": ["vle/VLE.js"],
         "vle/util/projectutils.js": ["vle/project/Project.js"],

@@ -21,7 +21,10 @@ TableNode.prototype.i18nEnabled = true;
 TableNode.prototype.i18nPath = "/vlewrapper/vle/node/table/i18n/";
 TableNode.prototype.supportedLocales = {
 	"en_US":"en_US",
-	"es":"es"	
+	"es":"es",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"		
 };
 
 /*
@@ -38,8 +41,8 @@ TableNode.authoringToolDescription = "Students fill out a table"; //TODO: rename
 TableNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
 	{functionName:'showPreviousWork', functionArgs:[]},
-	{functionName:'importWorkFromBox2d', functionArgs:['showTestedMassValuesOnly', 'showTestedLiquidValuesOnly','arrColumnNamesToUse']},
-	{functionName:'importWorkFromNetLogo', functionArgs:['arrColumnNamesToUse']}
+	{functionName:'importWorkFromBox2d', functionArgs:['showTestedMassValuesOnly', 'showTestedLiquidValuesOnly','arrColumnNamesToImport','arrColumnNamesToDisplay']},
+	{functionName:'importWorkFromNetLogo', functionArgs:['arrColumnNamesToImport', 'arrColumnNamesToDisplay']}
 ];
 
 /**
@@ -126,15 +129,15 @@ TableNode.prototype.translateStudentWork = function(studentWork) {
  * Note: In most cases you will not have to change anything here.
  */
 TableNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
-		}
-		
-		try {
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
+			
 			/*
 			 * check if the onExit function has been implemented or if we
 			 * can access attributes of this.contentPanel. if the user
@@ -144,21 +147,12 @@ TableNode.prototype.onExit = function() {
 			 * server.
 			 */
 			if(this.contentPanel.onExit) {
-				try {
-					//run the on exit cleanup
-					this.contentPanel.onExit();					
-				} catch(err) {
-					//error when onExit() was called, e.g. mysystem editor undefined
-				}
-			}	
-		} catch(err) {
-			/*
-			 * an exception was thrown because this.contentPanel is an
-			 * outside link. we will need to go back in the history
-			 * and then trying to render the original node.
-			 */
-			history.back();
+				//run the on exit cleanup
+				this.contentPanel.onExit();	
+			}
 		}
+	} catch(e) {
+		
 	}
 };
 
@@ -388,13 +382,21 @@ TableNode.prototype.getStudentWorkHtmlView = function(work) {
 	return html;
 };
 
-TableNode.prototype.renderSummaryView = function(workgroupIdToWork, dom, graphType) {
+/**
+ * Render the summary view into the dom element
+ * @param workgroupIdToWork mapping of workgroup id to student work for the step
+ * @param dom the dom element to render the summary view into
+ * @param graphType the type of graph bar or pie
+ * @param showAllPeriods whether we are showing student work from all periods or just
+ * a single period
+ */
+TableNode.prototype.renderSummaryView = function(workgroupIdToWork, dom, graphType, showAllPeriods) {
 	var view = this.view;
 	var nodeId = this.id;
 	if (dom == null) {
 		dom=$("#summaryContent");
 	}
-	this.displayStepGraph(nodeId,dom,workgroupIdToWork,graphType);
+	this.displayStepGraph(nodeId, dom, workgroupIdToWork, graphType, showAllPeriods);
 };
 
 /**
@@ -403,12 +405,101 @@ TableNode.prototype.renderSummaryView = function(workgroupIdToWork, dom, graphTy
  * @param nodeId ID of step that is filtered and should show the bar graph.
  * @param dom dom to render the summary into
  * @param workgroupIdToWork the id of the workgroup to work mapping
- * @param graphType bar|pie|barpie
+ * @param graphType the type of graph (bar or pie)
+ * @param showAllPeriods whether we are showing student work from all periods or just
+ * a single period
  */
-TableNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphType) {
-	//get all the workgroup ids in the class
-	var workgroupIdsInClass = this.view.userAndClassInfo.getWorkgroupIdsInClass();
+TableNode.prototype.displayStepGraph = function(nodeId, dom, workgroupIdToWork, graphType, showAllPeriods) {
+	if(showAllPeriods) {
+		//we will show all the periods
+		
+		//get all the users in the class as objects
+		var studentsInClass = this.view.getUserAndClassInfo().getUsersInClass();
+		
+		//create the label for all periods
+		var allPeriodsLabel = "All Periods";
+		
+		//create the aggregrate graph for the whole class
+		this.createAggregateGraphForStudents(dom, studentsInClass, workgroupIdToWork, graphType, allPeriodsLabel);
+
+		//get the periods
+		var periods = this.view.getUserAndClassInfo().getPeriods();
+		
+		//loop through all the periods
+		for(var periodIndex=0; periodIndex<periods.length; periodIndex++) {
+			//get a period
+			var period = periods[periodIndex];
+			
+			if(period != null) {
+				//get the period id, period name and period label
+				var periodId = period.periodId;
+				var periodName = period.periodName;
+				var periodLabel = "Period " + periodName;
+				
+				//get all the students in the period
+				var studentsInPeriod = this.view.getUserAndClassInfo().getAllStudentsInPeriodId(periodId);
+				
+				//create the aggregate graph for the period
+				this.createAggregateGraphForStudents(dom, studentsInPeriod, workgroupIdToWork, graphType, periodLabel);
+			}
+		}
+	} else {
+		//we will show a single period
+		
+		//get the period id
+		var periodId = this.view.getUserAndClassInfo().getPeriodId();
+		
+		//get the classmates in the period
+		var classmatesInPeriod = this.view.getUserAndClassInfo().getAllStudentsInPeriodId(periodId);
+		
+		//create the aggregate graph for the period
+		this.createAggregateGraphForStudents(dom, classmatesInPeriod, workgroupIdToWork, graphType);
+	}
+};
+
+/**
+ * Create the aggregate graph for a period
+ * @param dom dom to render the summary into
+ * @param students an array of students to include in the aggregate
+ * @param workgroupIdToWork the id of the workgroup to work mapping
+ * @param graphType the graph type to render (bar or pie)
+ * @param periodLabel (optional) the period label to display above the graph
+ */
+TableNode.prototype.createAggregateGraphForStudents = function(dom, students, workgroupIdToWork, graphType, periodLabel) {
+	//the array to accumulate the work for the period
+	var workForPeriod = [];
 	
+	if(students != null && workgroupIdToWork != null) {
+		//loop through all the students in the period
+		for(var c=0; c<students.length; c++) {
+			//get a student
+			var student = students[c];
+			
+			//get the student workgroup id and user name
+			var workgroupId = student.workgroupId;
+
+			//get the work for the student for this step
+			var work = workgroupIdToWork[workgroupId];
+			
+			if(work != null) {
+				//add the work to the array
+				workForPeriod.push(work);						
+			}
+		}
+	}
+	
+	//create the aggregate graph for the period
+	this.createAggregateGraph(dom, workForPeriod, graphType, periodLabel);
+};
+
+/**
+ * Create the aggregate graph by accumulating the data and then displaying it
+ * @param dom the dom element to display the graph in
+ * @param workArray the array of student work to display in the graph
+ * @param graphType the graph type (bar or pie)
+ * @param periodLabel (optional) the period label to display above the graph
+ */
+TableNode.prototype.createAggregateGraph = function(dom, workArray, graphType, periodLabel) {
 	/*
 	 * an array that will contain the aggregate data objects.
 	 * if the student is allowed to choose a title for the table using the
@@ -423,12 +514,10 @@ TableNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,gra
 	 * loop through all the workgroup ids in the class and accumulate
 	 * the data
 	 */
-	for(var z=0; z<workgroupIdsInClass.length; z++) {
-		//get a workgroup id
-		var workgroupId = workgroupIdsInClass[z];
-
-		//get the work for this workgroup
-		var work = workgroupIdToWork[workgroupId];
+	for(var z=0; z<workArray.length; z++) {
+		
+		//get the work
+		var work = workArray[z];
 		
 		if(work != null) {
 			//get the table data and table and graph options from the student work
@@ -483,8 +572,11 @@ TableNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,gra
 					//get the label to count object
 					var labelToCountObject = this.getLabelToCountObjectByLabel(labelToCountArray, xText);
 					
-					//accumulate the count
-					labelToCountObject.count += parseFloat(yText);
+					//make sure the yText is a valid number
+					if(!isNaN(yText)) {
+						//accumulate the count
+						labelToCountObject.count += parseFloat(yText);						
+					}
 				}
 			}
 		}
@@ -495,7 +587,7 @@ TableNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,gra
 	}
 	
 	//display the aggregate graph in the div
-	this.displayAggregateGraph(dom, aggregateDataArray, graphType);
+	this.displayAggregateGraph(dom, aggregateDataArray, graphType, periodLabel);
 };
 
 /**
@@ -615,8 +707,9 @@ TableNode.prototype.getLabelToCountObjectByLabel = function(labelToCountArray, l
  * @param aggregateDataArray the aggregate data array. each element in
  * this array contains the data for a single aggregate graph.
  * @param graphType the graph type to display the aggregate data
+ * @param periodLabel (optional) the period label to display above the graph
  */
-TableNode.prototype.displayAggregateGraph = function(dom, aggregateDataArray, graphType) {
+TableNode.prototype.displayAggregateGraph = function(dom, aggregateDataArray, graphType, periodLabel) {
 	//create a Table object so we can call the makeGraph() function
 	var table = new Table(this);
 	
@@ -690,11 +783,26 @@ TableNode.prototype.displayAggregateGraph = function(dom, aggregateDataArray, gr
 			aggregateTableData[1][i + 1] = {text:count + ""};
 		}
 		
+		//create the container that will contain the period label div and graph div
+		var aggregateContainerDiv = $("<div id='aggregateContainer_" + x + "'></div>");
+		
+		//surround the container div with a border
+		aggregateContainerDiv.css('border-style', 'solid');
+		aggregateContainerDiv.css('border-width', '1px');
+
+		if(periodLabel != null) {
+			//append the period label
+			aggregateContainerDiv.append("<p>" + periodLabel + "</p>");
+		}
+		
 		//create a new div to display the graph in
 		var tempAggregateDiv = $("<div id='aggregate_" + x + "'></div>");
 		
+		//add the div to the container
+		aggregateContainerDiv.append(tempAggregateDiv);
+		
 		//append this new div into the aggregateWorkDiv div 
-		dom.append(tempAggregateDiv);
+		dom.append(aggregateContainerDiv);
 		
 		//set the title of the graph
 		graphOptions.title = title;
@@ -705,6 +813,14 @@ TableNode.prototype.displayAggregateGraph = function(dom, aggregateDataArray, gr
 	
 	//make the aggregateWorkDiv visible
 	dom.show();
+};
+
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+TableNode.prototype.canSpecialExport = function() {
+	return true;
 };
 
 /*

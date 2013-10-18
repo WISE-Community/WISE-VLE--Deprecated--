@@ -40,7 +40,11 @@ GrapherNode.prototype.i18nEnabled = true;
 GrapherNode.prototype.i18nPath = "/vlewrapper/vle/node/grapher/i18n/";
 GrapherNode.prototype.supportedLocales = {
 	"en_US":"en_US",
-	"es":"es"	
+	"es":"es",
+	"zh_CN":"zh_CN",
+	"nl":"nl",
+	"nl_GE":"nl",
+	"nl_DE":"nl"	
 };
 
 GrapherNode.tagMapFunctions = [
@@ -134,39 +138,21 @@ GrapherNode.prototype.translateStudentWork = function(studentWork) {
  * Note: In most cases you will not have to change anything here.
  */
 GrapherNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
-		}
-
-		try {
-			/*
-			 * check if the onExit function has been implemented or if we
-			 * can access attributes of this.contentPanel. if the user
-			 * is currently at an outside link, this.contentPanel.onExit
-			 * will throw an exception because we aren't permitted
-			 * to access attributes of pages outside the context of our
-			 * server.
-			 */
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
+			
 			if(this.contentPanel.onExit) {
-				try {
-					//run the on exit cleanup
-					this.contentPanel.onExit();					
-				} catch(err) {
-					//error when onExit() was called, e.g. mysystem editor undefined
-				}
-			}	
-		} catch(err) {
-			/*
-			 * an exception was thrown because this.contentPanel is an
-			 * outside link. we will need to go back in the history
-			 * and then trying to render the original node.
-			 */
-			history.back();
-			//setTimeout(function() {thisObj.render(this.ContentPanel)}, 500);
+				//run the on exit cleanup
+				this.contentPanel.onExit();
+			}
 		}
+	} catch(e) {
+		
 	}
 };
 

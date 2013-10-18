@@ -7,6 +7,13 @@ NoteNode.prototype.constructor = NoteNode;
 NoteNode.prototype.parent = OpenResponseNode.prototype;
 NoteNode.authoringToolName = "Reflection Note";
 NoteNode.authoringToolDescription = "Students write text to answer a question or explain their thoughts";
+NoteNode.prototype.i18nEnabled = true;
+NoteNode.prototype.i18nPath = "/vlewrapper/vle/node/openresponse/i18n/";
+NoteNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"es":"es"
+};
 
 /**
  * @constructor
@@ -71,9 +78,13 @@ NoteNode.prototype.render = function(contentPanel, studentWork){
  * Called when the step is exited. This is used for auto-saving.
  */
 NoteNode.prototype.onExit = function() {
-	/* check if there is an active note and tell it to save */
-	if(this.view.activeNote) {
-		this.view.activeNote.save();
+	try {
+		/* check if there is an active note and tell it to save */
+		if(this.view.activeNote) {
+			this.view.activeNote.save();
+		}
+	} catch(e) {
+		
 	}
 };
 

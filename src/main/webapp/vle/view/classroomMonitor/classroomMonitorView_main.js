@@ -1746,12 +1746,16 @@ View.prototype.sendRunStatus = function() {
 	//get the run id
 	var runId = this.getConfig().getConfigParam('runId');
 	
-	var runStatus = this.runStatus;
+	//get the run status as a string
+	var runStatus = JSON.stringify(this.runStatus);
+	
+	//encode the run status data
+	runStatus = encodeURIComponent(runStatus);
 	
 	//create the params for the request
 	var runStatusParams = {
 		runId:runId,
-		status:JSON.stringify(runStatus)
+		status:runStatus
 	}
 	
 	if(runStatusUrl != null) {

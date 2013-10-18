@@ -20,13 +20,13 @@
  * navigation menu should be included here. (It is okay to leave this function empty.)
  */
 NavigationPanel.prototype.menuCreated = function() {
-	$('#navigation').show();
-	
 	// set the text and title for the toggle navigation menu button
-	$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title","theme")).html(view.getI18NString("toggle_nav_button_text","theme"));
+	$('#toggleNavLink > span').eq(1).attr('title',view.getI18NString("toggle_nav_button_title","theme")).html(view.getI18NString("toggle_nav_button_text","theme"));
+	
+	$('#navigation').fadeIn();
 	
 	// on stepHeader hover show step title, vice versa
-	$('#stepHeader').hover(
+	/*$('#stepHeader').hover(
 			function(){
 				clearTimeout($(this).data('stepHeaderTimer'));
 				$('#stepInfo').fadeIn();
@@ -35,19 +35,25 @@ NavigationPanel.prototype.menuCreated = function() {
 				$('#stepInfo').stop(true,true);
 				$('#stepInfo').fadeOut();
 			}
-	);
+	);*/
 
 	// for some reason, the first time a node loads when the project is opened,
 	// the stepInfo div is not fading after 4 seconds, so force here
-	setTimeout(function(){
+	/*setTimeout(function(){
 		$('#stepInfo').fadeOut();
-	}, 4000);
+	}, 4000);*/
 
 	// show project content
 	$('#vle_body').css('opacity',1);
+	
+	//we are done loading the navigation panel for the first time
+	view.eventManager.fire('navigationLoadingCompleted');
 
 	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
 	view.eventManager.subscribe('constraintStatusUpdated', this.constraintStatusUpdatedListener, this);
+	
+	// hide loading image
+	setTimeout(function(){ $('#navLoading').fadeOut('fast'); }, 1000);
 };
 
 /**
@@ -65,8 +71,9 @@ NavigationPanel.prototype.menuCreated = function() {
  * @param node Node that has been rendered
  */
 NavigationPanel.prototype.nodeRendered = function(node) {
-	//$('#stepContent').show();
-	$('#navigation').hide();
+	$('#stepContent').fadeIn(function(){
+		$('#navigation').fadeOut();
+	});
 	
 	// clear the stepHeaderTimer timeout actions on the step header
 	clearTimeout($('#stepHeader').data('stepHeaderTimer'));
@@ -81,6 +88,18 @@ NavigationPanel.prototype.nodeRendered = function(node) {
 		}, 4000);
 		$('#stepHeader').data('stepHeaderTimer',stepHeaderTimer);
 	}
+};
+
+
+/**
+ * Called when user attempts to visit a step but is blocked (by a constraint, for example)
+ * 
+ * OPTIONAL
+ * 
+ * @param node Node that has been blocked
+ */
+NavigationPanel.prototype.renderNodeBlockedListener = function(node){
+	this.mode = 'nav';
 };
 
 /**
@@ -114,7 +133,45 @@ NavigationPanel.prototype.toggleVisibility = function() {
 		}
 	};*/
 	
-	$('#navigation').show();
+	var navPanel = this;
+	
+	function updateIcon(el, path){
+		d3.select(el)
+			.attr('data-iconPath', '')
+			.classed('iconChanged', false)
+			.transition()
+			.duration(1000)
+			.delay(500)
+			.ease('elastic-out')
+			.attr('width', 50)
+			.attr('height', 50)
+			.attr('x', -25)
+			.attr('y', -25)
+			.transition()
+			.duration(1500)
+			.ease('bounce')
+			.attr('xlink:href', path)
+			.attr('width', 30)
+			.attr('height', 30)
+			.attr('x', -15)
+			.attr('y', -15);
+	}
+	
+	$('#stepContent').fadeOut(function(){
+		$('#navigation').fadeIn(function(){
+			navPanel.mode = 'nav';
+			
+			// update any node icons that have changed
+			$('.iconChanged', $('#navigation')).each(function(){
+				var href = d3.select(this).attr('data-iconPath'),
+					icon = new Image();
+				icon.name = href;
+				icon.src = href;
+				//href = $('#my_menu').data('base') + href;
+				icon.onload = updateIcon(this, href);
+			});
+		});
+	});
 };
 
 /**
@@ -174,6 +231,7 @@ NavigationPanel.prototype.navigationPanelToggleVisibilityButtonClickedListener =
  */
 NavigationPanel.prototype.navigationNodeClickedListener = function(nodePosition) {
 	//go to the node position that was clicked if it is available
+	this.mode = 'step';
 	this.view.goToNodePosition(nodePosition);
 };
 
@@ -192,6 +250,7 @@ NavigationPanel.prototype.visitNodeListener = function(nodeId){
  * @param forceReRender true iff we want to rerender the navigation from scratch
  */
 NavigationPanel.prototype.render = function(forceReRender) {
+	
 	//obtain the html in the nav div and run trim on it
 	var currentNavHtml = document.getElementById("my_menu").innerHTML.replace(/^\s*/, "").replace(/\s*$/, "");
 	
@@ -231,7 +290,7 @@ NavigationPanel.prototype.render = function(forceReRender) {
 				var currentTitle = previousNavElement.firstChild.nextSibling.nodeValue;
 				var newTitle;
 				var parentTitle = prevNode.parent.title;
-				previousNavElement.firstChild.src = view.iconUrl + 'instantquiz16.png';
+				previousNavElement.firstChild.src = view.iconUrl + 'instantquiz16.png';  // TODO: update
 
 				if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
 					newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1);
@@ -281,19 +340,18 @@ NavigationPanel.prototype.render = function(forceReRender) {
 
 	} else {
 		//the nav ui is empty so we need to build it
-		$('#navigation').append('<div id="activityControls">' +
-			'<a id="prevAct"><img src="/vlewrapper/vle/themes/starmap/navigation/map/images/arrow-left.png" alt="left"></a>' +
-			'<div id="currentAct"><span class="pos"></div>' +
-			'<a id="nextAct"><img src="/vlewrapper/vle/themes/starmap/navigation/map/images/arrow-right.png" alt="left"></a>' +
-			'</div>' +
-			'<a id="reset">Zoom Out</a>' +
-			'<a id="export">Export</a>' +
-			'<!-- <a id="toggleView">Student View</a> -->');
+		this.mode = 'nav'; // variable to hold current mode of the vle: 'nav' (viewing menu) or 'node' (viewing a step)
+		
+		// insert top menu link icons
+		$('#toggleNavLink').html('<span class="icon"></span><span>' + $('#toggleNavLink').html() + '</span>');
+		$('#exitLink').html('<span class="icon"></span><span>' + $('#exitLink').html() + '</span>');
+		$('#signOutLink').html('<span class="icon"></span><span>' + $('#signOutLink').html() + '</span>');
+		
+		$('#navigation').append('<a id="export">Export</a>');
 		
 		this.map = starmap() // create map instance
 			.height(528)
 			.width(940)
-			//.backgroundImg('themes/starmap/navigation/map/images/background.png')
 			.view(view);
 	
 		this.currentStepNum = 1;
@@ -324,28 +382,36 @@ NavigationPanel.prototype.render = function(forceReRender) {
 			nodeAttributes = {};
 
 		// create map of project node ids and corresponding layout settings (position, etc.) if any exist in the project metadata
-		if(projectMeta.settings && projectMeta.settings.navSettings) {
-			var navSettings = projectMeta.settings.navSettings,
+		if(projectMeta.hasOwnProperty('tools') && projectMeta.tools.navSettings) {
+			var navSettings = projectMeta.tools.navSettings,
 				i = navSettings.length-1;
 			for(; i>-1; --i){
-				if(navSettings.themeName === theme && navSettings.navMode === navMode && navSettings[i].nodeSettings){
+				if(navSettings[i].hasOwnProperty('theme') && navSettings[i].theme === theme && 
+						navSettings[i].hasOwnProperty('navMode') && navSettings[i].navMode === navMode && 
+						navSettings[i].hasOwnProperty('nodeSettings')){
 					nodeAttributes = navSettings[i].nodeSettings;
 					break;
 				}
 			}
 		}
 		map.attributes(nodeAttributes);
-		map.complete(navPanel.menuLoaded);
+		map.complete(function(){ view.eventManager.fire('navigationMenuCreated'); });
+		// set margin left to 220, to ensure items don't overlap tag map icons
+		// TODO: make more flexible - programmatically add repellent regions in d3 force layout for each tag map display item
+		//map.margin({top: 50, right: 50, bottom: 50, left: 220});
+		
+		if(view.config.getConfigParam('mode') === "portalpreview"){
+			// we're in preview mode, so allow position editing and item position export
+			map.editable(true);
+			$('#export').show();
+			$('#export').on('click', function(){
+				alert(JSON.stringify(map.attributes()));
+			});
+		}
+		
 		d3.select('#my_menu')
 			.datum(projectJSON)
 			.call(map);
-		
-		$('#reset').on('click', function(){
-			map.reset();
-		});
-		$('#export').on('click', function(){
-			alert(JSON.stringify(map.attributes()));
-		});
 	};
 
 	/* add appropriate classes for any constraints that may apply to 
@@ -394,15 +460,14 @@ function PilotRatingGlobalTagMap(view, parameters) {
 	//get the possible scores
 	this.scores = parameters.scores;
 	
-	//get the id for the img element we will create
-	var pilotRatingId = PilotRatingGlobalTagMap.functionName;
-	this.pilotRatingId = pilotRatingId;
-	
 	//get the student's total score for all the steps
 	var totalScore = this.getTotalScore();
 	
 	//get the icon to initially display
 	var icon = this.getIconFromScore(totalScore);
+	
+	//get the rank from the score
+	var rank = this.getRankFromScore(totalScore);
 	
 	/*
 	 * subscribe to the studentWorkUpdated event so this tag map
@@ -413,7 +478,8 @@ function PilotRatingGlobalTagMap(view, parameters) {
 	
 	//create the img element to display the pilot rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
-	img.setAttributeNS(null, 'id', pilotRatingId);
+	img.setAttributeNS(null, 'id', 'pilotRankIconId');
+	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
 	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
@@ -423,6 +489,36 @@ function PilotRatingGlobalTagMap(view, parameters) {
 	
 	//add the img element to the starmap
 	$('#wrap').append(img);
+	
+	//create the text element to display the pilot rank
+	var pilotRatingRankText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	pilotRatingRankText.setAttributeNS(null, 'id', 'pilotRankTextId');
+	pilotRatingRankText.setAttributeNS(null, 'x', '10');
+	pilotRatingRankText.setAttributeNS(null, 'y', '20');
+	pilotRatingRankText.setAttributeNS(null, 'font-size', '12');
+	pilotRatingRankText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var pilotRatingTextNode = document.createTextNode(rank); //change me
+	pilotRatingRankText.appendChild(pilotRatingTextNode);
+	
+	//append the pilot rank text element into the dom
+	document.getElementById('wrap').appendChild(pilotRatingRankText);
+	
+	//create the text element to display the total score
+	var pilotRatingScoreText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	pilotRatingScoreText.setAttributeNS(null, 'id', 'pilotRankScoreId');
+	pilotRatingScoreText.setAttributeNS(null, 'x', '10');
+	pilotRatingScoreText.setAttributeNS(null, 'y', '110');
+	pilotRatingScoreText.setAttributeNS(null, 'font-size', '12');
+	pilotRatingScoreText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var pilotRatingScoreTextNode = document.createTextNode('Total Score: ' + totalScore); //change me
+	pilotRatingScoreText.appendChild(pilotRatingScoreTextNode);
+	
+	//append the total score text element into the dom
+	document.getElementById('wrap').appendChild(pilotRatingScoreText);
 };
 
 /**
@@ -455,7 +551,17 @@ PilotRatingGlobalTagMap.prototype.studentWorkUpdatedHandler = function() {
 
 	if(icon != null) {
 		//update the icon path to display for the pilot rating
-		$('#' + this.pilotRatingId).attr('href', icon);	
+		$('#pilotRankIconId').attr('href', icon);
+	}
+	
+	if(rank != null) {
+		//set the pilot rank e.g. 'Pilot Rank 1'
+		$('#pilotRankTextId').text(rank);		
+	}
+	
+	if(totalScore != null) {
+		//set the score e.g. 'Total Score: 550'
+		$('#pilotRankScoreId').text('Total Score: ' + totalScore);		
 	}
 };
 
@@ -481,19 +587,46 @@ PilotRatingGlobalTagMap.prototype.getTotalScore = function() {
 		var node = this.view.getProject().getNodeById(nodeId);
 		
 		if(node != null) {
-			//get the latest work for the step
-			var latestWork = vleState.getLatestWorkByNodeId(nodeId);
+			var maxScoreForNodeId = null;
 			
-			//get the score for the work
-			var score = node.getScore(latestWork);
+			//get the node visits for the step
+			var nodeVisits = vleState.getNodeVisitsByNodeId(nodeId);
 			
-			if(score != null) {
+			if(nodeVisits != null) {
+				//loop through all the node visits
+				for(var y=0; y<nodeVisits.length; y++) {
+					//get a node visit
+					var nodeVisit = nodeVisits[y];
+					
+					//get the node states
+					var nodeStates = nodeVisit.nodeStates;
+					
+					if(nodeStates != null) {
+						//loop through all the node states
+						for(var z=0; z<nodeStates.length; z++) {
+							//get a node state
+							var nodeState = nodeStates[z];
+							
+							//get the score from the node state
+							var tempScore = node.getScore(nodeState);
+							
+							//check if the score is greater than any we have seen so far
+							if(tempScore > maxScoreForNodeId) {
+								//the score is greater so we will remember it
+								maxScoreForNodeId = tempScore;
+							}
+						}
+					}
+				}
+			}
+			
+			if(maxScoreForNodeId != null) {
 				//accumulate the score
-				totalScore += score;
+				totalScore += maxScoreForNodeId;
 			}
 		}
 	}
-	
+
 	return totalScore;
 };
 
@@ -579,7 +712,6 @@ PilotRatingGlobalTagMap.prototype.getIconFromScore = function(score) {
 	return icon;
 };
 
-
 WarpRatingGlobalTagMap.prototype = new GlobalTagMap();
 WarpRatingGlobalTagMap.prototype.constructor = WarpRatingGlobalTagMap;
 WarpRatingGlobalTagMap.prototype.parent = GlobalTagMap.prototype;
@@ -629,10 +761,6 @@ function WarpRatingGlobalTagMap(view, parameters) {
 	var warpNumber = WarpRatingGlobalTagMap.warpCount;
 	this.warpNumber = warpNumber;
 	
-	//get the id for the img element we will create
-	var warpRatingId = WarpRatingGlobalTagMap.functionName + warpNumber;
-	this.warpRatingId = warpRatingId;
-	
 	//get the student's score for the tagged step(s)
 	var score = this.getScore();
 	
@@ -642,9 +770,19 @@ function WarpRatingGlobalTagMap(view, parameters) {
 	//get the y position where we will place the icon
 	var y = 10 + (100 * warpNumber);
 	
+	//get the rank
+	var rank = this.getRankFromScore(score);
+	
+	//get the color
+	var color = this.getWarpColorFromIcon(icon);
+	
+	//create the id for the icon element
+	var warpRankIconId = 'warpRankIconId' + warpNumber;
+	
 	//create the img element to display the warp rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
-	img.setAttributeNS(null, 'id', warpRatingId);
+	img.setAttributeNS(null, 'id', warpRankIconId);
+	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
 	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
@@ -654,6 +792,70 @@ function WarpRatingGlobalTagMap(view, parameters) {
 	
 	//add the img element to the starmap
 	$('#wrap').append(img);
+	
+	//create the id for the text element
+	var warpRankTextId = 'warpRankTextId' + warpNumber;
+	
+	//create the text element to display the pilot rank
+	var warpRatingRankText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	warpRatingRankText.setAttributeNS(null, 'id', warpRankTextId);
+	warpRatingRankText.setAttributeNS(null, 'x', '10');
+	warpRatingRankText.setAttributeNS(null, 'y', y + 10);
+	warpRatingRankText.setAttributeNS(null, 'font-size', '12');
+	warpRatingRankText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var warpRatingTextNode = document.createTextNode(rank);
+	warpRatingRankText.appendChild(warpRatingTextNode);
+	
+	//append the pilot rank text element into the dom
+	document.getElementById('wrap').appendChild(warpRatingRankText);
+	
+	//create the id for the score element
+	var warpRankScoreId = 'warpRankScoreId' + warpNumber;
+	
+	//create the text element to display the total score
+	var warpRatingScoreText = document.createElementNS('http://www.w3.org/2000/svg','text');
+	warpRatingScoreText.setAttributeNS(null, 'id', warpRankScoreId);
+	warpRatingScoreText.setAttributeNS(null, 'x', '10');
+	warpRatingScoreText.setAttributeNS(null, 'y', y + 100);
+	warpRatingScoreText.setAttributeNS(null, 'font-size', '12');
+	warpRatingScoreText.setAttributeNS(null, 'fill', 'white');
+	
+	//create the text that will be put in the text element
+	var warpRatingScoreTextNode = document.createTextNode(color + ' Warp Score: ' + score);
+	warpRatingScoreText.appendChild(warpRatingScoreTextNode);
+	
+	//append the total score text element into the dom
+	document.getElementById('wrap').appendChild(warpRatingScoreText);
+};
+
+/**
+ * Get the warp color from the icon path
+ * @param icon the icon path
+ */
+WarpRatingGlobalTagMap.prototype.getWarpColorFromIcon = function(icon) {
+	var color = null;
+	
+	if(icon != null) {
+		var iconLowerCase = icon.toLowerCase();
+		
+		if(iconLowerCase.indexOf('green') != -1) {
+			color = 'Green';
+		} else if(iconLowerCase.indexOf('blue') != -1) {
+			color = 'Blue';
+		} else if(iconLowerCase.indexOf('red') != -1) {
+			color = 'Red';
+		} else if(iconLowerCase.indexOf('purple') != -1) {
+			color = 'Purple';
+		} else if(iconLowerCase.indexOf('yellow') != -1) {
+			color = 'Yellow';
+		} else if(iconLowerCase.indexOf('orange') != -1) {
+			color = 'Orange';
+		}
+	}
+	
+	return color;
 };
 
 /**
@@ -701,8 +903,21 @@ WarpRatingGlobalTagMap.prototype.studentWorkUpdatedHandler = function(nodeId, no
 			//get the icon path
 			var icon = this.getIconFromScore(score);
 			
+			//get the color
+			var color = this.getWarpColorFromIcon(icon);
+			
 			//update the icon path for the warp rating
-			$('#' + this.warpRatingId).attr('href', icon);
+			$('#warpRankIconId' + this.warpNumber).attr('href', icon);
+			
+			if(rank != null) {
+				//set the pilot rank e.g. 'Pilot Rank 1'
+				$('#warpRankTextId' + this.warpNumber).text(rank);		
+			}
+			
+			if(score != null) {
+				//set the score e.g. 'Score: 550'
+				$('#warpRankScoreId' + this.warpNumber).text(color + ' Warp Score: ' + score);		
+			}
 		}
 	}
 };
@@ -738,18 +953,22 @@ WarpRatingGlobalTagMap.prototype.getScore = function() {
 				
 				if(latestWork != null) {
 					
-					//get the score
-					var stepScore = node.getScore(latestWork);
+					var response = latestWork.response;
 					
-					if(stepScore != null) {
-						//accumulate the score
-						score += stepScore;						
+					if(response != null) {
+						//get the final score for this warp step
+						var stepScore = response.finalScore;
+						
+						if(stepScore != null) {
+							//accumulate the score
+							score += stepScore;						
+						}
 					}
 				}
 			}
 		}
 	}
-	
+
 	return score;
 };
 
@@ -886,6 +1105,7 @@ function AdvisorRatingGlobalTagMap(view, parameters) {
 	//create the img element to display the warp rating
 	var img = document.createElementNS('http://www.w3.org/2000/svg','image');
 	img.setAttributeNS(null, 'id', 'advisorRating');
+	img.setAttributeNS(null, 'class', 'globalTagMap-item');
 	img.setAttributeNS(null, 'height', '100');
 	img.setAttributeNS(null, 'width', '200');
 	img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', icon);
@@ -1076,39 +1296,6 @@ AdvisorRatingGlobalTagMap.prototype.getIconFromScore = function(score) {
 	return icon;
 };
 
-NavigationPanel.prototype.menuLoaded = function() {
-	var project = view.getProject(),
-		navPanel = this;
-	// insert step icons
-	/*$('.node').each(function(){
-		var nodeId = $(this).attr('id');
-		var node = project.getNodeById(nodeId);
-		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-  			//icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
-  			var nodeClass = node.getNodeClass();
-  			var isValid = false;
-  			for(var a=0;a<view.nodeClasses[node.type].length;a++){
-  				if(view.nodeClasses[node.type][a].nodeClass == nodeClass){
-  					isValid = true;
-  					break;
-  				}
-  			}
-  			if(!isValid){
-  				nodeClass = view.nodeClasses[node.type][0].nodeClass;
-  			}
-  			var nodeIconPath = view.nodeIconPaths[node.type];
-  			$(this).find('image').attr("xlink:href",nodeIconPath + nodeClass + '16.png');
-  		};
-	});*/
-	
-	//collapse all activities except for the current one
-	//eventManager.fire('menuCollapseAllNonImmediate');
-
-	//eventManager.fire('resizeMenu');
-	eventManager.fire('navigationMenuCreated');
-	//eventManager.fire('menuCreated');
-};
-
 /**
  * Add a base href to the html
  * @param navHtml that navigation menu html
@@ -1136,6 +1323,7 @@ NavigationPanel.prototype.addBaseHref = function(navHtml) {
 	 * the nav html
 	 */
 	navHtml = "<base href='" + documentBase + "'>" + navHtml;
+	$('#my_menu').attr('data-base', documentBase);
 
 	return navHtml;
 };
@@ -1318,8 +1506,9 @@ NavigationPanel.prototype.enableAllSteps = function() {
  * Set the step icon in the navigation
  * @param nodeId the node id
  * @param stepIconPath the path to the new icon
+ * @param animate Boolean whether to animate the icon change when nav panel is next shown
  */
-NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath) {
+NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath, animate) {
 	if(nodeId != null && nodeId != '' && stepIconPath != null && stepIconPath != '') {
 		//the node id and step icon path were provided so we will use them
 
@@ -1330,10 +1519,17 @@ NavigationPanel.prototype.setIcon = function(nodeId, stepIconPath) {
 		 * of our ids contain a '.'
 		 * e.g. node_1.ht
 		 */
-		nodeId = nodeId.replace(/\./g, '\\.');
-
-		//set the img src to the step icon path
-		$('#anchor_' + nodeId).attr('xlink:href', stepIconPath);
+		nodeId = view.escapeIdForJquery(nodeId);
+		var node = d3.select('#anchor_' + nodeId),
+			newIcon = (stepIconPath !== node.attr('xlink:href'));
+		if(newIcon){
+			if(animate && newIcon && this.mode === 'step'){
+				node.classed('iconChanged', true).attr('data-iconPath', stepIconPath);
+			} else {
+				//set the img src to the step icon path
+				node.attr('xlink:href', stepIconPath);
+			}
+		}
 	}
 };
 
@@ -1369,27 +1565,31 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
 		var tempIconPath = tempNode.getIconPathForStatuses();
 
 		//set the icon for the node
-		thisView.navigationPanel.setIcon(nodeIdListening, tempIconPath);
+		thisView.navigationPanel.setIcon(nodeIdListening, tempIconPath, true);
 	}
 	
+	
+	// TODO: remove or redo with lock icon; 'constraintDisable' class not currently being used in this theme
 	if(statusType == 'isVisitable' && statusValue == false) {
 		//the step is not visitable so we will grey out the step
 		
 		//get the position of the step
-		var position = thisView.getProject().getPositionById(nodeId);
-		var positionEscaped = thisView.escapeIdForJquery(position);
+		//var position = thisView.getProject().getPositionById(nodeId);
+		//var positionEscaped = thisView.escapeIdForJquery(position);
+		var idEscaped = thisView.escapeIdForJquery(nodeId);
 
 		//grey out the step
-		$('#node_' + positionEscaped).addClass('constraintDisable');
+		d3.select('#' + idEscaped).classed('constraintDisable',true);
 	} else if(statusType == 'isVisitable' && statusValue == true) {
 		//the step is visitable so we will make sure it is not greyed out
 		
 		//get the position of the step
-		var position = thisView.getProject().getPositionById(nodeId);
-		var positionEscaped = thisView.escapeIdForJquery(position);
+		//var position = thisView.getProject().getPositionById(nodeId);
+		//var positionEscaped = thisView.escapeIdForJquery(position);
+		var idEscaped = thisView.escapeIdForJquery(nodeId);
 
 		//remove the class that greys out the step
-		$('#node_' + positionEscaped).removeClass('constraintDisable');
+		d3.select('#' + idEscaped).classed('constraintDisable',false);
 	}
 };
 
@@ -1403,17 +1603,23 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
  * that activity is called 'Silver', we would return
  * '#1: First Galaxy: Silver'
  */
-NavigationPanel.prototype.getFullNodeName = function(nodeId) {
-	var fullStepName = view.getProject().getNodeTitles(nodeId);
+NavigationPanel.prototype.getFullNodeName = function(nodeId) {	
+	//get the step number and title
+	var fullNodeName = '#' + view.getProject().getStepNumberAndTitle(nodeId);
 	
-	//get the highest sequence number in the hierarchy
-	var highestSequenceNumberInHierarchy = view.getHighestSequenceNumberInHierarchy(nodeId);
-	
-	fullStepName = '#' + highestSequenceNumberInHierarchy + ': ' + fullStepName; 
-	
-	return fullStepName;
+	return fullNodeName;
 };
 
+/**
+ * The navigation has loaded so we will perform any necessary processing.
+ * 
+ * @param type the event that was fired
+ * @param args arguments that were provided when the event was fired
+ * @param obj the view object
+ */
+NavigationPanel.prototype.navigationLoadingCompletedListener = function(type, args, obj) {
+
+};
 
 /**
 * The navMode dispatcher catches events specific to this project
@@ -1447,6 +1653,8 @@ View.prototype.navModeDispatcher = function(type,args,obj){
 		obj.navigationPanel.navigationNodeClickedListener(args[0]);
 	} else if(type=="visitNode") {
 		obj.navigationPanel.visitNodeListener(args[0]);
+	} else if(type=='renderNodeBlocked'){
+		obj.navigationPanel.renderNodeBlockedListener(args[0])
 	};
 };
 
@@ -1465,7 +1673,8 @@ var events = [
              'navigationPanelNextButtonClicked',
              'navigationPanelToggleVisibilityButtonClicked', // REQUIRED (DO NOT EDIT)
              'navigationNodeClicked',
-             'visitNode'
+             'visitNode',
+             'renderNodeBlocked'
              ];
 
 /**

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import utils.SecurityUtils;
 import vle.VLEServlet;
 import vle.domain.status.RunStatus;
 
@@ -22,7 +23,13 @@ public class RunStatusController extends VLEServlet {
 	 * @param response
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		//get the run id
 		String runIdString = request.getParameter("runId");
 		

@@ -312,6 +312,25 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, periods, classmateU
 			return userIds;
 		};
 		
+		/**
+		 * Get all the students in a period
+		 * @param periodId the period id
+		 */
+		var getAllStudentsInPeriodId = function(periodId) {
+			//get all the classmates. this does not include the currently logged in student
+			var allStudentsInPeriod = getClassmatesInPeriodId(periodId);
+			
+			//get the period id of the currently logged in student
+			var myPeriodId = getPeriodId();
+			
+			if(periodId == myPeriodId) {
+				//add the currently logged in student if they are in the period
+				allStudentsInPeriod.push(myUserInfo);
+			}
+			
+			return allStudentsInPeriod;
+		};
+		
 		return {
 			getWorkgroupId:function() {
 				return getWorkgroupId();
@@ -381,6 +400,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, periods, classmateU
 			},
 			getUserIds:function() {
 				return getUserIds();
+			},
+			getAllStudentsInPeriodId:function(periodId) {
+				return getAllStudentsInPeriodId(periodId);
 			}
 		};
 	}(myUserInfo, periods, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);

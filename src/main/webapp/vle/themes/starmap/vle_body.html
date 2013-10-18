@@ -6,33 +6,26 @@
   </style>
 <![endif]-->
 
-<header>
-	<!-- SUGGESTED/OPTIONAL ELEMENT - VLE logo (specified in config.json) is inserted here (Okay to move/style) -->
-	<div id="logo"></div>
-	<!-- SUGGESTED ELEMENT - Project run name/title is inserted here (Okay to move/style) -->
-	<span id="runTitle"></span>
-	
-	<div id="projectTools" class="toolbar gradient">
-		<ul>
-			<!-- SUGGESTED ELEMENT: toggleNav toggles the project navigation UI (You can customize the link's behavior for each navigation mode included with this theme; see README.txt for more details) -->
-			<li id="toggleNav"></li>
-			
-			<!-- REQUIRED ELEMENTS: viewIdeaBasket, addIdea, viewMyWork, viewMyFiles, viewFlagged (links to core WISE project features are inserted; okay to move/style, convert to <div> elements, etc.) -->
-			<li id="ideaBasketLinks" class="menuGroup">
-				<span id="viewIdeaBasket"></span>
-				<span id="addIdea"></span>
-			</li>
-			<li id="workFilesLinks" class="menuGroup">
-				<span id="viewMyWork"></span>
-				<span id="viewFlagged"></span>
-				<span id="viewMyFiles"></span>
-			</li>
-			
-			<!-- SUGGESTED ELEMENT: sign out and exit to home links inserted here (Okay to move/style, convert to buttons, etc.) -->
-			<li id="signOutLinks" class="menuGroup"></li>
-		</ul>
-	</div>
-</header>
+<style>
+#navLoading {
+	position:absolute;
+	left:0;
+	top:0;
+	width:100%;
+	height:100%;
+	/*background-color:#090810;*/
+	background-color: #ffffff;
+	z-index: 10000;
+}
+
+#navLoading img {
+	position:absolute;
+	left:50%;
+	top:50%;
+	margin-top:-67px;
+	margin-left:-96.5px;
+}
+</style>
 
 <div id="projectContent">
 	
@@ -65,15 +58,55 @@
 				<li><a id="forwardButton" class="forward"></a></li>
 			</ul>
 			
-			<!-- SUGGESTED ELEMENT - links to quickly navigate forward and backward through project steps are inserted here (Okay to move/style) -->
-			<div id="stepNav"></div>
+			<!-- SUGGESTED ELEMENTS - links to quickly navigate forward and backward through project steps are inserted here (Okay to move/style) -->
+			<div id="stepNav">
+				<span id="prevNode"></span>
+				<span id="nextNode"></span>
+			</div>
 		</div>
 	</section>
 	
 	<nav id="navigation" class="contentPanel"></nav>
 </div>
 
+<header>
+	<!-- SUGGESTED/OPTIONAL ELEMENT - VLE logo (specified in config.json) is inserted here (Okay to move/style) -->
+	<div id="logo"></div>
+	<!-- SUGGESTED ELEMENT - Project run name/title is inserted here (Okay to move/style) -->
+	<span id="runTitle"></span>
+	
+	<div id="projectTools" class="toolbar ">
+		<ul>
+			<!-- SUGGESTED ELEMENT: toggleNav toggles the project navigation UI (You can customize the link's behavior for each navigation mode included with this theme; see README.txt for more details) -->
+			<li id="navLinks">
+				<span id="toggleNav"></span>
+			</li>
+			
+			<!-- REQUIRED ELEMENTS: viewIdeaBasket, addIdea, viewMyWork, viewMyFiles, viewFlagged (links to core WISE project features are inserted; okay to move/style, convert to <div> elements, etc.) -->
+			<li id="ideaBasketLinks" class="menuGroup">
+				<span id="viewIdeaBasket"></span>
+				<span id="addIdea"></span>
+			</li>
+			<li id="workFilesLinks" style="display: none;" class="menuGroup">
+				<span id="viewMyWork"></span>
+				<span id="viewFlagged"></span>
+				<span id="viewMyFiles"></span>
+			</li>
+			
+			<!-- SUGGESTED ELEMENTS: sign out and exit to home links inserted here (Okay to move/style, convert to buttons, etc.) -->
+			<li id="signOutLinks">
+				<span id="exit"></span>
+				<span id="signOut"></span>
+			</li>
+		</ul>
+	</div>
+</header>
+
 <footer id="footer">
 	<!-- SUGGESTED ELEMENT - Workgroup/user names are inserted here (Okay to move/style) -->
 	<div id="userNames"></div>
 </footer>
+
+<div id="navLoading">
+	<img src="themes/starmap/images/loading.gif" alt="loading" />
+</div>

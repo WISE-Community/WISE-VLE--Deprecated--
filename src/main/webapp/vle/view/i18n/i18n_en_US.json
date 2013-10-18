@@ -253,11 +253,15 @@
 	},
 	"node_annotations_button_text":{
 		"value":"Feedback",
-		"description":"Text that shows up next to the Hint button"
+		"description":"Text that shows up next to the Feedback button"
 	},
 	"node_annotations_button_title":{
 		"value":"View feedback for this step",
-		"description":"Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
+		"description":"Text for mouse hover title on the Feedback button (will be followed by the node_annotations_title)"
+	},
+	"node_annotations_instructions": {
+		"value":"You can always view this feedback by clicking on the \"{0}\" icon.",
+		"description":"The message at the bottom of the feedback popup to tell the student they can always bring the popup back up"
 	},
 	"navigation_expand_all":{
 		"value":"Show All",
@@ -313,16 +317,20 @@
 	},
 	"stepTerm":{
 		"value":"Step",
-		"description":"Default term for a 'step' in a WISE project"
+		"description":"Default term for a 'Step' in a WISE project (singular)"
+	},
+	"stepTermPlural":{
+		"value":"Steps",
+		"description":"Plural form of the default term for a 'Step' in a WISE project"
 	},
 	"activityTerm":{
 		"value":"Activity",
-		"description":"Default term for an 'activity' (collection of steps) in a WISE project"
+		"description":"Default term for an 'Activity' in a WISE project (singular)"
 	},
-	"all_steps":{
-		"value":"all steps",
-		"description":"The text for 'all steps' in a WISE project"
-	},
+	"activityTermPlural":{
+		"value":"Activities",
+		"description":"Plural form of the default term for a 'Activity' in a WISE project"
+	},	
 	"insertImage":{
 		"value":"Insert Image",
 		"description":"Text 'Insert Image', to use for image selection"
@@ -1847,53 +1855,48 @@
 		"value":"Comments",
 		"description":"The text to display the comments in the feedback popup"
 	},
-	"you_can_always_view": {
-		"value":"You can always view this feedback by clicking on the \"Feedback\" icon in the top right corner.",
-		"description":"The message at the bottom of the feedback popup to tell the student they can always bring the popup back up"
+	"hints_viewAll": {
+		"value":"You must view all {0} before closing.",
+		"description":"The message in the hints popup that says the student must view all hints before closing the hints popup"
 	},
-	"you_must_view_all": {
-		"value":"You must view all",
-		"description":"The beginning of the message in the hints popup that says the student must view all hints before closing the hints popup"
+	"constraint_dialog_title": {
+		"value":"Item is Locked",
+		"description":"Title text for dialog alerting users about locked steps or activities (unable to visit because of navigation constraints)"
 	},
-	"before_closing": {
-		"value":"before closing",
-		"description":"The end of the message in the hints popup that says the student must view all hints before closing the hints popup"
+	"constraint_allItems": {
+		"value":"(all items)",
+		"description":"Text to add after activity name when a constraint requires user to satisfy a requirement for all items in an activity"
 	},
-	"constraint_must_complete_x_before": {
-		"value":"You must complete {0} before you can work on this step",
-		"description":"The message shown to students telling them to complete work on a previous step before working on the current step"
+	"constraint_message_mustCompleteStepBeforeAdvancing": {
+		"value":"You must complete the current {0} before moving on.",
+		"description":"The message shown to students telling them to complete work on the current step before moving on"
 	},
-	"constraint_must_complete_these_before": {
-		"value":"You must complete these before you can work on this step",
-		"description":"The message shown to students telling them to complete work on multiple steps before working on the current step"
+	"constraint_message_mustCompleteActivityBeforeAdvancing": {
+		"value":"You must complete all items in the current {0} before moving on.",
+		"description":"The message shown to students telling them to complete work on the current activity before moving on"
 	},
-	"constraint_must_visit_x_before": {
-		"value":"You must visit {0} before you can work on this step",
-		"description":"The message shown to students telling them to visit a previous step before working on the current step"
+	"constraint_message_mustCompleteStepBeforeExiting": {
+		"value":"You must complete the current {0} before leaving.",
+		"description":"The message shown to students telling them to complete work on the current step before exiting"
 	},
-	"constraint_must_visit_these_before": {
-		"value":"You must visit these before you can work on this step",
-		"description":"The message shown to students telling them to visit multiple steps before working on the current step"
+	"constraint_message_mustCompleteActivityBeforeExiting": {
+		"value":"You must complete all items in the current {0} before leaving.",
+		"description":"The message shown to students telling them to complete work on the current activity before exiting"
 	},
-	"constraint_must_complete_step_before_advancing": {
-		"value":"You must complete Step {0} before moving ahead",
-		"description":"The message shown to students telling them to complete work on a step before moving on"
-	},	
-	"constraint_must_complete_activity_before_advancing": {
-		"value":"You must complete the steps in Activity {0} before moving ahead",
-		"description":"The message shown to students telling them to complete work on an activity before moving on"
+	"constraint_message_mustCompleteXBeforeVisiting": {
+		"value":"You must complete the following before viewing this item:",
+		"description":"The message shown to students telling them to complete work on previous items before working on the selected step or activity"
 	},
-
-	"constraint_must_complete_current_activity": {
-		"value":"You must complete all the steps in the current activity before you can move to another activity",
-		"description":"The message shown to students telling them to complete work on current activity before moving on"
+	"constraint_message_mustVisitXBeforeVisiting": {
+		"value":"You must visit the following before viewing this item:",
+		"description":"The message shown to students telling them to visit items before working on the selected step or activity"
 	},
-	"constraint_must_complete_current_step": {
-		"value":"You must complete the current step you are on before you can move to another step",
-		"description":"The message shown to students telling them to complete work on current step before moving on"
+	"constraint_message_mustUnlockXBeforeVisiting": {
+		"value":"You must unlock the following before viewing this item:",
+		"description":"The message shown to students telling them to unlock (make visitable) previous items before working on the selected step or activity"
 	},
-	"constraint_must_have_status": {
-		"value":"The step below must have '{0}' set to '{1}' before you can work on this step\n\n{2}",
-		"description":"The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the current step"
-	}	
+	"constraint_message_xMustHaveStatusY": {
+		"value":"The following must have '{0}' set to '{1}' before you can view this item:",
+		"description":"The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the selected step"
+	}
 }

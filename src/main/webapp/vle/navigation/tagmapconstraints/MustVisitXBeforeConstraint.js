@@ -1,3 +1,9 @@
+/**
+ * NOTE: This constraint has been deprecated - WISE now creates an 'XMustHaveStatusYConstraint'
+ * with a statusType of 'isVisited' and statusValue of 'true' for all
+ * 'MustVisitXBeforeConstraint' instances
+ */
+
 MustVisitXBeforeConstraint.prototype = new TagMapConstraint();
 MustVisitXBeforeConstraint.prototype.constructor = MustVisitXBeforeConstraint;
 MustVisitXBeforeConstraint.prototype.parent = TagMapConstraint.prototype;
@@ -252,52 +258,22 @@ MustVisitXBeforeConstraint.prototype.getNodesFailed = function() {
 /**
  * Get the message to display to the student when this constraint
  * prevents them from moving to the next step they are trying to move to.
- * @param nodesFailed the node ids of the steps that the student has not completed
  * @return a message that we will notify the student of the constraint
  */
-MustVisitXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed) {
+MustVisitXBeforeConstraint.prototype.getConstraintMessage = function() {
 	var message = '';
 
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
 	} else {
-		var stepsNumberAndTitlesFailed = '';
-		
-		if(nodesFailed != null) {
-			for(var x=0; x<nodesFailed.length; x++) {
-				var nodeIdFailed = nodesFailed[x];
-				
-				//get the step number and title for the failed step
-				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeIdFailed);
-				
-				if(stepsNumberAndTitlesFailed != '') {
-					stepsNumberAndTitlesFailed += '\n';
-				}
-				
-				var nodeType = '';
-				var node = this.view.getProject().getNodeById(nodeIdFailed);
-				
-				if(node.type == 'sequence') {
-					stepsNumberAndTitlesFailed += this.view.getI18NString("activityTerm", "main") + stepNumberAndTitle + ' ('+ this.view.getI18NString("all_steps", "main")  +')';
-				} else {
-					stepsNumberAndTitlesFailed += this.view.getI18NString("stepTerm", "main") + stepNumberAndTitle;
-				}
-			}		
-		}
-		
-		if(nodesFailed.length == 1) {
-			message = this.view.getI18NStringWithParams("constraint_must_visit_x_before", [stepsNumberAndTitlesFailed], "main");
-		} else if(nodesFailed.length > 1) {
-			message = this.view.getI18NString("constraint_must_visit_these_before", "main");
-			message += "\n\n" + stepsNumberAndTitlesFailed;
-		}
+		message = this.view.getI18NString("constraint_message_mustVisitXBeforeVisiting", "main");
 	}
 	
 	return message;
 };
 
 /**
- * Grey out the constrained step or activity in the navigation menu.
+ * Disable step or activity in the navigation menu.
  */
 MustVisitXBeforeConstraint.prototype.constrainNavigation = function() {
 	if(this.view.navigationPanel != null) {

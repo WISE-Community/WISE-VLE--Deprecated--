@@ -4,8 +4,11 @@
  * @author hirokiterashima
  */
 svgEditor.addExtension("Import Student Asset", function() {
+	
+	/* Private variables */
 	var loaded = false;
 	
+	/* Public API (accessible via svgEditor object) */
 	var api = svgEditor.ext_importstudentasset = {
 		/** 
 		 * Gets whether extensions has completely loaded
@@ -14,25 +17,19 @@ svgEditor.addExtension("Import Student Asset", function() {
 		 */
 		isLoaded: function(){
 			return loaded;
-		},
-		/**
-		 * Listener function that is called when the extension has fully loaded
-		 */
-		loadComplete: function(){
-			// optional: override with custom actions
 		}
 	};
 
 	return {
-		name: "import student asset",
+		name: "Import Student Asset",
 		svgicons: "extensions/import_student_asset.xml",
 		buttons: [{
 			id: "tool_import_student_asset",
 			type: "mode",
-			title: "Import Student Asset Tool", 
+			title: "Import File", 
 			events: {
 				'click': function() {
-					eventManager.fire("viewStudentAssets", null);
+					eventManager.fire("viewStudentAssets", null); // TODO: customize to show only allowed file types
 				}
 			}
 		}],
@@ -49,7 +46,6 @@ svgEditor.addExtension("Import Student Asset", function() {
 			},500);
 			
 			loaded = true;
-			api.loadComplete();
 		}
 	};
 });

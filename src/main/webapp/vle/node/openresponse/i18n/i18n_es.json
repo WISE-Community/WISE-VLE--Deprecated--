@@ -230,5 +230,37 @@
     "auto_feedback": {
         "value": "Auto-retroalimentación",
         "description": "The label for the auto feedback in the grading view"
+    },
+    "save_and_close": {
+        "value": "GRABAR Y CERRAR",
+        "description": "The text 'SAVE & CLOSE' on the button shown at the bottom of the step"
+    },
+    "help": {
+        "value": "ayuda",
+        "description": "The word 'help'"
+    },
+    "tall": {
+        "value": "alta",
+        "description": "The text 'tall' on the button shown at the top of the note step to change the note to be tall"
+    },
+    "wide": {
+        "value": "ancha",
+        "description": "The text 'wide' on the button shown at the top of the note step to change the note to be wide"
+    },
+    "basic": {
+        "value": "normal",
+        "description": "The text 'basic' on the button shown at the top of the note step to change the note to be the default basic size"
+    },
+    "large": {
+        "value": "larga",
+        "description": "The text 'large' on the button shown at the top of the note step to change the note to be large"
+    },
+    "original_question": {
+        "value": "Pregunta original",
+        "description": "The text 'Original Question' to show above the original question for the step in peer-review mode"
+    },
+    "associated_work": {
+        "value": "Tarea asociada",
+        "description": "The text 'Associated Work' to show above the associated work for the step in peer-review mode"
     }
 }

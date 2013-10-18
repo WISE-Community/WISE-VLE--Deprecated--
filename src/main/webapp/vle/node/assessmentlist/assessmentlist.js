@@ -369,13 +369,20 @@ ASSESSMENTLIST.prototype.render = function() {
 		//the student must complete all parts before leaving the step
 		if(this.states.length == 0) {
 			/*
-			 * the student has not submitted any work yet so we will create
-			 * the constraint. in order to have work, the student must have
-			 * completed all the parts which is why we only need to check for
-			 * existence of any work and we don't have to specifically check
-			 * for all parts.
+			 * check that the addActiveTagMapConstraint() function exists.
+			 * if we are in step preview mode in the authoring tool, this
+			 * function will not exist so we will not create the constraint.
 			 */
-			this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeExiting', null, null);
+			if(this.view.addActiveTagMapConstraint != null) {
+				/*
+				 * the student has not submitted any work yet so we will create
+				 * the constraint. in order to have work, the student must have
+				 * completed all the parts which is why we only need to check for
+				 * existence of any work and we don't have to specifically check
+				 * for all parts.
+				 */
+				this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeExiting', null, null);				
+			}
 		}
 	}
 	

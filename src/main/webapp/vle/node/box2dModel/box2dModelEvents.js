@@ -36,7 +36,25 @@ var events =
 	 * TODO: rename box2dModelUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */
-	'make-model', 'delete-model', 'make-beaker', 'delete-beaker', 'make-scale', 'delete-scale', 'make-beaker', 'delete-beaker', 'add-to-beaker', 'add-to-scale', 'add-to-balance', 'remove-from-beaker', 'remove-from-scale', 'remove-from-balance', 'test-in-beaker', 'test-on-scale', 'test-on-balance','gave-feedback'
+	'make-model', 
+	'revise-model',
+	'duplicate-model', 
+	'delete-model', 
+	'make-beaker', 
+	'delete-beaker', 
+	'make-scale', 
+	'delete-scale', 
+	'add-to-beaker', 
+	'add-to-scale', 
+	'add-to-balance', 
+	'remove-from-beaker', 
+	'remove-from-scale', 
+	'remove-from-balance', 
+	'test-in-beaker', 
+	'test-on-scale', 
+	'test-on-balance',
+	'release-from-beaker',
+	'gave-feedback'
 ];
 
 

@@ -138,7 +138,7 @@
 			this.addChild(text);
 			this.blockTexts.push(text);
 		}
-
+		this.reachedMax = false;
 		this.blocks = [];
 		this.drawMaterial(this.materialsMenu.current_material_name);
 
@@ -146,7 +146,6 @@
 		// jquery ui
 		if ($("#make-object").length == 0){
 			htmlText = '<input type="submit" id="make-object" value="Export Model"/>';
-	        //htmlElement = $( "input[id='make-object']" )
 	        $("#builder-button-holder").append(htmlText);
 	        $("#make-object")
 	            .button()
@@ -170,8 +169,8 @@
                        builder.update_view_topAngle(ui.value);
                    }
                }).hide();
-		     $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
-			 htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
+		    $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
+			htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
 		    $("#builder-button-holder").append(htmlText);
 			$("#slider-sideAngle")
 			    .slider({
@@ -217,6 +216,8 @@
 			// save to global parameters
 			if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
 			labWorld.createObjectInWorld(savedObject, 0, -1, 0, "dynamic");
+
+			this.resetMaterials();
 		} else 
 		{
 			console.log("no object to make");
@@ -315,10 +316,13 @@
 		this.drawMaterial(material_name);
 	}
 
+	p.drawCurrentMaterial = function (){
+		this.drawMaterial(this.materialsMenu.current_material_name);
+	}
+
 	/** Place blocks in the "pick your block" area */
-	p.drawMaterial = function (material_name)
-	{
-		var o, i;
+	p.drawMaterial = function (material_name){
+		var o;
 		// if blocks array is not empty remove these from display
 		if (this.blocks.length != 0)
 		{
@@ -328,13 +332,32 @@
 			}
 			this.blocks = new Array();
 		}
-		for (i = 0; i < GLOBAL_PARAMETERS.materials[material_name].depth_arrays.length; i++)
-		{
-			o = this.newBlock(material_name, i);
-			this.placeBlock(o, i);			
+		// check to make sure the max object limit has not been reached
+		// get # of undeleted objects
+		var object_count = 0;
+		for (var i = 0; i < GLOBAL_PARAMETERS.objects_made.length; i++) if (!GLOBAL_PARAMETERS.objects_made[i].is_deleted) object_count++;
+		if (object_count < GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD){
+			if (this.reachedMax){
+				this.removeChild(this.reachedMaxText);
+				this.reachedMax = false;
+			}
+			for (var i = 0; i < GLOBAL_PARAMETERS.materials[material_name].depth_arrays.length; i++)
+			{
+				o = this.newBlock(material_name, i);
+				this.placeBlock(o, i);			
+			}
+			this.updateCountText(material_name);
+			stage.ready_to_update = true;
+		} else {
+			if (!this.reachedMax){
+				// we have reached the limit, display a textField to tell user to delete an object
+				this.reachedMaxText  = new createjs.Text("Reached max number of objects. \nDelete an object to make more.", "20px Arial","#880000");
+				this.addChild(this.reachedMaxText);
+				this.reachedMaxText.x = this.materialsMenu.x + this.materialsMenu.width_px + 50;
+				this.reachedMaxText.y = this.height_px/2;
+				this.reachedMax = true;
+			}
 		}
-		this.updateCountText(material_name);
-		stage.ready_to_update = true;
 	}
 
 	/** Create a new block with the given material name and index along the depth_arrays array */
@@ -556,7 +579,6 @@
 		savedObject.is_deletable = true;
 		savedObject.is_revisable = true;
 			
-		this.resetMaterials();
 		return savedObject;
 	}
 

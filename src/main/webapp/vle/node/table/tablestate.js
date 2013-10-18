@@ -37,7 +37,7 @@
  * 
  * @constructor
  */
-function TableState(response, tableData, graphRendered, graphOptions, tableOptions) {
+function TableState(response, tableData, graphRendered, graphOptions, tableOptions, timestamp) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -72,6 +72,14 @@ function TableState(response, tableData, graphRendered, graphOptions, tableOptio
 		//set the tableOptions
 		this.tableOptions = tableOptions;
 	}
+
+	if(timestamp != null) {
+		//use the timestamp that was provided
+		this.timestamp = timestamp;
+	} else {
+		//set the timestamp to the current time
+		this.timestamp = (new Date()).getTime();		
+	}
 };
 
 /**
@@ -104,11 +112,14 @@ TableState.prototype.parseDataJSONObj = function(stateJSONObj) {
 	//obtain the drop down title
 	var tableOptions = stateJSONObj.tableOptions;
 	
+	//obtain the timestamp
+	var timestamp = stateJSONObj.timestamp;
+	
 	/*
 	 * create a state object with the student work
 	 * TODO: rename TEMPLATESTATE
 	 */
-	var tableState = new TableState(response, tableData, graphRendered, graphOptions, tableOptions);
+	var tableState = new TableState(response, tableData, graphRendered, graphOptions, tableOptions, timestamp);
 	
 	//return the state object
 	return tableState;

@@ -49,7 +49,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='retrieveRunExtrasCompleted') {
 		obj.displayShowAllWork();
 	} else if(type=='ifrmLoaded'){
-		obj.createKeystrokeManagerForFrame();
 		obj.onFrameLoaded();
 	} else if(type=='noteEditorKeyPressed'){
 		if(obj.activeNote){
@@ -161,7 +160,8 @@ View.prototype.displayGlobalTools = function() {
 	// Insert previous and next step links 
 	var prevNodeLink = "<a id='previousStepLink' onclick='eventManager.fire(\"navigationPanelPrevButtonClicked\")' title='"+this.getI18NString("previous_step_title")+"'></a>";	
 	var nextNodeLink = "<a id='nextStepLink' onclick='eventManager.fire(\"navigationPanelNextButtonClicked\")' title='"+this.getI18NString("next_step_title")+"'></a>";
-	$('#stepNav').html(prevNodeLink + ' ' + nextNodeLink);
+	$('#prevNode').html(prevNodeLink);
+	$('#nextNode').html(nextNodeLink);
 	
 	// Insert sign out and exit to home links
 	var goHomeHref = "/webapp/student/index.html";
@@ -171,7 +171,8 @@ View.prototype.displayGlobalTools = function() {
 	}
 	var signOutLink = '<a id="signOutLink" title="'+this.getI18NString("signout_button_title")+'" onclick="view.logout()">'+this.getI18NString("signout_button_text")+'</a>';
 	var exitLink = '<a id="exitLink" target="_parent" title="'+this.getI18NString("gohome_button_title")+'" onclick="window.parent.location=\'' + goHomeHref + '\'">'+this.getI18NString("gohome_button_text")+'</a>';
-	$("#signOutLinks").html(exitLink +  ' / ' + signOutLink);
+	$("#signOut").html(signOutLink);
+	$("#exit").html(exitLink);
 	
 	// Insert default text for userNames
 	if($('#userNames').html() == ''){
@@ -385,6 +386,17 @@ View.prototype.loadTheme = function(themeName){
 		} else {
 			$("#audioControls").hide(); // TODO: Move, audio functionality should be independent of theme
 		}
+		
+		// create and initialize system dialogs
+		var constraintsDialog = $('<div id="constraintsDialog"></div>');
+		$('#w4_vle').append(constraintsDialog);
+		constraintsDialog.dialog({autoOpen:false, modal:true,
+			dialogClass: 'alert locked',
+			width: 500,
+			height: 300,
+			buttons: [{text: view.getI18NString("ok"), click: function(){ $(this).dialog('close'); }}]
+		});
+
 	});
 };
 
@@ -730,7 +742,7 @@ View.prototype.renderStartNode = function(){
 		}
 		
 		/* render if start position has been set */
-		if(startPos){
+		if(startPos != null){
 			/* since this is the first node rendered, we want to set the VLE's current
 			 * position to be the same as the startPos so that getStartPosition will always
 			 * return a value.*/
@@ -832,13 +844,11 @@ View.prototype.renderNodeCompletedListener = function(position){
 		//get the step icon
 		var iconPath = this.getIconPathFromNodeTypeNodeClass(nodeType, nodeClass);
 		
-		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconPath + '\' width=\'28px\'/>';
+		$('#stepIcon').html('<img src="' + iconPath + '" alt="step icon" />');
 	}
 	
 	/* set title in nav bar */
-    if(document.getElementById('stepTitle') != null) {
-    	document.getElementById('stepTitle').innerHTML = this.currentNode.getTitle();
-    }
+    $('#stepTitle').html(this.currentNode.getTitle());
     
 	/* get project completion and send to teacher, if xmpp is enabled */
 	if (this.xmpp && this.isXMPPEnabled && false) {
@@ -899,7 +909,7 @@ View.prototype.renderNodeCompletedListener = function(position){
  * 4. Render Node Complete.
  */
 View.prototype.renderNode = function(position){
-	this.notificationManager.notify('rendering  node, pos: ' + position,4);
+	this.notificationManager.notify('rendering node, pos: ' + position,4);
 	
     var nodeToVisit = null;
     if (position == null) {
@@ -1115,8 +1125,9 @@ View.prototype.setStepIcon = function(nodeId, stepIconPath) {
  */
 View.prototype.goToNodePosition = function(nodePosition) {
 	//get the next node id
-	var nextNode = this.getProject().getNodeByPosition(nodePosition);
-	var nextNodeId = nextNode.id;
+	var project = this.getProject(),
+		nextNode = project.getNodeByPosition(nodePosition),
+		nextNodeId = nextNode.id;
 	
 	//perform any tag map processing
 	var processTagMapConstraintResults = this.processTagMapConstraints(nextNodeId);
@@ -1129,8 +1140,39 @@ View.prototype.goToNodePosition = function(nodePosition) {
 			 * prevent the next node from being rendered so that they
 			 * stay on the current node they are already on
 			 */
-			var message = processTagMapConstraintResults.message;
-			alert(message);
+			var messages = {},
+				constraintHtml = '',
+				title = this.getI18NString('constraint_dialog_title'),
+				constraints = processTagMapConstraintResults.activeConstraints;
+			
+			for(var i=0; i<constraints.length; i++){
+				var constraint = constraints[i],
+					message = constraint.message,
+					nodesFailed = constraint.nodesFailed;
+				if(!messages.hasOwnProperty(constraint.message)){
+					messages[message] = nodesFailed;
+				} else {
+					messages[message] = messages[message].concat(nodesFailed);
+				}
+			}
+			
+			for(var key in messages){
+				var nodes = messages[key];
+				constraintHtml += '<div class="constraintMessage"><h3>' + key + '</h3>';
+				if(nodes.length > 0){
+					constraintHtml += '<ul>';
+					for(var x=0; x<nodes.length; x++){
+						// TODO: add "(all items)" to activities; put in order of project sequence
+						var isSequence = project.getNodeById(nodes[x]).isSequence(),
+							nodeText = this.getFullNodeName(nodes[x]) + (isSequence ? ' ' + this.getI18NString('constraint_allItems') : '');
+						constraintHtml += '<li>' + nodeText + '</li>';
+					}
+					constraintHtml += '</ul></div>';
+				}
+			}
+			//alert(message);
+			$('#constraintsDialog').html(constraintHtml).dialog('option', 'title', title).dialog('open');
+			this.eventManager.fire('renderNodeBlocked', nextNode);
 			return;
 		}
 	}

@@ -32,6 +32,8 @@
 	border:2px solid #999999;
 	max-height: 75px;
 	max-width: 75px;
+	width: auto;
+    height: auto;
 	cursor: pointer !important;
 	margin:4px;
 	padding:4px;

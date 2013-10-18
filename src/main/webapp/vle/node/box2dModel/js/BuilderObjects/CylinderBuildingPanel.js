@@ -137,8 +137,12 @@
 		this.addChild(this.blockText);
 
 		this.displayed_block = null;
-		this.drawMaterial(this.materialsMenu.current_material_name);
-
+		var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
+		var iWidth = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-1;
+		var iHeight = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1;
+		this.width_units = GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth;
+		this.height_units = GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS -iHeight;
+		
 		var htmlText, htmlElement;
 
 		// jquery ui
@@ -153,14 +157,14 @@
 	            }).hide();  
 
 			htmlText = '<div id="slider-diameter" style="width: 100px"></div>';
-		    $("#builder-button-holder").append(htmlText);
+			$("#builder-button-holder").append(htmlText);
 			$("#slider-diameter")
 			    .slider({
                    orientation: "horizontal",
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-1,
+                   value: iWidth,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
@@ -177,7 +181,7 @@
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1,
+                   value: iHeight,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
@@ -230,7 +234,7 @@
 			element.x = this.materialsMenu.width_px + this.width_px/3 - 100;
 			element.y = this.materialsMenu.y + this.materialsMenu.height_px - 4 * $("#slider-diameter").height();
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.diameterText = new createjs.Text("Diameter: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.diameterText = new createjs.Text("Diameter: "+ (GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth).toFixed(incPow) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.diameterText.x = element.x + 50;
 				this.diameterText.y = element.y + $("#slider-diameter").height() + 10;
 				this.diameterText.lineWidth = 60;
@@ -242,7 +246,7 @@
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
 			element.y = this.TITLE_HEIGHT*1.5;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.heightText = new createjs.Text("Height: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.heightText = new createjs.Text("Height: "+ (GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS - iHeight).toFixed(incPow) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.heightText.x = element.x + 10;
 				this.heightText.y = element.y + $("#slider-height").height() + 10;
 				this.heightText.lineWidth = 60;
@@ -262,13 +266,16 @@
 			$("#slider-height").show();
 			$("#slider-sideAngle").show();
 			$("#slider-topAngle").show();
+
+			this.reachedMax = false;
+			this.drawMaterial(this.materialsMenu.current_material_name);
+
 		}
 		this.enabled = true;
 		stage.ready_to_update = true; 
 	}
 
-	p.createObject = function() 
-	{
+	p.createObject = function()	{
 		if (this.validObject())
 		{
 			var savedObject = this.saveObject();
@@ -276,6 +283,7 @@
 			// save to global parameters
 			if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
 			labWorld.createObjectInWorld(savedObject, 0, -1, 0, "dynamic");
+			this.resetMaterials();
 		} else 
 		{
 			console.log("no object to make");
@@ -347,12 +355,14 @@
 	}
 
 	////////////////////// CLASS SPECIFIC ////////////////////
-	p.update_diameter = function (units){if (this.displayed_block != null){
+	p.update_diameter = function (units){
+		if (this.displayed_block != null){
 			this.displayed_block.set_diameter_units(units);
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
 				this.diameterText.text = "Diameter: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
 			}
-		}				
+		}	
+		this.width_units = units;			
 	}
 	p.update_height = function (units){
 		if (this.displayed_block != null){
@@ -361,6 +371,7 @@
 				this.heightText.text = "Height: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
 			}
 		}
+		this.height_units = units;
 	}
 	p.update_view_sideAngle = function (degrees)
 	{
@@ -381,36 +392,87 @@
 		this.drawMaterial(material_name);
 	}
 
+	p.drawCurrentMaterial = function (){
+		this.drawMaterial(this.materialsMenu.current_material_name);
+	}
+
 	p.drawMaterial = function (material_name)
 	{
-		var o, i;
+		var o;
 		// if blocks array is not empty remove these from display
 		if (this.displayed_block != null)
 		{
 			this.removeChild(this.displayed_block);
 			this.displayed_block = null
 		}
-		o = this.newBlock(material_name);
-		this.placeBlock(o);	
-		this.updateCountText(material_name);
-		stage.ready_to_update = true;
+		// check to make sure the max object limit has not been reached
+		// get # of undeleted objects
+		var object_count = 0;
+		for (var i = 0; i < GLOBAL_PARAMETERS.objects_made.length; i++) if (!GLOBAL_PARAMETERS.objects_made[i].is_deleted) object_count++;
+		if (object_count < GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD){
+			if (this.reachedMax){
+				this.removeChild(this.reachedMaxText);
+				this.reachedMax = false;
+			}
+			o = this.newBlock(material_name);
+			this.placeBlock(o);	
+			this.updateCountText(material_name);
+			stage.ready_to_update = true;
+		} else {
+			if (!this.reachedMax){
+				// we have reached the limit, display a textField to tell user to delete an object
+				this.reachedMaxText  = new createjs.Text("Reached max number of objects. \nDelete an object to make more.", "20px Arial","#880000");
+				this.addChild(this.reachedMaxText);
+				this.reachedMaxText.x = this.materialsMenu.x + this.materialsMenu.width_px + 80;
+				this.reachedMaxText.y = this.TITLE_HEIGHT + 30;
+				this.reachedMax = true;
+			}
+		}
 	}
 	
 	/** Create a new block with the given material name and index along the depth_arrays array */
-	p.newBlock = function (material_name, initial_diameter, initial_height)
+	p.newBlock = function (material_name, diameter_override, height_override)
 	{
 		if (GLOBAL_PARAMETERS.materials[material_name].block_count[0] < GLOBAL_PARAMETERS.materials[material_name].block_max[0])
 		{
+			// if necessary re-randomize
+			if (GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES){
+				var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
+				var iWidth = Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS;
+				var iHeight = Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS;
+				this.width_units = GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth;
+				this.height_units = GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS -iHeight;
+				$('#slider-diameter').slider('option','value',iWidth);
+				$('#slider-height').slider('option','value',iHeight);
+				if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+					this.diameterText.text = "Diameter: " + Math.round(10*this.width_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.heightText.text = "Height: " + Math.round(10*this.height_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+				}
+			} else {
+				this.width_units = 1;
+				this.height_units = 1;
+				$('#slider-diameter').slider('option','value',GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - this.width_units);
+				$('#slider-height').slider('option','value',GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS - this.height_units);
+				if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+					this.diameterText.text = "Diameter: " + Math.round(10*this.width_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.heightText.text = "Height: " + Math.round(10*this.height_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+				}
+			}
+			
 			var o = new CylinderShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
-			if (typeof initial_diameter != "undefined") o.set_diameter_units(initial_diameter);
-			if (typeof initial_height != "undefined") o.set_height_units(initial_height)
+			if (typeof diameter_override !== "undefined" && typeof height_override !== "undefined"){
+				o.set_diameter_units(diameter_override);
+				o.set_height_units(height_override);
+			} else {
+				o.set_diameter_units(this.width_units);
+				o.set_height_units(this.height_units);
+			}
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
 			o.depth_array_index = 0;
 			this.updateCountText(material_name);
-			$("#slider-diameter").slider('value', 4);
-			$("#slider-height").slider('value', 4);
+			
 			return o;
 		} else
 		{
@@ -581,6 +643,8 @@
 			var index = blockArray.length - i - 1;
 			cylinderArrays.heights[index] = blockArray[i].height_units;
 			cylinderArrays.diameters[index] = blockArray[i].depth_units;
+			//cylinderArrays.depths[index] = blockArray[i].depth_units;
+			//cylinderArrays.widths[index] = blockArray[i].depth_units;
 			cylinderArrays.materials[index] = blockArray[i].material_name;
 			if (!GLOBAL_PARAMETERS.materials[blockArray[i].material_name].is_container) is_container = false;
 		}
@@ -602,8 +666,6 @@
 		savedObject.is_deletable = true;
 		savedObject.is_revisable = true;
 		
-
-		this.resetMaterials();
 		return savedObject;
 	}
 

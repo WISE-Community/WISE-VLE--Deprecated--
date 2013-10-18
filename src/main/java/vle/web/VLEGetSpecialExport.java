@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.FileManager;
+import utils.SecurityUtils;
 import vle.VLEServlet;
 import vle.domain.node.Node;
 import vle.domain.user.UserInfo;
@@ -184,6 +185,13 @@ public class VLEGetSpecialExport extends VLEServlet {
 	 * Generates and returns an excel xls of exported student data.
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if (SecurityUtils.isPortalMode(request) && !SecurityUtils.isAuthenticated(request)) {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		/*
 		 * clear the instance variables because only one instance of a servlet
 		 * is ever created

@@ -51,6 +51,15 @@ function Node(nodeType, view){
 		                        ];
 	}
 	
+	// Messages to display to students when the status types are used for navigation constraints
+	if(view){
+		Node.statusConstraintMessages = [
+			{statusType: 'isVisitable', statusValue: 'true', message: view.getI18NString('constraint_message_mustUnlockXBeforeVisiting')},
+			{statusType: 'isVisited', statusValue: 'true', message: view.getI18NString('constraint_message_mustVisitXBeforeVisiting')},
+			{statusType: 'isCompleted', statusValue: 'true', message: view.getI18NString('constraint_message_mustCompleteXBeforeVisiting')}
+		];
+	}
+	
 	this.constraintStatus = 'enabled';
 	this.statuses = [];
 	this.icons = [];
@@ -415,8 +424,9 @@ Node.prototype.renderSummaryView = function(workgroupIdToWork,dom) {
  * and the event is fired from the page's window.onload function.
  */
 Node.prototype.pageRenderCompletedListener = function(type, args, obj){
+
 	/* args[0] is the id of node's page that has been rendered */
-	if(obj.id==args[0] && obj.contentPanel && obj.contentPanel.loadContent){
+	if(obj.id==args[0] && !obj.selfRendering && obj.contentPanel && obj.contentPanel.loadContent){
 		obj.contentPanel.loadContent(obj);
 		obj.insertPreviousWorkIntoPage(obj.contentPanel.document);
 	}
@@ -1074,7 +1084,7 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 					}
 
 					//display the previous work step number and title along with the work
-					html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
+					html += 'Remember, your work from "Step ' + stepNumberAndTitle + '" was<br>' + work + '</br></br>';
 				};
 			}
 		};
@@ -1647,6 +1657,58 @@ Node.prototype.canSpecialExport = function() {
 };
 
 /**
+ * Get the node ids that this step is importing work from
+ */
+Node.prototype.getNodeIdsImportingFrom = function() {
+	var nodeIds = [];
+	
+	//the tag maps
+	var tagMaps = this.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//this is an importWork function
+					
+					//get all the tagged steps
+					var taggedNodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
+					
+					//loop through all the tagged steps
+					for(var y=0; y<taggedNodeIds.length; y++) {
+						//get a node id
+						var nodeId = taggedNodeIds[y];
+						
+						if(nodeId != null) {
+							//get the node
+							var node = this.view.getProject().getNodeById(nodeId);
+							
+							if(node != null) {
+								nodeIds.push(nodeId);								
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return nodeIds;
+};
+
+/**
  * Get the latest node state from all the steps with the given tag
  * @param tagName the tag for the step(s) we want to import work from
  * @param functionArgs the arguments for this tag map function
@@ -1854,7 +1916,7 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 								}
 							}
 							// now tell the Node to render the summary view.
-							nodeOfAggregateWork.renderSummaryView(workgroupIdToWork,aggregateWorkDiv,graphType);
+							nodeOfAggregateWork.renderSummaryView(workgroupIdToWork, aggregateWorkDiv, graphType, showAllStudents);
 						};
 						
 						// make the request to get student work for this specific nodeId.
@@ -2096,6 +2158,13 @@ Node.prototype.getAvailableStatusesIncludingSpecialStatusValues = function() {
 	var availableStatuses = JSON.parse(JSON.stringify(Node.availableStatuses));
 	
 	return availableStatuses;
+};
+
+/**
+ * Get the status constraint messages
+ */
+Node.prototype.getStatusConstraintMessages = function() {
+	return Node.statusConstraintMessages;
 };
 
 /**
@@ -2512,8 +2581,10 @@ Node.prototype.getScore = function(nodeState) {
 
 /**
  * Disables this node's content panel so students cannot interact with it.
+ * @param doDisable true iff the node should be disabled
+ * @param message optional message
  */
-Node.prototype.disableInteractivity = function(doDisable) {
+Node.prototype.disableInteractivity = function(doDisable, message) {
 	if (doDisable) {
 		/* get the position, height and width of the content panel */
 		var panelPosition = $('#contentDiv').offset();
@@ -2522,7 +2593,14 @@ Node.prototype.disableInteractivity = function(doDisable) {
 
 		/* create the disabledPanel and append it to the given document */
 		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
+		//the message to display in the modal dialog
+		
+		if (message && message != "") {
+			var message = "<div id='disabledNodeMessageDiv'>"+message+"</div>";
+			dynamicPanel.html(message);			
+		}
 		$('body').append(dynamicPanel);	
+
 	} else {
 		$('#disabledPanel').remove();
 	}

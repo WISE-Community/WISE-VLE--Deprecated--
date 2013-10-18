@@ -4,15 +4,15 @@
 		<div class="instructionsReminderNote">
               <a id="helpTextLink" href="node/openresponse/NoteInfoBox.html" onclick="window.open(this.href, '', resizable, height=800, width=800);return false;" target="_blank">
                         <img src="images/infoIcon.png" alt="instructions icon" align="top" border="0" />
-                        help</a>
+                        <span data-i18n='help'>help</span></a>
               
         </div>
         
         <div id="buttonBoxNote">
-					<a onclick="view.utils.resizePanel('notePanel', 'narrow')"">Tall</a>
-					<a onclick="view.utils.resizePanel('notePanel', 'wide')">Wide</a>
-					<a onclick="view.utils.resizePanel('notePanel', 'original')">Basic</a>
-					<a onclick="view.utils.resizePanel('notePanel', 'maximize')">Large</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'narrow')"" data-i18n='tall'>Tall</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'wide')" data-i18n='wide'>Wide</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'original')" data-i18n='basic'>Basic</a>
+					<a onclick="view.utils.resizePanel('notePanel', 'maximize')" data-i18n='large'>Large</a>
 		</div>
 		
 	        
@@ -31,7 +31,7 @@
 	
 	<div id="fullColumn">
             	<div id='promptDisplayDiv'>
-                	<div id='promptLabelDiv' class="itemLabel color1">
+                	<div id='promptLabelDiv' class="itemLabel color1"  data-i18n='question'>
                     question
                 	</div>
 					<div class="promptContainer">
@@ -42,7 +42,7 @@
                 </div>
                 
                 <div id='originalPromptDisplayDiv' style='display:none'>
-                	<div id='originalPromptLabelDiv' class="itemLabel color1">
+                	<div id='originalPromptLabelDiv' class="itemLabel color1" data-i18n='original_question'>
                     original question
                 	</div>
                 	<div id='originalPromptTextDiv' class="promptText">
@@ -50,7 +50,7 @@
                 </div>
                 
                 <div id='associatedWorkDisplayDiv' style='display:none'>
-                	<div id='associatedWorkLabelDiv' class="itemLabel color1">
+                	<div id='associatedWorkLabelDiv' class="itemLabel color1" data-i18n='associated_work'>
                     associated work
                 	</div>
                 	<div id='associatedWorkTextDiv' class="promptText">
@@ -58,7 +58,7 @@
                 </div>
                 
                 <div id='annotationDisplayDiv' style='display:none'>
-                	<div id='annotationLabelDiv' class="itemLabel color1">
+                	<div id='annotationLabelDiv' class="itemLabel color1" data-i18n='annotation'>
                     annotation
                 	</div>
                 	<div id='annotationTextDiv' class="promptText">
@@ -66,10 +66,10 @@
                 </div>
                 
 		<div id='starterParent'>
-			<div id='starterSentenceDiv' class="starterSentence"><a onclick="view.activeNote.showStarter()">Show Starter Sentence</a></div>
+			<div id='starterSentenceDiv' class="starterSentence"><a onclick="view.activeNote.showStarter()" data-i18n='show_starter_sentence'>Show Starter Sentence</a></div>
 		</div>
 		<div id='responseDisplayDiv'>
-            <div id='responseLabelDiv' class="itemLabel color1">
+            <div id='responseLabelDiv' class="itemLabel color1" data-i18n='your_response'>
                 response
             </div>
 			<div class="promptContainer">
@@ -93,7 +93,7 @@
 
 		<div id="submitButtonsNote">
 		   <div class="buttonDiv"><input type="button" id="saveButton" data-i18n="save_changes" value="SAVE CHANGES" onclick="view.activeNote.save();" /></div>
-		   <div class="buttonDiv"><input type="button" id="closeButton" value="SAVE & CLOSE" onclick="view.activeNote.save(); view.utils.closeDialog('notePanel');" /></div>
+		   <div class="buttonDiv"><input type="button" id="closeButton" data-i18n="save_and_close" value="SAVE & CLOSE" onclick="view.activeNote.save(); view.utils.closeDialog('notePanel');" /></div>
 		</div>
 		
 

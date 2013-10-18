@@ -1094,6 +1094,15 @@ View.prototype.updateCRaterDisplayFeedbackToStudent = function(){
 };
 
 /**
+ * Updates the CRater must submit and revise before exit value
+ */
+View.prototype.updateCRaterMustSubmitAndReviseBeforeExit = function(){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateCRaterMustSubmitAndReviseBeforeExit){
+		this[this.resolveType(this.activeNode.type)].updateCRaterMustSubmitAndReviseBeforeExit();
+	}
+};
+
+/**
  * Add a CRater feedback
  */
 View.prototype.cRaterAddFeedback = function(args){

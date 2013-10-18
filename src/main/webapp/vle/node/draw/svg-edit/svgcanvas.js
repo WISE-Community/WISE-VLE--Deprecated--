@@ -2373,20 +2373,8 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
 		if(evt.altKey) { // duplicate when  dragging
 			svgCanvas.cloneSelectedElements(0,0);
 		}
-	
-		root_sctm = svgcontent.getScreenCTM().inverse();
 		
-		// wise4: Firefox fix (https://bugzilla.mozilla.org/show_bug.cgi?id=863205)
-		// possibly addresses svg-edit issues 1067, 1077, 1080, 1081, 1084, 1091
-		if(current_zoom !== 1 && root_sctm.a === 1) {
-			root_sctm = svgcontent.getScreenCTM();
-			var offset = $('#canvasBackground').offset();
-			root_sctm.a = current_zoom;
-			root_sctm.d = current_zoom;
-			root_sctm.e = offset.left;
-			root_sctm.f = offset.top;
-			root_sctm = root_sctm.inverse();
-		}
+		root_sctm = $('#svgcontent g')[0].getScreenCTM().inverse(); // patch from svg-edit trunk that fixes Firefox mouse offset issues
 		
 		var pt = transformPoint( evt.pageX, evt.pageY, root_sctm ),
 		mouse_x = pt.x * current_zoom,

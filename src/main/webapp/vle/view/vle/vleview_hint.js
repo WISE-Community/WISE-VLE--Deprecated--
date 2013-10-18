@@ -131,10 +131,9 @@ View.prototype.displayHint = function(){
 							hintTermPlural = hints.hintTermPlural;
 						}
 						
-						var you_must_view_all = event.data.view.getI18NString("you_must_view_all");
-						var before_closing = event.data.view.getI18NString("before_closing");
+						var you_must_view_all = event.data.view.getI18NStringWithParams("hints_viewAll", [hintTermPlural]);
 						
-						$(".hintMsg").html(you_must_view_all + " " + hintTermPlural + " " + before_closing);
+						$(".hintMsg").html(you_must_view_all);
 				    	return false;
 				    };
 				};

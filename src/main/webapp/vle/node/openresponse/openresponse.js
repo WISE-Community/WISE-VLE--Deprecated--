@@ -199,6 +199,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 * we are not displaying the check answer button to them.
 					 */
 					orState.isCRaterSubmit = true;
+					checkAnswer = true; // we want to also check the answer immediately, just not show the score or feedback.
 				}
 				
 				if(!checkAnswer && this.content.cRater != null && 
@@ -324,6 +325,23 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				}
 			}
 
+			if(this.content.cRater != null) {
+				//check if the student is required to submit and revise before exiting the step
+				if(this.content.cRater.mustSubmitAndReviseBeforeExit) {
+					var nodeId = this.node.id;
+					
+					//get all the node visits for this step
+					var nodeVisits = this.view.getState().getNodeVisitsByNodeId(nodeId);
+					
+					//check if the student has submitted and revised their work
+					var completed = this.node.isCompleted(nodeVisits);
+					
+					if(!completed) {
+						//the student has not submitted and revised so we will lock them in the step until they revise
+						this.view.addActiveTagMapConstraint(this.node.id, null, 'mustCompleteBeforeAdvancing', null, null);				
+					}
+				}
+			}
 		};
 
 		//turn the save button off

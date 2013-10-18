@@ -57,7 +57,27 @@ function Box2dModelNode(nodeType, view) {
 	/////
 	////	THESE NEED TO BE PLACED IN box2dModelEvents as well;
 
-	this.customEventTypes = ['make-model', 'delete-model', 'make-beaker', 'delete-beaker', 'make-scale', 'delete-scale', 'make-beaker', 'delete-beaker', 'add-to-beaker', 'add-to-scale', 'add-to-balance', 'remove-from-beaker', 'remove-from-scale', 'remove-from-balance', 'test-in-beaker', 'test-on-scale', 'test-on-balance','gave-feedback'];	
+	this.customEventTypes = [
+		'make-model', 
+		'revise-model',
+		'duplicate-model', 
+		'delete-model', 
+		'make-beaker', 
+		'delete-beaker', 
+		'make-scale', 
+		'delete-scale', 
+		'add-to-beaker', 
+		'add-to-scale', 
+		'add-to-balance', 
+		'remove-from-beaker', 
+		'remove-from-scale', 
+		'remove-from-balance', 
+		'test-in-beaker', 
+		'test-on-scale', 
+		'test-on-balance',
+		'release-from-beaker',
+		'gave-feedback'
+	];	
 }
 
 /**
@@ -140,7 +160,7 @@ Box2dModelNode.prototype.render = function(contentPanel,studentWork, disable) {
  * student must complete work before exiting to another step
  */
 Box2dModelNode.prototype.addConstraints = function() {
-	if (!this.isCompleted()){
+	if (!this.isCompleted() && (typeof this.view.authoringMode === "undefined" || this.view.authoringMode == null || !this.view.authoringMode)){
 		this.view.addActiveTagMapConstraint(this.id, null, 'mustCompleteBeforeAdvancing', null, null);
 	}
 		
@@ -174,18 +194,22 @@ Box2dModelNode.prototype.isCompleted = function(nodeVisits) {
  * Note: In most cases you will not have to change anything here.
  */
 Box2dModelNode.prototype.onExit = function() {
-	//check if the content panel has been set
-	if(this.contentPanel) {
-		if (typeof this.contentPanel.tester != "undefined") this.contentPanel.tester = null
-		if (typeof this.contentPanel.builder != "undefined") this.contentPanel.builder = null;
-		if (typeof this.contentPanel.stage != "undefined"){
-			this.contentPanel.stage.removeAllChildren();
-			this.contentPanel.stage = null;
+	try {
+		//check if the content panel has been set
+		if(this.contentPanel) {
+			if (typeof this.contentPanel.tester !== "undefined") this.contentPanel.tester = null
+			if (typeof this.contentPanel.builder !== "undefined") this.contentPanel.builder = null;
+			if (typeof this.contentPanel.stage !== "undefined" && this.contentPanel.stage != null){
+				this.contentPanel.stage.removeAllChildren();
+				this.contentPanel.stage = null;
+			}
+			if(this.contentPanel.save) {
+				//tell the content panel to save
+				this.contentPanel.save();
+			}
 		}
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
-		}
+	} catch(e) {
+		
 	}
 };
 
@@ -207,7 +231,7 @@ Box2dModelNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-Box2dModelNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+Box2dModelNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	/*
 	 * Get the latest student state object for this step
 	 * TODO: rename box2dModelState to reflect your new step type
@@ -231,7 +255,7 @@ Box2dModelNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 	var studentWork = box2dModelState.getStudentWork();
 	
 	//put the student work into the div
-	$('#' + divId).html(studentWork.response);
+	$(displayStudentWorkDiv).html(this.getStudentWorkHtmlView(studentWork));
 };
 
 /**
@@ -279,7 +303,7 @@ Box2dModelNode.prototype.getStudentWorkHtmlView = function(work) {
 	for (var i = 0; i < work.response.images.length; i++){
 		var img = work.response.images[i];
 		html = html + '<img id="'+img.id+'" src="'+img.src+'" width='+img.width+' height='+img.height+'/>';
-		html = html + '<span style="position:absolute; top:'+40+'px; left:'+(i+0.15)*img.width+'px">'+img.id+'</span>';
+		html = html + '<span style="position:relative; top:'+(15)+'px; left:'+(-img.width)+'px">'+img.id+'</span>';
 	}
 	html = html + '</div>';
 	//console.log(html);

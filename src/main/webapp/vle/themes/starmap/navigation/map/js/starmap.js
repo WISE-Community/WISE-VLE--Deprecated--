@@ -8,7 +8,6 @@ function starmap() {
 		title = '',
 		stepTerm = '',
 		editable = false, // default for whether project nodes (positions, etc.) can be edited (authoring mode)
-		backgroundCss = '', // optional background CSS
 		attributes = {}, // optional object of node IDs and any corresponding layout attributes (currently only 'x' and 'y' values are supported, which define set coordinate positions for a node)
 		view = {}, // object to hold WISE view object (provides access to WISE project and its nodes)
 		complete = function(){}; // optional callback function to execute once map has finished loading
@@ -20,17 +19,34 @@ function starmap() {
 		layoutIsSet = true,
 		zoomed = false,
 		zoomInit = false,
-		loaded = false;
+		loaded = false,
+		forceW = width,
+		forceH = height,
+		forceX1 = 0,
+		forceY1 = 0,
+		forceX2 = width,
+		forceY2 = height,
+		forceXMid = forceW/2,
+		forceYMid = forceH/2;
 
 	function chart(selection) {
 		selection.each(function(data) {
 
 			var map = $(this);
+			
+			forceW = width - margin.left - margin.right;
+			forceH = height - margin.top - margin.bottom;
+			forceX1 = margin.left;
+			forceY1 = margin.top;
+			forceX2 = width - margin.right;
+			forceY2 = height - margin.bottom;
+			forceXMid = forceW/2 + forceX1;
+			forceYMid = forceH/2 + forceY1;
 
 			// get the start sequence, step term
 			start = data.startPoint;
 			var stepTerm = data.stepTerm,
-				k = 2.25;  // zoom (scale level) when zooming in on an activity
+				k = 2.5;  // zoom (scale level) when zooming in on an activity
 				//r = 6; // radius for step node circles
 
 			// get the activities and steps
@@ -57,7 +73,7 @@ function starmap() {
 				if(nodeId === start){
 					fullNodes.splice(i,1);
 				} else {
-					if(o.type === "sequence"){
+					if(o.master){
 						o.radius = 20;
 					} else {
 						o.radius = 16;
@@ -80,19 +96,6 @@ function starmap() {
 				}
 			}
 
-			// create force layout of used nodes
-			var links = d3.layout.tree().links(fullNodes);
-			var force = d3.layout.force()
-				.nodes(fullNodes)
-				//.charge(-320)
-				.gravity(.2)
-				.friction(.55)
-				.size([width, height])
-				.start();
-
-			// build groups of nodes from project based on sequence membership
-			//var groups = d3.nest().key(function(d) { return d.group; }).entries(force.nodes().filter(function(d,i){ return d.type === 'sequence' ? null : this }));
-
 			// Select the svg, g elements, if they exists
 			var svg = d3.select(this).select("svg#chart");
 			g = d3.select("g#wrap");
@@ -104,7 +107,7 @@ function starmap() {
 
 				// zoom layer
 				svg.append('svg:g')
-					.call(d3.behavior.zoom().on("zoom", pan))
+					//.call(d3.behavior.zoom().on("zoom", pan)) // disable pan for now
 					.append('svg:g')
 					.attr('id', 'wrap');
 				g = d3.select('g#wrap');
@@ -112,7 +115,19 @@ function starmap() {
 					.attr('width', width)
 					.attr('height', height)
 					.attr('id','mapBg')
-					.attr('fill', 'rgba(255,255,255,.05)');
+					.attr('fill', 'rgba(255,255,255,.03)');
+				
+				// create activity controls
+				map.append('<div id="activityControls">' +
+					'<div id="currentAct"><span class="pos"></div>' +
+					'<a id="prevAct" href="javascript:void(0);"></a>' +
+					'<a id="reset" href="javascript:void(0);"></a>' +
+					'<a id="nextAct" href="javascript:void(0);"></a>' +
+					'</div>');
+				
+				$('#reset').on('click', function(){
+					reset();
+				});
 			}
 
 			// Update the outer dimensions
@@ -134,42 +149,29 @@ function starmap() {
 			// Update the inner dimensions with padding
 			// g.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-			// function to build a group's hull path
+			// function to build a group's (activity) hull path
 			/*var groupPath = function(d) {
 				return "M" + d3.geom.hull(d.values.map(function(i) {return [i.x, i.y];})).join("L") + "Z";
 			};*/
-
-			var getIcon = function(d) {
-				var project = view.getProject(),
-					metadata = view.getProjectMetadata(),
-					node = project.getNodeById(d.identifier),
-					isValid = false,
-					nodeClass = '',
-					nodeIconPath = '';
-				if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
-					nodeClass = node.getNodeClass();
-					for(var a=0;a<view.nodeClasses[node.type].length;a++){
-						if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
-							isValid = true;
-							nodeIconPath = view.nodeClasses[node.type][a].icon;
-							break;
-						}
-					}
-				}
-
-				if(!isValid){
-					nodeClass = view.nodeClasses[node.type][0].nodeClass;
-					nodeIconPath = view.nodeClasses[node.type][0].icon;
-				}
-				return nodeIconPath;
-			};
-
+			
+			// setup force layout and add nodes
+			var force = d3.layout.force()
+				.nodes(fullNodes)
+				//.charge(-320)
+				.gravity(.2)
+				.friction(.55)
+				.size([width, height])
+				.start();
+			
+			// create force layout of used nodes
+			var links = d3.layout.tree().links(fullNodes);
+			
 			// add links between activities and steps to links array
 			projectFull.children.forEach(function(o,i) {
 				if(i<projectFull.children.length-1){
 					var next = projectFull.children[i+1];
 					o.next = next;
-					links.push({source: o.index, target: next.index, type: 'sequence'});
+					links.push({source: o.index, target: next.index, type: 'seq-seq'});
 				}
 				if(i>0){
 					var prev = projectFull.children[i-1];
@@ -181,7 +183,7 @@ function starmap() {
 							var source = 0,
 								target = 0,
 								group = '';
-							force.nodes().forEach(function(u,x){
+							fullNodes.forEach(function(u,x){
 								if(o.children[a].identifier === u.identifier){
 									source = u.index;
 									group = u.group;
@@ -190,7 +192,7 @@ function starmap() {
 									target = u.index;
 								}
 							});
-							links.push({source: source, target: target, type: 'path', group: group});
+							links.push({source: source, target: target, type: 'seq-node', group: group});
 							//links.push({source: o.index, target: target, type: 'seqToPath', group: group});
 						}
 					});
@@ -200,20 +202,45 @@ function starmap() {
 			// add links to force layout
 			force.links(links)
 				.linkDistance(function(d) { 
-					if(d.type === 'path'){
+					if(d.type === 'seq-node'){
 						return 26;
-					} else if(d.type === 'sequence'){
+					} else if(d.type === 'seq-seq'){
 						return 50;
 					} else {
 						return 6;
 					}
 				})
-				.charge(function(d) { return d.type === 'sequence' ? -500 : -500 });
+				.charge(function(d) { return d.master ? -600 : -500 });
 
 			function sDragStart(d,i) {
 				forceSeq.each(function(s) { s.fixed = true; }); // set all activities to fixed position
 				force.stop(); // stops the force auto positioning before you start dragging
 			}
+			
+			function getIcon(d) {
+				var project = view.getProject(),
+					metadata = view.getProjectMetadata(),
+					node = project.getNodeById(d.identifier),
+					isValid = false,
+						nodeClass = '',
+						nodeIconPath = '';
+					if(node.getNodeClass() && node.getNodeClass()!=='null' && node.getNodeClass()!==''){
+						nodeClass = node.getNodeClass();
+						for(var a=0;a<view.nodeClasses[node.type].length;a++){
+							if(view.nodeClasses[node.type][a].nodeClass === nodeClass){
+								isValid = true;
+								nodeIconPath = view.nodeClasses[node.type][a].icon;
+								break;
+							}
+						}
+					}
+
+					if(!isValid){
+						nodeClass = view.nodeClasses[node.type][0].nodeClass;
+						nodeIconPath = view.nodeClasses[node.type][0].icon;
+					}
+					return nodeIconPath;
+				}
 
 			function sDragMove(elem,i) {
 				var group = elem.group;
@@ -260,9 +287,9 @@ function starmap() {
 							//newTrans = (trans[0] + ((width - (width * k))/2)) + ',' + (trans[1] + ((height - (height * k))/2));
 						}
 						newTrans = (trans[0] + ((width - (width * k))/2)) + ',' + (trans[1] + ((height - (height * k))/2));
-						console.log("event translate: " + trans);
-						console.log("scale: " + scale);
-						console.log("new translate: " + newTrans);
+						//console.log("event translate: " + trans);
+						//console.log("scale: " + scale);
+						//console.log("new translate: " + newTrans);
 						g.attr("transform", "translate(" + newTrans + ")scale(" + k + ")");
 						zoomInit = false;
 					}
@@ -272,12 +299,15 @@ function starmap() {
 			function renderNode(d){
 				var nodePosition = view.getProject().getPositionById(d.identifier);
 				//go to the node position that was clicked if it is available
-				view.goToNodePosition(nodePosition);
+				view.eventManager.fire('navigationNodeClicked', nodePosition);
 			};
+			
+			var masters = force.nodes().filter(function(d){ return d.master; }),
+				children = force.nodes().filter(function(d){ return !d.master; });
 
 			// Resolves collisions between node and all other nodes
 			function collide(node) {
-				var r = node.radius + 2,
+				var r = node.radius,
 					nx1 = node.x - r,
 					nx2 = node.x + r,
 					ny1 = node.y - r,
@@ -334,7 +364,7 @@ function starmap() {
 					y = d.y;
 
 					d3.select(elem).each(function(n){
-						$('#currentAct').html("<span class='pos'>#" + (n.position+1) + ":</span> " + n.title); 
+						$('#currentAct').html("<span class='pos'>#" + (n.position+1) + "</span> " + n.title); 
 					});
 
 					// hide activity info displays
@@ -359,7 +389,7 @@ function starmap() {
 								.classed('inactive',function(d){ return this.getAttribute('data-group') !== group; });
 	
 								d3.select('#mapBgImg').classed('zoom',true);
-								$('#activityControls').delay(500).fadeIn(750);
+								$('#activityControls').delay(600).slideDown(250);
 							}, 200);
 						});
 
@@ -372,17 +402,17 @@ function starmap() {
 						$('#prevAct').on('click', function(){
 							zoom(d3.select(view.escapeIdForJquery('#' + prevAct.identifier))[0][0], prevAct);
 						});
-						$('#prevAct').show();
+						$('#prevAct').removeClass('disabled');
 					} else {
-						$('#prevAct').hide();
+						$('#prevAct').addClass('disabled');
 					}
 					if(nextAct){
 						$('#nextAct').on('click', function(){
 							zoom(d3.select(view.escapeIdForJquery('#' + nextAct.identifier))[0][0], nextAct);
 						});
-						$('#nextAct').show();
+						$('#nextAct').removeClass('disabled');
 					} else {
-						$('#nextAct').hide();
+						$('#nextAct').addClass('disabled');
 					}
 				}
 
@@ -400,17 +430,10 @@ function starmap() {
 				zoomed = true;
 				zoomInit = true;
 				g.classed("zoom", true);
-				$('#reset').delay(500).fadeIn(750); // TODO: pass in reset link as a setting?
 			};
 
 			function draw(){
-				// add loading message
-				var svgLoading = svg.append("text")
-					.attr("x", width / 2)
-					.attr("y", height / 2)
-					.attr("dy", ".35em")
-					.attr("text-anchor", "middle")
-					.text("Loading...");
+				var zoomRatio = 1.5/k;
 
 				// Use a timeout to allow the rest of the page to load first.
 				setTimeout(function() {
@@ -431,33 +454,116 @@ function starmap() {
 						.data(force.nodes().filter(function(d) { return (d.type !== "sequence") && (!d.master); }))
 						.enter().append("svg:g")
 						.attr("class", function(d){ return d.current === true ? "item node current" : "item node"; })
-						.attr("transform", function(d) { 
-							/*if(!d.isFixed){
-								var parent = force.nodes().filter(function(g){ return g.identifier === d.group; });
-								d.x = parent[0].x;
-								d.y = parent[0].y;
-							}
-							if(typeof d.x === "undefined" || typeof d.y === "undefined"){
-								debugger;
-							}*/
-							return "translate(" + d.x + "," + d.y + ")";
-						})
+						.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 						.attr("data-group", function(d){ return d.group; })
 						.attr("id", function(d){ return d.identifier })
 						.on("click", function(d){ renderNode(d); })
-						.on("touchstart", function(d){ renderNode(d); })
-						.call(force.drag);
+						.on("touchstart", function(d){ renderNode(d); });
+					if(editable){
+						// map is editable (authoring mode), so allow dragging of step items
+						forceNode.call(force.drag);
+					}
 					/*forceCircle = forceNode.append("svg:circle")
 						.attr("id",function(d){ return "anchor_" + d.identifier; })
 						.attr("class","main")
 						.attr("r", r);*/
-					forceCircle = forceNode.append("svg:image")
+					forceNode.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-radial.png")
+						.attr("width", 0)
+						.attr("height", 0)
+						.attr("x", 0)
+						.attr("y", 0)
+						.attr("id", function(d){ return d.identifier + "_radial"; })
+						.attr("class", "radial");
+					
+					forceNode.append("svg:image")
 						.attr("id",function(d){ return "anchor_" + d.identifier; })
 						.attr("xlink:xlink:href",getIcon)
-						.attr("x", -15)
-						.attr("y", -15)
-						.attr("width", 30)
-						.attr("height", 30);
+						.attr("x", -18*zoomRatio)
+						.attr("y", -18*zoomRatio)
+						.attr("width", 36*zoomRatio)
+						.attr("height", 36*zoomRatio)
+						.attr("class", "icon")
+						.on("mouseover", function(d){
+							this.parentNode.parentNode.appendChild(this.parentNode);
+							// adjust position of rollover info (left or right of icon) to ensure it doesn't get cut off by edge of layout
+							var bgX = 16/k,
+							titleOffset = 14/k,
+							lockedOffset = 168/k,
+							bgWidth = 199/k + 4/k;
+							if(d.x > (width-bgWidth)){
+								bgX = -bgWidth - bgX;
+							}
+							
+							var titleX = bgX + titleOffset,
+								lockedX = bgX + lockedOffset;
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".titleBg").attr("x",bgX);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".title").attr("x",titleX);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".locked").attr("x",lockedX);
+							if(d3.select(view.escapeIdForJquery("#" + d.identifier)).classed("active")){
+								d3.select(view.escapeIdForJquery("#" + d.identifier + "_radial"))
+									.transition()
+										.attr("width", 80*zoomRatio)
+										.attr("height", 80*zoomRatio)
+										.attr("x", -40*zoomRatio)
+										.attr("y", -40*zoomRatio)
+										.duration(125);
+								d3.select(view.escapeIdForJquery("#" + d.identifier + "_info"))
+									.transition()
+										.style("opacity",1)
+										.duration(250)
+										.delay(200);
+							}
+						})
+						.on("mouseout", function(d){
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info"))
+								.transition()
+								.duration(250)
+								.style("opacity",0);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_radial"))
+								.transition()
+								.attr("width", 0)
+								.attr("height", 0)
+								.attr("x", 0)
+								.attr("y", 0)
+								.duration(100)
+								.delay(250);
+						});
+					
+					var forceNodeInfo = forceNode.append("svg:g")
+						.attr("class","nodeInfo")
+						.attr("id", function(d){ return d.identifier + "_info"; });
+					
+					forceNodeInfo.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-locked.png")
+						.attr("width", 24/k)
+						.attr("height", 16/k)
+						.attr("x", 168/k)
+						.attr("y", -52/k)
+						.attr("class", "locked");
+	
+					forceNodeInfo.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-header-blank.png")
+						.attr("width", 199/k)
+						.attr("height", 36/k)
+						.attr("x", 16/k)
+						.attr("y", -36/k)
+						.attr("class", "titleBg");
+	
+					var forceNodeText = forceNodeInfo.append("svg:text")
+						.attr("x", 30/k)
+						.attr("y", -13/k)
+						.attr("class", "title")
+						.style("font-size", function(){ return 12/k + 'pt'; });
+	
+					forceNodeText.append("svg:tspan")
+						.text(function(d){ return "#" + (d.position+1) + ""; })
+						.attr("class", "pos");
+	
+					forceNodeText.append("svg:tspan")
+						.text(function(d){ return  "" + (d.title) + ""; })
+						.attr("class", "name")
+						.attr("dx", 4/k);
 					/*forceNode.append("svg:circle")
 						.attr("class","detail")
 						.attr("r", 3.5)
@@ -488,9 +594,7 @@ function starmap() {
 						.attr("class", "item seq")
 						.attr("data-group", function(d){ return d.group; })
 						.attr('id', function(d){ return d.identifier })
-						.attr("transform", function(d) { 
-							return "translate(" + d.x + "," + d.y + ")";
-						})
+						.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 						.on("click", function(d){
 							if(d.type === "sequence"){
 								zoom(this, d);
@@ -498,8 +602,11 @@ function starmap() {
 								renderNode(d);
 							}
 						})
-						.on("touchstart", function(d){ zoom(this, d); })
-						.call(sDrag);
+						.on("touchstart", function(d){ zoom(this, d); });
+					if(editable){
+						// map is editable (authoring mode), so allow dragging of activity items
+						forceSeq.call(sDrag);
+					}
 	
 					forceSeq.append("svg:image")
 						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-radial.png")
@@ -541,22 +648,26 @@ function starmap() {
 						.on("mouseover", function(d){
 							this.parentNode.parentNode.appendChild(this.parentNode);
 							// adjust position of rollover info (left or right of icon) to ensure it doesn't get cut off by edge of layout
-							var bgX = 12,
+							var bgX = 16,
 							titleOffset = 14,
+							lockedOffset = 168,
 							bgWidth = 199 + 4;
 							if(d.x > (width-bgWidth)){
 								bgX = -bgWidth - bgX;
 							}
-							var titleX = bgX + titleOffset
+							
+							var titleX = bgX + titleOffset,
+								lockedX = bgX + lockedOffset;
 							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".titleBg").attr("x",bgX);
 							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".title").attr("x",titleX);
+							d3.select(view.escapeIdForJquery("#" + d.identifier + "_info")).select(".locked").attr("x",lockedX);
 							if(!d3.select(view.escapeIdForJquery("#" + d.identifier)).classed("active")){
 								d3.select(view.escapeIdForJquery("#" + d.identifier + "_radial"))
 									.transition()
-										.attr("width", 80)
-										.attr("height", 80)
-										.attr("x", -40)
-										.attr("y", -40)
+										.attr("width", 96)
+										.attr("height", 96)
+										.attr("x", -48)
+										.attr("y", -48)
 										.duration(125);
 								d3.select(view.escapeIdForJquery("#" + d.identifier + "_info"))
 									.transition()
@@ -588,13 +699,21 @@ function starmap() {
 						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-header-blank.png")
 						.attr("width", 199)
 						.attr("height", 36)
-						.attr("x", 12)
-						.attr("y", -30)
+						.attr("x", 16)
+						.attr("y", -36)
 						.attr("class", "titleBg");
+					
+					forceSeqInfo.append("svg:image")
+						.attr("xlink:xlink:href","themes/starmap/navigation/map/images/menu-locked.png")
+						.attr("width", 24)
+						.attr("height", 16)
+						.attr("x", 168)
+						.attr("y", -52)
+						.attr("class", "locked");
 	
 					var forceSeqText = forceSeqInfo.append("svg:text")
-						.attr("x", 26)
-						.attr("y", -7)
+						.attr("x", 30)
+						.attr("y", -13)
 						.attr("class", "title");
 	
 					forceSeqText.append("svg:tspan")
@@ -611,9 +730,9 @@ function starmap() {
 						.data(force.links().filter(function(d){ return d.type; }))
 						.enter().insert("path", ".node")
 						.attr("class", function(d){
-							if(d.type==="path"){
+							if(d.type==="seq-path"){
 								return "link path";
-							} else if(d.type==="sequence"){
+							} else if(d.type==="seq-seq"){
 								return "link seq";
 							}
 						})
@@ -656,26 +775,24 @@ function starmap() {
 					force.start();
 					if(!layoutIsSet){
 						n = 10;
-						for (var i = n * n; i > 0; --i) force.tick();
+						for (i = n * n; i > 0; --i) force.tick();
 					} else {
 						force.tick();
 					}
 					force.stop();
 					g.selectAll('.item').each(function(d){
-						d.fixed = true; 
+						d.fixed = true;
+						// ensure each node item is rendered above links
+						this.parentNode.appendChild(this);
 					});
 					loaded = true;
+					
+					// fire completion callback
 					complete();
-
-					// remove loading message
-					svgLoading.remove();
-
-					//we are done loading the navigation panel for the first time
-					eventManager.fire('navigationLoadingCompleted');
 				}, 10);
 			}
 
-			function tick(){
+			function tick(e){
 				//g.selectAll("circle.item")
 					//.attr("cx", function(d) { return d.x; })
 					//.attr("cy", function(d) { return d.y; });
@@ -689,37 +806,81 @@ function starmap() {
 				/*g.selectAll("g.item circle.main").attr("r", function(d){
 					return (d3.select(this).classed('mouseover') || d.current) ? r+2 : r;
 				});*/
+				
+				// adjust positions for offset
+				g.selectAll("g.item.seq").each(function(d) {
+					// adjust positions for offset
+					d.x += (forceXMid - width/2)*.2*e.alpha;
+					d.y += (forceYMid - height/2)*.2*e.alpha;
+				});
+				
+				// move children towards parents
+				/*g.selectAll("g.item.node").each(function(d) {
+					var groupX = 0,
+						groupY = 0;
+					d3.selectAll(view.escapeIdForJquery('#' + d.group)).each(function(t){
+						groupX = t.x;
+						groupY = t.y;
+					});
+					d.x += (d.x-groupX)*.005*e.alpha;
+					d.y += (d.y-groupY)*.005*e.alpha;
+				});*/
 
 				// constrain items to map bounds
 				g.selectAll("g.item").each(function(d) {
-					if(d.x === "NaN"){
-						d.x = 0;
-					}
-					if(d.y === "NaN"){
-						d.y = 0;
-					}
-					if(d.master){
-						d.x = Math.max(margin.left, Math.min(width - margin.left, d.x));
-						d.y = Math.max(margin.top, Math.min(height - margin.top, d.y)); 
-					} else {
-						d.x = Math.max(margin.left/2, Math.min(width - margin.left/2, d.x));
-						d.y = Math.max(margin.top/2, Math.min(height - margin.top/2, d.y));
-					}
+					// ensure node positions are numerical
+					// TODO: not sure if this is helping at all; need to figure out why we sometimes get NaN values
+					if(isNaN(d.x)) d.x = width/2;
+					if(isNaN(d.y)) d.y = height/2;
+					if(isNaN(d.px)) d.px = d.x;
+					if(isNaN(d.py)) d.py = d.y;
+					
+					var pad = d.master ? 0 : 20,
+						xMax = forceX2+pad,
+						xMin = forceX1-pad,
+						yMax = forceY2+pad,
+						yMin = forceY1-pad;
+						
+					if(d.x > xMax) d.x = xMax;
+					if(d.x < xMin) d.x = xMin;
+					if(d.y > yMax) d.y = yMax;
+					if(d.y < yMin) d.y = yMin;
 				});
-
+				
 				if(!loaded){
-					var masters = fullNodes.filter(function(d){ return d.master; }),
-						children = fullNodes.filter(function(d){ return !d.master; }),
+					var i = 0,
+						n = force.nodes().length,
 						qm = d3.geom.quadtree(masters),
-						qc = d3.geom.quadtree(children),
-						i = 0,
-						n = fullNodes.length;
+						qc = d3.geom.quadtree(children);
+						q = d3.geom.quadtree(force.nodes());
 
 					while (++i < n) {
-						qm.visit(collide(fullNodes[i]));
-						qc.visit(collide(fullNodes[i]));
+						qm.visit(collide(force.nodes()[i]));
+					}
+					
+					i = 0;
+					while (++i < n) {
+						qc.visit(collide(force.nodes()[i]));
 					}
 				}
+				
+				/*if(!loaded){
+					var i = 0,
+						n = masters.length,
+						qm = d3.geom.quadtree(masters),
+						qc = d3.geom.quadtree(children);
+						q = d3.geom.quadtree(force.nodes());
+					var group = [];
+					while (++i < n) {
+						qm.visit(collide(masters[i]));
+						var a = 
+						group = d3.selectAll(view.escapeIdForJquery('#' + masters[i].group));
+						qg = d3.geom.quadtree(group);
+						for(var a=0; a<qg.length; a++){
+							qg.visit(collide(group[a]));
+						}
+					}
+				}*/
 
 				g.selectAll("g.item").attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
@@ -731,29 +892,10 @@ function starmap() {
 			};
 
 			force.on("tick", function(e) {
-				tick();
+				tick(e);
 			});
 
 			draw();
-
-			/*$('#toggleView').on('click',function(){
-		  if(canEdit){
-			  canEdit = false;
-			  force.stop();
-			  g.selectAll('.node, .seq').each(function(d){
-				 d.fixed = true; 
-			  });
-			  $(this).text('Student View');
-		  } else {
-			  canEdit = true;
-			  force.resume();
-			  g.selectAll('.node, .seq').each(function(d){
-				 d.fixed = false; 
-			  });
-			  $(this).text('Author View');
-		  }
-	  });*/
-
 		});
 	};
 	
@@ -761,16 +903,19 @@ function starmap() {
 	
 	// returns a list of all nodes under the root
 	function flatten(root) {
-		var nodes = [], a = 0, s = 0, spacing = width/masterIds.length;
+		var nodes = [], a = 0, s = 0,
+			n = masterIds.length,
+			spacing = forceW/n,
+			startX = forceXMid - spacing*n/2;
 
 		function recurse(node,id) {
 			var isMaster = ($.inArray(node.identifier,masterIds) > -1),
 				hasChildren = (typeof node.children !== "undefined");
 			if (hasChildren || isMaster) {
 				node.group = node.identifier;
-				var x = 10 + s*spacing;
+				var x = startX + s*spacing;
 				//var y = Math.random()*height;
-				var y = height/2 + Math.random()*6 - 6;
+				var y = forceYMid + Math.random()*6 - 6;
 				//var x = 10*(s%10);
 				node.x = x;
 				node.y = y;
@@ -870,6 +1015,25 @@ function starmap() {
 		return nodeAttributes;
 	}
 	
+	function reset(){
+		$('#activityControls').delay(250).slideUp(250);
+		d3.select('#mapBgImg').classed('zoom',false);
+		g.classed("zoom", false)
+			.transition()
+			.duration(750)
+			.delay(600)
+			.ease("cubic-out")
+			.attr("transform", "scale(1) translate(1)");
+
+		d3.selectAll('.item, .link, .target, .hull')
+			.classed('active',false);
+
+		d3.selectAll('.item, .link, .hull')
+			.classed('inactive',false);
+
+		zoomed = false;
+	}
+	
 	// public API functions and variables
 	chart.margin = function(_) {
 		if (!arguments.length) return margin;
@@ -932,24 +1096,7 @@ function starmap() {
 	};
 
 	chart.reset = function() {
-		$('#activityControls').fadeOut(750);
-		d3.select('#mapBgImg').classed('zoom',false);
-		g.classed("zoom", false)
-			.transition()
-			.duration(750)
-			.delay(500)
-			.ease("cubic-out")
-			.attr("transform", "scale(1) translate(1)");
-
-		d3.selectAll('.item, .link, .target, .hull')
-			.classed('active',false);
-
-		d3.selectAll('.item, .link, .hull')
-			.classed('inactive',false);
-
-		zoomed = false;
-		$('#reset').delay(500).fadeOut(750); // TODO: pass in reset link as a setting?
-
+		reset();
 		return chart;
 	};
 

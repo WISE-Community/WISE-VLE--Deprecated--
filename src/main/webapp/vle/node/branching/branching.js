@@ -158,7 +158,15 @@ Branching.prototype.getPathToVisit = function() {
  * the .html file for this step (look at branching.html).
  */
 Branching.prototype.render = function() {
-	if (!this.content.showBranchSelectionPage) {
+	// check to see if we need to hide this BranchNode.
+	var doDisplay = true;
+	this.node.displayInNavigation(doDisplay);
+
+	if (this.node.type != "BranchingNode") {
+		// if the next step is HTML, this gets called. ignore it.
+		return;
+	}
+	if (this.content && !this.content.showBranchSelectionPage) {
 		// if showBranchSelectionPage is false, we immediately run the branchingFunction and go to the first node in the chosen path.
 		var pathToVisitJSONObj = this.getPathToVisit();
 		if (!pathToVisitJSONObj) {
@@ -166,9 +174,9 @@ Branching.prototype.render = function() {
 			return;
 		}
 		this.doBranch(pathToVisitJSONObj);
-	} else {
+	} else if (this.content && this.content.showBranchSelectionPage) {
 		// show the splash page and let the user choose a branch to go down
-		this.hideAllExceptionBranchStep();
+		this.hideAllExceptBranchStep();
 		this.showBranchPage();
 	}
 };
@@ -179,8 +187,13 @@ Branching.prototype.render = function() {
  * Display a page where the user can see and select branch to go to
  */
 Branching.prototype.showBranchPage = function() {
+	// check if user has completed this step if yes, show a message
+	if (this.node.isCompleted()) {
+		$("body").prepend("<span id='branchStepCompletedMsg'>"+this.view.getI18NString("branch_step_completed_msg", "BranchingNode")+"</span>");
+	}
 	$("#promptDiv").html(this.content.prompt);
-	var branchLinks = $("<div id='branchLinks'>");
+	var inCompleteBranchLinks = $("<div id='inCompleteBranchLinks'><h2>"+this.view.getI18NString("incomplete_paths","BranchingNode")+"</h2></div>");
+	var completedBranchLinks = $("<div id='completedBranchLinks'><h2>"+this.view.getI18NString("completed_paths","BranchingNode")+"</h2></div>");
 	var allPathsJSONArray = this.node.getAllPaths(); // an array of path JSON objects. [ {"identifier": "A","sequenceRef": "seq_3"},{ "identifier": "B","sequenceRef": "seq_4"},...]
 	var orderedVisiblePathIds = this.getOrderedVisiblePathIds(); // an ordered array of visible paths
 	for (var i=0; i<orderedVisiblePathIds.length; i++) {
@@ -188,13 +201,25 @@ Branching.prototype.showBranchPage = function() {
 		for (var j=0; j<allPathsJSONArray.length;j++) {
 			var pathJSONObj = allPathsJSONArray[j];
 			if (pathJSONObj.identifier == orderedVisiblePathId) {
-				branchLinks.append(this.makeBranchLink(pathJSONObj));
+				if (this.node.isBranchPathCompleted(pathJSONObj)) {
+					completedBranchLinks.append(this.makeBranchLink(pathJSONObj));
+				} else {
+					inCompleteBranchLinks.append(this.makeBranchLink(pathJSONObj));
+				}
 				break;
 			}
 		}
 	};
 	
-	$("#pathsDiv").html(branchLinks);
+	$("#pathsDiv").html("");
+	$("#pathsDiv").append(inCompleteBranchLinks);
+	$("#pathsDiv").append(completedBranchLinks);
+	if ($("#inCompleteBranchLinks .branchLink").length == 0) {
+		$("#inCompleteBranchLinks").append(this.view.getI18NString("no_incomplete_paths","BranchingNode"));
+	}
+	if ($("#completedBranchLinks .branchLink").length == 0) {
+		$("#completedBranchLinks").append(this.view.getI18NString("no_complete_paths","BranchingNode"));
+	}
 	$(".branchLink").click(this, function(eventObject) {
 		var clickedPathId = $(this).attr("id");
 		var branchContext = eventObject.data; // we passed in a reference to the branchContext above so we can invoke its functions
@@ -308,7 +333,7 @@ Branching.prototype.doBranch = function(pathToVisitJSONObj) {
 /**
  * Hides all the steps and activities in the branching activity except the branching step.
  */
-Branching.prototype.hideAllExceptionBranchStep = function() {
+Branching.prototype.hideAllExceptBranchStep = function() {
 	var allPathsJSONArray = this.node.getAllPaths();
 	for (var i=0; i < allPathsJSONArray.length; i++) {
 		var pathJSONObj = allPathsJSONArray[i];

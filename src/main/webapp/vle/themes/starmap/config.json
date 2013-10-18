@@ -1,7 +1,7 @@
 {
 	"id" : "starmap",
 	"name" : "EPIGAME Star Map",
-	"description" : "Specialized theme using a field of stars to navigate among EPIGAME physics missions.",
+	"description" : "Specialized theme using a field of stars to navigate among project missions.",
 	"notes":"",
 	"version" : "1.1",
 	"author" : "Dan Troon (Filament Games); Jonathan Lim-Breitbart (WISE)",
@@ -16,17 +16,10 @@
 	"jqueryui_css" : "css/jquery-ui/jquery-ui-1.10.0.custom.css",
 	"nav_modes" : [
 		{
-			"id" : "standard",
-			"name" : "Standard",
-			"description" : "Map access via button at the top of the window",
-			"screenshot" : "navigation/map/images/screenshot-starmap-standard.png",
-			"stepIcons": true,
-			"activityIcons": false
-		},
-		{
 			"id" : "map",
 			"name" : "Map",
 			"description" : "Full screen navigation map and maximized step content",
+			"notes":"Project authors can customize the layout positions of activities and steps in each project. The navigation map also displays information about student performance (e.g. overall scores, Pilot Rank, Advisor Rank, etc.) specific to EPIGAME missions. If your project does not contain EPIGAME steps, you can turn these displays off.",
 			"screenshot" : "navigation/map/images/screenshot-starmap-map.png",
 			"stepIcons": true,
 			"activityIcons": true,

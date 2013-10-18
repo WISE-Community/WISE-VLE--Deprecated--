@@ -215,6 +215,9 @@ Grapher.prototype.render = function() {
 				
 				if($("#seriesRadioDiv").children().length < seriesLabels.length) 
 					$("#seriesRadioDiv").append("<input class='seriesRadio' name='dynamic' type='radio' "+checked+" onclick='seriesChanged("+s+")'>"+seriesLabels[s]+"</input>");
+				
+				// initialize this series in the state
+				this.grapherState.initializePrediction(seriesLabels[s]);
 			}
 		}
 
@@ -241,7 +244,7 @@ Grapher.prototype.render = function() {
 		$("#responseTextArea").val(response);
 		
 		//set the size of the text area
-		if (this.content.expectedLines > 0){
+		if (parseInt(this.content.expectedLines) > 0){
 			$("#responseTextArea").attr('rows', this.content.expectedLines);
 			$("#responseTextArea").attr('cols', 80);
 		} else {
@@ -325,9 +328,8 @@ Grapher.prototype.render = function() {
 			$(".activeAnnotationToolTip").show();
 		}));
 	}
-	
-	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 
+	this.node.view.eventManager.fire('contentRenderCompleted', this.node.id, this.node);
 };
 
 /**
@@ -573,9 +575,10 @@ Grapher.prototype.parseGraphParams = function(contentGraphParams) {
 	graphParams.grid = {hoverable:true, clickable:true};
 	// if an easyClickExtremes variable exists and is true in params set up grid to have wide left and right margins to allow clicking of extremes
 	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-		graphParams.grid.borderWidth = 10;
+		//graphParams.grid.borderWidth = 10;
 		// when we have the 0.8 version of flot use this:
-		//graphParams.grid.borderWidth = {"left":10, "right":10, "top":1, "bottom":1};
+		graphParams.grid.borderWidth = {"left":10, "right":10, "top":10, "bottom":10};
+		graphParams.grid.labelMargin = 12;
 	}
 
 	graphParams.crosshair = { mode: "x" };
@@ -2501,7 +2504,7 @@ Grapher.prototype.clearPrediction = function() {
 	var found_series = false;
 	for (var i = 0; i < this.grapherState.predictionArray.length; i++){
 		if (this.grapherState.predictionArray[i]['id'] == this.currentGraphName){
-			this.grapherState.predictionArray.splice(i, 1);
+			this.grapherState.predictionArray[i].predictions = [];
 			found_series = true;
 			break;
 		}

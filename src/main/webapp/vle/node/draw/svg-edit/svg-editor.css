@@ -1530,3 +1530,11 @@ span.zoom_tool {
 	margin-bottom:1em;
 }
 
+.ui-dialog-content {
+	text-align:center;
+}
+
+.ui-dialog-content {
+	margin:.5em 0;
+}
+

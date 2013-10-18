@@ -136,8 +136,14 @@
 		this.addChild(this.blockText);
 
 		this.displayed_block = null;
-		this.drawMaterial(this.materialsMenu.current_material_name);
-
+		var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
+		var iWidth = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-1;
+		var iHeight = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1;
+	    var iDepth = GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES ? Math.round(GLOBAL_PARAMETERS.MAX_DEPTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-1;
+		this.width_units = GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth;
+		this.height_units = GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS -iHeight;
+		this.depth_units = GLOBAL_PARAMETERS.MAX_DEPTH_UNITS - iDepth;
+				
 		var htmlText, htmlElement;
 		// jquery ui
 		if ($("#make-object").length == 0){
@@ -158,11 +164,11 @@
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - 1,
+                   value: iWidth,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
-                       builder.update_width(5-ui.value);
+                       builder.update_width(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS-ui.value);
                    }
                }).hide();
 		     $("#slider-width").load(function (){$( "#amount" ).val( $( "#slider-width" ).slider( "value" ) );});
@@ -175,11 +181,11 @@
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1,
+                   value: iHeight,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
-                       builder.update_height(5-ui.value);
+                       builder.update_height(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-ui.value);
                    }
                }).hide();
 		     $("#slider-height").load(function (){$( "#amount" ).val( $( "#slider-height" ).slider( "value" ) );});
@@ -192,11 +198,11 @@
                    range: "max",
                    min: 0,
                    max: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
-                   value: GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-1,
+                   value: iDepth,
                    step: GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
-                       builder.update_depth(5-ui.value);
+                       builder.update_depth(GLOBAL_PARAMETERS.MAX_DEPTH_UNITS-ui.value);
                    }
                }).hide();
 		     $("#slider-depth").load(function (){$( "#amount" ).val( $( "#slider-depth" ).slider( "value" ) );});
@@ -244,8 +250,9 @@
 			this.addChild(element);
 			element.x = this.materialsMenu.width_px + this.width_px/3 - 100;
 			element.y = this.materialsMenu.y + this.materialsMenu.height_px - 4 * $("#slider-width").height();		
+			
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.widthText = new createjs.Text("Width: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.widthText = new createjs.Text("Width: "+ (GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth).toFixed(incPow) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.widthText.x = element.x + 50;
 				this.widthText.y = element.y + $("#slider-width").height() + 10;
 				this.widthText.lineWidth = 60;
@@ -257,7 +264,7 @@
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
 			element.y = this.TITLE_HEIGHT*1.5;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.heightText = new createjs.Text("Height: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.heightText = new createjs.Text("Height: "+ (GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS - iHeight).toFixed(incPow) + " " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.heightText.x = element.x + 10;
 				this.heightText.y = element.y + $("#slider-height").height() + 10;
 				this.heightText.lineWidth = 60;
@@ -270,7 +277,7 @@
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + 50;
 			element.y = this.TITLE_HEIGHT*1.5;
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
-				this.depthText = new createjs.Text("Depth: 1 " + GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
+				this.depthText = new createjs.Text("Depth: " + (GLOBAL_PARAMETERS.MAX_DEPTH_UNITS - iDepth).toFixed(incPow) + " "+ GLOBAL_PARAMETERS.LENGTH_UNITS, "20px Arial", this.textColor);
 				this.depthText.x = element.x + 10;
 				this.depthText.y = element.y + $("#slider-depth").height() + 10;
 				this.depthText.lineWidth = 60;
@@ -292,6 +299,10 @@
 			$("#slider-depth").show();
 			$("#slider-sideAngle").show();
 			$("#slider-topAngle").show();
+
+			this.reachedMax = false;
+			this.drawMaterial(this.materialsMenu.current_material_name);
+		
 		}
 
 		this.enabled = true;
@@ -307,6 +318,8 @@
 			// save to global parameters
 			//if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
 			labWorld.createObjectInWorld(savedObject, 0, -1, 0, "dynamic");
+
+			this.resetMaterials();
 		} else 
 		{
 			console.log("no object to make");
@@ -387,7 +400,8 @@
 			if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
 				this.widthText.text = "Width: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
 			}
-		}				
+		}			
+		this.width_units = units;		
 	}
 	p.update_height = function (units){
 		if (this.displayed_block != null){
@@ -396,6 +410,7 @@
 				this.heightText.text = "Height: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
 			}
 		}
+		this.height_units = units;
 	}
 	p.update_depth = function (units){
 		if (this.displayed_block != null){
@@ -404,6 +419,7 @@
 				this.depthText.text = "Depth: " + Math.round(10*units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
 			}
 		}
+		this.depth_units = units;
 	}
 
 	p.update_view_sideAngle = function (degrees)
@@ -425,38 +441,97 @@
 		this.drawMaterial(material_name);
 	}
 
+	p.drawCurrentMaterial = function (){
+		this.drawMaterial(this.materialsMenu.current_material_name);
+	}
+
 	p.drawMaterial = function (material_name)
 	{
-		var o, i;
+		var o;
 		// if blocks array is not empty remove these from display
 		if (this.displayed_block != null)
 		{
 			this.removeChild(this.displayed_block);
 			this.displayed_block = null
 		}
-		o = this.newBlock(material_name);
-		this.placeBlock(o);	
-		this.updateCountText(material_name);
-		stage.ready_to_update = true;
+
+		// check to make sure the max object limit has not been reached
+		// get # of undeleted objects
+		var object_count = 0;
+		for (var i = 0; i < GLOBAL_PARAMETERS.objects_made.length; i++) if (!GLOBAL_PARAMETERS.objects_made[i].is_deleted) object_count++;
+		if (object_count < GLOBAL_PARAMETERS.MAX_OBJECTS_IN_WORLD){
+			if (this.reachedMax){
+				this.removeChild(this.reachedMaxText);
+				this.reachedMax = false;
+			}
+			o = this.newBlock(material_name);
+			this.placeBlock(o);	
+			this.updateCountText(material_name);
+			stage.ready_to_update = true;
+		} else {
+			if (!this.reachedMax){
+				// we have reached the limit, display a textField to tell user to delete an object
+				this.reachedMaxText  = new createjs.Text("Reached max number of objects. \nDelete an object to make more.", "20px Arial","#880000");
+				this.addChild(this.reachedMaxText);
+				this.reachedMaxText.x = this.materialsMenu.x + this.materialsMenu.width_px + 80;
+				this.reachedMaxText.y = this.TITLE_HEIGHT + 30;
+				this.reachedMax = true;
+			}
+		}
 	}
 	
 	/** Create a new block with the given material name and index along the depth_arrays array */
-	p.newBlock = function (material_name, initial_width, initial_depth, initial_height)
+	p.newBlock = function (material_name, width_override, depth_override, height_override)
 	{
 		if (GLOBAL_PARAMETERS.materials[material_name].block_count[0] < GLOBAL_PARAMETERS.materials[material_name].block_max[0])
 		{
+			// if necessary re-randomize
+			if (GLOBAL_PARAMETERS.BUILDER_RANDOMIZE_INITIAL_SLIDER_VALUES){
+				var incPow = (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".").length == 2 ? (GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS + "").split(".")[1].length : 0;
+				var iWidth = Math.round(GLOBAL_PARAMETERS.MAX_WIDTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS;
+				var iHeight = Math.round(GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS;
+				var iDepth = Math.round(GLOBAL_PARAMETERS.MAX_DEPTH_UNITS * Math.random() / GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS) * GLOBAL_PARAMETERS.BUILDER_SLIDER_INCREMENTS;
+				this.width_units = GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - iWidth;
+				this.height_units = GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS -iHeight;
+				this.depth_units = GLOBAL_PARAMETERS.MAX_DEPTH_UNITS -iDepth;
+				$('#slider-width').slider('option','value',iWidth);
+				$('#slider-height').slider('option','value',iHeight);
+				$('#slider-depth').slider('option','value',iDepth);
+				if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+					this.widthText.text = "Width: " + Math.round(10*this.width_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.heightText.text = "Height: " + Math.round(10*this.height_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.depthText.text = "Depth: " + Math.round(10*this.depth_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+				}
+			} else {
+				this.width_units = 1;
+				this.height_units = 1;
+				this.depth_units = 1;
+				$('#slider-width').slider('option','value',GLOBAL_PARAMETERS.MAX_WIDTH_UNITS - this.width_units);
+				$('#slider-height').slider('option','value',GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS - this.height_units);
+				$('#slider-depth').slider('option','value',GLOBAL_PARAMETERS.MAX_DEPTH_UNITS - this.depth_units);
+				if (GLOBAL_PARAMETERS.BUILDER_SHOW_SLIDER_VALUES){
+					this.widthText.text = "Width: " + Math.round(10*this.width_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.heightText.text = "Height: " + Math.round(10*this.height_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+					this.depthText.text = "Depth: " + Math.round(10*this.depth_units)/10 + " " + GLOBAL_PARAMETERS.LENGTH_UNITS;
+				}
+			}
+
 			var o = new RectBlockShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
-			if (typeof initial_width != "undefined") o.set_width_units(initial_width);
-			if (typeof initial_depth != "undefined") o.set_depth_units(initial_depth);
-			if (typeof initial_height != "undefined") o.set_height_units(initial_height)
+			if (typeof width_override !== "undefined" && typeof depth_override !== "undefined" && typeof height_override !== "undefined"){
+				o.set_width_units(width_override);
+				o.set_depth_units(depth_override);
+				o.set_height_units(height_override);
+			} else {
+				o.set_width_units(this.width_units);
+				o.set_depth_units(this.height_units);
+				o.set_height_units(this.depth_units);
+			}
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
 			o.depth_array_index = 0;
 			this.updateCountText(material_name);
-			$("#slider-width").slider('value', 4);
-			$("#slider-height").slider('value', 4);
-			$("#slider-depth").slider('value', 4);
+			
 			return o;
 		} else
 		{
@@ -588,7 +663,7 @@
 						// yes, update count and create a new object
 						GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]++;
 						o.orig_parent.updateCountText(o.material_name);
-						no = o.orig_parent.newBlock(o.material_name);
+						no = o.orig_parent.newBlock(o.material_name, o.orig_parent);
 						o.orig_parent.placeBlock(no);
 						
 					} else
@@ -650,8 +725,6 @@
 		savedObject.is_deletable = true;
 		savedObject.is_revisable = true;
 			
-
-		this.resetMaterials();
 		return savedObject;
 	}
 

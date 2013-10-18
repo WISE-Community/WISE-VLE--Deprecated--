@@ -29,7 +29,12 @@ View.prototype.i18n.supportedLocales = {
 			"nl_BG":"nl"
 		},
 		theme: {
-			"en_US":"en_US"
+			"en_US":"en_US",
+			"es":"es",
+			"ja":"ja",			
+			"nl":"nl",
+			"nl_NL":"nl",
+			"nl_BG":"nl"
 		}
 };
 
@@ -145,7 +150,10 @@ View.prototype.i18n.getStringWithParams = function(key,locale,params, componentN
  * Synchronously retrieves specified locale json mapping file
  */
 View.prototype.retrieveLocale = function(locale,componentName,localePath) {
-	var isAsync = true;
+	var isAsync = false;
+	if(componentName == "theme"){
+		isAsync = true;
+	}
 	if (componentName == "main") {
 		isAsync = false;  // fetching i18n files for vle needs to happen synchronously.
 		localePath = "/vlewrapper/vle/view/i18n/i18n_" + locale + ".json";		
@@ -156,17 +164,17 @@ View.prototype.retrieveLocale = function(locale,componentName,localePath) {
 		localePath = localePath + "i18n_" + locale + ".json";
 	}
 	$.ajax({"url":localePath,
-		    async:isAsync,
-		    dataType:"json",
-			success:function(obj){
-				if (!View.prototype.i18n[componentName]) {
-					View.prototype.i18n[componentName] = {};
-				}
-				View.prototype.i18n[componentName][locale] = obj;
-			},
-			error:function(){
-				notificationManager.notify('Please notify server admin: Error retrieving locale file for component:'+componentName, 3);
+		async:isAsync,
+		dataType:"json",
+		success:function(obj){
+			if (!View.prototype.i18n[componentName]) {
+				View.prototype.i18n[componentName] = {};
 			}
+			View.prototype.i18n[componentName][locale] = obj;
+		},
+		error:function(){
+			notificationManager.notify('Please notify server admin: Error retrieving locale file for component:'+componentName, 3);
+		}
 	});	
 };
 
@@ -212,38 +220,40 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 		//component is a node. we're trying to translate strings in the content panel where nodes are rendered
 		if (this.currentNode && this.currentNode.contentPanel && this.currentNode.contentPanel.$) {
 			translatableElements = $(this.currentNode.contentPanel.$.find("[data-i18n], [data-i18n-title], [data-i18n-placeholder]"));			
+		} else if (this.getCurrentNode() && this.getCurrentNode().getType() == "NoteNode") {
+			translatableElements = $($("#notePanel").find("[data-i18n], [data-i18n-title], [data-i18n-placeholder]"));						
 		};
 	}
 	var count = translatableElements.length;
 	if (count > 0) {
-	translatableElements.each(function(){
-		// get i18n and i18n-title attributes from elements
-		var i18n = $(this).attr('data-i18n'), i18nTitle = $(this).attr('data-i18n-title'), i18nPlaceholder = $(this).attr('data-i18n-placeholder');
-		
-		// insert i18n translations
-		if (typeof i18n !== 'undefined' && i18n !== false) {
-			if ($(this).is("input")) {
-				// if input, we need to set the value="", not the innerHTML.
-				$(this).val(view.getI18NString(i18n,componentName));				
-			} else {
-				$(this).html(view.getI18NString(i18n,componentName));				
+		translatableElements.each(function(){
+			// get i18n and i18n-title attributes from elements
+			var i18n = $(this).attr('data-i18n'), i18nTitle = $(this).attr('data-i18n-title'), i18nPlaceholder = $(this).attr('data-i18n-placeholder');
+
+			// insert i18n translations
+			if (typeof i18n !== 'undefined' && i18n !== false) {
+				if ($(this).is("input")) {
+					// if input, we need to set the value="", not the innerHTML.
+					$(this).val(view.getI18NString(i18n,componentName));				
+				} else {
+					$(this).html(view.getI18NString(i18n,componentName));				
+				}
 			}
-		}
-		if (typeof i18nTitle !== 'undefined' && i18nTitle !== false) {
-			$(this).attr('title',view.getI18NString(i18nTitle,componentName));
-		}
-		if (typeof i18nPlaceholder !== 'undefined' && i18nPlaceholder !== false) {
-			$(this).attr('placeholder',view.getI18NString(i18nPlaceholder,componentName));
-		}
-		// remove i18n attributes from DOM element
-		$(this).removeAttr('data-i18n').removeAttr('data-i18n-title').removeAttr('data-i18n-placeholder');
-		// when all i18n text has been inserted, run the callback function
-		if(--count == 0){
-			if(typeof onComplete === 'function'){
-				onComplete();
+			if (typeof i18nTitle !== 'undefined' && i18nTitle !== false) {
+				$(this).attr('title',view.getI18NString(i18nTitle,componentName));
 			}
-		}
-	});
+			if (typeof i18nPlaceholder !== 'undefined' && i18nPlaceholder !== false) {
+				$(this).attr('placeholder',view.getI18NString(i18nPlaceholder,componentName));
+			}
+			// remove i18n attributes from DOM element
+			$(this).removeAttr('data-i18n').removeAttr('data-i18n-title').removeAttr('data-i18n-placeholder');
+			// when all i18n text has been inserted, run the callback function
+			if(--count == 0){
+				if(typeof onComplete === 'function'){
+					onComplete();
+				}
+			}
+		});
 	}
 };
 

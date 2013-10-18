@@ -120,9 +120,18 @@ function CARGRAPH(node) {
 
 	// a point being dragged
 	this.dragPoint = null;
-	
+
 	//whether we want to show the correct graph
 	this.showCorrectGraph = false;
+
+	this.REACHED_MAX_DATA_LENGTH = false;
+	if (this.content != null && this.content.MAX_DATA_LENGTH !== "undefined" && !isNaN()){
+		this.MAX_DATA_LENGTH = this.content.MAX_DATA_LENGTH;
+	} else {
+		this.MAX_DATA_LENGTH = 2000;
+	}
+
+	
 };
 
 /** 
@@ -225,9 +234,11 @@ CARGRAPH.prototype.render = function() {
 	this.mouseDown = false;
 	$("#" + this.graphDivId).bind('mousedown', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = true;
+		event.data.thisCarGraph.currentObservation = ['GraphPressed'];
 	}));
 	$("#" + this.graphDivId).bind('mouseup', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = false;
+		event.data.thisCarGraph.saveCurrentObservation();
 	}));
 
 	//listen for the keydown event
@@ -391,6 +402,16 @@ CARGRAPH.prototype.render = function() {
 		$("#dynamicImageRadioDiv").append("<input class='dynamicImageRadio' name='dynamic' type='radio' "+checked+" onclick='dynamicImageChanged(\""+dynamicImage.id+"\")'>"+dynamicImage.graphLabel+"</input>");
 		dynamicImage.backInTime = false;
 	}	
+
+	//refresh observation array
+	this.carGraphState.observationArray = [];
+
+	// an array of [val, timestamp] for observation data
+	this.currentObservation = [];
+
+	this.initialTimestamp = new Date().getTime();
+	
+
 	this.displayOneFrame(0);
 };
 
@@ -475,26 +496,29 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
     				if(dynamicImage.id == expectedResult.id) {
     					var expectedResultArray = expectedResult.expectedPoints;
     		    	    var eyValue = this.getYValueObj(xValue,expectedResultArray);
+    		    	    if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues) eyValue += dynamicImage.predictionInitialYValue;
     		    	    var eslope = 0;
     		    	    var slope = 0;
-    		    	    if (xValue - 1 > 0){
-    		    	    	var epyValue = this.getYValueObj(xValue-1,expectedResultArray); 
-    		    	    	eslope = Math.atan(eyValue - epyValue);
-    		    	    	var pyValue = this.getYValue(xValue-1,predictionArr); 
-    		    	    	slope = Math.atan(yValue - pyValue);
+    		    	    var xunit = 0.01 * parseFloat(graphParams.xaxis.max);
+    		    	    if (xValue - xunit > 0){
+    		    	    	var epyValue = this.getYValueObj(xValue-xunit,expectedResultArray); 
+    		    	    	if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues) epyValue += dynamicImage.predictionInitialYValue;
+    		    	    	eslope = Math.atan((eyValue - epyValue)/xunit);
+    		    	    	var pyValue = this.getYValue(xValue-xunit,predictionArr); 
+    		    	    	slope = Math.atan((yValue - pyValue)/xunit);
     		    	    }	
 
     		    	    if (predictionArr.length == 0 || yValue == this.NOT_GRAPHED_ERROR){
     		    	       analysis = "Graph this!";
-    		    	    } else if (Math.abs(slope) > moeA && Math.abs(eslope) < moeA && xValue < graphParams.xaxis.max){
+    		    	    } else if (Math.abs(slope) > moeA && Math.abs(eslope) < moeA && xValue < parseFloat(graphParams.xaxis.max)){
 						   analysis = "Should be stopped!";
-						} else if (Math.abs(slope) < moeA && Math.abs(eslope) > moeA && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(slope) < moeA && Math.abs(eslope) > moeA && xValue < parseFloat(graphParams.xaxis.max)){
 						   analysis = "Should be moving!";
-						} else if (Math.abs(slope) > moeA && slope/Math.abs(slope) != eslope/Math.abs(eslope) && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(slope) > moeA && slope/Math.abs(slope) != eslope/Math.abs(eslope) && xValue < parseFloat(graphParams.xaxis.max)){
 						   analysis = "Wrong direction!";
-						} else if (Math.abs(slope) - Math.abs(eslope) > moeA && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(slope) - Math.abs(eslope) > moeA && xValue < parseFloat(graphParams.xaxis.max)){
 							analysis = "Too fast!";
-						} else if (Math.abs(eslope) - Math.abs(slope) > moeA && xValue < graphParams.xaxis.max){
+						} else if (Math.abs(eslope) - Math.abs(slope) > moeA && xValue < parseFloat(graphParams.xaxis.max)){
 							analysis = "Too slow!";
 						} else if (yValue - eyValue > moeY){
 							analysis = "Incorrect Position!";
@@ -504,11 +528,7 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 							analysis = ""; // good segment
 						}
 
-    		    	    if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues){
-    		    	    	leftValue = (Math.max(0,yValue)+dynamicImage.predictionInitialYValue)/this.tickSpacing*this.yTickSize;
-    		    	    } else {
-    		    	    	leftValue = Math.max(0,yValue)/this.tickSpacing*this.yTickSize;
-    		    	    }
+    		    	    leftValue = Math.max(0,yValue)/this.tickSpacing*this.yTickSize;
 
     		    	    $("#animationError"+i).text(analysis);
     					$("#animationError"+i).css("left", leftValue);
@@ -766,9 +786,10 @@ CARGRAPH.prototype.parseGraphParams = function(contentGraphParams) {
 	graphParams.grid = {hoverable:true, clickable:true};
 	// if an easyClickExtremes variable exists and is true in params set up grid to have wide left and right margins to allow clicking of extremes
 	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-		graphParams.grid.borderWidth = 10;
+		//graphParams.grid.borderWidth = 10;
 		// when we have the 0.8 version of flot use this:
-		//graphParams.grid.borderWidth = {"left":10, "right":10, "top":1, "bottom":1};
+		graphParams.grid.borderWidth = {"left":10, "right":10, "top":10, "bottom":10};
+		graphParams.grid.labelMargin = 12;
 	}
 
 	graphParams.crosshair = { mode: "x" };
@@ -786,6 +807,33 @@ CARGRAPH.prototype.getGraphParams = function() {
 	
 	return this.graphParams;
 };
+
+/**
+ * Save the current observation in the state's observationArray
+ */
+CARGRAPH.prototype.saveCurrentObservation = function() {
+		//var carGraphState = this.getLatestState();
+		carGraphState = this.carGraphState;
+		if (typeof carGraphState.observationArray === "undefined") carGraphState.observationArray = [];
+		// find the length of the array
+		var data_length = 0;
+		for (var i = 0; i < carGraphState.observationArray.length; i++){
+			data_length += carGraphState.observationArray[i].length;
+		}
+		data_length += this.currentObservation.length;
+		
+		if (data_length > this.MAX_DATA_LENGTH){
+			this.REACHED_MAX_DATA_LENGTH = true;
+		}
+
+		if (!this.REACHED_MAX_DATA_LENGTH){
+			carGraphState.observationArray.push(this.currentObservation);	 	
+		} else {
+			carGraphState.observationArray.push(["MAX"]);	
+		}
+
+		this.currentObservation = [];
+}
 
 /**
  * Save the student work for this step. This includes the carGraph
@@ -1117,6 +1165,8 @@ CARGRAPH.prototype.setupPlotHover = function() {
         if(event.data.thisCarGraph.mouseDown) {
         	// in any case move animation to current position on graph
         	setFrameIndexFromXValue(pos.x);
+        	// save position and timestamp to current observation
+        	event.data.thisCarGraph.currentObservation.push([new Date().getTime() - event.data.thisCarGraph.initialTimestamp, Math.round(100*pos.x)/100]);
         	
         	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction) {
         		// allow author to enable or disable draw while dragging
@@ -2387,6 +2437,12 @@ CARGRAPH.prototype.setupAxisValues = function() {
 		$('#yMinInput').attr("disabled","disabled");		
 		$('#yMaxInput').attr("disabled","disabled");
 		$('#resetDefaultAxisLimitsButton').hide();		
+	} else {
+		//enable the student to change the axis limits
+		$('#xMinInput').attr("disabled", null);		
+		$('#xMaxInput').attr("disabled", null);		
+		$('#yMinInput').attr("disabled", null);		
+		$('#yMaxInput').attr("disabled", null);
 	}
 };
 

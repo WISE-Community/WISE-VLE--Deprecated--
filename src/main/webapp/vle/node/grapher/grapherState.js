@@ -357,6 +357,15 @@ GrapherState.prototype.setPredictionsForPredictionId = function(predictionId, pr
 };
 
 /**
+ * Adds an empty element into the prediction array
+ */
+GrapherState.prototype.initializePrediction = function(predictionId) {
+	if (this.getPredictionObjByPredictionId(predictionId) == null) {
+		this.predictionArray.push({id:predictionId, predictions:[]});
+	}
+}
+
+/**
  * Adds an element into the prediction array
  * @param x the x value of the point
  * @param y the y value of the point

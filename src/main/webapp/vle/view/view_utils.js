@@ -2023,6 +2023,33 @@ View.prototype.getLatestNodeStateWithWorkFromNodeVisits = function(nodeVisits) {
 };
 
 /**
+ * Get all the node states from the node visits
+ * @param nodeVisits the node visits to get the node states from
+ * @return a flat array containing all the node states
+ */
+View.prototype.getNodeStatesFromNodeVisits = function(nodeVisits) {
+	var nodeStates = [];
+	
+	if(nodeVisits != null) {
+		//loop through all the node visits
+		for(var x=0; x<nodeVisits.length; x++) {
+			//get a node visit
+			var nodeVisit = nodeVisits[x];
+			
+			if(nodeVisit != null) {
+				//get the node states
+				var tempNodeStates = nodeVisit.nodeStates;
+				
+				//add the node states to our array of node states
+				nodeStates = nodeStates.concat(tempNodeStates);
+			}
+		}
+	}
+	
+	return nodeStates;
+};
+
+/**
  * Get the icon path given the node type and node class
  * 
  * @param nodeType the node type
@@ -2063,15 +2090,15 @@ View.prototype.getIconPathFromNodeTypeNodeClass = function(nodeType, nodeClass) 
 /**
  * Get the full node name
  * @param node id
- * @return the full step name depending on the navigation used
+ * @return the full node name depending on the navigation used
  * classic will return something like 'Step 1.1: Introduction'
  * starmap will return something like '#1: First Galaxy: Bronze'
  */
 View.prototype.getFullNodeName = function(nodeId) {
-	//get the full step name
-	var fullStepName = this.navigationPanel.getFullNodeName(nodeId);
+	//get the full node name
+	var fullNodeName = this.navigationPanel.getFullNodeName(nodeId);
 
-	return fullStepName;
+	return fullNodeName;
 };
 
 /**
@@ -2114,6 +2141,66 @@ View.prototype.getHighestSequenceNumberInHierarchy = function(nodeId) {
 	}
 	
 	return sequenceNumber;
+};
+
+/**
+ * Checks whether a valid step term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ */
+View.prototype.getStepTerm = function(){
+	var project = this.getProject(),
+		stepTerm = project.getStepTerm();
+	if(stepTerm && this.utils.isNonWSString(stepTerm)){
+		return stepTerm;
+	} else {
+		return this.getI18NString('stepTerm');
+	}
+};
+
+/**
+ * Checks whether a valid plural step term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ */
+View.prototype.getStepTermPlural = function(){
+	var project = this.getProject(),
+		stepTerm = project.getStepTermPlural();
+	if(stepTerm && this.utils.isNonWSString(stepTerm)){
+		return stepTerm;
+	} else {
+		return this.getI18NString('stepTermPlural');
+	}
+};
+
+/**
+ * Checks whether a valid activity term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ */
+View.prototype.getActivityTerm = function(){
+	var project = this.getProject(),
+		activityTerm = project.getActivityTerm();
+	if(activityTerm && this.utils.isNonWSString(activityTerm)){
+		return activityTerm;
+	} else {
+		return this.getI18NString('activityTerm');
+	}
+};
+
+/**
+ * Checks whether a valid plural activity term has been set for current project. If it has,
+ * returns it; if not, returns the default term.
+ * 
+ */
+View.prototype.getActivityTermPlural = function(){
+	var project = this.getProject(),
+		activityTerm = project.getActivityTermPlural();
+	if(activityTerm && this.utils.isNonWSString(activityTerm)){
+		return activityTerm;
+	} else {
+		return this.getI18NString('activityTermPlural');
+	}
 };
 
 /* used to notify scriptloader that this script has finished loading */

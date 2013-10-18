@@ -33,6 +33,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.activityTermChanged();
 	} else if(type=='stepTermChanged'){
 		obj.stepTermChanged();
+	} else if(type=='stepTermPluralChanged'){
+		obj.stepTermChanged(true);
 	} else if(type=='autoStepChanged'){
 		obj.autoStepChanged();
 	} else if(type=='stepNumberChanged'){

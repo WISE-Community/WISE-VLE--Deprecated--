@@ -26,13 +26,13 @@
 		var height_from_depth = this.height_from_depth = pan_width_px * Math.sin(GLOBAL_PARAMETERS.view_topAngle);
 		this.width_top_from_depth = base_width_top_px * Math.sin(GLOBAL_PARAMETERS.view_sideAngle);
 		this.height_top_from_depth = base_width_top_px * Math.sin(GLOBAL_PARAMETERS.view_topAngle);
+		this.height_px = this.max_pan_dy_px + this.base_height_px + this.pan_height_px;
 		this.height_px_below = 0;
-		this.height_px_above = this.max_pan_height_px;
+		this.height_px_above = this.height_px;
 		this.width_px_left = this.pan_width_px/2;
 		this.width_px_right = this.pan_width_px/2;
 		this.width_px = this.pan_width_px;
-		this.height_px = this.max_pan_dy_px + this.base_height_px + this.pan_height_px;
-
+		
 		this.savedObject = savedObject;
 
 		var dw = this.base_width_top_px * Math.sin(GLOBAL_PARAMETERS.view_sideAngle);

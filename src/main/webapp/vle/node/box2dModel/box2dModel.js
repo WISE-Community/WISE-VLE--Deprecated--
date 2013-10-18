@@ -77,7 +77,7 @@ Box2dModel.prototype.checkPreviousModelsForTags = function(tagName, functionArgs
 					//get the latest work for the node
 					var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 					//console.log(latestWork, latestWork.response.savedModels, result.previousModels,  result.previousModels.concat(latestWork.response.savedModels))
-					result.previousModels = result.previousModels.concat(latestWork.response.savedModels);					
+					if (typeof latestWork.response !== "undefined") result.previousModels = result.previousModels.concat(latestWork.response.savedModels);					
 				}
 			}
 		}		
@@ -177,7 +177,7 @@ Box2dModel.prototype.render = function() {
 		this.node.setCompleted();
 	}
 
-	if (typeof tester == "undefined" || tester == null){ 
+	if (typeof tester == "undefined" || tester == null){ // if we are already in this step, the following is unnecessary
 		init(box2dModel.content, previousModels, density >= 0 ? density : undefined, tableData);
 	}
 	//eventManager.fire("box2dInit", [{}], this);
@@ -268,73 +268,148 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	evt.type = type;
 	var d = new Date();
 	evt.time = d.getTime() - this.timestamp;
-	evt.model = {};
-	var row = {};
-	row.id = args[0].id;
-	row.Materials = typeof args[0].unique_materials !== "undefined" ? args[0].unique_materials.slice().sort().toString() : "";
-	row.Total_Volume = args[0].total_volume;
-	row.Widths = typeof args[0].widths !== "undefined" ? args[0].widths.toString().replace(/,/g,", ") : undefined;
-	row.Heights = typeof args[0].heights !== "undefined" ? args[0].heights.toString().replace(/,/g,", ") : undefined;
-	row.Depths = typeof args[0].depths !== "undefined" ? args[0].depths.toString().replace(/,/g,", ") : undefined;
-	row.Width = args[0].max_width;
-	row.Height = args[0].max_height;
-	row.Depth = args[0].max_depth;
-	row.Total_Mass = args[0].mass;
-	row.Total_Density = row.Total_Mass / row.Total_Volume;
-	row.Material_Mass = args[0].mass;
-	row.Material_Volume = args[0].material_volume;
-	row.Material_Density = row.Material_Mass / row.Material_Volume;
-	row.Open_Mass = 0;
-	row.Open_Volume = args[0].interior_volume;
-	row.Open_Density = 0;
-	row.Tested_on_Scale = 0;
-	row.Tested_on_Balance = 0;
-	// cycle through each liquid to gather data
-	for (var i = 0; i < GLOBAL_PARAMETERS.liquids_in_world.length; i++){
-		var liquid_name = GLOBAL_PARAMETERS.liquids_in_world[i];
-		var liquid_density = GLOBAL_PARAMETERS.liquids[liquid_name].density;
-		if (row.Total_Density > liquid_density){
-			row["Sink_in_"+liquid_name] = "Yes";
-		} else {
-			row["Sink_in_"+liquid_name] = "No";
-		}
-		row["Percent_Submerged_in_"+liquid_name] = Math.min(1, row.Total_Density / liquid_density);
-		row["Percent_Above_"+liquid_name] = 1 - row["Percent_Submerged_in_"+liquid_name];
-		row["Volume_Displaced_in_"+liquid_name] = row.Total_Volume * row["Percent_Submerged_in_"+liquid_name];
-		row["Mass_Displaced_in_"+liquid_name] = liquid_density * row.Total_Volume * row["Percent_Submerged_in_"+liquid_name];
-		row["Tested_in_"+liquid_name] = 0;
-	}
-	if (evt.type == "add-to-beaker" || evt.type == "test-in-beaker" || evt.type == "remove-from-beaker"){
-		row["Tested_in_"+args[1].liquid_name] = 1;
-	} else if (evt.type == "add-to-scale" || evt.type == "test-on-scale" || evt.type == "remove-from-scale"){
-		row["Tested_on_Scale"] = 1;
-	} else if (evt.type == "add-to-balance" || evt.type == "test-on-balance" || evt.type == "remove-from-balance"){
-		row["Tested_on_Balance"] = 1;
-	}
+	evt.models = []; // models used in this event
+	evt.details = {}; // extra details about this event
+	// update model table so that when we check this event the corresponding models will be on the table
+	// was orignally in save, but put it here instead - still only doing for make/delete/test
+	var tableData = GLOBAL_PARAMETERS.tableData;
+	
+	// loop through args looking for "Obj" models
+	for (var a = 0; a < args.length; a++){
+		if (typeof args[a].id !== "undefined" && args[a].id.substr(0,3) == "Obj"){
+			var model = {};
 
-	evt.model = row;
+			model.id = args[a].id;
+			model.Materials = typeof args[a].unique_materials !== "undefined" ? args[a].unique_materials.slice().sort().toString() : "";
+			model.Total_Volume = args[a].total_volume;
+			model.Widths = typeof args[a].widths !== "undefined" ? args[a].widths.toString().replace(/,/g,", ") : undefined;
+			model.Heights = typeof args[a].heights !== "undefined" ? args[a].heights.toString().replace(/,/g,", ") : undefined;
+			model.Depths = typeof args[a].depths !== "undefined" ? args[a].depths.toString().replace(/,/g,", ") : undefined;
+			model.Width = args[a].max_width;
+			model.Height = args[a].max_height;
+			model.Depth = args[a].max_depth;
+			model.Total_Mass = args[a].mass;
+			model.Total_Density = model.Total_Mass / model.Total_Volume;
+			model.Material_Mass = args[a].mass;
+			model.Material_Volume = args[a].material_volume;
+			model.Material_Density = model.Material_Mass / model.Material_Volume;
+			model.Open_Mass = 0;
+			model.Open_Volume = args[a].interior_volume;
+			model.Open_Density = 0;
+			model.Tested_on_Scale = 0;
+			model.Tested_on_Balance = 0;
+			// cycle through each liquid to gather data
+			for (var i = 0; i < GLOBAL_PARAMETERS.liquids_in_world.length; i++){
+				var liquid_name = GLOBAL_PARAMETERS.liquids_in_world[i];
+				var liquid_density = GLOBAL_PARAMETERS.liquids[liquid_name].density;
+				if (model.Total_Density > liquid_density){
+					model["Sink_in_"+liquid_name] = "Yes";
+				} else {
+					model["Sink_in_"+liquid_name] = "No";
+				}
+				model["Percent_Submerged_in_"+liquid_name] = Math.min(1, model.Total_Density / liquid_density);
+				model["Percent_Above_"+liquid_name] = 1 - model["Percent_Submerged_in_"+liquid_name];
+				model["Volume_Displaced_in_"+liquid_name] = model.Total_Volume * model["Percent_Submerged_in_"+liquid_name];
+				model["Mass_Displaced_in_"+liquid_name] = liquid_density * model.Total_Volume * model["Percent_Submerged_in_"+liquid_name];
+				model["Tested_in_"+liquid_name] = 0;
+			}
+			if (evt.type == "add-to-beaker" || evt.type == "test-in-beaker" || evt.type == "remove-from-beaker"){
+				model["Tested_in_"+args[1].liquid_name] = 1;
+			} else if (evt.type == "add-to-scale" || evt.type == "test-on-scale" || evt.type == "remove-from-scale"){
+				model["Tested_on_Scale"] = 1;
+			} else if (evt.type == "add-to-balance" || evt.type == "test-on-balance" || evt.type == "remove-from-balance"){
+				model["Tested_on_Balance"] = 1;
+			}
+
+			// create a new model in tableData if id is not found
+			if (evt.type == "make-model" || evt.type == "duplicate-model"){
+				var id_found = false;
+				for (var i = 0; i < tableData.length; i++){
+					if (tableData[i][0].text == "id"){
+						for (var j=1; j < tableData[i].length; j++){
+							if (tableData[i][j].text == model.id){
+								id_found = true; break;
+							}
+						}
+						break;
+					}
+				}
+				if (!id_found){
+					for (var i = 0; i < tableData.length; i++){
+						if (typeof model[tableData[i][0].text] !== "undefined"){
+							tableData[i].push({"text":model[tableData[i][0].text], "uneditable":true});
+						} else {
+							tableData[i].push({"text":"", "uneditable":true});
+						}
+					}
+				}
+			}
+			// remove a model
+			if (evt.type == "delete-model" || evt.type == "revise-model"){
+				for (var i = 0; i < tableData.length; i++){
+					if (tableData[i][0].text == "id"){
+						for (var j=1; j < tableData[i].length; j++){
+							if (tableData[i][j].text == model.id){
+								for (var k = 0; k < tableData.length; k++){
+									tableData[k].splice(j, 1)
+								}
+							}
+						}
+					}
+				}
+			}
+			// on test update the "Tested_in" or "Tested_on" column
+			if (evt.type.substr(0,4) == "test" || evt.type.substr(0,7) == "add-to-"){
+				// run through keys of model looking for positive tests, then update column in tableData
+				for (var key in model){
+					if (key.substr(0,6) == "Tested" && model[key] == 1){
+						// find id on table
+						for (var i=0; i < tableData.length; i++){
+							if (tableData[i][0].text == "id"){
+								for (var j=1; j < tableData[i].length; j++){
+									if (tableData[i][j].text == model.id){
+										// search for the column matching the test
+										for (var k=0; k < tableData.length; k++){
+											if (tableData[k][0].text == key){
+												tableData[k][j].text = 1;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			evt.models.push(model);
+		} else {
+			// in cases where the argument is not an "Obj" (object model), just attach all keys to the evt directly
+			for (var key in args[a]){
+				evt.details[key] = args[a][key];
+			}
+		}
+	}
 
 	var isStepCompleted = true;
 	// delete args
 	// run event through feedback manager
-	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null && evt.type != "gave-feedback"){
-		 var f = obj.feedbackManager.checkEvent(evt);
+	if (typeof obj.feedbackManager !== "undefined" && obj.feedbackManager != null && evt.type != "gave-feedback"){
+		 var f = obj.feedbackManager.checkEvent(evt, tableData);
 		 if (f != null){
 		 	eventManager.fire("gave-feedback",[f]);
 		 }
 
 		 isStepCompleted = obj.feedbackManager.completed;
 		 // trick to get student constraints to end
-		 if (isStepCompleted){this.view.pushStudentWork(this.node.id, {});}
+		 //if (isStepCompleted){this.view.pushStudentWork(this.node.id, {});}
 	}
 
-	// save on a test, make, or delete
-	if (evt.type.substr(0,4) == "test" || evt.type == "make-model" || evt.type == "delete-model"){
-		obj.save(evt);
-	}	
+	// save on a make, or delete
+	//if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "revise-model" || evt.type == "duplicate-model"){
+	//	obj.save(evt);
+	//}	
+	eventManager.fire('studentWorkUpdated', [this.node.id, this.view.getState().getNodeVisitsByNodeId(this.node.id)]);
 }
-
-
 
 /**
  * This function retrieves the student work from the html ui, creates a state
@@ -355,127 +430,72 @@ Box2dModel.prototype.save = function(evt) {
 	//load with objects from library
 	response.images = [];
 	response.savedModels = GLOBAL_PARAMETERS.objects_made.slice();
-	// remove any deleted models
-	for (var i = response.savedModels.length-1; i >= 0; i--){
-		if (typeof response.savedModels[i].is_deleted !== "undefined" && response.savedModels[i].is_deleted) response.savedModels.splice(i,1);
-	}
-	// for each savedModel attach an associated image
+	
+	// for each savedModel attach an associated image if model is not deleted
 	for (i = 0; i < response.savedModels.length; i++){
-		var id = response.savedModels[i].id;
-		// go through all images looking for this id
-		for (var j = 0; j < GLOBAL_PARAMETERS.images.length; j++){
-			var img = GLOBAL_PARAMETERS.images[j];
-			if (img.id == id){
-				response.images.push(img);
-			}
-		}
-	}
-
-	response.tableData = [];
-	var tableData = GLOBAL_PARAMETERS.tableData;
-	//response.evt = evt;
-	// create a new row in tableData if id is not found
-	if (evt.type == "make-model"){
-		var id_found = false;
-		for (var i = 0; i < tableData.length; i++){
-			if (tableData[i][0].text == "id"){
-				for (var j=1; j < tableData[i].length; j++){
-					if (tableData[i][j].text == evt.model.id){
-						id_found = true; break;
-					}
-				}
-				break;
-			}
-		}
-		if (!id_found){
-			for (var i = 0; i < tableData.length; i++){
-				if (typeof evt.model[tableData[i][0].text] !== "undefined"){
-					tableData[i].push({"text":evt.model[tableData[i][0].text], "uneditable":true});
-				} else {
-					tableData[i].push({"text":"", "uneditable":true});
-				}
-			}
-		}
-	}
-	// remove a row
-	if (evt.type == "delete-model"){
-		for (var i = 0; i < tableData.length; i++){
-			if (tableData[i][0].text == "id"){
-				for (var j=1; j < tableData[i].length; j++){
-					if (tableData[i][j].text == evt.model.id){
-						for (var k = 0; k < tableData.length; k++){
-							tableData[k].splice(j, 1)
-						}
-					}
-				}
-			}
-		}
-	}
-	// on test update the "Tested_in" or "Tested_on" column
-	if (evt.type.substr(0,4) == "test" || evt.type.substr(0,7) == "add-to-"){
-		// run through keys of model looking for positive tests, then update column in tableData
-		for (var key in evt.model){
-			if (key.substr(0,6) == "Tested" && evt.model[key] == 1){
-				// find id on table
-				for (var i=0; i < tableData.length; i++){
-					if (tableData[i][0].text == "id"){
-						for (var j=1; j < tableData[i].length; j++){
-							if (tableData[i][j].text == evt.model.id){
-								// search for the column matching the test
-								for (var k=0; k < tableData.length; k++){
-									if (tableData[k][0].text == key){
-										tableData[k][j].text = 1;
-									}
-								}
-							}
-						}
-					}
+		if (typeof response.savedModels[i] === "undefined" || !response.savedModels[i].is_deleted){
+			var id = response.savedModels[i].id;
+			// go through all images looking for this id
+			for (var j = 0; j < GLOBAL_PARAMETERS.images.length; j++){
+				var img = GLOBAL_PARAMETERS.images[j];
+				if (img.id == id){
+					response.images.push(img);
 				}
 			}
 		}
 	}
 
-	response.tableData = tableData;
+	response.tableData = GLOBAL_PARAMETERS.tableData;
 
 	// save event history
-	response.history = this.feedbackManager.getHistory(25000);
-	console.log("---------------------- SAVING appx length -----------------------", (JSON.stringify(response.history).length+JSON.stringify(response.savedModels).length)*2);
-	//} 
-	//go thro
-	/*
-	 * create the student state that will store the new work the student
-	 * just submitted
-	 * 
-	 * TODO: rename Box2dModelState
-	 * 
-	 * make sure you rename Box2dModelState to the state object type
-	 * that you will use for representing student data for this
-	 * type of step. copy and modify the file below
-	 * 
-	 * vlewrapper/WebContent/vle/node/box2dModel/box2dModelState.js
-	 * 
-	 * and use the object defined in your new state.js file instead
-	 * of Box2dModelState. for example if you are creating a new
-	 * quiz step type you would copy the file above to
-	 * 
-	 * vlewrapper/WebContent/vle/node/quiz/quizState.js
-	 * 
-	 * and in that file you would define QuizState and therefore
-	 * would change the Box2dModelState to QuizState below
-	 */
-	var box2dModelState = new Box2dModelState(response);
-	/*
-	 * fire the event to push this state to the global view.states object.
-	 * the student work is saved to the server once they move on to the
-	 * next step.
-	 */
-	this.view.pushStudentWork(this.node.id, box2dModelState);
+	response.history = this.feedbackManager.getHistory(250000);
+	var latestState = this.getLatestState();
+	// only save if history is different from previous - otherwise we're just adding unnecessary data
+	if (((latestState == null || typeof latestState.response.history === "undefined" ) && response.history.length > 0) ||
+		(typeof latestState.response.history !== "undefined" && (latestState.response.history.length != response.history.length 
+			|| (latestState.response.history[latestState.response.history.length-1].index != response.history[response.history.length-1].index)))) 
+		{
 
-	//push the state object into this or object's own copy of states
-	this.states.push(box2dModelState);
+		console.log("---------------------- SAVING appx length -----------------------", (JSON.stringify(response.history).length+JSON.stringify(response.images).length+JSON.stringify(response.tableData).length+JSON.stringify(response.savedModels).length)*2);
+		//} 
+		//go thro
+		/*
+		 * create the student state that will store the new work the student
+		 * just submitted
+		 * 
+		 * TODO: rename Box2dModelState
+		 * 
+		 * make sure you rename Box2dModelState to the state object type
+		 * that you will use for representing student data for this
+		 * type of step. copy and modify the file below
+		 * 
+		 * vlewrapper/WebContent/vle/node/box2dModel/box2dModelState.js
+		 * 
+		 * and use the object defined in your new state.js file instead
+		 * of Box2dModelState. for example if you are creating a new
+		 * quiz step type you would copy the file above to
+		 * 
+		 * vlewrapper/WebContent/vle/node/quiz/quizState.js
+		 * 
+		 * and in that file you would define QuizState and therefore
+		 * would change the Box2dModelState to QuizState below
+		 */
+		var box2dModelState = new Box2dModelState(response);
+		/*
+		 * fire the event to push this state to the global view.states object.
+		 * the student work is saved to the server once they move on to the
+		 * next step.
+		 */
+		this.view.pushStudentWork(this.node.id, box2dModelState);
 
-	// we are not returning clear GLOBAL_PA
-	return box2dModelState;
+		//push the state object into this or object's own copy of states
+		this.states.push(box2dModelState);
+
+		// we are not returning clear GLOBAL_PA
+		return box2dModelState;
+	} else {
+		return null;
+	}
 };
 
 

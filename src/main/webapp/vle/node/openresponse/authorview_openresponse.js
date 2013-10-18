@@ -534,6 +534,11 @@ View.prototype.OpenResponseNode.populateCRater = function() {
 			$('#cRaterDisplayFeedbackToStudent').attr('checked', this.content.cRater.displayCRaterFeedbackToStudent);
 		}
 		
+		if(this.content.cRater.mustSubmitAndReviseBeforeExit != null) {
+			//populate the must submit and revise before exit checkbox
+			$('#cRaterMustSubmitAndReviseBeforeExit').attr('checked', this.content.cRater.mustSubmitAndReviseBeforeExit);
+		}
+		
 		if(this.content.cRater.maxCheckAnswers != null) {
 			//populate the max check answers text input
 			$('#cRaterMaxCheckAnswers').val(this.content.cRater.maxCheckAnswers);
@@ -700,6 +705,27 @@ View.prototype.OpenResponseNode.updateCRaterDisplayFeedbackToStudent = function(
 	
 	//update the value in the content
 	this.content.cRater.displayCRaterFeedbackToStudent = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the must submit and revise before exit value
+ */
+View.prototype.OpenResponseNode.updateCRaterMustSubmitAndReviseBeforeExit = function() {
+	var value = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#cRaterMustSubmitAndReviseBeforeExit').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.cRater.mustSubmitAndReviseBeforeExit = value;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
@@ -1095,8 +1121,8 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 			//CRater already exists so we don't need to do anything
 		}
 		
-		//set the excelExportStringTemplate
-		this.content.excelExportStringTemplate = "Student Response: {response}, Check Answer: [{isCRaterSubmit}], CRater Score: [{cRaterAnnotationScore}], CRater Feedback: [{cRaterFeedbackText}]";
+		//set the export columns
+		this.setAutoGradedExportColumns();
 	} else {
 		//disable CRater
 		
@@ -1117,6 +1143,7 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 				$('#cRaterItemIdStatus').html('');
 				$('#cRaterDisplayScoreToStudent').attr('checked', false);
 				$('#cRaterDisplayFeedbackToStudent').attr('checked', false);
+				$('#cRaterMustSubmitAndReviseBeforeExit').attr('checked', false);
 				$('#cRaterMaxCheckAnswers').val('');
 				$('#cRaterFeedback').html('');
 				
@@ -1130,9 +1157,51 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 			}
 		}
 		
-		//remove the excelExportStringTemplate
-		this.content.excelExportStringTemplate = null;
+		//set the export columns
+		this.setRegularExportColumns();
 	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export columns for regular open response steps
+ */
+View.prototype.OpenResponseNode.setRegularExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Response",
+        	  "field": "response"
+          }
+  	];
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Set the export columns for the auto graded open response steps
+ */
+View.prototype.OpenResponseNode.setAutoGradedExportColumns = function() {
+	this.content.exportColumns = [
+          {
+        	  "columnName": "Submit",
+        	  "field": "isCRaterSubmit"
+          },
+          {
+        	  "columnName": "Auto-Score",
+        	  "field": "cRaterScore"
+          },
+          {
+        	  "columnName": "Auto-Feedback",
+        	  "field": "cRaterFeedbackText"
+          },
+          {
+        	  "columnName": "Response",
+        	  "field": "response"
+          }
+  	];
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
