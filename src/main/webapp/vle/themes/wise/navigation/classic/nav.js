@@ -1505,11 +1505,11 @@ NavigationPanel.prototype.getFullNodeName = function(nodeId) {
 	
 	//get whether the node is an activity or step
 	if(node.type == 'sequence') {
-		var stepTerm = view.getProject().getStepTerm();
-		nodeType = view.utils.isNonWSString(stepTerm) ? stepTerm + ' ' : '';
-	} else {
 		var activityTerm = view.getProject().getActivityTerm();
 		nodeType = view.utils.isNonWSString(activityTerm) ? activityTerm + ' ' : '';
+	} else {
+		var stepTerm = view.getProject().getStepTerm();
+		nodeType = view.utils.isNonWSString(stepTerm) ? stepTerm + ' ' : '';
 	}
 	
 	fullNodeName = nodeType + ' ' + fullNodeName;
