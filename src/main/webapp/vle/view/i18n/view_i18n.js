@@ -43,7 +43,6 @@ View.prototype.i18n.supportedLocales = {
  * If it doesn't exist, return locale.
  */
 View.prototype.i18n.convertToSupportedLocale = function(locale) {
-	console.log("converting");
 	if (this.localeConversions[locale] != null) {
 		return this.localeConversions[locale];
 	} else {
@@ -184,7 +183,6 @@ View.prototype.retrieveLocale = function(locale,componentName,localePath) {
  *  @param componentName [main, theme, node]. components that could be translated
  */
 View.prototype.retrieveLocales = function(componentName,localePath) {
-	console.log('retrievelocales, componentName:' + componentName);
 	// retrieve default locale
 	this.retrieveLocale(View.prototype.i18n.defaultLocale,componentName,localePath);
 

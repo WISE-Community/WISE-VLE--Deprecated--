@@ -613,11 +613,11 @@ OpenResponseNode.prototype.processStudentWork = function(nodeVisits) {
 		if(nodeVisits.length > 0) {
 			//the student has visited this step
 			this.setStatus('isVisited', true);
-		}
-		
-		if(this.isCompleted(nodeVisits)) {
-			//the student has completed this step
-			this.setStatus('isCompleted', true);
+
+			if(this.isCompleted(nodeVisits)) {
+				//the student has completed this step
+				this.setStatus('isCompleted', true);
+			}
 		}
 	}
 };

@@ -77,7 +77,7 @@ TagMapConstraint.prototype.isCompleted = function(nodeId) {
 			var nodeVisits = this.view.getState().getNodeVisitsByNodeId(tempNodeId);
 			
 			//check if the work is completed
-			if(!node.isCompleted(nodeVisits)) {
+			if(nodeVisits == null || nodeVisits.length == 0 || !node.isCompleted(nodeVisits)) {
 				completed = false;
 			}
 		}
@@ -88,7 +88,7 @@ TagMapConstraint.prototype.isCompleted = function(nodeId) {
 		var nodeVisits = this.view.getState().getNodeVisitsByNodeId(nodeId);
 		
 		//check if the work is completed
-		if(!node.isCompleted(nodeVisits)) {
+		if(nodeVisits == null || nodeVisits.length == 0 || !node.isCompleted(nodeVisits)) {
 			completed = false;
 		}
 	}
