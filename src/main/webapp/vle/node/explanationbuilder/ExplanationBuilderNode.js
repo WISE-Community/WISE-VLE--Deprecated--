@@ -320,6 +320,8 @@ ExplanationBuilderNode.prototype.renderGradingView = function(displayStudentWork
 				//get the text for the idea
 				text = idea.text;
 			}
+		} else {
+			text = explanationIdea.lastAcceptedText;
 		}
 		
 		//create a div for the idea that will be displayed as a rectangle
