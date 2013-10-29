@@ -1970,7 +1970,9 @@ View.prototype.isCompleted = function(nodeId) {
 			var nodeVisits = this.getState().getNodeVisitsByNodeId(tempNodeId);
 			
 			//check if the work is completed
-			if(!node.isCompleted(nodeVisits)) {
+			if(nodeVisits == null || 
+					nodeVisits.length == 0 ||
+					!node.isCompleted(nodeVisits)) {
 				return false;
 			}
 		}
@@ -1982,9 +1984,11 @@ View.prototype.isCompleted = function(nodeId) {
 		//get the latest work for the step
 		var nodeVisits = this.getState().getNodeVisitsByNodeId(nodeId);
 		
-		//check if the work is completed
-		if(node.isCompleted(nodeVisits)) {
-			completed = true;
+		if (nodeVisits != null && nodeVisits.length != 0) {
+			//check if the work is completed
+			if(node.isCompleted(nodeVisits)) {
+				completed = true;
+			}
 		}
 	}
 	

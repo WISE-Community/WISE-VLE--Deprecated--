@@ -2311,20 +2311,20 @@ Node.prototype.populateStatuses = function(state) {
 	if(latestNodeVisit != null && latestNodeVisit != "") {
 		//this step has been visited
 		this.setStatus('isVisited', true);
+
+		//check if the student has completed the step
+		var isCompleted = this.view.isCompleted(this.id);
+		
+		if(isCompleted) {
+			//the student has completed the step
+			this.setStatus('isCompleted', true);
+		} else {
+			//the student has not completed the step
+			this.setStatus('isCompleted', false);
+		}
 	} else {
 		//this step has not been visited
 		this.setStatus('isVisited', false);
-	}
-	
-	//check if the student has completed the step
-	var isCompleted = this.view.isCompleted(this.id);
-	
-	if(isCompleted) {
-		//the student has completed the step
-		this.setStatus('isCompleted', true);
-	} else {
-		//the student has not completed the step
-		this.setStatus('isCompleted', false);
 	}
 };
 

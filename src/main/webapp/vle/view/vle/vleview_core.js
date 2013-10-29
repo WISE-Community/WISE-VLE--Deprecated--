@@ -361,7 +361,7 @@ View.prototype.loadTheme = function(themeName){
 	// inject theme's body.html into vle.html body
 	$('#vle_body').load(themeHtml,function(){
 		view.displayGlobalTools();
-		view.createAudioManagerOnProjectLoad();
+		//view.createAudioManagerOnProjectLoad();
 		
 		var currentTheme = [themeName.toLowerCase()]; // TODO: remove toLowerCase()
 		

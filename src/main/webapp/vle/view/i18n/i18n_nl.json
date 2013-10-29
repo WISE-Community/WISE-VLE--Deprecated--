@@ -520,7 +520,7 @@
         "description": "The text 'Always' to display in 'force show:' drop down in the step hint authoring panel"
     },
     "authoring_hint_modal": {
-        "value": "",
+        "value": "Doorsnee dialoog",
         "description": "Text to display for the label of the \"Modal Dialog\" checkbox in the step hint authoring panel"
     },
     "authoring_hint_isMustViewAllPartsBeforeClosing": {
@@ -580,7 +580,7 @@
         "description": "The error text to be displayed when the project has no steps in it"
     },
     "authoring_imsettings_text_required": {
-        "value": "",
+        "value": "Tekst is de basiscomponent van elk idee en kan niet verwijderd worden.",
         "description": "The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
     },
     "ideaBasket_ideaTableHeader": {
@@ -926,5 +926,49 @@
     "constraint_must_have_status": {
         "value": "De stappen die hieronder getoond worden, moeten van '{0}' ingesteld worden op '{1}' vooraleer je aan {2} kan werken: {3} ",
         "description": "The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the current step"
+    },
+    "student_aggregate_view_intro_text": {
+        "value": "Samenvatting voor stap {0}",
+        "description": "Text above where the aggregate view would be displayed"
+    },
+    "constraint_dialog_title": {
+        "value": "Item is afgesloten",
+        "description": "Title text for dialog alerting users about locked steps or activities (unable to visit because of navigation constraints)"
+    },
+    "constraint_allItems": {
+        "value": "(alle items)",
+        "description": "Text to add after activity name when a constraint requires user to satisfy a requirement for all items in an activity"
+    },
+    "constraint_message_mustCompleteStepBeforeAdvancing": {
+        "value": "Je moet het huidige {0} vervolledigen vooraleer je verder gaat.",
+        "description": "The message shown to students telling them to complete work on the current step before moving on"
+    },
+    "constraint_message_mustCompleteActivityBeforeAdvancing": {
+        "value": "Je moet alle items in de huidige {0} voltooien vooraleer je verder gaat.",
+        "description": "The message shown to students telling them to complete work on the current activity before moving on"
+    },
+    "constraint_message_mustCompleteStepBeforeExiting": {
+        "value": "Je moet het huidige {0} vervolledigen vooraleer je weggaat.",
+        "description": "The message shown to students telling them to complete work on the current step before exiting"
+    },
+    "constraint_message_mustCompleteActivityBeforeExiting": {
+        "value": "Je moet alle items in de huidige {0} vervolledigen vooraleer je weggaat.",
+        "description": "The message shown to students telling them to complete work on the current activity before exiting"
+    },
+    "constraint_message_mustCompleteXBeforeVisiting": {
+        "value": "Je moet het volgende vervolledigen vooraleer je dit item bekijkt:",
+        "description": "The message shown to students telling them to complete work on previous items before working on the selected step or activity"
+    },
+    "constraint_message_mustVisitXBeforeVisiting": {
+        "value": "Je moet het volgende bekijken vooraleer je dit item bekijkt:",
+        "description": "The message shown to students telling them to visit items before working on the selected step or activity"
+    },
+    "constraint_message_mustUnlockXBeforeVisiting": {
+        "value": "Je moet het volgende ontsluiten vooraleer je dit item bekijkt:",
+        "description": "The message shown to students telling them to unlock (make visitable) previous items before working on the selected step or activity"
+    },
+    "constraint_message_xMustHaveStatusY": {
+        "value": "Bij het volgende moet '{0}' op '{1}' gezet worden vooraleer je dit item kan bekijken:",
+        "description": "The message shown to students telling them that the steps shown below must have 'statusType' set to 'statusValue' before they can work on the selected step"
     }
 }

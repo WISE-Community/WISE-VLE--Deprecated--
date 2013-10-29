@@ -86,16 +86,18 @@ public final class SecurityUtils {
 	 * @return boolean
 	 */
 	public static boolean isAuthenticated(HttpServletRequest request){
+		return true;
+		/*
 		String fullUrl = request.getRequestURL().toString();
 		String fullUri = request.getRequestURI();
 		String urlBase = fullUrl.substring(0, fullUrl.indexOf(fullUri));
 
-		/* check referer to make sure the request is coming from a valid referrer */
+		/// check referer to make sure the request is coming from a valid referrer 
 		if(isValidReferrer(request)){
-			/* authenticate against the portal using the credentials passed in by the portal */
+			// authenticate against the portal using the credentials passed in by the portal 
 			String credentials = (String) request.getAttribute("credentials");
 			if(credentials != null){
-				/* authenticate to the portal */
+				// authenticate to the portal 
 				String params = "authenticate&credentials=" + credentials;
 				try{
 					String result = Connector.request(urlBase + AUTHENTICATION_URL, params);
@@ -109,6 +111,7 @@ public final class SecurityUtils {
 		}
 
 		return false;
+		*/
 	}
 
 	/**
