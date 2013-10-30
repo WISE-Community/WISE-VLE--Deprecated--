@@ -1,3 +1,9 @@
+/**
+ * NOTE: This constraint has been deprecated - WISE now creates an 'XMustHaveStatusYConstraint'
+ * with a statusType of 'isCompleted' and statusValue of 'true' for all
+ * 'MustCompleteXBeforeConstraint' instances
+ */
+
 MustCompleteXBeforeConstraint.prototype = new TagMapConstraint();
 MustCompleteXBeforeConstraint.prototype.constructor = MustCompleteXBeforeConstraint;
 MustCompleteXBeforeConstraint.prototype.parent = TagMapConstraint.prototype;
@@ -69,7 +75,7 @@ MustCompleteXBeforeConstraint.prototype.isSatisfied = function() {
 
 /**
  * Check the constraint and determine if the student is allowed to move
- * to the next step they are trying to move to. Also grey out any steps
+ * to the next step they are trying to move to. Also disable any steps
  * in the navigation menu that are not visitable due to this constraint.
  * @param currentNodeId the id of current step the student is on
  * @param nextNodeId the id of the next step the student is trying to move to
@@ -175,11 +181,10 @@ MustCompleteXBeforeConstraint.prototype.getNodesFailed = function() {
 
 /**
  * Get the message to display to the student when this constraint
- * prevents them from moving to the next step they are trying to move to.
- * @param nodesFailed the node ids of the steps that the student has not completed
+ * prevents them from moving to the step they are trying to move to.
  * @return a message that we will notify the student of the constraint
  */
-MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFailed) {
+MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function() {
 	var message = '',
 		stepTerm = this.view.getStepTerm(),
 		activityTerm = this.view.getActivityTerm();
@@ -187,45 +192,14 @@ MustCompleteXBeforeConstraint.prototype.getConstraintMessage = function(nodesFai
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
 	} else {
-		var stepsNumberAndTitlesFailed = '';
-		
-		if(nodesFailed != null) {
-			for(var x=0; x<nodesFailed.length; x++) {
-				var nodeIdFailed = nodesFailed[x];
-				
-				//get the step number and title for the failed step
-				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeIdFailed);
-				
-				if(stepsNumberAndTitlesFailed != '') {
-					stepsNumberAndTitlesFailed += '\n';
-				}
-				
-				var nodeType = '';
-				var node = this.view.getProject().getNodeById(nodeIdFailed);
-				
-				if(node.type == 'sequence') {
-					nodeType = activityTerm;
-				} else {
-					nodeType = stepTerm;
-				}
-				
-				stepsNumberAndTitlesFailed += nodeType + ' ' + stepNumberAndTitle;
-			}		
-		}
-		
-		if(nodesFailed.length == 1) {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_x_before", [stepsNumberAndTitlesFailed,stepTerm], "main");
-		} else if(nodesFailed.length > 1) {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [stepTerm], "main");
-			message += "\n\n" + stepsNumberAndTitlesFailed;
-		}
+		message = this.view.getI18NString("constraint_must_complete_x_before_visiting", "main");
 	}
 	
 	return message;
 };
 
 /**
- * Grey out the constrained step or activity in the navigation menu.
+ * Disable constrained step or activity in the navigation menu.
  */
 MustCompleteXBeforeConstraint.prototype.constrainNavigation = function() {
 	if(this.view.navigationPanel != null) {

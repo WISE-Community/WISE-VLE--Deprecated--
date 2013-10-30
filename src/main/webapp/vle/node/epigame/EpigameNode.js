@@ -1,6 +1,11 @@
 EpigameNode.prototype = new Node();
 EpigameNode.prototype.constructor = EpigameNode;
 EpigameNode.prototype.parent = Node.prototype;
+EpigameNode.prototype.i18nEnabled = true;
+EpigameNode.prototype.i18nPath = "/vlewrapper/vle/node/epigame/i18n/";
+EpigameNode.prototype.supportedLocales = {
+	"en_US":"en_US"	
+};
 
 /*
  * the name that displays in the authoring tool when the author creates a new step
@@ -82,6 +87,23 @@ function EpigameNode(nodeType, view) {
 	this.prevWorkNodeIds = [];
 	
 	this.tagMapFunctions = this.tagMapFunctions.concat(EpigameNode.tagMapFunctions);
+	
+	EpigameNode.statusConstraintMessages = [
+        {statusType:'epigameMedal', statusValue:'bronze', message: this.view.getI18NStringWithParams('constraint_message_mustHaveMedal',[this.view.getI18NString('bronze','EpigameNode')],'EpigameNode')},
+        {statusType:'epigameMedal', statusValue:'silver', message: this.view.getI18NStringWithParams('constraint_message_mustHaveMedal',[this.view.getI18NString('silver','EpigameNode')],'EpigameNode')},
+        {statusType:'epigameMedal', statusValue:'gold', message: this.view.getI18NStringWithParams('constraint_message_mustHaveMedal',[this.view.getI18NString('gold','EpigameNode')],'EpigameNode')},
+        {statusType:'epigameMedal', statusValue:'atLeastBronze', message: this.view.getI18NStringWithParams('constraint_message_mustHaveAtLeastMedal',[this.view.getI18NString('bronze','EpigameNode')],'EpigameNode')},
+        {statusType:'epigameMedal', statusValue:'atLeastSilver', message: this.view.getI18NStringWithParams('constraint_message_mustHaveAtLeastMedal',[this.view.getI18NString('silver','EpigameNode')],'EpigameNode')},
+        {statusType:'epigameMedal', statusValue:'atLeastGold', message: this.view.getI18NStringWithParams('constraint_message_mustHaveAtLeastMedal',[this.view.getI18NString('gold','EpigameNode')],'EpigameNode')}
+    ];
+	
+	/**
+	 * Get the status constraint messages
+	 */
+	EpigameNode.prototype.getStatusConstraintMessages = function() {
+		// TODO: check for duplicates
+		return Node.statusConstraintMessages.concat(EpigameNode.statusConstraintMessages);
+	};
 }
 
 /**

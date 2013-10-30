@@ -43,7 +43,6 @@ View.prototype.i18n.supportedLocales = {
  * If it doesn't exist, return locale.
  */
 View.prototype.i18n.convertToSupportedLocale = function(locale) {
-	console.log("converting");
 	if (this.localeConversions[locale] != null) {
 		return this.localeConversions[locale];
 	} else {
@@ -150,7 +149,10 @@ View.prototype.i18n.getStringWithParams = function(key,locale,params, componentN
  * Synchronously retrieves specified locale json mapping file
  */
 View.prototype.retrieveLocale = function(locale,componentName,localePath) {
-	var isAsync = true;
+	var isAsync = false;
+	if(componentName == "theme"){
+		isAsync = true;
+	}
 	if (componentName == "main") {
 		isAsync = false;  // fetching i18n files for vle needs to happen synchronously.
 		localePath = "/vlewrapper/vle/view/i18n/i18n_" + locale + ".json";		
@@ -181,7 +183,6 @@ View.prototype.retrieveLocale = function(locale,componentName,localePath) {
  *  @param componentName [main, theme, node]. components that could be translated
  */
 View.prototype.retrieveLocales = function(componentName,localePath) {
-	console.log('retrievelocales, componentName:' + componentName);
 	// retrieve default locale
 	this.retrieveLocale(View.prototype.i18n.defaultLocale,componentName,localePath);
 

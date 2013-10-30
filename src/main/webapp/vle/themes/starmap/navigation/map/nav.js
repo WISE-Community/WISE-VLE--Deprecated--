@@ -1603,15 +1603,11 @@ NavigationPanel.prototype.nodeStatusUpdatedListener = function(type, args, obj) 
  * that activity is called 'Silver', we would return
  * '#1: First Galaxy: Silver'
  */
-NavigationPanel.prototype.getFullNodeName = function(nodeId) {
-	var fullStepName = view.getProject().getNodeTitles(nodeId);
+NavigationPanel.prototype.getFullNodeName = function(nodeId) {	
+	//get the step number and title
+	var fullNodeName = '#' + view.getProject().getStepNumberAndTitle(nodeId);
 	
-	//get the highest sequence number in the hierarchy
-	var highestSequenceNumberInHierarchy = view.getHighestSequenceNumberInHierarchy(nodeId);
-	
-	fullStepName = '#' + highestSequenceNumberInHierarchy + ': ' + fullStepName; 
-	
-	return fullStepName;
+	return fullNodeName;
 };
 
 /**

@@ -839,7 +839,7 @@
 			        at: "left bottom",
 			        of: this
 					});
-					$( document ).one( "click",function() {
+					$( document ).one( "click",function(event) {
 					    if ($(event.target).text() == "Duplicate"){
 					        labWorld.duplicateObjectFromHTML($(event.target).parent().parent().parent());
 						} else if ($(event.target).text() == "Delete"){

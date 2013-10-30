@@ -211,12 +211,17 @@ function createContent(url, contentBaseUrlParam){
 		 * Sets the contentXML variable
 		 */
 		var setContentXMLFromString = function(str){
-			if(document.implementation && document.implementation.createDocument){
-				contentXML = new DOMParser().parseFromString(str, "text/xml");
-			} else if(window.ActiveXObject){
-				contentXML = new ActiveXObject("Microsoft.XMLDOM")
-				contentXML.loadXML(str);
-			};
+			try {
+				if(document.implementation && document.implementation.createDocument){
+					contentXML = new DOMParser().parseFromString(str, "text/xml");
+				} else if(window.ActiveXObject){
+					contentXML = new ActiveXObject("Microsoft.XMLDOM")
+					contentXML.loadXML(str);
+				};				
+			} catch (exception) {
+				contentXML = undefined;
+				return;
+			}
 			
 			if(!validXML(contentXML)){
 				contentXML = undefined;
