@@ -1,8 +1,10 @@
 function ClassroomMonitorModel() {
-	this.project;
-	this.projectMetadata;
-	this.states;
-	this.annotations;
+	this.project = null;
+	this.projectMetadata = null;
+	this.states = [];
+	this.annotations = [];
+	this.workgroupIdToWork = {};
+	this.nodeIdToWork = {};
 }
 
 /**
@@ -51,6 +53,56 @@ ClassroomMonitorModel.prototype.getStates = function() {
  */
 ClassroomMonitorModel.prototype.setStates = function(states) {
 	this.states = states;
+};
+
+/**
+ * Add a student vle state to our array of vle states
+ * @param state a student vle state
+ */
+ClassroomMonitorModel.prototype.addState = function(state) {
+	if(state != null) {
+		var workgroupId = state.workgroupId;
+		
+		var states = this.states;
+		
+		//loop through all the vle states
+		for(var x=0; x<states.length; x++) {
+			var state = states[x];
+			
+			//get the workgroup id
+			var tempWorkgroupId = state.workgroupId;
+			
+			if(workgroupId == tempWorkgroupId) {
+				//the workgroup id matches the one we are adding so we will remove it
+				states.splice(x);
+			}
+		}
+		
+		//add the new vle state
+		states.push(state);
+	}
+};
+
+/**
+ * Add a vle state for a workgroup id
+ * 
+ * @param workgroupId the workgroup id
+ * @param the vle state for the workgroup id
+ */
+ClassroomMonitorModel.prototype.addWorkByStudent = function(workgroupId, work) {
+	//remember the work for the workgroup id
+	this.workgroupIdToWork[workgroupId] = work;
+};
+
+/**
+ * Add an array of student work for a step
+ * 
+ * @param nodeId the node id
+ * @param work an array of node visits for the step
+ */
+ClassroomMonitorModel.prototype.addWorkByStep = function(nodeId, work) {
+	//remember the work for the node id
+	this.nodeIdToWork[nodeId] = work;
 };
 
 /**

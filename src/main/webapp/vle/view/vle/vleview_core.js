@@ -61,6 +61,9 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		
 	} else if (type == 'startVLECompleted') {
 		obj.renderStartNode();
+		if(obj.isXMPPEnabled) {
+			obj.sendStudentStatusWebSocketMessage();			
+		}
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
 	} else if (type == 'assetCopiedForReference') {
@@ -502,13 +505,6 @@ View.prototype.setStatuses = function() {
 	
 	//set this flag to show that the node statuses have been set
 	this.statusesSet = true;
-	
-	if(this.isXMPPEnabled) {
-		//we will send the student status to the teacher
-		var currentNodeId = this.currentNode.id;
-		var previousNodeVisit = this.getState().getLatestCompletedVisit();
-		this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);
-	}
 };
 
 /**
@@ -870,16 +866,6 @@ View.prototype.renderNodeCompletedListener = function(position){
 			status:this.studentStatus});	
 	}
 	
-	if(this.isXMPPEnabled) {
-		//check if the vle has set the statuses for all the nodes yet
-		if(this.statusesSet) {
-			//the node statuses have been set so we will send the student status to the teacher
-			var currentNodeId = this.currentNode.id;
-			var previousNodeVisit = this.getState().getLatestCompletedVisit();
-			this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);		
-		}
-	}
-	
 	this.displayHint();  // display hint for the current step, if any
 	
 	this.displayNodeAnnotation(this.currentNode.id);  // display annotation for the current step, if any
@@ -1194,7 +1180,6 @@ View.prototype.goToNodePosition = function(nodePosition) {
 	if(prevNode != null && !prevNode.canExit()){
 		return;
 	}
-	
 	
 	// Prepare to move to the specified position. 
 	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.

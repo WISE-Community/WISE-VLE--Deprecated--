@@ -3,6 +3,8 @@ function GradingModel() {
 	this.projectMetadata;
 	this.states;
 	this.annotations;
+	this.workgroupIdToWork = {};
+	this.nodeIdToWork = {};
 }
 
 /**
@@ -67,6 +69,48 @@ GradingModel.prototype.getAnnotations = function() {
  */
 GradingModel.prototype.setAnnotations = function(annotations) {
 	this.annotations = annotations;
+};
+
+/**
+ * Set the work for a workgroup id
+ * 
+ * @param workgroupId the workgroup id
+ * @param work the vle state
+ */
+GradingModel.prototype.setWorkByWorkgroupId = function(workgroupId, work) {
+	this.workgroupIdToWork[workgroupId] = work;
+};
+
+/**
+ * Get the work for a workgroup id
+ * 
+ * @param workgroupId the workgroup id
+ * 
+ * @return the vle state for the workgroup id
+ */
+GradingModel.prototype.getWorkByWorkgroupId = function(workgroupId) {
+	return this.workgroupIdToWork[workgroupId];
+};
+
+/**
+ * Set the work for a step
+ * 
+ * @param nodeId the node id
+ * @param work an array containing all the work for a step from all students in the class
+ */
+GradingModel.prototype.setWorkByNodeId = function(nodeId, work) {
+	this.nodeIdToWork[nodeId] = work;
+};
+
+/**
+ * Get the work for a step
+ * 
+ * @param nodeId the node id
+ * 
+ * @return an array containing all the work for a step from all the students in the class
+ */
+GradingModel.prototype.getWorkByNodeId = function(nodeId) {
+	return this.nodeIdToWork[nodeId];
 };
 
 //used to notify scriptloader that this script has finished loading

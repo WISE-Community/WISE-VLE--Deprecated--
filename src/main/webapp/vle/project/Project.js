@@ -2170,8 +2170,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		/**
 		 * Get the manual assignment group names. These group names are in branch nodes
 		 * and can be assigned to workgroups in the grading tool.
+		 * 
+		 * @param nodeId (optional) the node id to look for. if this is not passed in
+		 * we will look at all nodes
 		 */
-		var getManualGroupsUsed = function() {
+		var getManualGroupsUsed = function(nodeId) {
 			var manualGroupsUsed = [];
 
 			//get all the step nodes
@@ -2183,20 +2186,24 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				var node = nodes[x];
 
 				if(node != null) {
-					//get the step content
-					var nodeContentJSON = node.getContent().getContentJSON();
+					var tempNodeId = node.id;
+					
+					if(nodeId == null || nodeId == tempNodeId) {
+						//get the step content
+						var nodeContentJSON = node.getContent().getContentJSON();
 
-					if(nodeContentJSON != null && nodeContentJSON.groupsUsed != null) {
-						//get the groups used
-						var nodeGroupsUsed = nodeContentJSON.groupsUsed;
+						if(nodeContentJSON != null && nodeContentJSON.groupsUsed != null) {
+							//get the groups used
+							var nodeGroupsUsed = nodeContentJSON.groupsUsed;
 
-						for(var y=0; y<nodeGroupsUsed.length; y++) {
-							//get a group
-							var group = nodeGroupsUsed[y];
+							for(var y=0; y<nodeGroupsUsed.length; y++) {
+								//get a group
+								var group = nodeGroupsUsed[y];
 
-							//add the group to our array if it has not already been added
-							if(manualGroupsUsed.indexOf(group) == -1) {
-								manualGroupsUsed.push(group);
+								//add the group to our array if it has not already been added
+								if(manualGroupsUsed.indexOf(group) == -1) {
+									manualGroupsUsed.push(group);
+								}
 							}
 						}
 					}
@@ -2209,8 +2216,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		/**
 		 * Get the automatic assignment group names. These group names are in branch nodes
 		 * and can are automatically assigned to workgroups when they reach branch nodes.
+		 * 
+		 * @param nodeId (optional) the node id to look for. if this is not passed in
+		 * we will look at all nodes
 		 */
-		var getAutoGroupsUsed = function() {
+		var getAutoGroupsUsed = function(nodeId) {
 			var autoGroupsUsed = [];
 
 			//get all the step nodes
@@ -2222,33 +2232,37 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				var node = nodes[x];
 
 				if(node != null) {
-					//get the step content
-					var nodeContentJSON = node.getContent().getContentJSON();
+					var tempNodeId = node.id;
+					
+					if(nodeId == null || nodeId == tempNodeId) {
+						//get the step content
+						var nodeContentJSON = node.getContent().getContentJSON();
 
-					if(nodeContentJSON != null && nodeContentJSON.groupsUsed != null) {
-						//get the branch paths
-						var paths = nodeContentJSON.paths;
+						if(nodeContentJSON != null && nodeContentJSON.groupsUsed != null) {
+							//get the branch paths
+							var paths = nodeContentJSON.paths;
 
-						if(paths != null && paths.length > 0) {
-							//loop through all the branch paths
-							for(var y=0; y<paths.length; y++) {
-								//get a path
-								var path = paths[y];
+							if(paths != null && paths.length > 0) {
+								//loop through all the branch paths
+								for(var y=0; y<paths.length; y++) {
+									//get a path
+									var path = paths[y];
 
-								if(path != null) {
-									//get the id of the activity for the branch path
-									var sequenceRef = path.sequenceRef;
+									if(path != null) {
+										//get the id of the activity for the branch path
+										var sequenceRef = path.sequenceRef;
 
-									if(sequenceRef != null && sequenceRef != '') {
-										//get the activity node
-										var activityNode = getNodeById(sequenceRef);
+										if(sequenceRef != null && sequenceRef != '') {
+											//get the activity node
+											var activityNode = getNodeById(sequenceRef);
 
-										if(activityNode != null) {
-											//get the title of the activity
-											var title = activityNode.title;
+											if(activityNode != null) {
+												//get the title of the activity
+												var title = activityNode.title;
 
-											//add the activity title to our array
-											autoGroupsUsed.push(title);
+												//add the activity title to our array
+												autoGroupsUsed.push(title);
+											}
 										}
 									}
 								}
@@ -2605,9 +2619,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* gets all the node types used in this project */
 			getUsedNodeTypes:function(){return usedNodeTypes;},
 			/* get all the manual group assignments that are used in the project */
-			getManualGroupsUsed:function(){return getManualGroupsUsed();},
+			getManualGroupsUsed:function(nodeId){return getManualGroupsUsed(nodeId);},
 			/* get all the automatic group assignments that are used in the project */
-			getAutoGroupsUsed:function(){return getAutoGroupsUsed();},
+			getAutoGroupsUsed:function(nodeId){return getAutoGroupsUsed(nodeId);},
 			/* get all the node ids by node type */
 			getNodeIdsByNodeType:function(nodeType){return getNodeIdsByNodeType(nodeType);},
 			/* get all the node ids that come after this one */
