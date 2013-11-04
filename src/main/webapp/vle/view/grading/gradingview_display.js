@@ -2389,26 +2389,34 @@ View.prototype.calculateItemsToReviewForWorkgroupId = function(workgroupId) {
 				//get a node id
 				var nodeId = nodeIds[x];
 				
-				//get the node status for the node
-				var nodeStatus = this.getNodeStatusByNodeId(nodeStatuses, nodeId);
+				//get the node
+				var node = this.getProject().getNodeById(nodeId);
 				
-				if(nodeStatus != null) {
-					//get the latest step work id with work
-					var latestStepWorkIdWithWork = nodeStatus.latestStepWorkIdWithWork;
+				//check if the step type is a gradable step
+				if(node != null && node.hasGradingView()) {
+					//the step type is gradable
 					
-					if(latestStepWorkIdWithWork != null) {
-						//get the annotations
-						var annotations = this.getAnnotations();
+					//get the node status for the node
+					var nodeStatus = this.getNodeStatusByNodeId(nodeStatuses, nodeId);
+					
+					if(nodeStatus != null) {
+						//get the latest step work id with work
+						var latestStepWorkIdWithWork = nodeStatus.latestStepWorkIdWithWork;
 						
-						//get the score annotation value if any
-						var score = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'score');
-						
-						//get the comment annotation value if any
-						var comment = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'comment');
-						
-						if(score == null && comment == null) {
-							//there was no score or comment so this work needs to be graded
-							itemsToReview++;
+						if(latestStepWorkIdWithWork != null) {
+							//get the annotations
+							var annotations = this.getAnnotations();
+							
+							//get the score annotation value if any
+							var score = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'score');
+							
+							//get the comment annotation value if any
+							var comment = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'comment');
+							
+							if(score == null && comment == null) {
+								//there was no score or comment so this work needs to be graded
+								itemsToReview++;
+							}
 						}
 					}
 				}
