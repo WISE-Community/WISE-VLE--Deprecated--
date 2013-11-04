@@ -791,6 +791,10 @@
 		"value":"click here",
 		"description":"the common text 'click here'"
 	},
+	"score": {
+		"value":"Score",
+		"description":"The column header for the score in Show My Work"
+	},
 	"teacher_score": {
 		"value":"Teacher Score",
 		"description":"The column header for the teacher score"
