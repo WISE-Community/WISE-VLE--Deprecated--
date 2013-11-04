@@ -7375,7 +7375,7 @@ this.setBold = function(b) {
 		selectedElements[1] == null) 
 	{
 		changeSelectedAttribute("font-weight", b ? "bold" : "normal");
-		call("changed", [selected]); // WISE4: call change event when test has been updated
+		call("changed", [selected]); // WISE4: call change event when text has been updated
 	}
 	if(!selectedElements[0].textContent) {
 		textActions.setCursor();
@@ -7408,7 +7408,7 @@ this.setItalic = function(i) {
 		selectedElements[1] == null) 
 	{
 		changeSelectedAttribute("font-style", i ? "italic" : "normal");
-		call("changed", [selected]); // WISE4: call change event when test has been updated
+		call("changed", [selected]); // WISE4: call change event when text has been updated
 	}
 	if(!selectedElements[0].textContent) {
 		textActions.setCursor();
@@ -7432,7 +7432,7 @@ this.setFontFamily = function(val) {
 	if(selectedElements[0] && !selectedElements[0].textContent) {
 		textActions.setCursor();
 	}
-	// WISE4: call change event when test has been updated
+	// WISE4: call change event when text has been updated
 	if (selectedElements[0] != null && selectedElements[0].tagName == "text") 
 		{
 			call("changed", [selectedElements[0]]); 
@@ -7448,7 +7448,7 @@ this.setFontFamily = function(val) {
 this.setFontColor = function(val) {
 	cur_text.fill = val;
 	changeSelectedAttribute("fill", val);
-	// WISE4: call change event when test has been updated
+	// WISE4: call change event when text has been updated
 	if (selectedElements[0] != null && selectedElements[0].tagName == "text") 
 		{
 			call("changed", [selectedElements[0]]); 
@@ -7479,7 +7479,7 @@ this.setFontSize = function(val) {
 	if(!selectedElements[0].textContent) {
 		textActions.setCursor();
 	}
-	// WISE4: call change event when test has been updated
+	// WISE4: call change event when text has been updated
 	if (selectedElements[0] != null && selectedElements[0].tagName == "text") 
 		{
 			call("changed", [selectedElements[0]]); 
