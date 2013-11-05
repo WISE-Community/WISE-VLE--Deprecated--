@@ -303,9 +303,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 				var liquid_name = GLOBAL_PARAMETERS.liquids_in_world[i];
 				var liquid_density = GLOBAL_PARAMETERS.liquids[liquid_name].density;
 				if (model.Total_Density > liquid_density){
-					model["Sink_in_"+liquid_name] = "Yes";
+					model["Sink_in_"+liquid_name] = "Sink";
 				} else {
-					model["Sink_in_"+liquid_name] = "No";
+					model["Sink_in_"+liquid_name] = "Float";
 				}
 				model["Percent_Submerged_in_"+liquid_name] = Math.min(1, model.Total_Density / liquid_density);
 				model["Percent_Above_"+liquid_name] = 1 - model["Percent_Submerged_in_"+liquid_name];

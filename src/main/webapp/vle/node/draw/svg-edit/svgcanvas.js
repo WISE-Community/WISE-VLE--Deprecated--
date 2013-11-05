@@ -7375,6 +7375,7 @@ this.setBold = function(b) {
 		selectedElements[1] == null) 
 	{
 		changeSelectedAttribute("font-weight", b ? "bold" : "normal");
+		call("changed", [selected]); // WISE4: call change event when text has been updated
 	}
 	if(!selectedElements[0].textContent) {
 		textActions.setCursor();
@@ -7407,6 +7408,7 @@ this.setItalic = function(i) {
 		selectedElements[1] == null) 
 	{
 		changeSelectedAttribute("font-style", i ? "italic" : "normal");
+		call("changed", [selected]); // WISE4: call change event when text has been updated
 	}
 	if(!selectedElements[0].textContent) {
 		textActions.setCursor();
@@ -7430,6 +7432,11 @@ this.setFontFamily = function(val) {
 	if(selectedElements[0] && !selectedElements[0].textContent) {
 		textActions.setCursor();
 	}
+	// WISE4: call change event when text has been updated
+	if (selectedElements[0] != null && selectedElements[0].tagName == "text") 
+		{
+			call("changed", [selectedElements[0]]); 
+		}
 };
 
 
@@ -7441,11 +7448,17 @@ this.setFontFamily = function(val) {
 this.setFontColor = function(val) {
 	cur_text.fill = val;
 	changeSelectedAttribute("fill", val);
+	// WISE4: call change event when text has been updated
+	if (selectedElements[0] != null && selectedElements[0].tagName == "text") 
+		{
+			call("changed", [selectedElements[0]]); 
+		}
 };
 
 // Function: getFontColor
 // Returns the current font color
-this.getFontSize = function() {
+//this.getFontSize = function() {
+this.getFontColor = function() { // WISE4 typo fix
 	return cur_text.fill;
 };
 
@@ -7466,6 +7479,11 @@ this.setFontSize = function(val) {
 	if(!selectedElements[0].textContent) {
 		textActions.setCursor();
 	}
+	// WISE4: call change event when text has been updated
+	if (selectedElements[0] != null && selectedElements[0].tagName == "text") 
+		{
+			call("changed", [selectedElements[0]]); 
+		}
 };
 
 // Function: getText
@@ -7485,6 +7503,11 @@ this.setTextContent = function(val) {
 	changeSelectedAttribute("#text", val);
 	textActions.init(val);
 	textActions.setCursor();
+	// WISE4 edit: call change event when text has been updated
+	var selected = selectedElements[0];
+	if (selected != null && selected.tagName == "text"){
+		call("changed", [selected]);
+	}
 };
 
 // Function: setImageURL
