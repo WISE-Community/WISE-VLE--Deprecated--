@@ -336,7 +336,7 @@ var scriptloader = function(){
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
- 			      'vle/node/DuplicateNode.js', 
+ 			      //'vle/node/DuplicateNode.js', 
   		          'vle/node/setupNodes.js',
   		          'vle/themes/setupThemes.js'
   		          ],
@@ -456,9 +456,7 @@ var scriptloader = function(){
 		              ],
 		studentwork_min: ['vle/minified/studentwork_min.js'
 		    		              ],		   
-		annotations: ['vle/grading/Annotations.js',
-		              'vle/grading/Annotation.js',
-		              'vle/view/vle/vleview_annotation.js'],
+		annotations: ['vle/view/vle/vleview_annotation.js'],
 		annotations_min: ['vle/minified/annotations_min.js'],
 		maxscores: ['vle/grading/MaxScores.js',
 		            'vle/grading/MaxScore.js'],
@@ -547,7 +545,7 @@ var scriptloader = function(){
         "vle/node/JournalNode.js": ["vle/node/Node.js"],
         "vle/node/JournalEntryNode.js": ["vle/node/Node.js", "vle/node/OpenResponseNode.js"],
         "vle/node/BlueJNode.js": ["vle/node/Node.js"],
-        'vle/node/DuplicateNode.js': ['vle/node/Node.js', 'vle/node/nodefactory.js'],
+        //'vle/node/DuplicateNode.js': ['vle/node/Node.js', 'vle/node/nodefactory.js'],
         'vle/node/BranchNode.js':['vle/node/Node.js','vle/node/MultipleChoiceNode.js'],
         "vle/ui/vleui.js": ["vle/VLE.js"],
         "vle/util/projectutils.js": ["vle/project/Project.js"],

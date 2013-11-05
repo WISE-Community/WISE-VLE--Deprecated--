@@ -48,7 +48,7 @@ MustCompleteBeforeExitingConstraint.prototype.isSatisfied = function() {
 
 /**
  * Check the constraint and determine if the student is allowed to move
- * to another step. Also grey out all other steps if they are not allowed
+ * to another step. Also disable all other steps if they are not allowed
  * to move to other steps due to this constraint.
  * @param currentNodeId the id of current step the student is on
  * @param nextNodeId the id of the next step the student is trying to move to
@@ -135,7 +135,7 @@ MustCompleteBeforeExitingConstraint.prototype.checkConstraint = function(current
 
 /**
  * Get the message to display to the student when this constraint
- * prevents them from moving to the next step they are trying to move to.
+ * prevents them from moving to the step they are trying to move to.
  * @return a message that we will notify the student of the constraint
  */
 MustCompleteBeforeExitingConstraint.prototype.getConstraintMessage = function() {
@@ -149,17 +149,19 @@ MustCompleteBeforeExitingConstraint.prototype.getConstraintMessage = function() 
 		var node = this.view.getProject().getNodeById(this.nodeId);
 		
 		if(node.type == 'sequence') {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_current_activity", [this.view.getI18NStringWithParams("constraint_all_steps", [stepTermPlural], "main")], "main");
+			var activityTerm = this.view.getActivityTerm();
+			message = this.view.getI18NStringWithParams("constraint_message_mustCompleteActivityBeforeExiting", [activityTerm], "main");
 		} else {
-			message = this.view.getI18NStringWithParams("constraint_must_complete_current_step", [stepTerm], "main");
-		}		
+			var stepTerm = this.view.getStepTerm();
+			message = this.view.getI18NStringWithParams("constraint_message_mustCompleteStepBeforeExiting", [stepTerm], "main");
+		}	
 	}
 	
 	return message;
 };
 
 /**
- * Grey out all the other steps in the navigation menu that the student is not
+ * Disable the steps in the navigation menu that the student is not
  * allowed to visit due to this constraint.
  */
 MustCompleteBeforeExitingConstraint.prototype.constrainNavigation = function() {

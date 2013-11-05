@@ -383,22 +383,18 @@ View.prototype.displayShowAllWork = function() {
 		//for the current team, calculate the percentage of the project they have completed
 		var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100) + "%";
 	    
-		// var closeButton1 = "<a href='#' class='container-close'>Close</a>";
-
-		var teacher_score = this.getI18NString('teacher_score');
-		var computer_score = this.getI18NString('computer_score');
-		var total_score = this.getI18NString('total_score');
+		var score = this.getI18NString('score');
 		var percent_project_completed = this.getI18NString('percent_project_completed');
 		var my_work_with_teacher_feedback_and_scores = this.getI18NString('my_work_with_teacher_feedback_and_scores');
 		
+		//create the table to display the student score and percent project completed
+		var scoreTable = "<table class='wisetable'>";
+		scoreTable += "<thead><tr><th>" + score + "</th><th>" + percent_project_completed + "</th></tr></thead>";
+		scoreTable += "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "</td><td class='scoreValue'><div class='pValue'>" + teamPercentProjectCompleted + "</div><div id='teamProgress' class='progress'></div></td></tr>";
+		scoreTable += "</table>";
 		
-	    var scoresDiv1 = "<table class='wisetable'>";
-	    
-	    var scoresDiv2 = "<thead><tr><th>" + teacher_score + "</th><th>" + computer_score + "</th><th>" + total_score + "</th><th>" + percent_project_completed + "</th></tr></thead>";
-	    	
-	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForProject + "</td><td class='scoreValue'><div class='pValue'>" + teamPercentProjectCompleted + "</div><div id='teamProgress' class='progress'></td></tr></table>";
-	    
-		allWorkHtml = "<div id='showWorkContainer' class='dialogContent'>" + scoresDiv1 + scoresDiv2 + scoresDiv3 + this.getProject().getShowAllWorkHtml(this.getProject().getRootNode(), true) + "</div>";
+	    //create the div that will contain the score table as well as all the student work
+		allWorkHtml = "<div id='showWorkContainer' class='dialogContent'>" + scoreTable + this.getProject().getShowAllWorkHtml(this.getProject().getRootNode(), true) + "</div>";
 		
 	    if($('#showallwork').size()==0){
 	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:my_work_with_teacher_feedback_and_scores});

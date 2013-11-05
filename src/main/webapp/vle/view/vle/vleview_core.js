@@ -61,6 +61,9 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		
 	} else if (type == 'startVLECompleted') {
 		obj.renderStartNode();
+		if(obj.isXMPPEnabled) {
+			obj.sendStudentStatusWebSocketMessage();			
+		}
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
 	} else if (type == 'assetCopiedForReference') {
@@ -361,7 +364,7 @@ View.prototype.loadTheme = function(themeName){
 	// inject theme's body.html into vle.html body
 	$('#vle_body').load(themeHtml,function(){
 		view.displayGlobalTools();
-		view.createAudioManagerOnProjectLoad();
+		//view.createAudioManagerOnProjectLoad();
 		
 		var currentTheme = [themeName.toLowerCase()]; // TODO: remove toLowerCase()
 		
@@ -386,6 +389,17 @@ View.prototype.loadTheme = function(themeName){
 		} else {
 			$("#audioControls").hide(); // TODO: Move, audio functionality should be independent of theme
 		}
+		
+		// create and initialize system dialogs
+		var constraintsDialog = $('<div id="constraintsDialog"></div>');
+		$('#w4_vle').append(constraintsDialog);
+		constraintsDialog.dialog({autoOpen:false, modal:true,
+			dialogClass: 'alert locked',
+			width: 500,
+			height: 300,
+			buttons: [{text: view.getI18NString("ok"), click: function(){ $(this).dialog('close'); }}]
+		});
+
 	});
 };
 
@@ -491,13 +505,6 @@ View.prototype.setStatuses = function() {
 	
 	//set this flag to show that the node statuses have been set
 	this.statusesSet = true;
-	
-	if(this.isXMPPEnabled) {
-		//we will send the student status to the teacher
-		var currentNodeId = this.currentNode.id;
-		var previousNodeVisit = this.getState().getLatestCompletedVisit();
-		this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);
-	}
 };
 
 /**
@@ -859,16 +866,6 @@ View.prototype.renderNodeCompletedListener = function(position){
 			status:this.studentStatus});	
 	}
 	
-	if(this.isXMPPEnabled) {
-		//check if the vle has set the statuses for all the nodes yet
-		if(this.statusesSet) {
-			//the node statuses have been set so we will send the student status to the teacher
-			var currentNodeId = this.currentNode.id;
-			var previousNodeVisit = this.getState().getLatestCompletedVisit();
-			this.sendStudentStatusWebSocketMessage(currentNodeId, previousNodeVisit);		
-		}
-	}
-	
 	this.displayHint();  // display hint for the current step, if any
 	
 	this.displayNodeAnnotation(this.currentNode.id);  // display annotation for the current step, if any
@@ -1114,8 +1111,9 @@ View.prototype.setStepIcon = function(nodeId, stepIconPath) {
  */
 View.prototype.goToNodePosition = function(nodePosition) {
 	//get the next node id
-	var nextNode = this.getProject().getNodeByPosition(nodePosition);
-	var nextNodeId = nextNode.id;
+	var project = this.getProject(),
+		nextNode = project.getNodeByPosition(nodePosition),
+		nextNodeId = nextNode.id;
 	
 	//perform any tag map processing
 	var processTagMapConstraintResults = this.processTagMapConstraints(nextNodeId);
@@ -1128,8 +1126,38 @@ View.prototype.goToNodePosition = function(nodePosition) {
 			 * prevent the next node from being rendered so that they
 			 * stay on the current node they are already on
 			 */
-			var message = processTagMapConstraintResults.message;
-			alert(message); // TODO: change to jQuery dialog (which is skinnable by themes)
+			var messages = {},
+				constraintHtml = '',
+				title = this.getI18NString('constraint_dialog_title'),
+				constraints = processTagMapConstraintResults.activeConstraints;
+			
+			for(var i=0; i<constraints.length; i++){
+				var constraint = constraints[i],
+					message = constraint.message,
+					nodesFailed = constraint.nodesFailed;
+				if(!messages.hasOwnProperty(constraint.message)){
+					messages[message] = nodesFailed;
+				} else {
+					messages[message] = messages[message].concat(nodesFailed);
+				}
+			}
+			
+			for(var key in messages){
+				var nodes = messages[key];
+				constraintHtml += '<div class="constraintMessage"><h3>' + key + '</h3>';
+				if(nodes.length > 0){
+					constraintHtml += '<ul>';
+					for(var x=0; x<nodes.length; x++){
+						// TODO: add "(all items)" to activities; put in order of project sequence
+						var isSequence = project.getNodeById(nodes[x]).isSequence(),
+							nodeText = this.getFullNodeName(nodes[x]) + (isSequence ? ' ' + this.getI18NString('constraint_allItems') : '');
+						constraintHtml += '<li>' + nodeText + '</li>';
+					}
+					constraintHtml += '</ul></div>';
+				}
+			}
+			//alert(message);
+			$('#constraintsDialog').html(constraintHtml).dialog('option', 'title', title).dialog('open');
 			this.eventManager.fire('renderNodeBlocked', nextNode);
 			return;
 		}
@@ -1152,7 +1180,6 @@ View.prototype.goToNodePosition = function(nodePosition) {
 	if(prevNode != null && !prevNode.canExit()){
 		return;
 	}
-	
 	
 	// Prepare to move to the specified position. 
 	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.

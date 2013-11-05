@@ -127,7 +127,6 @@ View.prototype.getPeerReviewWork = function() {
  * Retrieve the student work from the db
  */
 View.prototype.getStudentWork = function() {
-	console.log('getStudentWork');
 	//clear the student work vle states to make sure we don't get duplicate data
 	this.setStates(Array());
 	

@@ -259,6 +259,14 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 			type:type,
 			nodeVisit:nodeVisit});
 	}
+	
+	if(args.vle.isXMPPEnabled) {
+		//we will send the student status to the teacher
+		args.vle.sendStudentStatusWebSocketMessage();
+	}
+
+	//send the student status to the server
+	args.vle.sendStudentStatusToServer();
 
 	//fire the event that says we are done processing the post response
 	eventManager.fire('processPostResponseComplete');

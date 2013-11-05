@@ -51,6 +51,15 @@ function Node(nodeType, view){
 		                        ];
 	}
 	
+	// Messages to display to students when the status types are used for navigation constraints
+	if(view){
+		Node.statusConstraintMessages = [
+			{statusType: 'isVisitable', statusValue: 'true', message: view.getI18NString('constraint_message_mustUnlockXBeforeVisiting')},
+			{statusType: 'isVisited', statusValue: 'true', message: view.getI18NString('constraint_message_mustVisitXBeforeVisiting')},
+			{statusType: 'isCompleted', statusValue: 'true', message: view.getI18NString('constraint_message_mustCompleteXBeforeVisiting')}
+		];
+	}
+	
 	this.constraintStatus = 'enabled';
 	this.statuses = [];
 	this.icons = [];
@@ -2152,6 +2161,13 @@ Node.prototype.getAvailableStatusesIncludingSpecialStatusValues = function() {
 };
 
 /**
+ * Get the status constraint messages
+ */
+Node.prototype.getStatusConstraintMessages = function() {
+	return Node.statusConstraintMessages;
+};
+
+/**
  * Set the constraint status for this node
  * @param constraintStatus the constraint status for the node
  * e.g. 'disabled' or 'enabled'
@@ -2295,20 +2311,20 @@ Node.prototype.populateStatuses = function(state) {
 	if(latestNodeVisit != null && latestNodeVisit != "") {
 		//this step has been visited
 		this.setStatus('isVisited', true);
+
+		//check if the student has completed the step
+		var isCompleted = this.view.isCompleted(this.id);
+		
+		if(isCompleted) {
+			//the student has completed the step
+			this.setStatus('isCompleted', true);
+		} else {
+			//the student has not completed the step
+			this.setStatus('isCompleted', false);
+		}
 	} else {
 		//this step has not been visited
 		this.setStatus('isVisited', false);
-	}
-	
-	//check if the student has completed the step
-	var isCompleted = this.view.isCompleted(this.id);
-	
-	if(isCompleted) {
-		//the student has completed the step
-		this.setStatus('isCompleted', true);
-	} else {
-		//the student has not completed the step
-		this.setStatus('isCompleted', false);
 	}
 };
 

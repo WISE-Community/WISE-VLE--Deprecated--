@@ -43,7 +43,7 @@ View.prototype.startClassroomMonitor = function() {
 	 * get the student statuses, get the students online list, and then
 	 * start the websocket connection 
 	 */
-	this.loadProject(this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), false);
+	this.loadProject(this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), true);
 };
 
 
@@ -647,10 +647,102 @@ View.prototype.createStudentProgressDisplayRow = function(studentOnline, userNam
 		studentTR.append(currentStepTD);
 		studentTR.append(timeSpentTD);
 		studentTR.append(completionPercentageTD);
+		
+		//create the params to be used when this the teacher clicks this row
+		var studentRowClickedParams = {
+			view:this,
+			workgroupId:workgroupId
+		}
+		
+		//set the function to be called when the row is clicked 
+		studentTR.click(studentRowClickedParams, this.studentRowClicked);
 	}
 	
 	//return the student row
 	return studentTR;
+};
+
+/**
+ * The function that is called when a student row is clicked
+ * 
+ * @param event the click event
+ */
+View.prototype.studentRowClicked = function(event) {
+	var thisView = event.data.view;
+	
+	//get the workgroup id of the row that was clicked
+	var workgroupId = event.data.workgroupId;
+	
+	//call the function to handle the click
+	thisView.studentRowClickedHandler(workgroupId);
+};
+
+/**
+ * Called when a student row is clicked in the classroom monitor
+ * 
+ * @param workgroupId the workgroup id of the row that was clicked
+ */
+View.prototype.studentRowClickedHandler = function(workgroupId) {
+	//get the url for retrieving student data
+	var getStudentDataUrl = this.getConfig().getConfigParam('getStudentDataUrl');
+	
+	var runId = this.getConfig().getConfigParam('runId');
+	var grading = true;
+	var getRevisions = true;
+	
+	//get all the step node ids that are used in the project
+	var nodeIds = this.getProject().getNodeIds();
+	nodeIds = nodeIds.join(':');
+	
+	//create the GET params for retrieving the student data
+	var getStudentDataUrlWithParams = getStudentDataUrl + 
+		"?userId=" + workgroupId + 
+		"&grading=true" + 
+		"&runId=" + runId + 
+		"&nodeIds" + nodeIds + 
+		"&getRevisions=true";
+	
+	//make the request to retrieve the student data
+	this.connectionManager.request('GET', 1, getStudentDataUrlWithParams, null, this.getStudentWorkInClassroomMonitorCallback, [this, workgroupId], this.getStudentWorkInClassroomMonitorCallbackFail);
+};
+
+/**
+ * The success callback when retrieving student work
+ * 
+ * @param text the student work as text
+ * @param xml 
+ * @param args 
+ */
+View.prototype.getStudentWorkInClassroomMonitorCallback = function(text, xml, args) {
+	var thisView = args[0];
+	var workgroupId = args[1];
+	
+	//get the student work and do whatever we need to do with it
+	thisView.getStudentWorkInClassroomMonitorCallbackHandler(workgroupId, text);
+};
+
+/**
+ * Called when we successfully retrieve the student work
+ * 
+ * @param text the student work vle state as a JSON string
+ */
+View.prototype.getStudentWorkInClassroomMonitorCallbackHandler = function(workgroupId, text) {
+	if(text != null) {
+		//parse the vle state
+		var vleState = VLE_STATE.prototype.parseDataJSONString(text);
+		
+		if(vleState != null) {
+			//add the vle state to our model
+			this.model.addWorkByStudent(workgroupId, vleState);
+		}		
+	}
+};
+
+/**
+ * The failure callback when trying to retrieve student work
+ */
+View.prototype.getStudentWorkInClassroomMonitorCallbackFail = function(text, xml, args) {
+	var thisView = args;
 };
 
 /**
@@ -793,9 +885,100 @@ View.prototype.createStepProgressDisplayRow = function(nodeId, stepTitle, number
 		stepTR.append(stepTitleTD);
 		stepTR.append(numberStudentsOnStepTD);
 		stepTR.append(completionPercentageTD);
+		
+		//create the params to be used when this the teacher clicks this row
+		var stepRowClickedParams = {
+			view:this,
+			nodeId:nodeId
+		}
+		
+		//set the function to be called when the row is clicked
+		stepTR.click(stepRowClickedParams, this.stepRowClicked);
 	}
 	
 	return stepTR;
+};
+
+/**
+ * The function that is called when a student row is clicked
+ * 
+ * @param event the click event
+ */
+View.prototype.stepRowClicked = function(event) {
+	var thisView = event.data.view;
+	
+	//the node id of the row that was clicked
+	var nodeId = event.data.nodeId;
+	
+	//call the function to handle the click
+	thisView.stepRowClickedHandler(nodeId);
+};
+
+/**
+ * Called when a step row is clicked in the classroom monitor
+ * 
+ * @param nodeId the node id of the row that was clicked
+ */
+View.prototype.stepRowClickedHandler = function(nodeId) {
+	//get the url for retrieving student data
+	var getStudentDataUrl = this.getConfig().getConfigParam('getStudentDataUrl');
+	
+	var runId = this.getConfig().getConfigParam('runId');
+	var grading = true;
+	var getRevisions = true;
+	
+	//get the workgroup ids in the run
+	var workgroupIds = this.getUserAndClassInfo().getClassmateWorkgroupIds();
+	
+	//join the workgroup ids into a single string delimited by ':'
+	userIds = workgroupIds.join(':');
+	
+	//create the GET params for retrieving the student data
+	var getStudentDataUrlWithParams = getStudentDataUrl + 
+		"?nodeId=" + nodeId +
+		"&userId=" + userIds + 
+		"&grading=true" + 
+		"&runId=" + runId + 
+		"&getRevisions=true";
+	
+	//make the request to retrieve the student data
+	this.connectionManager.request('GET', 1, getStudentDataUrlWithParams, null, this.getStepWorkInClassroomMonitorCallback, [this, nodeId], this.getStepWorkInClassroomMonitorCallbackFail);
+
+};
+
+/**
+ * The success callback when retrieving student work
+ * 
+ * @param text the student work as text
+ * @param xml 
+ * @param args 
+ */
+View.prototype.getStepWorkInClassroomMonitorCallback = function(text, xml, args) {
+	var thisView = args[0];
+	var nodeId = args[1];
+
+	//get the student work and do whatever we need to do with it
+	thisView.getStepWorkInClassroomMonitorCallbackHandler(nodeId, text);
+};
+
+/**
+ * Called when we successfully retrieve the student work
+ * 
+ * @param text the student work for the step
+ */
+View.prototype.getStepWorkInClassroomMonitorCallbackHandler = function(nodeId, text) {
+	//get the student work as an array of node visits
+	var studentWork = JSON.parse(text);
+	
+	//add the student work to the model
+	this.model.addWorkByStep(nodeId, studentWork);
+};
+
+/**
+ * The failure callback when trying to retrieve student work
+ */
+View.prototype.getStepWorkInClassroomMonitorCallbackFail = function(text, xml, args) {
+	var thisView = args;
 };
 
 /**

@@ -110,8 +110,7 @@ View.prototype.initiateGradingDisplay = function() {
 	}
 
 	if(this.gradingType != "export") {
-		this.getPeerReviewWork();
-		this.getStudentWork();		
+		this.getStudentStatuses();
 	}
 };
 
@@ -1106,7 +1105,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		}
 		
 		//display the group assignments if any
-		var groupAssignmentsHtml = this.getGroupAssignmentsHtml('team', workgroupId);
+		//var groupAssignmentsHtml = this.getGroupAssignmentsHtml('team', workgroupId);
 		
 		//get the period the workgroup is in
 		var periodName = student.periodName;
@@ -1125,7 +1124,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		}
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"view.displayGradeByTeamGradingPage('" + workgroupId + "')\"><td class='showScorePeriodColumn'>" + periodName + "</td><td id='gradeByTeamStudentTeamTd_" + workgroupId + "' class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a>" + groupAssignmentsHtml + "</td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"view.displayGradeByTeamGradingPage('" + workgroupId + "')\"><td class='showScorePeriodColumn'>" + periodName + "</td><td id='gradeByTeamStudentTeamTd_" + workgroupId + "' class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 	}
 	
 	displayGradeByTeamSelectPageHtml += "</tbody></table></div>";
@@ -1572,13 +1571,128 @@ View.prototype.resizeTextArea = function(textArea) {
 };
 
 /**
+ * Display the grade by step grading page
+ * 
+ * @param stepNumber the step number
+ * @param nodeId the node id
+ */
+View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
+	//get the work for the step
+	var work = this.model.getWorkByNodeId(nodeId);
+	
+	if(work == null) {
+		//we have not retrieved the work for the step so now we will
+		this.getWorkForNodeId(nodeId);
+	} else {
+		//we have already retrieved the work for the step so we will display the grading page
+		this.displayGradeByStepGradingPageGenerator(stepNumber, nodeId);
+	}
+};
+
+/**
+ * Get the work for the step
+ * 
+ * @param nodeId the node id
+ */
+View.prototype.getWorkForNodeId = function(nodeId) {
+	//get the url for retrieving student data
+	var getStudentDataUrl = this.getConfig().getConfigParam('getStudentDataUrl');
+	
+	var runId = this.getConfig().getConfigParam('runId');
+	var grading = true;
+	var getRevisions = this.getRevisions;
+	
+	//get the workgroup ids in the run
+	var workgroupIds = this.getUserAndClassInfo().getClassmateWorkgroupIds();
+	
+	//join the workgroup ids into a single string delimited by ':'
+	userIds = workgroupIds.join(':');
+	
+	//create the GET params for retrieving the student data
+	var getStudentDataUrlWithParams = getStudentDataUrl + 
+		"?nodeIds=" + nodeId +
+		"&userId=" + userIds + 
+		"&grading=true" + 
+		"&runId=" + runId + 
+		"&getRevisions=" + getRevisions + 
+		"&useCachedWork=false";
+	
+	//make the request to retrieve the student data
+	this.connectionManager.request('GET', 1, getStudentDataUrlWithParams, null, this.getWorkForNodeIdCallback, [this, nodeId], this.getWorkForNodeIdCallbackFail);
+
+};
+
+/**
+ * The success callback when retrieving the student work for a step
+ * 
+ * @param text the response text
+ * @param xml
+ * @param args
+ */
+View.prototype.getWorkForNodeIdCallback = function(text, xml, args) {
+	var thisView = args[0];
+	var nodeId = args[1];
+	
+	//get the student work and then display the grade by step grading page
+	thisView.getWorkForNodeIdCallbackHandler(text, nodeId);
+};
+
+/**
+ * Called when we successfully retrieve the student work for a step
+ * 
+ * @param text the student work from the step as a string. this will contain
+ * an array of vle states that have node visits only from the specific
+ * step we are looking at
+ * @param nodeId the node id for the step
+ */
+View.prototype.getWorkForNodeIdCallbackHandler = function(text, nodeId) {
+	//parse the text into JSON, this will be an object which contains an array of vle states
+	var vleStatesForNodeId = JSON.parse(text);
+	
+	if(vleStatesForNodeId != null) {
+		//the array to hold all the vle states
+		var workForNodeId = [];
+		
+		//get the vle states array
+		var vleStates = vleStatesForNodeId.vle_states;
+		
+		//loop through all the vle states JSON objects
+		for(var x=0; x<vleStates.length; x++) {
+			//get a vle state JSON object
+			var vleStateJSONObj = vleStates[x];
+			
+			//create a vle state object
+			var vleState = VLE_STATE.prototype.parseDataJSONObj(vleStateJSONObj);
+			
+			//add the vle state object to the array
+			workForNodeId.push(vleState);
+		}
+		
+		//set the array of vle states for this step
+		this.model.setWorkByNodeId(nodeId, workForNodeId);
+		
+		//get the step number
+		var stepNumber = this.getProject().getVLEPositionById(nodeId);
+		
+		//display the grading page
+		this.displayGradeByStepGradingPageGenerator(stepNumber, nodeId);
+	}
+};
+
+/**
+ * The failure callback when trying to retrieve student work
+ */
+View.prototype.getWorkForNodeIdCallbackFail = function(text, xml, args) {
+	var thisView = args;
+};
+
+/**
  * Displays the grading view for a step which includes all the student ids,
  * student work, and grading text box
  * @param stepNumber the position in the vle e.g. 1.3
  * @param nodeId the step to display the grading view for
- * @param showRevisions boolean whether to show revisions or not
  */
-View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
+View.prototype.displayGradeByStepGradingPageGenerator = function(stepNumber, nodeId) {
 	this.gradingType = 'step';
 	
 	if(nodeId == null || nodeId == 'undefined') {
@@ -1782,7 +1896,11 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		"<th class='gradeColumn gradingColumn'>"+this.getI18NString("teacher_comment_and_score")+"</th>"+
 		"<th class='gradeColumn annotationColumn'>"+this.getI18NString("tools")+"</th></thead>";
 	
-	var vleStates = this.getVleStatesSortedByUserName();
+	//get the vle states that only contain the work for this step
+	var vleStates = this.model.getWorkByNodeId(nodeId);
+	
+	//sort the vle states alphabetically by user name
+	vleStates = this.getVleStatesSortedByUserName(vleStates);
 	
 	var runId = this.getConfig().getConfigParam('runId');
 	
@@ -1916,7 +2034,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		gradeByStepGradingPageHtml += "<div>" + toggleRevisionsLink + "</div>";
 		
 		//display the group assignments if any
-		gradeByStepGradingPageHtml += this.getGroupAssignmentsHtml('step', workgroupId);
+		gradeByStepGradingPageHtml += this.getManualGroupAssignmentsHtml('step', workgroupId, nodeId);
 		
 		gradeByStepGradingPageHtml += "</td>";
 		
@@ -2053,233 +2171,410 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 
 /**
  * Calculates the grading statistics for the gradingType
- * @param gradingType
- * @return
+ * @param gradingType "step" or "team"
  */
 View.prototype.calculateGradingStatistics = function(gradingType) {
-	/*
-	 * check to make sure the student work has been retrieved otherwise
-	 * we can't calculate the statistics
-	 */
-	if(this.getStates() != null) {
-		//check if gradingType was passed into this fuction
-		if(gradingType == null) {
-			//gradingType was not passed in so we will retrieve it from the config
-			gradingType = this.getConfig().getConfigParam('gradingType');	
-		}
+	//check if gradingType was passed into this fuction
+	if(gradingType == null) {
+		//gradingType was not passed in so we will retrieve it from the config
+		gradingType = this.getConfig().getConfigParam('gradingType');	
+	}
+	
+	if(gradingType == "step") {
+		//get statistics for gradebystep
+		this.calculateGradeByStepGradingStatistics();
+	} else if(gradingType == "team") {
+		//get statistics for gradebyteam
+		this.calculateGradeByTeamGradingStatistics();
+	}
+};
+
+/**
+ * Calculate the grade by team grading statistics
+ */
+View.prototype.calculateGradeByTeamGradingStatistics = function() {
+	if(this.studentStatuses != null) {
+		//we have the student statuses so we will use them to calculate the statistics
 		
-		if(gradingType == "step") {
-			//get statistics for gradebystep
-			this.calculateGradeByStepGradingStatistics(this.getProject().getRootNode());	
-		} else if(gradingType == "team") {
-			//get statistics for gradebyteam
-			this.calculateGradeByTeamGradingStatistics();
-		}
+		//get the workgroup ids in the class
+		var workgroupIds = this.getUserAndClassInfo().getClassmateWorkgroupIds();
 		
+		//loop through all the workgroup ids
+		for(var x=0; x<workgroupIds.length; x++) {
+			//get a workgroup id
+			var workgroupId = workgroupIds[x];
+			
+			//calculate how much of the project this workgroup has completed
+			var completedVal = parseInt(this.calculateStudentCompletionForWorkgroupId(workgroupId));
+			
+			//get the completion value as a string with '%' at the end
+			var teamPercentProjectCompleted = completedVal + '%';
+
+			//display the percentage and jqueryui progressbar elements
+			teamPercentProjectCompleted = "<div class='pLabel'>" + teamPercentProjectCompleted + "</div><div id='progress_" + workgroupId + "' class='progress'></div>";
+				
+			//calculate the number of items that have not been graded for this workgroup
+			var numItemsNeedGrading = this.calculateItemsToReviewForWorkgroupId(workgroupId);
+			
+			//set the number of items that need grading for this team
+			document.getElementById("teamNumItemsNeedGrading_" + workgroupId).innerHTML = numItemsNeedGrading;
+			
+			//set the percentage of the project the team has completed and jqueryui progressbar
+			document.getElementById("teamPercentProjectCompleted_" + workgroupId).innerHTML = teamPercentProjectCompleted;
+			var item = document.getElementById("progress_" + workgroupId);
+			$(item).progressbar({value: completedVal});
+		}
+	} else {
+		/*
+		 * we do not have the student statuses so we will use the old way of calculating
+		 * the statistics by using the student work
+		 */ 
+		
+		//check if the student work has been retrieved
+		var vleStates = this.getStates();
+		
+		if(vleStates != null) {
+			//the student work has been retrieved so we will calculate the statistics
+			this.calculateGradeByTeamGradingStatisticsOld();			
+		}
 	}
 };
 
 /**
  * Calculate and set the gradebyteam statistics
- * @return
  */
-View.prototype.calculateGradeByTeamGradingStatistics = function() {
-	/*
-	 * whether we only want to get the node types that have student work.
-	 * if this is false we will get all the node types.
-	 */
-	var onlyGetNodesWithGradingView = false;
+View.prototype.calculateGradeByTeamGradingStatisticsOld = function() {
+	//get the student work
+	var vleStates = this.getStates();
 	
-	//check if the post level for the run is set to low
-	if(this.config.getConfigParam('postLevel') == 1) {
-		//post level is set to low so we only want to get the nodes types that have student work
-		onlyGetNodesWithGradingView = true;
-	}
+	if(vleStates != null) {
+		/*
+		 * whether we only want to get the node types that have student work.
+		 * if this is false we will get all the node types.
+		 */
+		var onlyGetNodesWithGradingView = false;
+		
+		//check if the post level for the run is set to low
+		if(this.config.getConfigParam('postLevel') == 1) {
+			//post level is set to low so we only want to get the nodes types that have student work
+			onlyGetNodesWithGradingView = true;
+		}
 
-	//get the run id
-	var runId = this.getConfig().getConfigParam('runId');
-	
-	//get the teacher id
-	var teacherId = this.getUserAndClassInfo().getWorkgroupId();
-	
-	//get all the teacher ids
-	var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
-	
-	//loop through all the vleStates, each vleState is for a workgroup
-	for(var x=0; x<this.getStates().length; x++) {
-		//get a vleState
-		var vleState = this.getStates()[x];
+		//get the run id
+		var runId = this.getConfig().getConfigParam('runId');
 		
-		//get the workgroup id
-		var workgroupId = vleState.dataId;
+		//get the teacher id
+		var teacherId = this.getUserAndClassInfo().getWorkgroupId();
 		
-		//the number of items that need grading for the current workgroupId
-		var numItemsNeedGrading = 0;
+		//get all the teacher ids
+		var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
 		
-		//the number of steps the current workgroupId has completed
-		var numStepsCompleted = 0;
-		
-		//get the node ids this student can visit except steps that can't be graded such as Html steps
-		var nodeIds = this.getStepNodeIdsStudentCanVisit(vleState);
-		
-		//loop through all the nodeIds
-		for(var y=0; y<nodeIds.length; y++) {
-			var nodeId = nodeIds[y];
+		//loop through all the vleStates, each vleState is for a workgroup
+		for(var x=0; x<vleStates.length; x++) {
+			//get a vleState
+			var vleState = vleStates[x];
 			
-			//get the latest work for the current workgroup 
-			var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
-			var latestNodeVisitPostTime = null;
+			//get the workgroup id
+			var workgroupId = vleState.dataId;
 			
-			//check if there was any work
-			if (latestNodeVisit != null) {
-				//student has completed this step so we will increment the counter
-				numStepsCompleted++;
+			//the number of items that need grading for the current workgroupId
+			var numItemsNeedGrading = 0;
+			
+			//the number of steps the current workgroupId has completed
+			var numStepsCompleted = 0;
+			
+			//get the node ids this student can visit except steps that can't be graded such as Html steps
+			var nodeIds = this.getStepNodeIdsStudentCanVisit(vleState);
+			
+			//loop through all the nodeIds
+			for(var y=0; y<nodeIds.length; y++) {
+				var nodeId = nodeIds[y];
+				
+				//get the latest work for the current workgroup 
+				var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
+				var latestNodeVisitPostTime = null;
+				
+				//check if there was any work
+				if (latestNodeVisit != null) {
+					//student has completed this step so we will increment the counter
+					numStepsCompleted++;
 
-				//get the timestamp for this latest work
-				latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
+					//get the timestamp for this latest work
+					latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
+				}
+				
+				//get the annotations data for this student/step combination
+				var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
+
+				//get the timestamp for the latest annotation
+				var latestAnnotationPostTime = annotationData.latestAnnotationPostTime;
+				
+				//see if the teacher has graded the latest work
+				if(latestNodeVisitPostTime > latestAnnotationPostTime) {
+					//the teacher has not graded the latest work
+					numItemsNeedGrading++;
+				}
 			}
 			
-			//get the annotations data for this student/step combination
-			var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
-
-			//get the timestamp for the latest annotation
-			var latestAnnotationPostTime = annotationData.latestAnnotationPostTime;
+			//for the current team, calculate the percentage of the project they have completed
+			var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100) + "%";
 			
-			//see if the teacher has graded the latest work
-			if(latestNodeVisitPostTime > latestAnnotationPostTime) {
-				//the teacher has not graded the latest work
-				numItemsNeedGrading++;
-			}
+			//display the percentage and jqueryui progressbar elements
+			var completedVal = parseInt(teamPercentProjectCompleted.replace('%',''));
+			//percentStudentsCompletedStep = percentStudentsCompletedStep + "<hr width='" + percentStudentsCompletedStep + "' size=" + percentBarSize + " color='black' align='left' noshade>";
+			teamPercentProjectCompleted = "<div class='pLabel'>" + teamPercentProjectCompleted + "</div><div id='progress_" + workgroupId + "' class='progress'></div>";
+				
+			//display the percentage and an hr with a width of the percentage
+			//teamPercentProjectCompleted = teamPercentProjectCompleted + "<hr size=3 color='black' width='" + teamPercentProjectCompleted + "' align='left' noshade>";
+			
+			//total score is calculated within displayGradeByTeamSelectPage()
+			
+			//set the number of items that need scoring for this team
+			document.getElementById("teamNumItemsNeedGrading_" + workgroupId).innerHTML = numItemsNeedGrading;
+			
+			//set the percentage of the project the team has completed and jqueryui progressbar
+			document.getElementById("teamPercentProjectCompleted_" + workgroupId).innerHTML = teamPercentProjectCompleted;
+			var item = document.getElementById("progress_" + workgroupId);
+			$(item).progressbar({value: completedVal});
 		}
 		
-		//for the current team, calculate the percentage of the project they have completed
-		var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100) + "%";
+		// make table sortable by any of its columns
+		var oTable = $("#chooseTeamToGradeTable").dataTable({
+	    	"aaSorting": [[1,'asc']],
+	    	"iDisplayLength": -1,
+	    	"sDom": '<rt>'
+	    });
+	    
+	    // detach any existing FixedHeader clones
+	    $('.fixedHeader').detach();
+	    
+	    //new FixedHeader( oTable, {"right": true} );  // for some reason, this causes an ActiveX error in mysystem_complete.js!
+	    new FixedHeader( oTable ); 
+	    
+	    // set up search input
+	    $('input#chooseTeamToGrade_search').keypress(function(e) {
+			if(e.keyCode === 13) {
+				var val = $(this).val();
+	    		oTable.fnFilter(val);
+	    	}
+	    });
+	    
+	    this.displayFinished();
+	}
+};
+
+/**
+ * Calculate the number of items that need to be graded for the workgroup id
+ * 
+ * @param workgroupId the workgroup id
+ * 
+ * @return the number of items for this workgroup id that need to be graded
+ */
+View.prototype.calculateItemsToReviewForWorkgroupId = function(workgroupId) {
+	var itemsToReview = 0;
+	
+	if(this.studentStatuses != null) {
+		//get the student status for the workgroup id
+		var studentStatus = this.getStudentStatusByWorkgroupId(workgroupId);
 		
-		//display the percentage and jqueryui progressbar elements
-		var completedVal = parseInt(teamPercentProjectCompleted.replace('%',''));
-		//percentStudentsCompletedStep = percentStudentsCompletedStep + "<hr width='" + percentStudentsCompletedStep + "' size=" + percentBarSize + " color='black' align='left' noshade>";
-		teamPercentProjectCompleted = "<div class='pLabel'>" + teamPercentProjectCompleted + "</div><div id='progress_" + workgroupId + "' class='progress'></div>";
+		if(studentStatus != null) {
+			//get the node statuses
+			var nodeStatuses = studentStatus.nodeStatuses;
 			
-		//display the percentage and an hr with a width of the percentage
-		//teamPercentProjectCompleted = teamPercentProjectCompleted + "<hr size=3 color='black' width='" + teamPercentProjectCompleted + "' align='left' noshade>";
-		
-		//total score is calculated within displayGradeByTeamSelectPage()
-		
-		//set the number of items that need scoring for this team
-		document.getElementById("teamNumItemsNeedGrading_" + workgroupId).innerHTML = numItemsNeedGrading;
-		
-		//set the percentage of the project the team has completed and jqueryui progressbar
-		document.getElementById("teamPercentProjectCompleted_" + workgroupId).innerHTML = teamPercentProjectCompleted;
-		var item = document.getElementById("progress_" + workgroupId);
-		$(item).progressbar({value: completedVal});
+			//get the step node ids in the project
+			var nodeIds = this.getProject().getNodeIds();
+			
+			//loop through all the node ids
+			for(var x=0; x<nodeIds.length; x++) {
+				//get a node id
+				var nodeId = nodeIds[x];
+				
+				//get the node
+				var node = this.getProject().getNodeById(nodeId);
+				
+				//check if the step type is a gradable step
+				if(node != null && node.hasGradingView()) {
+					//the step type is gradable
+					
+					//get the node status for the node
+					var nodeStatus = this.getNodeStatusByNodeId(nodeStatuses, nodeId);
+					
+					if(nodeStatus != null) {
+						//get the latest step work id with work
+						var latestStepWorkIdWithWork = nodeStatus.latestStepWorkIdWithWork;
+						
+						if(latestStepWorkIdWithWork != null) {
+							//get the annotations
+							var annotations = this.getAnnotations();
+							
+							//get the score annotation value if any
+							var score = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'score');
+							
+							//get the comment annotation value if any
+							var comment = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'comment');
+							
+							if(score == null && comment == null) {
+								//there was no score or comment so this work needs to be graded
+								itemsToReview++;
+							}
+						}
+					}
+				}
+			}			
+		}
 	}
 	
-	// make table sortable by any of its columns
-	var oTable = $("#chooseTeamToGradeTable").dataTable({
-    	"aaSorting": [[1,'asc']],
-    	"iDisplayLength": -1,
-    	"sDom": '<rt>'
-    });
-    
-    // detach any existing FixedHeader clones
-    $('.fixedHeader').detach();
-    
-    //new FixedHeader( oTable, {"right": true} );  // for some reason, this causes an ActiveX error in mysystem_complete.js!
-    new FixedHeader( oTable ); 
-    
-    // set up search input
-    $('input#chooseTeamToGrade_search').keypress(function(e) {
-		if(e.keyCode === 13) {
-			var val = $(this).val();
-    		oTable.fnFilter(val);
-    	}
-    });
-        
-    // add parser through the tablesorter addParser method 
-    /*$.tablesorter.addParser({ 
-        // set a unique id 
-        id: 'grades', 
-        is: function(s) { 
-            // return false so this parser is not auto detected 
-            return false; 
-        }, 
-        format: function(s) { 
-            // format your data for normalization */
-        	
-        	/*
-        	 * the values in the column are like "9 / 10" so we need 
-        	 * to sort by the number value before the '/'
-        	 */
-        	
-        	//get the index of the '/'
-        	//var slashIndex = s.indexOf('/');
-        	
-        	/*
-        	 * get only the number value before the '/', we need to
-        	 * subtract 1 because the value is like "9 / 10" and we
-        	 * want to get rid of the space before the '/'
-        	 */
-        	/*var score = s.substring(0, slashIndex - 1);
+	return itemsToReview;
+};
 
-        	//return the value before the '/'
-            return score; 
-        }, 
-        // set type, either numeric or text 
-        type: 'numeric' 
-    }); */
-     
-    // add parser through the tablesorter addParser method 
-   /* $.tablesorter.addParser({ 
-        // set a unique id 
-        id: 'completion', 
-        is: function(s) { 
-            // return false so this parser is not auto detected 
-            return false; 
-        }, 
-        format: function(s) { 
-            // format your data for normalization */
-        	
-        	/*
-        	 * the values in the column are like "52%<hr>" so we need 
-        	 * to sort by the value before '%'
-        	 */
-        	
-        	//get the index of the '%'
-        	/*var percentIndex = s.indexOf('%');
-        	
-        	// only get the number value before the '%'
-        	var completion = s.substring(0, percentIndex);
-
-        	//return the value before the '%'
-            return completion; 
-        }, 
-        // set type, either numeric or text 
-        type: 'numeric' 
-    }); */
-    
-    /*
-     * make the table sortable by any of its columns
-     * 
-     * the 3rd column requires
-     * special sorting because the values in that column are like
-     * "9 / 10" so we need to sort by the number value before the '/'
-     * 
-     * the 5th column requires special sorting to only look at the
-     * percentage value and to ignore the <hr>
-     */
-    
-    /*$("#chooseTeamToGradeTable").tablesorter({ 
-        headers: { 
-            2: { 
-                sorter:'grades' 
-            },
-    		4: { 
-        		sorter:'completion' 
-    		}
-        } 
-    });*/ 
+/**
+ * Get the node status for a node id
+ * 
+ * @param nodeStatuses an array of node statuses
+ * @param nodeId the node id we want the node status for
+ * 
+ * @return the node status object with the given node id or null
+ */
+View.prototype.getNodeStatusByNodeId = function(nodeStatuses, nodeId) {
+	var nodeStatus = null;
 	
-	this.displayFinished();
+	if(nodeStatuses != null) {
+		//loop through all the node statuses
+		for(var x=0; x<nodeStatuses.length; x++) {
+			//get a node status
+			var tempNodeStatus = nodeStatuses[x];
+			
+			if(tempNodeStatus != null) {
+				//get the node from the node status
+				var tempNodeId = tempNodeStatus.nodeId;
+				
+				if(nodeId == tempNodeId) {
+					//the node id matches so we have found the node status we want
+					nodeStatus = tempNodeStatus;
+					break;
+				}
+			}
+		}
+	}
+	
+	return nodeStatus;
+}
+
+
+/**
+ * Calculate the grade by step grading statistics
+ */
+View.prototype.calculateGradeByStepGradingStatistics = function() {
+	if(this.studentStatuses != null) {
+		//we have the student statuses so we will use them to calculate the grading statistics
+		
+		//get the step node ids in the project
+		var nodeIds = this.getProject().getNodeIds();
+		
+		//loop through all the node ids
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			var node = this.getProject().getNodeById(nodeId);
+			var periodId = null;
+			var title = node.title;
+			var periodName = 'all';
+			
+			//check if the step has a grading view
+			if(node.hasGradingView()) {
+				//get the percentage completion for the step
+				var completedVal = parseInt(this.calculateStepCompletionForNodeId(nodeId));
+				
+				//get the percentage completion value as a string ending with '%'
+				var percentStudentsCompletedStep = completedVal + '%';
+				
+				//the default bar size, we will use this for the thickness of the hr
+				var percentBarSize = 0;
+				
+				//check if the percent complete is 0%
+				if(percentStudentsCompletedStep != '0%') {
+					//set the thickness to 3
+					percentBarSize = 3;
+				}
+				
+				//display the percentage and jqueryui progressbar
+				var percentStudentsCompletedStepHtml = "<div class='pLabel'>" + percentStudentsCompletedStep + "</div><div id='progress_" + nodeId + "' class='progress'></div>";
+				
+				//set the percentage of the class that has completed this step
+				document.getElementById("stepPercentStudentsCompleted_" + nodeId).innerHTML = percentStudentsCompletedStepHtml;
+				var item = document.getElementById("progress_" + nodeId);
+				$(item).progressbar({value: completedVal});
+				
+				//calculate the number of items that need grading for all periods
+				var numItemsNeedScoring = this.calculateItemsToReviewForStep(nodeId);
+				
+				//set the number of items that need grading value into the display
+				document.getElementById("stepNumItemsNeedGrading_" + nodeId).innerHTML = numItemsNeedScoring;
+				
+				//set the average score for the step
+				var averageScore = this.calculateAverageScoreForNodeId(nodeId);
+				document.getElementById("stepAverageScore_" + nodeId).innerHTML = averageScore;
+				
+				//get the periods in the class 
+				var periods = this.getUserAndClassInfo().getPeriods();
+				
+				//loop through all the periods
+				for(var p=0; p<periods.length; p++) {
+					//get a period
+					var period = periods[p];
+					
+					//get the period name and period id
+					var periodName = period.periodName;
+					var periodId = period.periodId;
+					
+					//get the completion value for the period
+					var completedVal = parseInt(this.calculateStepCompletionForNodeId(nodeId, periodId));
+					
+					//get the completion value as a string ending with '%'
+					var percentStudentsCompletedStep = completedVal + '%';
+					
+					//the default bar size, we will use this for the thickness of the hr
+					var percentBarSize = 0;
+					
+					//check if the percent complete is 0%
+					if(percentStudentsCompletedStep != '0%') {
+						//set the thickness to 3
+						percentBarSize = 3;
+					}
+					
+					//display the percentage and jqueryui progressbar
+					var percentStudentsCompletedStepHtml = "<div class='pLabel'>" + percentStudentsCompletedStep + "</div><div id='progress_" + nodeId + "_period" + periodName + "' class='progress'></div>";
+					
+					//set the percentage of the class that has completed this step
+					document.getElementById("stepPercentStudentsCompleted_" + nodeId + "_period" + periodName).innerHTML = percentStudentsCompletedStepHtml;
+					var item = document.getElementById("progress_" + nodeId + "_period" + periodName);
+					$(item).progressbar({value: completedVal});
+					
+					//set the number of items that need grading value into the display
+					var numItemsNeedScoring = this.calculateItemsToReviewForStep(nodeId, periodId);
+					document.getElementById("stepNumItemsNeedGrading_" + nodeId + "_period" + periodName).innerHTML = numItemsNeedScoring;
+					
+					//set the average score for the step
+					var averageScore = this.calculateAverageScoreForNodeId(nodeId, periodId);
+					document.getElementById("stepAverageScore_" + nodeId + "_period" + periodName).innerHTML = averageScore;
+				}
+			}
+		}
+	} else {
+		/*
+		 * we do not have the student statuses so we will use the old way of calculating
+		 * the statistics by using the student work
+		 */ 
+		
+		//check if the student work has been retrieved
+		var vleStates = this.getStates();
+		
+		if(vleStates != null) {
+			//the student work has been retrieved so we will calculate the statistics
+			this.calculateGradeByStepGradingStatisticsOld(this.getProject().getRootNode());			
+		}
+	}
 };
 
 /**
@@ -2287,7 +2582,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
  * @param node
  * @return
  */
-View.prototype.calculateGradeByStepGradingStatistics = function(node) {
+View.prototype.calculateGradeByStepGradingStatisticsOld = function(node) {
 	var nodeId = node.id;
 	
 	if(node.isLeafNode()) {
@@ -2354,10 +2649,77 @@ View.prototype.calculateGradeByStepGradingStatistics = function(node) {
 	} else {
 		//loop through all its children
 		for(var x=0; x<node.children.length; x++) {
-			this.calculateGradeByStepGradingStatistics(node.children[x]);
+			this.calculateGradeByStepGradingStatisticsOld(node.children[x]);
 		}
 	}
 };
+
+
+
+/**
+ * Calculate the number if items to review for a specific step
+ * 
+ * @param nodeId the node id
+ * @param periodId the period id or null if we want to calculate the
+ * number of items to review for all periods
+ * 
+ * @return the number of items to review for the given period
+ */
+View.prototype.calculateItemsToReviewForStep = function(nodeId, periodId) {
+	var itemsToReview = 0;
+	
+	//get the student statuses
+	var studentStatuses = this.studentStatuses;
+	
+	if(studentStatuses != null) {
+		//loop through all the student statuses
+		for(var x=0; x<studentStatuses.length; x++) {
+			//get a student status
+			var studentStatus = studentStatuses[x];
+			
+			if(studentStatus != null) {
+				//get the period that this student is in
+				var tempPeriodId = studentStatus.periodId;
+				
+				if(periodId == null || periodId == 'all' || periodId == tempPeriodId) {
+					/*
+					 * we are getting the number of students who have completed the step
+					 * for all periods or if we are looking for a specific period and
+					 * the student we are currently on is in that period
+					 */
+					
+					//get the node statuses for the student
+					var nodeStatuses = studentStatus.nodeStatuses;
+					
+					//get the node status for the node we want
+					var nodeStatus = this.getNodeStatusByNodeId(nodeStatuses, nodeId);
+					
+					if(nodeStatus != null) {
+						//get the latest step work id with work for this step for this student
+						var latestStepWorkIdWithWork = nodeStatus.latestStepWorkIdWithWork;
+						
+						if(latestStepWorkIdWithWork != null) {
+							//get the annotations
+							var annotations = this.getAnnotations();
+							
+							//try to find any score or comment annotations for this step work id
+							var score = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'score');
+							var comment = annotations.getAnnotationByStepWorkIdType(latestStepWorkIdWithWork, 'comment');
+							
+							if(score == null && comment == null) {
+								//there was no score or comment so this work has not been graded
+								itemsToReview++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return itemsToReview;
+};
+
 
 /**
  * Calculate the gradebystep statistics for a specific step
@@ -2368,130 +2730,135 @@ View.prototype.getGradeByStepGradingStatistics = function(nodeId) {
 	//the object to contain the statistics values and return
 	var gradingStatistics = {};
 	
-	//counter for the number of student work that needs grading
-	var numItemsNeedGrading = 0;
+	//get the student work
+	var vleStates = this.getStates();
 	
-	//get the run id
-	var runId = this.getConfig().getConfigParam('runId');
-	
-	//get the teacher workgroup id
-	var teacherId = this.getUserAndClassInfo().getWorkgroupId();
-	
-	//get all the teacher workgroup ids
-	var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
-	
-	//counter for the number of students who have completed work for this step
-	var numStudentsCompletedStep = 0;
-	
-	//sum of all the scores that the teacher has given for this step, does not include non-scored
-	var sumOfScoredValues = 0;
-	
-	//number of scores the teacher has given out, does not include non-scored
-	var numOfScoredValues = 0;
-	
-	//the max score for this step
-	var maxScore = this.getMaxScoreValueByNodeId(nodeId);
-	
-	//loop through all the vleStates, each vleState is for a workgroup
-	for(var x=0; x<this.getStates().length; x++) {
-		//get a vleState
-		var vleState = this.getStates()[x];
+	if(vleStates != null) {
+		//counter for the number of student work that needs grading
+		var numItemsNeedGrading = 0;
 		
-		//get the workgroup id
-		var workgroupId = vleState.dataId;
+		//get the run id
+		var runId = this.getConfig().getConfigParam('runId');
 		
-		//get the period name the current workgroupId is in
-		var periodName = this.getUserAndClassInfo().getClassmatePeriodNameByWorkgroupId(workgroupId);
+		//get the teacher workgroup id
+		var teacherId = this.getUserAndClassInfo().getWorkgroupId();
 		
-		//get the statistics object for the period
-		var periodGradingStatistics = this.getPeriodGradingStatisticsObject(gradingStatistics, periodName);
+		//get all the teacher workgroup ids
+		var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+		
+		//counter for the number of students who have completed work for this step
+		var numStudentsCompletedStep = 0;
+		
+		//sum of all the scores that the teacher has given for this step, does not include non-scored
+		var sumOfScoredValues = 0;
+		
+		//number of scores the teacher has given out, does not include non-scored
+		var numOfScoredValues = 0;
+		
+		//the max score for this step
+		var maxScore = this.getMaxScoreValueByNodeId(nodeId);
+		
+		//loop through all the vleStates, each vleState is for a workgroup
+		for(var x=0; x<vleStates.length; x++) {
+			//get a vleState
+			var vleState = vleStates[x];
+			
+			//get the workgroup id
+			var workgroupId = vleState.dataId;
+			
+			//get the period name the current workgroupId is in
+			var periodName = this.getUserAndClassInfo().getClassmatePeriodNameByWorkgroupId(workgroupId);
+			
+			//get the statistics object for the period
+			var periodGradingStatistics = this.getPeriodGradingStatisticsObject(gradingStatistics, periodName);
 
-		//get the latest work for the current workgroup 
-		var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
-		var latestNodeVisitPostTime = null;
-		
-		//check if the student did any work for the step
-		if (latestNodeVisit != null) {
-			//increment the counter since this student did work for this step
-			numStudentsCompletedStep++;
-			periodGradingStatistics.numStudentsCompletedStep++;
+			//get the latest work for the current workgroup 
+			var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
+			var latestNodeVisitPostTime = null;
 			
-			//get the timestamp for the work
-			latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
-		}
-		
-		//get the annotations data for this student/step combination
-		var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
+			//check if the student did any work for the step
+			if (latestNodeVisit != null) {
+				//increment the counter since this student did work for this step
+				numStudentsCompletedStep++;
+				periodGradingStatistics.numStudentsCompletedStep++;
+				
+				//get the timestamp for the work
+				latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
+			}
+			
+			//get the annotations data for this student/step combination
+			var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
 
-		//get the graded score
-		var annotationScoreValue = annotationData.annotationScoreValue;
-		
-		//get the timestamp of the grade if any
-		var latestAnnotationPostTime = annotationData.latestAnnotationPostTime;
-		
-		//check if the teacher has given a score
-		if(annotationScoreValue != null && annotationScoreValue != "") {
-			//add the score to our sum
-			sumOfScoredValues += parseFloat(annotationScoreValue);
+			//get the graded score
+			var annotationScoreValue = annotationData.annotationScoreValue;
 			
-			//add the score to the period statistics
-			periodGradingStatistics.sumOfScoredValues += parseFloat(annotationScoreValue);
+			//get the timestamp of the grade if any
+			var latestAnnotationPostTime = annotationData.latestAnnotationPostTime;
 			
-			//increment the number of scores the teacher has given out
-			numOfScoredValues++;
+			//check if the teacher has given a score
+			if(annotationScoreValue != null && annotationScoreValue != "") {
+				//add the score to our sum
+				sumOfScoredValues += parseFloat(annotationScoreValue);
+				
+				//add the score to the period statistics
+				periodGradingStatistics.sumOfScoredValues += parseFloat(annotationScoreValue);
+				
+				//increment the number of scores the teacher has given out
+				numOfScoredValues++;
+				
+				//increment the value in the period statistics
+				periodGradingStatistics.numOfScoredValues++;
+			}
 			
-			//increment the value in the period statistics
-			periodGradingStatistics.numOfScoredValues++;
+			//check if the work is newer than the last time the teacher graded
+			if(latestNodeVisitPostTime > latestAnnotationPostTime) {
+				//this item needs grading so we will increment the counter
+				numItemsNeedGrading++;
+				
+				//increment the value in the period statistics
+				periodGradingStatistics.numItemsNeedGrading++;
+			}
+			
+			periodGradingStatistics.numStudentsInPeriod++;
 		}
-		
-		//check if the work is newer than the last time the teacher graded
-		if(latestNodeVisitPostTime > latestAnnotationPostTime) {
-			//this item needs grading so we will increment the counter
-			numItemsNeedGrading++;
-			
-			//increment the value in the period statistics
-			periodGradingStatistics.numItemsNeedGrading++;
-		}
-		
-		periodGradingStatistics.numStudentsInPeriod++;
-	}
 
-	//calculate the percentage of students who have completed this step
-	var percentStudentsCompletedStep = Math.floor((numStudentsCompletedStep / this.getStates().length) * 100) + "%";
-	
-	//calculate the average score for the scores that were given for this step
-	var averageScore = sumOfScoredValues / numOfScoredValues;
-	
-	if(isNaN(averageScore)) {
-		averageScore = "N/A";
-	} else {
-		var averageScoreString = averageScore.toString();
+		//calculate the percentage of students who have completed this step
+		var percentStudentsCompletedStep = Math.floor((numStudentsCompletedStep / this.getStates().length) * 100) + "%";
 		
-		var indexOfDecimal = averageScoreString.indexOf(".");
+		//calculate the average score for the scores that were given for this step
+		var averageScore = sumOfScoredValues / numOfScoredValues;
 		
-		if(indexOfDecimal != -1) {
-			//there is a decimal
+		if(isNaN(averageScore)) {
+			averageScore = "N/A";
+		} else {
+			var averageScoreString = averageScore.toString();
 			
-			//get the digits after the decimal
-			var substringOf = averageScoreString.substring(indexOfDecimal + 1);
+			var indexOfDecimal = averageScoreString.indexOf(".");
 			
-			if(substringOf.length > 1) {
-				/*
-				 * there are more than two digits after the decimal so we will
-				 * truncate down to two decimals
-				 */
-				averageScore = averageScore.toFixed(1);
+			if(indexOfDecimal != -1) {
+				//there is a decimal
+				
+				//get the digits after the decimal
+				var substringOf = averageScoreString.substring(indexOfDecimal + 1);
+				
+				if(substringOf.length > 1) {
+					/*
+					 * there are more than two digits after the decimal so we will
+					 * truncate down to two decimals
+					 */
+					averageScore = averageScore.toFixed(1);
+				}
 			}
 		}
+		
+		//set the statistics into the object that we will return
+		gradingStatistics.numItemsNeedScoring = numItemsNeedGrading;
+		gradingStatistics.percentStudentsCompletedStep = percentStudentsCompletedStep;
+		gradingStatistics.averageScore = averageScore;
+		
+		//calculate the statistics for all the periods
+		this.calculatePeriodGradingStatistics(gradingStatistics);
 	}
-	
-	//set the statistics into the object that we will return
-	gradingStatistics.numItemsNeedScoring = numItemsNeedGrading;
-	gradingStatistics.percentStudentsCompletedStep = percentStudentsCompletedStep;
-	gradingStatistics.averageScore = averageScore;
-	
-	//calculate the statistics for all the periods
-	this.calculatePeriodGradingStatistics(gradingStatistics);
 	
 	return gradingStatistics;
 };
@@ -2997,7 +3364,7 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	scoringAndCommentingTdHtml += "<td class='" + scoringAndCommentingTdClass + "'>";
 	
 	//get the content for the step
-	var nodeContent = this.getProject().getNodeById(nodeId).getContent().getContentJSON();
+	//var nodeContent = this.getProject().getNodeById(nodeId).getContent().getContentJSON();
 	
 	//the td will contain a table
 	scoringAndCommentingTdHtml += "<table class='teacherAnnotationTable'>";
@@ -3219,11 +3586,100 @@ View.prototype.getToolsTdHtml = function(workgroupId, nodeId, teacherId, runId, 
 };
 
 /**
+ * Display the grade by team grading page
+ * 
+ * @param workgroupId the workgroup id
+ */
+View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
+	//get the work for the workgroup id
+	var work = this.model.getWorkByWorkgroupId(workgroupId);
+	
+	if(work == null) {
+		//we do not have the work for the workgroup id so we must retrieve it
+		this.getWorkForWorkgroupId(workgroupId);
+	} else {
+		//we have the work for the workgroup id so we wil display the grading page
+		this.displayGradeByTeamGradingPageGenerator(workgroupId);
+	}
+};
+
+/**
+ * Get the work for a workgroup id
+ * 
+ * @param workgroupId the workgroup id
+ */
+View.prototype.getWorkForWorkgroupId = function(workgroupId) {
+	//get the url for retrieving student data
+	var getStudentDataUrl = this.getConfig().getConfigParam('getStudentDataUrl');
+	
+	var runId = this.getConfig().getConfigParam('runId');
+	var grading = true;
+	var getRevisions = this.getRevisions;
+	
+	//get all the step node ids that are used in the project
+	var nodeIds = this.getProject().getNodeIds();
+	nodeIds = nodeIds.join(':');
+	
+	//create the GET params for retrieving the student data
+	var getStudentDataUrlWithParams = getStudentDataUrl + 
+		"?userId=" + workgroupId + 
+		"&grading=true" + 
+		"&runId=" + runId + 
+		"&nodeIds=" + nodeIds + 
+		"&getRevisions=true" +
+		"&useCachedWork=false";
+	
+	//make the request to retrieve the student data
+	this.connectionManager.request('GET', 1, getStudentDataUrlWithParams, null, this.getWorkForWorkgroupIdCallback, [this, workgroupId], this.getWorkForWorkgroupIdCallbackFail);
+};
+
+/**
+ * The success callback when retrieving student work for a workgroup id
+ * 
+ * @param text the response text
+ * @param xml 
+ * @param args 
+ */
+View.prototype.getWorkForWorkgroupIdCallback = function(text, xml, args) {
+	var thisView = args[0];
+	var workgroupId = args[1];
+
+	//parse the student work and display the grade by team grading page
+	thisView.getWorkForWorkgroupIdCallbackHandler(text, workgroupId);
+};
+
+/**
+ * Parses the student work and then displays the grade by team grading page
+ * 
+ * @param text the response text which is a vle state string
+ * @param workgroupId the workgroup id
+ */
+View.prototype.getWorkForWorkgroupIdCallbackHandler = function(text, workgroupId) {
+	//parse the vle state
+	var vleState = VLE_STATE.prototype.parseDataJSONString(text);
+	
+	if(vleState != null) {
+		//add the vle state to our model
+		this.model.setWorkByWorkgroupId(workgroupId, vleState);
+		
+		//display the grade by team grading page
+		this.displayGradeByTeamGradingPageGenerator(workgroupId);
+	}
+};
+
+/**
+ * The failure callback when trying to retrieve student work for a workgroup id
+ */
+View.prototype.getWorkForWorkgroupIdCallbackFail = function(text, xml, args) {
+	var thisView = args;
+};
+
+/**
  * Displays the grading page for a specific workgroup. Generates
  * the html and then sets it into the div.
  * @param workgroupId the id of the workgroup
  */
-View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
+View.prototype.displayGradeByTeamGradingPageGenerator = function(workgroupId) {
 	this.gradingType = 'team';
 	
 	// detach FixedHeader clones
@@ -3279,6 +3735,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		gradeByTeamGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRowsRequested')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
 	
+	/*
 	//get the automatically assigned groups in this project, if any
 	var autoGroupsUsed = this.getProject().getAutoGroupsUsed();
 	
@@ -3320,6 +3777,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		
 		gradeByTeamGradingPageHtml += "</div>";
 	}
+	*/
 	
 	gradeByTeamGradingPageHtml += "</div>";
 	
@@ -3328,7 +3786,8 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	gradeByTeamGradingPageHtml += "<div class='gradingContent'>";
 	
 	//get the work for the workgroup id
-	var vleState = this.getVleStateByWorkgroupId(workgroupId);
+	//var vleState = this.getVleStateByWorkgroupId(workgroupId);
+	var vleState = this.model.getWorkByWorkgroupId(workgroupId);
 
 	//reset the activity counter used to label activity numbers
 	this.activityNumber = 0;
@@ -3445,7 +3904,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			 * not a peer or teacher review type step, the function will just
 			 * return the unmodified studentWork back
 			 */
-			studentWork = this.getPeerOrTeacherReviewData(studentWork, node, workgroupId, vleState);
+			//studentWork = this.getPeerOrTeacherReviewData(studentWork, node, workgroupId, vleState);
 
 			//make the class for the table for a student
 			var gradeByTeamGradingPageWorkStepTableClass = "gradeByTeamGradingPageWorkStepTable";
@@ -3486,7 +3945,8 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			displayGradeByTeamGradingPageHtml += "</tr>";
 
 			//get the prompt/question for the step
-			var nodePrompt = this.getProject().getNodePromptByNodeId(nodeId);
+			//var nodePrompt = this.getProject().getNodePromptByNodeId(nodeId);
+			var nodePrompt = '';
 			
 			//add the prompt/question which will initially be hidden
 			displayGradeByTeamGradingPageHtml += "<tr>";
@@ -3518,10 +3978,10 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 			var autoGradedFields = null;
 
-			if(node.hasAutoGradedFields()) {
+			//if(node.hasAutoGradedFields()) {
 				//get the auto graded fields and scores
-				autoGradedFields = node.getAutoGradedFields(null, runId, nodeId, workgroupId, teacherIds);
-			}
+				//autoGradedFields = node.getAutoGradedFields(null, runId, nodeId, workgroupId, teacherIds);
+			//}
 			
 			//get the html for the score and comment td
 			displayGradeByTeamGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, null, autoGradedFields);
@@ -3563,10 +4023,10 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 					
 					var autoGradedFields = null;
 
-					if(node.hasAutoGradedFields()) {
+					//if(node.hasAutoGradedFields()) {
 						//get the auto graded fields and scores
-						autoGradedFields = node.getAutoGradedFields(revisionStepWorkId);
-					}
+						//autoGradedFields = node.getAutoGradedFields(revisionStepWorkId);
+					//}
 					
 					//display the data for the revision
 					displayGradeByTeamGradingPageHtml += "<tr id='studentWorkRow_"+workgroupId+"_"+nodeId+"_" + revisionStepWorkId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none'>";
@@ -3614,10 +4074,13 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 /**
  * Sorts the vleStates alphabetically by user name
- * @return
+ * @param vleStates (optional) the vle states to sort
+ * @return the vle states sorted by user name
  */
-View.prototype.getVleStatesSortedByUserName = function() {
-	var vleStates = this.getStates();
+View.prototype.getVleStatesSortedByUserName = function(vleStates) {
+	if(vleStates == null) {
+		vleStates = this.getStates();
+	}
 	
 	/*
 	 * set this view to a local variable so it can be referenced
@@ -3643,6 +4106,7 @@ View.prototype.getVleStatesSortedByUserName = function() {
 		return userNameA > userNameB;
 	};
 	
+	//sort the vle states by user name
 	vleStates = vleStates.sort(sortByUserName);
 	
 	return vleStates;
@@ -3976,7 +4440,7 @@ View.prototype.toggleGradingDisplayRevisions = function(workgroupId, nodeId) {
 				var workgroupId = this.getWorkgroupIdFromStudentWorkRowId(revisionRow.id);
 				
 				//render the student work if it has not already been rendered
-				this.renderStudentWork(stepWorkId, workgroupId);
+				this.renderStudentWork(stepWorkId, workgroupId, nodeId);
 			}
 		} else {
 			//hide revisions
@@ -4364,9 +4828,10 @@ View.prototype.filterStudentRows = function() {
 				//get the step work id and workgroup id
 				var stepWorkId = this.getStudentWorkIdFromStudentWorkRowId(studentWorkRow.id);
 				var workgroupId = this.getWorkgroupIdFromStudentWorkRowId(studentWorkRow.id);
+				var nodeId = this.getNodeIdFromStudentWorkRowId(studentWorkRow.id);
 				
 				//render the student work if it has not already been rendered
-				this.renderStudentWork(stepWorkId, workgroupId);
+				this.renderStudentWork(stepWorkId, workgroupId, nodeId);
 			}
 		} else {
 			studentWorkRow.style.display = "none";
@@ -4446,6 +4911,30 @@ View.prototype.getWorkgroupIdFromStudentWorkRowId = function(studentWorkRowId) {
 	var workgroupId = studentWorkRowId.substring(firstUnderscoreIndex + 1, secondUnderscoreIndex);
 	
 	return workgroupId;
+};
+
+/**
+ * Get the nodeId from the DOM studentWorkRowId.
+ * @param studentWorkRowId the DOM id of the student work row.
+ * the workgroup id will be betweeen the first and second '_'
+ * e.g. studentWorkRow_16784_node_13.se_627685
+ * @return the node id
+ * e.g. node_13.se
+ */
+View.prototype.getNodeIdFromStudentWorkRowId = function(studentWorkRowId) {
+	//get the index of the first '_'
+	var firstUnderscoreIndex = studentWorkRowId.indexOf('_');
+	
+	//get the index of the second '_'
+	var secondUnderscoreIndex = studentWorkRowId.indexOf('_', firstUnderscoreIndex + 1);
+	
+	//get the index of the last '_'
+	var lastIndex = studentWorkRowId.lastIndexOf('_');
+	
+	//get the string between the two '_'
+	var nodeId = studentWorkRowId.substring(secondUnderscoreIndex + 1, lastIndex);
+	
+	return nodeId;
 };
 
 /**
@@ -4751,10 +5240,13 @@ View.prototype.renderAllStudentWorkForNode = function(node) {
 	 */
 	if(node.hasGradingView()) {
 		//get all the vleStates
-		var vleStates = this.getVleStatesSortedByUserName();
+		//var vleStates = this.getVleStatesSortedByUserName();
 
 		//get the node id
 		var nodeId = node.id;
+		
+		var vleStates = this.model.getWorkByNodeId(nodeId);
+		vleStates = this.getVleStatesSortedByUserName(vleStates);
 
 		//loop through all the vleStates, each vleState is for a workgroup
 		for(var x=0; x<vleStates.length; x++) {
@@ -4793,7 +5285,8 @@ View.prototype.renderAllStudentWorkForWorkgroupId = function(workgroupId) {
 	var nodeIds = this.getProject().getNodeIds();
 	
 	//get the work for the workgroup id
-	var vleState = this.getVleStateByWorkgroupId(workgroupId);
+	//var vleState = this.getVleStateByWorkgroupId(workgroupId);
+	var vleState = this.model.getWorkByWorkgroupId(workgroupId);
 	
 	//loop through all the node ids
 	for(var x=0; x<nodeIds.length; x++) {
@@ -4870,12 +5363,12 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
  * optional, it is used to make the call to getStudentWorkByStudentWorkId()
  * more efficient when searching for the node visit)
  */
-View.prototype.renderStudentWork = function(stepWorkId, workgroupId) {
+View.prototype.renderStudentWork = function(stepWorkId, workgroupId, nodeId) {
 	/*
 	 * get the node visit for the given id and workgroup id. the workgroup id
 	 * is optional and helps make the search more efficient.
 	 */
-	var nodeVisit = this.getStudentWorkByStudentWorkId(stepWorkId, workgroupId);
+	var nodeVisit = this.getStudentWorkByStudentWorkId(stepWorkId, workgroupId, nodeId);
 
 	if(nodeVisit != null) {
 		//render the student work for the node visit
@@ -4892,9 +5385,10 @@ View.prototype.renderStudentWork = function(stepWorkId, workgroupId) {
  * @return the node visit that has the given student work id
  * or null if not found
  */
-View.prototype.getStudentWorkByStudentWorkId = function(studentWorkId, workgroupId) {
+View.prototype.getStudentWorkByStudentWorkId = function(studentWorkId, workgroupId, nodeId) {
 	//get all the vle states, each vle state represents the work for a workgroup
-	var vleStates = this.getVleStatesSortedByUserName();
+	var vleStates = this.model.getWorkByNodeId(nodeId);
+	vleStates = this.getVleStatesSortedByUserName(vleStates); //geoff fix this
 	
 	//loop through all the vle states
 	for(var x=0; x<vleStates.length; x++) {
@@ -4928,7 +5422,7 @@ View.prototype.getStudentWorkByStudentWorkId = function(studentWorkId, workgroup
  * this workgroup is in
  * @param workgroupId the workgroup id
  */
-View.prototype.editGroups = function(workgroupId) {
+View.prototype.editGroups = function(workgroupId, nodeId) {
 	//check if the hintsDiv div exists
     if($('#editGroupsPanel').size()==0){
     	//the show hintsDiv does not exist so we will create it
@@ -4958,7 +5452,7 @@ View.prototype.editGroups = function(workgroupId) {
     editGroupsHtml += "<div>";
 
     //get all the groups used in the project
-    var allGroupsUsed = this.getProject().getManualGroupsUsed();
+    var allGroupsUsed = this.getProject().getManualGroupsUsed(nodeId);
     
     //get all the groups this workgroup is in
 	var groupsForWorkgroupId = this.getManualGroupsByWorkgroupId(workgroupId);
@@ -4975,7 +5469,7 @@ View.prototype.editGroups = function(workgroupId) {
     		}
     		
     		//display a checkbox for this group
-    		editGroupsHtml += "<input type='checkbox' " + checked + " name='groupCheckBox' value='" + group + "' onclick='eventManager.fire(\"groupClicked\", " + workgroupId + ")'/>" + group;
+    		editGroupsHtml += "<input type='checkbox' " + checked + " name='groupCheckBox' value='" + group + "' onclick='eventManager.fire(\"groupClicked\", [" + workgroupId + ", \"" + nodeId + "\"])'/>" + group;
     		editGroupsHtml += "<br>";
     	}
     }
@@ -4992,7 +5486,7 @@ View.prototype.editGroups = function(workgroupId) {
 /**
  * The teacher has clicked one of the group checkboxes in the edit groups popup
  */
-View.prototype.groupClickedEventListener = function(workgroupId) {
+View.prototype.groupClickedEventListener = function(workgroupId, nodeId) {
 	var groups = [];
 	
 	//get all the group checkboxes that are checked
@@ -5025,7 +5519,7 @@ View.prototype.groupClickedEventListener = function(workgroupId) {
 	//set the groups
 	runAnnotationValue.groups = groups;
 	
-	var nodeId = null;
+	//var nodeId = null;
 	var toWorkgroupId = workgroupId;
 	var fromWorkgroupId = this.getUserAndClassInfo().getTeacherWorkgroupId();
 	var runId = this.config.getConfigParam("runId");
@@ -5064,7 +5558,7 @@ View.prototype.groupClickedEventListener = function(workgroupId) {
 	}
 	
 	//update the grading UI with the new groups
-	$('#manualGroups_' + workgroupId).html("Manual Groups (<a onclick='view.editGroups(" + workgroupId + ")' style='margin:0'>edit</a>):" + spacing + groupsString);
+	$('#manualGroups_' + workgroupId).html("Manual Groups (<a onclick='view.editGroups(" + workgroupId + ", \"" + nodeId + "\")' style='margin:0'>edit</a>):" + spacing + groupsString);
 };
 
 /**
@@ -5118,7 +5612,78 @@ View.prototype.getManualGroupsByWorkgroupId = function(workgroupId) {
  * @param workgroupId the workgroup id
  * @returns an array of groups that this workgroup is in
  */
+View.prototype.getManualGroupsByWorkgroupIdAndNodeId = function(workgroupId, nodeId) {
+	var groups = [];
+	
+	//get the run annotation
+	var runAnnotation = this.getRunAnnotationByWorkgroupId(workgroupId);
+	
+	if(runAnnotation != null && runAnnotation.value != null && runAnnotation.value.groups != null) {
+		//get the groups
+		var annotationGroups = runAnnotation.value.groups;
+		
+		if(annotationGroups != null) {
+			//loop through all the groups this workgroup is in
+			for(var x=0; x<annotationGroups.length; x++) {
+				//add the group to our array that we will return
+				var annotationGroup = annotationGroups[x];
+				groups.push(annotationGroup);
+			}
+		}
+	}
+	
+	return groups;
+};
+
+/**
+ * Get the groups this workgroup is in
+ * @param workgroupId the workgroup id
+ * @returns an array of groups that this workgroup is in
+ */
 View.prototype.getAutoGroupsByWorkgroupId = function(workgroupId) {
+	var groups = [];
+	
+	//get the vlestate for the workgroup
+	var vleState = this.getVleStateByWorkgroupId(workgroupId);
+	
+	if(vleState != null) {
+		//get all the branch node ids in the project
+		var branchNodeIds = this.getProject().getNodeIdsByNodeType('BranchingNode');
+		
+		//loop through all the branch node ids
+		for(var x=0; x<branchNodeIds.length; x++) {
+			//get a branch node id
+			var branchNodeId = branchNodeIds[x];
+
+			//get the latest work from the workgroup for this branch node
+			var latestWork = vleState.getLatestWorkByNodeId(branchNodeId);
+			
+			if(latestWork != null) {
+				//get the response
+				var response = latestWork.response;
+				
+				if(response != null) {
+					//get the chosen path name which should be the activity title for the branch path
+					var chosenPathName = response.chosenPathName;
+					
+					if(chosenPathName != null && chosenPathName != '') {
+						//add the branch path name to our array
+						groups.push(chosenPathName);
+					}
+				}
+			}
+		}
+	}
+	
+	return groups;
+};
+
+/**
+ * Get the groups this workgroup is in
+ * @param workgroupId the workgroup id
+ * @returns an array of groups that this workgroup is in
+ */
+View.prototype.getAutoGroupsByWorkgroupIdAndNodeId = function(workgroupId, nodeId) {
 	var groups = [];
 	
 	//get the vlestate for the workgroup
@@ -5207,19 +5772,21 @@ View.prototype.updateStudentWorkRowOrderObjectTeacherGradedScore = function(step
  * @param gradingType the grading type, step or team
  * @param workgroupId the workgroup id of the workgroup to display
  * groups for
+ * @param nodeId (optional) the node id to get the group assignments from
  * @return the html that will display the group assignments
  */
-View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId) {
+View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId, nodeId) {
 	var groupAssignmentsHtml = "";
 	
+	
 	//get the automatically assigned groups used in this project, if any
-	var autoGroupsUsed = this.getProject().getAutoGroupsUsed();
+	var autoGroupsUsed = this.getProject().getAutoGroupsUsed(nodeId);
 	
 	if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
 		groupAssignmentsHtml += "<div id='autoGroups_" + workgroupId + "'>";
 		
 		//get the groups that have been assigned to this workgroup
-		var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
+		var autoGroups = this.getAutoGroupsByWorkgroupIdAndNodeId(workgroupId, nodeId);
 		
 		var groupsString = '';
 		
@@ -5248,14 +5815,15 @@ View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId) {
 		groupAssignmentsHtml += "</div>";
 	}
 	
+	
 	//get the manual assigned groups used in this project, if any
-	var manualGroupsUsed = this.getProject().getManualGroupsUsed();
+	var manualGroupsUsed = this.getProject().getManualGroupsUsed(nodeId);
 	
 	if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
 		groupAssignmentsHtml += "<div id='manualGroups_" + workgroupId + "'>";
 		
 		//get the groups that have been assigned to this workgroup
-		var manualGroups = this.getManualGroupsByWorkgroupId(workgroupId);
+		var manualGroups = this.getManualGroupsByWorkgroupIdAndNodeId(workgroupId, nodeId);
 		
 		var groupsString = '';
 		
@@ -5276,6 +5844,66 @@ View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId) {
 		if(gradingType == 'step') {
 			//display the groups this workgroup is in
 			groupAssignmentsHtml += "Manual Groups (<a onclick='view.editGroups(" + workgroupId + ")'>edit</a>):<br>" + groupsString;
+		} else if(gradingType == 'team') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Manual Groups: " + groupsString;
+		}
+		
+		groupAssignmentsHtml += "</div>";
+	}
+	
+	if(groupAssignmentsHtml != '') {
+		/*
+		 * groupsAssignmentsHtml is not empty string which means 
+		 * this project has branching/group assignments so we will
+		 * create a div to contain the auto and manual group 
+		 * assignments for this workgroup
+		 */
+		groupAssignmentsHtml = '<div id="assignedGroups_' + workgroupId + '">' + groupAssignmentsHtml + '</div>';
+	}
+	
+	return groupAssignmentsHtml;
+};
+
+/**
+ * Get the html to display the group assignments for branching.
+ * @param gradingType the grading type, step or team
+ * @param workgroupId the workgroup id of the workgroup to display
+ * groups for
+ * @param nodeId (optional) the node id to get the group assignments from
+ * @return the html that will display the group assignments
+ */
+View.prototype.getManualGroupAssignmentsHtml = function(gradingType, workgroupId, nodeId) {
+	var groupAssignmentsHtml = "";
+	
+	//get the manual assigned groups used in this project, if any
+	var manualGroupsUsed = this.getProject().getManualGroupsUsed(nodeId);
+	
+	if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
+		groupAssignmentsHtml += "<div id='manualGroups_" + workgroupId + "'>";
+		
+		//get the groups that have been assigned to this workgroup
+		var manualGroups = this.getManualGroupsByWorkgroupIdAndNodeId(workgroupId, nodeId);
+		
+		var groupsString = '';
+		
+		if(gradingType == 'step') {
+			//make all the elements in the array a bold paragraph
+			manualGroups = this.makeElementsBold(manualGroups);
+			
+			//create a string from the groups this workgroup is in e.g. "AB"
+			groupsString = manualGroups.join("");
+		} else if(gradingType == 'team') {
+			//create a comma delimited string from the groups this workgroup is in e.g. "A, B"
+			groupsString = manualGroups.join(", ");
+			
+			//bold the group names
+			groupsString = "<b style='font-weight:bold'>" + groupsString + "</b>";
+		}
+		
+		if(gradingType == 'step') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Manual Groups (<a onclick='view.editGroups(" + workgroupId + ", \"" + nodeId + "\")'>edit</a>):<br>" + groupsString;
 		} else if(gradingType == 'team') {
 			//display the groups this workgroup is in
 			groupAssignmentsHtml += "Manual Groups: " + groupsString;
@@ -5413,6 +6041,385 @@ View.prototype.isSignedInUserSharedTeacherWithGradingPrivilege = function() {
 	return result;
 };
 
+/**
+ * Make a request to the server for all the student statuses for the run
+ */
+View.prototype.getStudentStatuses = function() {
+	//get the student status url we will use to make the request
+	var studentStatusUrl = this.getConfig().getConfigParam('studentStatusUrl');
+	
+	//get the run id
+	var runId = this.getConfig().getConfigParam('runId');
+	
+	//create the params for the request
+	var studentStatusParams = {
+		runId:runId
+	}
+	
+	if(studentStatusUrl != null) {
+		//make the request to the server for the student statuses
+		this.connectionManager.request('GET', 3, studentStatusUrl, studentStatusParams, this.getStudentStatusesCallback, this, this.getStudentStatusesFail, false, null);
+	}
+};
+
+/**
+ * The callback for getting the student statuses
+ * @param responseText the student response JSONArray string
+ * @param responseXML
+ * @param view the view
+ */
+View.prototype.getStudentStatusesCallback = function(responseText, responseXML, view) {
+	if(responseText != null) {
+		//create the JSONArray from the response text
+		var studentStatuses = JSON.parse(responseText);
+		
+		if(studentStatuses.length == 0) {
+			/*
+			 * set the student statuses to null since there are no student status elements
+			 * in the array
+			 */
+			view.studentStatuses = null;
+			
+			/*
+			 * this is an old run that does not have any student statuses so we will get 
+			 * all the student work so we can calculate the number of items to review
+			 * and percent completion
+			 */
+			view.getStudentWork();
+		} else {
+			//set the student statuses into the view so we can access it later
+			view.studentStatuses = studentStatuses;
+			
+			/*
+			 * we have retrieved the student statuses so we have the information we need 
+			 * to display number items to review and percent completion
+			 */
+			eventManager.fire("retrieveStudentWorkCompleted");			
+		}
+	}
+};
+
+/**
+ * The failure callback for getting the student statuses
+ */
+View.prototype.getStudentStatusesFail = function(responseText, responseXML, view) {
+	
+};
+
+/**
+ * Calculate the project completion percentage for a student
+ * @param workgroup id the workgroup id
+ * @return the project completion percentage as an integer
+ */
+View.prototype.calculateStudentCompletionForWorkgroupId = function(workgroupId) {
+	var result = 0;
+	
+	//get the student status for the workgroup id
+	var studentStatus = this.getStudentStatusByWorkgroupId(workgroupId);
+	
+	if(studentStatus != null) {
+		//get the project completion percentage
+		result = this.calculateStudentCompletionForStudentStatus(studentStatus);
+	}
+	
+	return result;
+};
+
+/**
+ * Calculate the project completion percentage for the student status
+ * @param studentStatus the student status to calculate the project 
+ * completion percentage
+ * @return the project completion percentage as an integer
+ */
+View.prototype.calculateStudentCompletionForStudentStatus = function(studentStatus) {
+	var completedNumberSteps = 0;
+	var totalNumberSteps = 0;
+	
+	if(studentStatus != null) {
+		//get the node statuses
+		var nodeStatuses = studentStatus.nodeStatuses;
+		
+		//get all the step node ids in the project
+		var nodeIds = this.getProject().getNodeIds();
+		
+		if(nodeIds != null) {
+			//loop through all the node ids
+			for(var x=0; x<nodeIds.length; x++) {
+				//get a node id
+				var nodeId = nodeIds[x];
+				
+				//check if the student has completed the step
+				if(this.isNodeCompleted(nodeId, nodeStatuses)) {
+					//the student has completed the step so we will update the counter
+					completedNumberSteps++;
+				}
+				
+				//update the number of steps counter
+				totalNumberSteps++;
+			}
+		}
+	}
+	
+	//calculate the percentage as an integer
+	var completionPercentage = completedNumberSteps / totalNumberSteps;
+	completionPercentage = parseInt(100 * completionPercentage);
+	
+	return completionPercentage;
+};
+
+/**
+ * Check if the student has completed the step
+ * @param nodeId the node id of the step we want to check for completion
+ * @param nodeStatuses the node statuses from a student
+ * @return whether the student has completed the step or not
+ */
+View.prototype.isNodeCompleted = function(nodeId, nodeStatuses) {
+	var result = false;
+	
+	if(nodeId != null && nodeStatuses != null) {
+		//loop through all the node statuses
+		for(var x=0; x<nodeStatuses.length; x++) {
+			//get a node status object
+			var tempNodeStatus = nodeStatuses[x];
+			
+			if(tempNodeStatus != null) {
+				//get the node id
+				var tempNodeId = tempNodeStatus.nodeId;
+				
+				//get all the statuses for the node
+				var tempStatuses = tempNodeStatus.statuses;
+				
+				//check if the node id matches the one we want
+				if(nodeId == tempNodeId) {
+					//the node id matches so we will get the 'isCompleted' status value
+					result = Node.prototype.getStatus('isCompleted', tempStatuses);
+					break;
+				}
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Calculate the percentage of the class that has completed the step
+ * @param nodeId the node id for the step
+ * @param periodId the period id to get the step completion for. if this
+ * parameter is null or 'all' we will calculate the step completion for
+ * all periods.
+ * @return the percentage of the class that has completed the step
+ * as an integer
+ */
+View.prototype.calculateStepCompletionForNodeId = function(nodeId, periodId) {
+	var numberStudentsCompleted = 0;
+	var totalNumberStudents = 0;
+	
+	//get the number of students in the period
+	totalNumberStudents = this.getNumberOfStudentsInPeriod(periodId);
+	
+	//get the number of students in the period that have completed the step
+	numberStudentsCompleted = this.getNumberOfStudentsInPeriodThatCompletedStep(periodId, nodeId);
+	
+	//calculate the percentage as an integer
+	var completionPercentage = numberStudentsCompleted / totalNumberStudents;
+	completionPercentage = parseInt(100 * completionPercentage);
+	
+	return completionPercentage;
+};
+
+/**
+ * Calculate the average score for a step
+ * 
+ * @param nodeId the node id
+ * @param periodId the period id or null if we want to calculate the average
+ * for the whole class
+ * 
+ * @return the average score for the step
+ */
+View.prototype.calculateAverageScoreForNodeId = function(nodeId, periodId) {
+	var averageScore = '';
+
+	//get the workgroup ids in the period
+	var workgroupIds = this.getUserAndClassInfo().getClassmateWorkgroupIdsInPeriodId(periodId);
+	
+	//get the teacher ids
+	var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+	
+	//get the run id
+	var runId = this.getConfig().getConfigParam('runId');
+	
+	var sumOfScoredValues = 0;
+	var numOfScoredValues = 0;
+	
+	//loop through all the workgroup ids
+	for(var x=0; x<workgroupIds.length; x++) {
+		//get a workgroup id
+		var workgroupId = workgroupIds[x];
+		
+		//get the annotations data for this student/step combination
+		var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
+		
+		//get the graded score
+		var annotationScoreValue = annotationData.annotationScoreValue;
+		
+		//check if the teacher has given a score
+		if(annotationScoreValue != null && annotationScoreValue != "") {
+			//add the score to our sum
+			sumOfScoredValues += parseFloat(annotationScoreValue);
+			
+			//increment the number of scores the teacher has given out
+			numOfScoredValues++;
+		}
+	}
+	
+	//check if there were any scores
+	if(numOfScoredValues > 0) {
+		//calculate the average score for the scores that were given for this step
+		averageScore = sumOfScoredValues / numOfScoredValues;
+		
+		var averageScoreString = averageScore.toString();
+		
+		var indexOfDecimal = averageScoreString.indexOf(".");
+		
+		if(indexOfDecimal != -1) {
+			//there is a decimal
+			
+			//get the digits after the decimal
+			var substringOf = averageScoreString.substring(indexOfDecimal + 1);
+			
+			if(substringOf.length > 1) {
+				/*
+				 * there are more than two digits after the decimal so we will
+				 * truncate down to two decimals
+				 */
+				averageScore = averageScore.toFixed(1);
+			}
+		}
+	}
+	
+	return averageScore;
+};
+
+
+/**
+ * Get the number of students in the period
+ * @param periodId the period id. if this is null or 'all' we will
+ * get the number of students in all the periods.
+ * @return the number of students in the period
+ */
+View.prototype.getNumberOfStudentsInPeriod = function(periodId) {
+	var numberOfStudentsInPeriod = 0;
+	
+	var userAndClassInfo = this.getUserAndClassInfo();
+	
+	if(userAndClassInfo != null) {
+		//get the students in the run
+		var classmateUserInfos = userAndClassInfo.getClassmateUserInfos();
+		
+		if(classmateUserInfos != null) {
+			
+			//loop through all the students in the run
+			for(var x=0; x<classmateUserInfos.length; x++) {
+				//get a student
+				var classmateUserInfo = classmateUserInfos[x];
+				
+				//get the period id the student is in
+				var tempPeriodId = classmateUserInfo.periodId;
+				
+				if(periodId == null || periodId == 'all') {
+					//we are getting the number of students in all the periods
+					numberOfStudentsInPeriod++;
+				} else if(periodId == tempPeriodId) {
+					/*
+					 * we are getting the number of students in a specific period
+					 * and this student is in the period
+					 */
+					numberOfStudentsInPeriod++;
+				}
+			}
+		}
+	}
+	
+	return numberOfStudentsInPeriod;
+};
+
+/**
+ * Get the number of students in the period that have completed the step
+ * @param periodId the period id. if this is null or 'all' we will get all periods.
+ * @param nodeId the node id
+ * @return the number of students in the period that have completed the step
+ */
+View.prototype.getNumberOfStudentsInPeriodThatCompletedStep = function(periodId, nodeId) {
+	var numberOfStudentsInPeriodCompleted = 0;
+	
+	var studentStatuses = this.studentStatuses;
+	
+	if(studentStatuses != null) {
+		//loop through all the student statuses
+		for(var x=0; x<studentStatuses.length; x++) {
+			//get a student status
+			var studentStatus = studentStatuses[x];
+			
+			if(studentStatus != null) {
+				var tempPeriodId = studentStatus.periodId;
+				
+				if(periodId == null || periodId == 'all' || periodId == tempPeriodId) {
+					/*
+					 * we are getting the number of students who have completed the step
+					 * for all periods or if we are looking for a specific period and
+					 * the student we are currently on is in that period
+					 */
+					
+					//get the node statuses for the student
+					var nodeStatuses = studentStatus.nodeStatuses;
+					
+					//check if the student has completed the step
+					if(this.isNodeCompleted(nodeId, nodeStatuses)) {
+						//the student has completed the step so we will update the counter
+						numberOfStudentsInPeriodCompleted++;
+					}
+				}
+			}
+		}
+	}
+	
+	return numberOfStudentsInPeriodCompleted;
+};
+
+/**
+ * Get the student status object for a workgroup id
+ * @param workgroup id the workgroup id
+ * @return the student status with the given workgroup id
+ */
+View.prototype.getStudentStatusByWorkgroupId = function(workgroupId) {
+	var studentStatus = null;
+	
+	//get the student statuses
+	var studentStatuses = this.studentStatuses;
+	
+	if(studentStatuses != null) {
+		//loop through all the student statuses
+		for(var x=0; x<studentStatuses.length; x++) {
+			//get a student status
+			var tempStudentStatus = studentStatuses[x];
+			
+			if(tempStudentStatus != null) {
+				//get the workgroup id for the student status
+				var tempWorkgroupId = tempStudentStatus.workgroupId;
+				
+				//check if the workgroup id is the one we want
+				if(workgroupId == tempWorkgroupId) {
+					//the workgroup id matches so we have found the student status we want
+					studentStatus = tempStudentStatus;
+					break;
+				}
+			}
+		}
+	}
+	
+	return studentStatus;
+};
 
 /**
  * displays the mysystem diagram in the specified div

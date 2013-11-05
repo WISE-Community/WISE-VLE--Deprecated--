@@ -1830,7 +1830,7 @@ View.prototype.isCompleted = function(nodeId) {
 			var nodeVisits = this.getState().getNodeVisitsByNodeId(tempNodeId);
 			
 			//check if the work is completed
-			if(!node.isCompleted(nodeVisits)) {
+			if(nodeVisits == null || nodeVisits.length == 0 || !node.isCompleted(nodeVisits)) {
 				return false;
 			}
 		}
@@ -1842,9 +1842,13 @@ View.prototype.isCompleted = function(nodeId) {
 		//get the latest work for the step
 		var nodeVisits = this.getState().getNodeVisitsByNodeId(nodeId);
 		
-		//check if the work is completed
-		if(node.isCompleted(nodeVisits)) {
-			completed = true;
+		if(nodeVisits != null && nodeVisits.length != 0) {
+			//there are node visits
+			
+			//check if the work is completed
+			if(node.isCompleted(nodeVisits)) {
+				completed = true;
+			}
 		}
 	}
 	
@@ -1950,15 +1954,15 @@ View.prototype.getIconPathFromNodeTypeNodeClass = function(nodeType, nodeClass) 
 /**
  * Get the full node name
  * @param node id
- * @return the full step name depending on the navigation used
+ * @return the full node name depending on the navigation used
  * classic will return something like 'Step 1.1: Introduction'
  * starmap will return something like '#1: First Galaxy: Bronze'
  */
 View.prototype.getFullNodeName = function(nodeId) {
-	//get the full step name
-	var fullStepName = this.navigationPanel.getFullNodeName(nodeId);
+	//get the full node name
+	var fullNodeName = this.navigationPanel.getFullNodeName(nodeId);
 
-	return fullStepName;
+	return fullNodeName;
 };
 
 /**

@@ -4,7 +4,7 @@
     src: url('../fonts/ubuntu-light.eot?#iefix') format('embedded-opentype'),
          url('../fonts/ubuntu-light.woff') format('woff'),
          url('../fonts/ubuntu-light.ttf') format('truetype'),
-         url('../fonts/ubuntu-light.svg#ubuntulight') format('svg');
+         url('../fonts/ubuntu-light.svg#Ubuntu') format('svg');
     font-weight: 300;
     font-style: normal;
 }
@@ -15,7 +15,7 @@
     src: url('../fonts/ubuntu-regular.eot?#iefix') format('embedded-opentype'),
          url('../fonts/ubuntu-regular.woff') format('woff'),
          url('../fonts/ubuntu-regular.ttf') format('truetype'),
-         url('../fonts/ubuntu-regular.svg#ubunturegular') format('svg');
+         url('../fonts/ubuntu-regular.svg#Ubuntu') format('svg');
     font-weight: 400;
     font-style: normal;
 }
@@ -26,7 +26,7 @@
     src: url('../fonts/yanonekaffeesatz-extralight.eot?#iefix') format('embedded-opentype'),
          url('../fonts/yanonekaffeesatz-extralight.woff') format('woff'),
          url('../fonts/yanonekaffeesatz-extralight.ttf') format('truetype'),
-         url('../fonts/yanonekaffeesatz-extralight.svg#yanone_kaffeesatzextralight') format('svg');
+         url('../fonts/yanonekaffeesatz-extralight.svg#Yanone_Kaffeesatz') format('svg');
     font-weight: 200;
     font-style: normal;
 }
@@ -37,7 +37,7 @@
     src: url('../fonts/yanonekaffeesatz-regular.eot?#iefix') format('embedded-opentype'),
          url('../fonts/yanonekaffeesatz-regular.woff') format('woff'),
          url('../fonts/yanonekaffeesatz-regular.ttf') format('truetype'),
-         url('../fonts/yanonekaffeesatz-regular.svg#yanone_kaffeesatzregular') format('svg');
+         url('../fonts/yanonekaffeesatz-regular.svg#Yanone_Kaffeesatz') format('svg');
     font-weight: 400;
     font-style: normal;
 }

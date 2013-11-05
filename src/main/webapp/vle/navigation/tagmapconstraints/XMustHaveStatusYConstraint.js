@@ -215,62 +215,33 @@ XMustHaveStatusYConstraint.prototype.getNodesFailed = function() {
 /**
  * Get the message to display to the student when this constraint
  * prevents them from moving to the next step they are trying to move to.
- * @param nodesFailed the node ids of the steps that do not have the required status values
  * @return a message that we will notify the student of the constraint
  */
-XMustHaveStatusYConstraint.prototype.getConstraintMessage = function(nodesFailed) {
+XMustHaveStatusYConstraint.prototype.getConstraintMessage = function() {
 	//get the required status type and required status value
-	var functionArgs = this.functionArgs;
-	var statusType = functionArgs[0];
-	var statusValue = functionArgs[1];
-	
-	var message = '',
-		stepTerm = this.view.getStepTerm();
+	var functionArgs = this.functionArgs,
+		statusType = functionArgs[0],
+		statusValue = functionArgs[1],
+		message = '';
 
 	if(this.customMessage != null && this.customMessage != '') {
 		message = customMessage;
 	} else {
-		var fullNodeNamesFailed = '';
+		var node = this.view.getProject().getNodeById(this.nodeId),
+			constraintMessages = node.getStatusConstraintMessages(),
+			hasMessage = false;
 		
-		if(nodesFailed != null) {
-			for(var x=0; x<nodesFailed.length; x++) {
-				var nodeIdFailed = nodesFailed[x];
-				
-				//get the full node name
-				var fullNodeName = this.view.getFullNodeName(nodeIdFailed);
-				
-				if(fullNodeNamesFailed != '') {
-					//separate multiple nodes with a new line
-					fullNodeNamesFailed += '\n';
-				}
-				
-				//append the full node name
-				fullNodeNamesFailed += fullNodeName;
-			}		
+		for(var i=0; i<constraintMessages.length; i++){
+			var current = constraintMessages[i];
+			if(current.statusType == statusType && current.statusValue == statusValue){
+				message = current.message;
+				hasMessage = true;
+				break;
+			}
 		}
 		
-		if(nodesFailed.length == 1) {
-			//there is only one node that has not been satisfied
-			
-			if(statusType == 'isCompleted' && statusValue == 'true') {
-				//the constraint requires a step to be completed so we will display a more informative message
-				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [stepTerm], "main");
-				message += "\n\n" + fullNodeNamesFailed;
-			} else {
-				//use a generic message to handle all other constraints
-				message = this.view.getI18NStringWithParams("constraint_must_have_status",[statusType,statusValue,stepTerm,fullNodeNamesFailed],"main");
-			}
-		} else if(nodesFailed.length > 1) {
-			//there are multiple nodes that have not been satisfied
-			
-			if(statusType == 'isCompleted' && statusValue == 'true') {
-				//the constraint requires steps to be completed so we will display a more informative message
-				message = this.view.getI18NStringWithParams("constraint_must_complete_these_before", [stepTerm], "main");
-				message += "\n\n" + fullNodeNamesFailed;
-			} else {
-				//use a generic message to handle all other constraints
-				message = this.view.getI18NStringWithParams("constraint_must_have_status",[statusType,statusValue,stepTerm,fullNodeNamesFailed],"main");
-			}
+		if(!hasMessage){
+			message = this.view.getI18NStringWithParams("constraint_message_xMustHaveStatusY",[statusType,statusValue],"main");
 		}
 	}
 	
