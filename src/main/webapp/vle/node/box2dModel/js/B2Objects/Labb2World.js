@@ -43,7 +43,7 @@
 		floorFixture.filter.categoryBits = 2;
 		floorFixture.filter.maskBits = 3;
 		floorFixture.shape = new b2PolygonShape;
-		floorFixture.shape.SetAsBox(this.width_units / 2, this.FLOOR_HEIGHT_UNITS / 2 );
+		floorFixture.shape.SetAsBox(this.width_units / 2, 1.0 / 2 );
 		var floorBodyDef = new b2BodyDef;
 		floorBodyDef.type = b2Body.b2_staticBody;
 		floorBodyDef.position.x = this.position_x + this.width_units / 2;
