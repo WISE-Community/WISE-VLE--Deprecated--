@@ -51,8 +51,13 @@ EpigameNode.prototype.getQuizData = function(customURL) {
 	if (customURL && customURL != "") {
 		content = createContent(customURL);
 	} else {
-		if (!this.defaultQuizContent)
-			this.defaultQuizContent = createContent("node/epigame/adaptiveQuizData.json");
+		if (!this.defaultQuizContent) {
+//			this.defaultQuizContent = createContent("node/epigame/adaptiveQuizData.json");
+			
+			//move quiz data to the asset location
+			console.log("Trying to open" + this.view.getConfig().getConfigParam('getContentBaseUrl')+"/assets/adaptiveQuizData.json");
+			this.defaultQuizContent = createContent(this.view.getConfig().getConfigParam('getContentBaseUrl')+"/assets/adaptiveQuizData.json");
+		}
 			
 		content = this.defaultQuizContent;
 	}
