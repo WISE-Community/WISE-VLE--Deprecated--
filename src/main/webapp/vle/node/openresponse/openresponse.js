@@ -814,6 +814,55 @@ OPENRESPONSE.prototype.render = function() {
 		this.showPreviousWorkThatHasAnnotation(null, 'cRater');
 	}
 	
+	/*
+	 * check if the student has previously submitted work and received a crater
+	 * score or feedback.
+	 */
+	if(this.states.length > 0 && this.content.cRater && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) && !this.isLocked()) {
+		//get the latest node state
+		var nodeState = this.states[this.states.length - 1];
+		
+		if(nodeState != null) {
+			//get the previous student response
+			var response = nodeState.response;
+			
+			/*
+			 * if the student work is blank and the crater score requires the student to rewrite
+			 * their response, we will show the previous response
+			 */
+			if(response == '') {
+				//get the latest crater annotation if any
+				var latestCRaterAnnotation = this.getLatestAnnotationByType('cRater');
+				
+				if(latestCRaterAnnotation != null) {
+					//get the value of the annotation
+					var value = latestCRaterAnnotation.value;
+					
+					if(value != null) {
+						//get the latest value
+						var latestValue = value[value.length - 1];
+						
+						if(latestValue != null) {
+							//get the score
+							var score = latestValue.score;
+							
+							if(score != null) {
+								//get the student action for the given score
+								var studentAction = this.getStudentAction(score);
+								
+								if(studentAction == null) {
+									//do nothing
+								} else if(studentAction == 'rewrite') {
+									this.showPreviousWorkThatHasAnnotation(null, 'cRater');
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	//import any work if necessary
 	this.importWork(workToImport);
 	
@@ -832,9 +881,12 @@ OPENRESPONSE.prototype.render = function() {
 		this.setSaveAndLockAvailable();
 	}
 	
-	if(this.content.cRater != null) {
+	//check if this is a CRater step and if we have already subscribed to the event for this step
+	if(this.content.cRater != null && !this.node.subscribedToCRaterResponseReceived) {
 		//set the CRater response received listener
 		eventManager.subscribe('cRaterResponseReceived', this.cRaterResponseReceivedListener, this);
+		
+		this.node.subscribedToCRaterResponseReceived = true;
 	}
 };
 
@@ -849,8 +901,14 @@ OPENRESPONSE.prototype.cRaterResponseReceivedListener = function(type, args, obj
 	var nodeId = args[0];
 	var annotationJSON = args[1];
 	
-	//call the function to perform any necessary processing with the CRater response
-	thisOr.cRaterResponseReceivedHandler(nodeId, annotationJSON);
+	/*
+	 * check if this listener function is from the same open response step
+	 * that the CRater request originated from
+	 */
+	if(thisOr.node.id == nodeId) {
+		//call the function to perform any necessary processing with the CRater response
+		thisOr.cRaterResponseReceivedHandler(nodeId, annotationJSON);		
+	}
 };
 
 /**
@@ -2180,6 +2238,41 @@ OPENRESPONSE.prototype.importWork = function(workToImport) {
 		}
 	}
 };
+
+/**
+ * Get the latest annotation with the given annotation type
+ * 
+ * @param annotationType the annotation type
+ * 
+ * @return the latest annotation with the given annotation type or null
+ */
+OPENRESPONSE.prototype.getLatestAnnotationByType = function(annotationType) {
+	//get the annotation attributes that we will use to look up the teacher comment annotation
+	var runId = this.view.getConfig().getConfigParam('runId');
+	var nodeId = this.view.currentNode.id;
+	var toWorkgroup = this.view.getUserAndClassInfo().getWorkgroupId();
+	var fromWorkgroups = null;
+	var type = null;
+	var stepWorkId = null;
+	
+	if(annotationType != null) {
+		//use the annotation type that was passed in
+		type = annotationType;
+	}
+	
+	if(annotationType == 'cRater') {
+		//crater annotations have fromWorkgroup=-1
+		fromWorkgroups = [-1];
+	} else {
+		//get the teacher and shared teacher workgroups
+		fromWorkgroups = this.view.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+	}
+	
+	//get the latest annotation for this step with the given parameters
+	var latestAnnotation = this.view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
+	
+	return latestAnnotation;
+}
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

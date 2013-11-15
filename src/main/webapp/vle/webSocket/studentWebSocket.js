@@ -215,11 +215,14 @@ View.prototype.sendStudentWebSocketMessage = function(messageJSON) {
  * web socket server which will then be sent to the teacher. 
  * The other will send the student status to the StudentStatusController 
  * to save the student status to the database.
- * @param currentNodeId the node id of the step the student is currently on
- * @param previousNodeVisit the nodevisit from the previous step the student has
- * just visited
  */
-View.prototype.sendStudentStatusWebSocketMessage = function(currentNodeId, previousNodeVisit) {
+View.prototype.sendStudentStatusWebSocketMessage = function() {
+	//get the current node id
+	var currentNodeId = this.currentNode.id;
+	
+	//get the previous node visit
+	var previousNodeVisit = this.getState().getLatestCompletedVisit();
+	
 	//get the node statuses for all the steps
 	var nodeStatuses = this.getStudentNodeStatuses();
 	
@@ -234,11 +237,22 @@ View.prototype.sendStudentStatusWebSocketMessage = function(currentNodeId, previ
 	
 	//send the message to the web socket server to be forwarded to the teacher
 	this.sendStudentWebSocketMessage(messageJSON);
-	
+};
+
+/**
+ * Send the student status to the server to be saved to the database
+ */
+View.prototype.sendStudentStatusToServer = function() {
 	//get the run id, period id, workgroup id
 	var runId = this.getConfig().getConfigParam('runId');
 	var periodId = this.userAndClassInfo.getPeriodId();
 	var workgroupId = this.userAndClassInfo.getWorkgroupId();
+	
+	var currentNodeId = this.getCurrentNode().id;
+	var previousNodeVisit = this.getState().visitedNodes[this.getState().visitedNodes.length - 2];
+	
+	//get the node statuses for all the steps
+	var nodeStatuses = this.getStudentNodeStatuses();
 	
 	//create the JSON that will be saved to the database
 	var studentStatusJSON = {};
@@ -266,14 +280,14 @@ View.prototype.sendStudentStatusWebSocketMessage = function(currentNodeId, previ
 	studentStatusParams.workgroupId = workgroupId;
 	studentStatusParams.status = status;
 	
-	//send the message to the StudentStatusController to be saved to the database
-	this.sendStudentStatusToServer(studentStatusParams);
+	//send the student status to the server
+	this.sendStudentStatusToServerHelper(studentStatusParams);
 };
 
 /**
  * Send the student status to the server to be saved to the database
  */
-View.prototype.sendStudentStatusToServer = function(studentStatusParams) {
+View.prototype.sendStudentStatusToServerHelper = function(studentStatusParams) {
 	//get the url for the StudentStatusController
 	var studentStatusUrl = this.getConfig().getConfigParam('studentStatusUrl');
 	
@@ -335,6 +349,19 @@ View.prototype.getStudentNodeStatuses = function() {
 				//add the object to the array of statuses for this node
 				nodeStatus.statuses.push(statusObject);
 			}
+		}
+		
+		//get the lastest node visit with work
+		var latestNodeVisitWithWork = this.model.getState().getLatestNodeVisitByNodeId(nodeId);
+		
+		if(latestNodeVisitWithWork != null) {
+			//get the step work id
+			var stepWorkId = latestNodeVisitWithWork.id;
+			
+			stepWorkId = parseInt(stepWorkId);
+			
+			//add the step work id as the lastest step work id with work
+			nodeStatus.latestStepWorkIdWithWork = stepWorkId;
 		}
 		
 		//add the node status object to our array of node statuses

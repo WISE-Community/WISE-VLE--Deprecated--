@@ -221,7 +221,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsU
 
 	//load the project content
 	//vle.loadProjectForGradeByStep(contentUrl, contentBaseUrl);
-	vle.loadProject(contentUrl, contentBaseUrl);
+	vle.loadProject(contentUrl, contentBaseUrl, true);
 
 	//retrieve the workgroup ids for the students
 	getStudentUserInfo();

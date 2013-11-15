@@ -6,18 +6,18 @@ AssessmentListNode.authoringToolDescription = "Students answer a collection of q
 AssessmentListNode.prototype.i18nEnabled = true;
 AssessmentListNode.prototype.i18nPath = "/vlewrapper/vle/node/assessmentlist/i18n/";
 AssessmentListNode.prototype.supportedLocales = {
-			"en_US":"en_US",
-			"es":"es",
-			"ja":"ja",
-			"nl":"nl",
-			"nl_GE":"nl",
-			"nl_DE":"nl"
+		"en_US":"en_US",
+		"es":"es",
+		"ja":"ja",
+		"nl":"nl",
+		"nl_GE":"nl",
+		"nl_DE":"nl"
 };
 
 AssessmentListNode.tagMapFunctions = [
-	{functionName:'importWork', functionArgs:[]},
-	{functionName:'showPreviousWork', functionArgs:[]}
-];
+                                      {functionName:'importWork', functionArgs:[]},
+                                      {functionName:'showPreviousWork', functionArgs:[]}
+                                      ];
 
 /**
  * @constructor
@@ -29,7 +29,7 @@ AssessmentListNode.tagMapFunctions = [
 function AssessmentListNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
-	
+
 	this.tagMapFunctions = this.tagMapFunctions.concat(AssessmentListNode.tagMapFunctions);
 };
 
@@ -63,25 +63,25 @@ AssessmentListNode.prototype.render = function(contentPanel,studentWork, disable
  * @param workgroupId the id of the workgroup this work belongs to
  */
 AssessmentListNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
-    // Get the latest student state object for this step
+	// Get the latest student state object for this step
 	var assessmentListState = nodeVisit.getLatestState();
-	
+
 	// get human readable work string
 	var showAutoScoreResult = true;
-	
+
 	var isLockAfterSubmit = false;
 	var contentJSON = this.content.getContentJSON();
-	
+
 	if(contentJSON != null) {
 		//get whether this step locks after submit
 		isLockAfterSubmit = contentJSON.isLockAfterSubmit;
 	}
-	
+
 	var readableStudentWork = assessmentListState.getStudentWorkString(showAutoScoreResult, isLockAfterSubmit);
-	
+
 	//replace \n with <br> so that newlines will be visible
 	readableStudentWork = this.view.replaceSlashNWithBR(readableStudentWork);
-	
+
 	displayStudentWorkDiv.html(readableStudentWork);
 };
 
@@ -125,7 +125,7 @@ AssessmentListNode.prototype.getPrompt = function() {
 	var contentJSON = this.content.getContentJSON();
 
 	var prompt = null;
-	
+
 	//see if the node content has an assessmentItem
 	if(contentJSON.prompt != null) {
 		//obtain the prompt
@@ -138,16 +138,16 @@ AssessmentListNode.prototype.getPrompt = function() {
 		// if radio assessment, also show choices
 		if (assessment.type == "radio") {
 			prompt += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Choices:<br/>";
-				for (var x=0; x<assessment.choices.length; x++) {
-					prompt += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + assessment.choices[x].text;
-					if (x != (assessment.choices.length - 1)) {
-						prompt += "<br/>";
-					}
+			for (var x=0; x<assessment.choices.length; x++) {
+				prompt += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + assessment.choices[x].text;
+				if (x != (assessment.choices.length - 1)) {
+					prompt += "<br/>";
 				}
+			}
 		}
 		prompt += "<br/>";
 	}
-				
+
 	//return the prompt
 	return prompt;
 };
@@ -166,7 +166,7 @@ AssessmentListNode.prototype.onExit = function() {
 			}	
 		}	
 	} catch(e) {
-		
+
 	}
 };
 
@@ -176,19 +176,19 @@ AssessmentListNode.prototype.onExit = function() {
  */
 AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 	var showAutoScoreResult = false;
-	
+
 	var studentWorkSoFar = "";
 	var autoScoreTotalScore = 0;   // total auto scored points the student earned
 	var autoScoreTotalMaxScore = 0;   // total auto scored points possible
-	
+
 	var isLockAfterSubmit = false;
 	var contentJSON = this.content.getContentJSON();
-	
+
 	if(contentJSON != null) {
 		//get whether this step locks after submit
 		isLockAfterSubmit = contentJSON.isLockAfterSubmit;
 	}
-	
+
 	if(nodeState != null) {
 		//check if there were any responses
 		if(nodeState.assessments) {
@@ -198,7 +198,7 @@ AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 					//separate each response
 					studentWorkSoFar += "<br/><br/>";
 				}
-				
+
 				//add the response to the student work
 				studentWorkSoFar += "Part " + (x+1) + ": <br/>";
 				var assessment = nodeState.assessments[x];
@@ -221,7 +221,7 @@ AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 							studentWorkSoFar += studentScore;
 							studentWorkSoFar += " points out of ";
 							studentWorkSoFar += maxScore;
-							
+
 							// update total scores
 							autoScoreTotalScore += studentScore;
 							autoScoreTotalMaxScore += maxScore;
@@ -232,16 +232,16 @@ AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 				}
 			}
 		}
-		
+
 		// append autoScore result summary at the end, if request
 		if (showAutoScoreResult && autoScoreTotalMaxScore > 0) {
 			studentWorkSoFar += "<br/><br/>";
 			studentWorkSoFar += "Auto Score Results Summary: ";
 			studentWorkSoFar += "Student got " + autoScoreTotalScore + " points out of " + autoScoreTotalMaxScore;
 		}
-		
+
 		var isSubmit = nodeState.isSubmit;
-		
+
 		if(isLockAfterSubmit) {
 			/*
 			 * this is a lock after submit step so we will display whether
@@ -251,8 +251,37 @@ AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 			studentWorkSoFar += "Is Submit: " + isSubmit;
 		}
 	}
-	
+
 	return studentWorkSoFar;
+};
+
+
+/**
+ * Returns the criteria value for this node based on student response.
+ * Currently, this node will 
+ */
+AssessmentListNode.prototype.getCriteriaValue = function(criteriaParam) {
+	var result = null;
+	if (criteriaParam != null) {
+		var itemId = criteriaParam.itemId;  // item id in this assessmentlist step to get student response for
+		var latestState = view.getLatestStateForNode(this.id);
+		if (latestState != null) {
+			var assessments = latestState.assessments;
+			if (assessments != null) {
+				for (var i=0; i<assessments.length; i++) {
+					var assessment = assessments[i];
+					if (assessment.id == itemId) {
+						if (assessment.type == "radio") {
+							result = assessment.response.id;  // get the radio choice identifier
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	return result;
 };
 
 AssessmentListNode.prototype.getHTMLContentTemplate = function() {

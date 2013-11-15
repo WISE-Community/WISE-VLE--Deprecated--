@@ -8,12 +8,12 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='inappropriateFlagCheckboxClicked') {
 		obj.inappropriateFlagCheckboxClickedEventListener(args[0], args[1], args[2], args[3], args[4], args[5]);
 	} else if(type=='processUserAndClassInfoCompleted') {
-		obj.retrieveProjectMetaData();
+		obj.retrieveAnnotations();
 	} else if(type=='gradingConfigUrlReceived') {
 		obj.getGradingConfig(args[0]);
 	} else if(type=='getGradingConfigCompleted') {
 		obj.retrieveLocales("main");		
-		obj.loadProject(obj.config.getConfigParam('getContentUrl'), obj.config.getConfigParam('getContentBaseUrl'), false);
+		obj.loadProject(obj.config.getConfigParam('getContentUrl'), obj.config.getConfigParam('getContentBaseUrl'), true);
 		obj.initializeSession();
 	} else if(type=='loadingProjectCompleted') {
 		obj.getStudentUserInfo();
@@ -39,10 +39,10 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='smartFilter') {
 		obj.smartFilter();
 	} else if(type=='retrieveAnnotationsCompleted') {
-		obj.getIdeaBaskets();
-	} else if(type=='retrieveIdeaBasketsCompleted') {
 		eventManager.fire("projectDataReceived");
 		obj.initiateGradingDisplay();
+	} else if(type=='retrieveIdeaBasketsCompleted') {
+		
 	} else if(type=='retrieveStudentWorkCompleted') {
 		obj.calculateGradingStatistics();
 		obj.reloadRefreshScreen();
@@ -50,7 +50,6 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 			// if we're doing a classroom monitor, we need to display the student work in the div
 			obj.displayNodeVisitsInStream();
 		}
-		obj.displayGroupAssignments();
 	} else if(type=='hidePersonalInfoOptionClicked') {
 		obj.hidePersonalInfoOptionClickedEventListener();
 	} else if(type=='filterStudentRowsRequested') {
@@ -64,7 +63,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='exportExplanationButtonClicked') {
 		obj.exportExplanationButtonClickedEventListener(args[0]);
 	} else if(type=='groupClicked') {
-		obj.groupClickedEventListener(args[0]);
+		obj.groupClickedEventListener(args[0], args[1]);
 	} else if(type=='specialExportButtonClicked') {
 		obj.specialExportButtonClickedEventListener(args[0]);
 	} else if(type=='chatRoomTextEntrySubmitted') {

@@ -284,6 +284,38 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, periods, classmateU
 			return classmates;
 		}
 		
+		/**
+		 * Get all the workgroup ids in a period
+		 * 
+		 * @param periodId the period id or null if we want the workgroup
+		 * ids from all periods
+		 * 
+		 * @return the workgroup ids from the period
+		 */
+		var getClassmateWorkgroupIdsInPeriodId = function(periodId) {
+			var workgroupIds = [];
+			
+			//loop through all the classmates
+			for (var x=0; x< classmateUserInfos.length; x++) {
+				var classmateUserInfo = classmateUserInfos[x];
+				
+				if(classmateUserInfo != null) {
+					var tempPeriodId = classmateUserInfo.periodId;
+					
+					//check if the classmate is in the period
+					if(periodId == null || periodId == 'all' || periodId == tempPeriodId) {
+						//get the workgroup id
+						var workgroupId = classmateUserInfo.workgroupId;
+						
+						//add the workgroup id to our array
+						workgroupIds.push(workgroupId);
+					}
+				}
+			}
+			
+			return workgroupIds;
+		}
+		
 		var getClassmatesInAlphabeticalOrder = function() {
 			
 			var sortByUserName = function(a, b) {
@@ -403,6 +435,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, periods, classmateU
 			},
 			getAllStudentsInPeriodId:function(periodId) {
 				return getAllStudentsInPeriodId(periodId);
+			},
+			getClassmateWorkgroupIdsInPeriodId:function(periodId) {
+				return getClassmateWorkgroupIdsInPeriodId(periodId);
 			}
 		};
 	}(myUserInfo, periods, classmateUserInfos, teacherUserInfo, sharedTeacherUserInfos);

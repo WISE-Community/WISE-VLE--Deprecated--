@@ -373,14 +373,19 @@ public class VLEGetXLS extends VLEServlet {
 				JSONObject node = nodes.getJSONObject(x);
 				
 				try {
-					//get the text from the file
-					String fileText = fileManager.getFileText(new File(projectFile.getParentFile(), node.getString("ref")));
-					
-					//get the content for the node
-					JSONObject nodeContent = new JSONObject(fileText);
-					
-					//put an entry into the hashmap with key as node id and value as JSON node content
-					nodeIdToNodeContent.put(node.getString("identifier"), nodeContent);
+					//get a handle on the node file
+					File nodeFile = new File(projectFile.getParentFile(), node.getString("ref"));
+
+					if(nodeFile.exists()) {
+						//get the text from the file
+						String fileText = fileManager.getFileText(nodeFile);
+
+						//get the content for the node
+						JSONObject nodeContent = new JSONObject(fileText);
+						
+						//put an entry into the hashmap with key as node id and value as JSON node content
+						nodeIdToNodeContent.put(node.getString("identifier"), nodeContent);						
+					}
 				} catch(IOException e) {
 					e.printStackTrace();
 				} catch(JSONException e) {
@@ -4074,11 +4079,16 @@ public class VLEGetXLS extends VLEServlet {
 							}
 							
 							if(isLockAfterSubmit) {
-								//this step locks after submit
-								boolean isSubmit = lastState.getBoolean("isSubmit");
-								
-								//set whether the student work was a submit
-								columnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, columnCounter, Boolean.toString(isSubmit));
+								if(lastState.has("isSubmit")) {
+									//this step locks after submit
+									boolean isSubmit = lastState.getBoolean("isSubmit");
+									
+									//set whether the student work was a submit
+									columnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, columnCounter, Boolean.toString(isSubmit));									
+								} else {
+									//set whether the student work was a submit
+									columnCounter = setCellValue(rowForWorkgroupId, rowForWorkgroupIdVector, columnCounter, "false");
+								}
 							}
 							
 							//set the max number of step work parts if necessary
