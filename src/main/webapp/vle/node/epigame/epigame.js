@@ -1252,20 +1252,24 @@ Epigame.prototype.getMissionData = function() {
 	var numSuccesses = 0;
 
 	for(var i=0;i<this.states.length;i++) {
-		if(this.states[i].response.success) {			
-			if(this.states[i].response.missionData && this.states[i].response.missionData.numTrials) {
-				successfulTrialNum = this.states[i].response.missionData.numTrials;
+		if(this.states[i].response.success) {
+			if(this.states[i].response.missionData && this.states[i].response.missionData.timePostFlightScreens) {
+				successfulTrialNum = numTrials;
 			}
 			numAttempts++;
 			numSuccesses++;
 		}
 
+		if(this.states[i].response.missionData) {
+			numTrials++;
+		}
+		
 		if(this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
 			numTrials = this.states[i].response.missionData.totalTrials;
 		}
-	}
+	}	
 
-	dataLog.attempts = numAttempts;
+	dataLog.attempts = 1 + numAttempts;
 	dataLog.attemptTrials = numTrials + 1 - successfulTrialNum;
 	dataLog.totalTrials = numTrials + 1;
 	dataLog.numSuccesses = numSuccesses;
