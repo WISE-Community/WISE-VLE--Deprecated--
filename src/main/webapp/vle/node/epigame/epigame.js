@@ -851,7 +851,7 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
 		index = this.randomMissionSelector(missionList,missionCompleted);
 		break;
 		default:
-		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index		
+		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index
 	}
 			
 	//if we didn't finish the last warp attempt, go back
@@ -950,6 +950,7 @@ Epigame.prototype.serializeCampaignSettings = function(settings) {
 		+ (settings.showQuestions ? "|@1" : "|@0")
 		+ (settings.showNoQuestions ? "|@1" : "|@0")
 		+ (settings.spatialInterface ? "|@1" : "|@0")
+		+ (settings.hideScoreScreen ? "|@1" : "|@0")
 		+ (settings.noTime ? "|@1" : "|@0")
 		+ (settings.testTime ? "|@1" : "|@0")
 		+ (settings.questionTime ? "|@1" : "|@0")
