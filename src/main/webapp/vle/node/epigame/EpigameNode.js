@@ -76,6 +76,7 @@ EpigameNode.prototype.getAdaptiveMissionData = function(customURL) {
 //			this.defaultAdaptiveMissionContent = createContent("node/epigame/adaptiveMissionData.json");		
 //		}
 
+		console.log("Loading:" + this.view.getConfig().getConfigParam('getContentBaseUrl')+"assets/adaptiveMissionData.json");
 		this.defaultAdaptiveMissionContent = createContent(this.view.getConfig().getConfigParam('getContentBaseUrl')+"assets/adaptiveMissionData.json");
 	
 		content = this.defaultAdaptiveMissionContent;
