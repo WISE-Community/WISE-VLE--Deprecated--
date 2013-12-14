@@ -851,7 +851,7 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
 		index = this.randomMissionSelector(missionList,missionCompleted);
 		break;
 		default:
-		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index		
+		index = this.randomMissionSelector(missionList,missionCompleted); //example of calling a random index
 	}
 			
 	//if we didn't finish the last warp attempt, go back
@@ -950,6 +950,7 @@ Epigame.prototype.serializeCampaignSettings = function(settings) {
 		+ (settings.showQuestions ? "|@1" : "|@0")
 		+ (settings.showNoQuestions ? "|@1" : "|@0")
 		+ (settings.spatialInterface ? "|@1" : "|@0")
+		+ (settings.hideScoreScreen ? "|@1" : "|@0")
 		+ (settings.noTime ? "|@1" : "|@0")
 		+ (settings.testTime ? "|@1" : "|@0")
 		+ (settings.questionTime ? "|@1" : "|@0")
@@ -1226,7 +1227,7 @@ Epigame.prototype.getLatestReportString = function() {
 };
 
 Epigame.prototype.saveGameState = function(reportString) {
-	console.log("saving game state: " + reportString);
+	//console.log("saving game state: " + reportString);
 	return this.save(reportString);
 };
 
@@ -1237,54 +1238,67 @@ Epigame.prototype.saveExitState = function() {
 	}
 };
 
-Epigame.prototype.getMissionData = function() {
-	var dataLog = {};
-		
-	/*
-	console.log("logging project data");
-	var project = this.view.getProject();
-	console.log(project);
-	console.log(project.projectJSON());
+Epigame.prototype.getMissionData = function () {
+    var dataLog = {};
+    /*
+    console.log("logging project data");
+    var project = this.view.getProject();
+    console.log(project);
+    console.log(project.projectJSON());
 
-	console.log("user and class info");			
-	console.log(this.node.view.userAndClassInfo);
-	*/
+    console.log("user and class info");
+    console.log(this.node.view.userAndClassInfo);
+    */
 
-	dataLog.projectID = 1;
-	dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
-	dataLog.stepVisit = this.states.length;
+    dataLog.projectID = 1;
+    dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
+    dataLog.stepVisit = 1;
 
-	var numAttempts = 0;
-	var numTrials = 0;
-	var successfulTrialNum = 0;
-	var numSuccesses = 0;
+    var numAttempts = 0;
+    var numTrials = 0;
+    var unsuccessfulTrialNum = 1;
+    var successfulTrialNum = 0;
+    var numSuccesses = 0;
 
-	for(var i=0;i<this.states.length;i++) {
-		if(this.states[i].response.success) {
-			if(this.states[i].response.missionData && this.states[i].response.missionData.timePostFlightScreens) {
-				successfulTrialNum = numTrials;
-			}
-			numAttempts++;
-			numSuccesses++;
-		}
+    for (var i = 0; i < this.states.length; i++) {
+        if (this.states[i].response.success) {
+            if (this.states[i].response.missionData && this.states[i].response.missionData.timePostFlightScreens) {
+                successfulTrialNum = numTrials;
+            }
+            numAttempts++;
+            numSuccesses++;
+            unsuccessfulTrialNum = 1;
+        }
 
-		if(this.states[i].response.missionData) {
-			numTrials++;
-		}
-		
-		if(this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
-			numTrials = this.states[i].response.missionData.totalTrials;
-		}
-	}	
+        //Player has started a trial (not a question)
+        else if (this.states[i].response.missionData.timeIntroScreen > 0) {
+            unsuccessfulTrialNum++;
+            numTrials++;
 
-	dataLog.attempts = 1 + numAttempts;
-	dataLog.attemptTrials = numTrials + 1 - successfulTrialNum;
-	dataLog.totalTrials = numTrials + 1;
-	dataLog.numSuccesses = numSuccesses;
-	
-	dataLog.missionDifficulty = this.lastMissionDifficulty;
+        }
 
-	return JSON.stringify(dataLog);
+        if (this.states[i].response.isExit) {
+            dataLog.stepVisit++;
+        }
+
+
+        if (this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
+            numTrials = this.states[i].response.missionData.totalTrials;
+        }
+        //console.log(Object.keys(this.states[i].response).length);
+    }
+    //account for the fact that an exit report is saved when entering 
+    dataLog.stepVisit = Math.round(dataLog.stepVisit / 2);
+
+    dataLog.attempts = 1 + numAttempts;
+    dataLog.attemptTrials = unsuccessfulTrialNum;
+    dataLog.totalTrials = numTrials + 1;
+    dataLog.numSuccesses = numSuccesses;
+    console.log("Total Trial: " + dataLog.totalTrials + " Attempt Trial:" + unsuccessfulTrialNum + " Step visit:" + dataLog.stepVisit);
+
+    dataLog.missionDifficulty = this.lastMissionDifficulty;
+
+    return JSON.stringify(dataLog);
 };
 
 /**
@@ -1308,8 +1322,8 @@ Epigame.prototype.save = function(st) {
 	}
 	
 	//Push this state to the global view.states object.
-//	eventManager.fire('pushStudentWork', epigameState);
-	this.node.view.pushStudentWork(this.node.id, epigameState)  //4.7 switch
+    //eventManager.fire('pushStudentWork', epigameState);
+	this.node.view.pushStudentWork(this.node.id, epigameState);  //4.7 switch
 
 	//Push the state object into this or object's own copy of states
 	this.states.push(epigameState);
@@ -1332,7 +1346,7 @@ Epigame.prototype.save = function(st) {
 	if (this.view.authoringMode == null || !this.view.authoringMode) {
 		this.processTagMaps();
 	}
-*/
+    */
 };
 
 /**
