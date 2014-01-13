@@ -1254,6 +1254,7 @@ Epigame.prototype.getMissionData = function () {
   dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
   dataLog.studentIDs = this.node.view.userAndClassInfo.getUserIds();
   dataLog.studentName = this.node.view.userAndClassInfo.getUserName();
+  dataLog.step=this.node.view.model.currentNodePosition;
   console.log(this.node.view.userAndClassInfo);
   console.log(this.node.view);
   dataLog.stepVisit = 1;
