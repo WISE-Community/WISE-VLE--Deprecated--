@@ -1239,66 +1239,70 @@ Epigame.prototype.saveExitState = function() {
 };
 
 Epigame.prototype.getMissionData = function () {
-    var dataLog = {};
-    /*
-    console.log("logging project data");
-    var project = this.view.getProject();
-    console.log(project);
-    console.log(project.projectJSON());
+  var dataLog = {};
+  /*
+  console.log("logging project data");
+  var project = this.view.getProject();
+  console.log(project);
+  console.log(project.projectJSON());
 
-    console.log("user and class info");
-    console.log(this.node.view.userAndClassInfo);
-    */
+  console.log("user and class info");
+  console.log(this.node.view.userAndClassInfo);
+  */
 
-    dataLog.projectID = 1;
-    dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
-    dataLog.stepVisit = 1;
+  dataLog.projectID = this.node.view.model.projectMetadata.id;
+  dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
+  dataLog.studentIDs = this.node.view.userAndClassInfo.getUserIds();
+  dataLog.studentName = this.node.view.userAndClassInfo.getUserName();
+  dataLog.step=this.node.view.model.currentNodePosition;
+  console.log(this.node.view.userAndClassInfo);
+  console.log(this.node.view);
+  dataLog.stepVisit = 1;
 
-    var numAttempts = 0;
-    var numTrials = 0;
-    var unsuccessfulTrialNum = 1;
-    var successfulTrialNum = 0;
-    var numSuccesses = 0;
+  var numAttempts = 0;
+  var numTrials = 0;
+  var unsuccessfulTrialNum = 1;
+  var successfulTrialNum = 0;
+  var numSuccesses = 0;
 
-    for (var i = 0; i < this.states.length; i++) {
-        if (this.states[i].response.success) {
-            if (this.states[i].response.missionData && this.states[i].response.missionData.timePostFlightScreens) {
-                successfulTrialNum = numTrials;
-            }
-            numAttempts++;
-            numSuccesses++;
-            unsuccessfulTrialNum = 1;
-        }
-
-        //Player has started a trial (not a question)
-        else if (this.states[i].response.missionData.timeIntroScreen > 0) {
-            unsuccessfulTrialNum++;
-            numTrials++;
-
-        }
-
-        if (this.states[i].response.isExit) {
-            dataLog.stepVisit++;
-        }
-
-
-        if (this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
-            numTrials = this.states[i].response.missionData.totalTrials;
-        }
-        //console.log(Object.keys(this.states[i].response).length);
+  for (var i = 0; i < this.states.length; i++) {
+    if (this.states[i].response.success) {
+      if (this.states[i].response.missionData && this.states[i].response.missionData.timePostFlightScreens) {
+        successfulTrialNum = numTrials;
+      }
+      numAttempts++;
+      numSuccesses++;
+      unsuccessfulTrialNum = 1;
     }
-    //account for the fact that an exit report is saved when entering 
-    dataLog.stepVisit = Math.round(dataLog.stepVisit / 2);
 
-    dataLog.attempts = 1 + numAttempts;
-    dataLog.attemptTrials = unsuccessfulTrialNum;
-    dataLog.totalTrials = numTrials + 1;
-    dataLog.numSuccesses = numSuccesses;
-    console.log("Total Trial: " + dataLog.totalTrials + " Attempt Trial:" + unsuccessfulTrialNum + " Step visit:" + dataLog.stepVisit);
+    //Player has started a trial (not a question)
+    else if (this.states[i].response.missionData.timeIntroScreen > 0) {
+      numTrials++;
+      unsuccessfulTrialNum++;
+    }
 
-    dataLog.missionDifficulty = this.lastMissionDifficulty;
+    if (this.states[i].response.isExit) {
+      dataLog.stepVisit++;
+    }
 
-    return JSON.stringify(dataLog);
+
+    if (this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
+      numTrials = this.states[i].response.missionData.totalTrials;
+    }
+    //console.log(Object.keys(this.states[i].response).length);
+  }
+  //account for the fact that an exit report is saved when entering 
+  dataLog.stepVisit = Math.round(dataLog.stepVisit / 2);
+
+  dataLog.attempts = 1 + numAttempts;
+  dataLog.attemptTrials = unsuccessfulTrialNum;
+  dataLog.totalTrials = numTrials;
+  dataLog.numSuccesses = numSuccesses;
+  console.log("Total Trial: " + dataLog.totalTrials + " Attempt Trial:" + unsuccessfulTrialNum + " Step visit:" + dataLog.stepVisit);
+  console.log(dataLog);
+  dataLog.missionDifficulty = this.lastMissionDifficulty;
+
+  return JSON.stringify(dataLog);
 };
 
 /**
