@@ -1234,29 +1234,18 @@ Epigame.prototype.saveGameState = function(reportString) {
 Epigame.prototype.saveExitState = function() {
 	var elem = this.getGameElement();
 	if (elem && elem.getExitReport) {
-		this.save(elem.getExitReport());
+		this.save(elem.getExitReport(),true);
 	}
 };
 
 Epigame.prototype.getMissionData = function () {
   var dataLog = {};
-  /*
-  console.log("logging project data");
-  var project = this.view.getProject();
-  console.log(project);
-  console.log(project.projectJSON());
-
-  console.log("user and class info");
-  console.log(this.node.view.userAndClassInfo);
-  */
 
   dataLog.projectID = this.node.view.model.projectMetadata.id;
   dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
   dataLog.studentIDs = this.node.view.userAndClassInfo.getUserIds();
   dataLog.studentName = this.node.view.userAndClassInfo.getUserName();
   dataLog.step=this.node.view.model.currentNodePosition;
-  console.log(this.node.view.userAndClassInfo);
-  console.log(this.node.view);
   dataLog.stepVisit = 1;
 
   var numAttempts = 0;
@@ -1281,7 +1270,7 @@ Epigame.prototype.getMissionData = function () {
       unsuccessfulTrialNum++;
     }
 
-    if (this.states[i].response.isExit) {
+    if (this.states[i].response.isExit && !this.states[i].response.missionData.isNodeExit) {
       dataLog.stepVisit++;
     }
 
@@ -1292,14 +1281,12 @@ Epigame.prototype.getMissionData = function () {
     //console.log(Object.keys(this.states[i].response).length);
   }
   //account for the fact that an exit report is saved when entering 
-  dataLog.stepVisit = Math.round(dataLog.stepVisit / 2);
+  dataLog.stepVisit = Math.round(dataLog.stepVisit);
 
   dataLog.attempts = 1 + numAttempts;
   dataLog.attemptTrials = unsuccessfulTrialNum;
   dataLog.totalTrials = numTrials;
   dataLog.numSuccesses = numSuccesses;
-  console.log("Total Trial: " + dataLog.totalTrials + " Attempt Trial:" + unsuccessfulTrialNum + " Step visit:" + dataLog.stepVisit);
-  console.log(dataLog);
   dataLog.missionDifficulty = this.lastMissionDifficulty;
 
   return JSON.stringify(dataLog);
@@ -1308,49 +1295,55 @@ Epigame.prototype.getMissionData = function () {
 /**
  * Creates a state object to represent the student work (if any), then saves it.
  */
-Epigame.prototype.save = function(st) {
-	//Work may be null or undefined if the game isn't loaded.
-	//The game will send an empty string if it's not in a meaningful save state.
-	//If the work is null or blank, we don't want it saved, so ignore the request.
-	if (!st)
-		return;
-		
-	var stateJSON = JSON.parse(decodeURIComponent(st));
-		
-	//Create the state that will store the new work the student just submitted
-	var epigameState = new EpigameState(stateJSON);
-	
-	//save warp index used if it exists
-	if(!isNaN(this.lastWarpIndex)) {
-		epigameState.response.warpIndex = this.lastWarpIndex;
-	}
-	
-	//Push this state to the global view.states object.
-    //eventManager.fire('pushStudentWork', epigameState);
-	this.node.view.pushStudentWork(this.node.id, epigameState);  //4.7 switch
+Epigame.prototype.save = function (st, isNodeExit) {
+  //Work may be null or undefined if the game isn't loaded.
+  //The game will send an empty string if it's not in a meaningful save state.
+  //If the work is null or blank, we don't want it saved, so ignore the request.
+  if (!st)
+    return;
 
-	//Push the state object into this or object's own copy of states
-	this.states.push(epigameState);
-	
-	if(epigameState.response) {
-		console.log("pushing state: " + epigameState.response);		
-	}
-	
-	//get all the node visits for this step
-	var nodeVisits = this.view.getState().getNodeVisitsByNodeId(this.node.id);
-	
-	// Process the student work for nav display
-	this.node.processStudentWork(nodeVisits);
-	
-	//Post the current node visit to the DB immediately without waiting for exit.
-	this.node.view.postCurrentNodeVisit();
-		
-	//Process the tag maps again if we are not in authoring mode (currently no reason to) //testing to remove
-	/*
-	if (this.view.authoringMode == null || !this.view.authoringMode) {
-		this.processTagMaps();
-	}
-    */
+  var stateJSON = JSON.parse(decodeURIComponent(st));
+
+  //Create the state that will store the new work the student just submitted
+  var epigameState = new EpigameState(stateJSON);
+
+  //save warp index used if it exists
+  if (!isNaN(this.lastWarpIndex)) {
+    epigameState.response.warpIndex = this.lastWarpIndex;
+  }
+
+  if(epigameState.response.missionData!=undefined){
+    epigameState.response.missionData.isNodeExit = isNodeExit;
+  }
+  
+
+  //Push this state to the global view.states object.
+  //eventManager.fire('pushStudentWork', epigameState);
+  this.node.view.pushStudentWork(this.node.id, epigameState);  //4.7 switch
+
+  //Push the state object into this or object's own copy of states
+  this.states.push(epigameState);
+
+  if (epigameState.response) {
+    console.log("pushing state: ");
+    console.log(epigameState.response);
+  }
+
+  //get all the node visits for this step
+  var nodeVisits = this.view.getState().getNodeVisitsByNodeId(this.node.id);
+
+  // Process the student work for nav display
+  this.node.processStudentWork(nodeVisits);
+
+  //Post the current node visit to the DB immediately without waiting for exit.
+  this.node.view.postCurrentNodeVisit();
+
+  //Process the tag maps again if we are not in authoring mode (currently no reason to) //testing to remove
+  /*
+  if (this.view.authoringMode == null || !this.view.authoringMode) {
+  this.processTagMaps();
+  }
+  */
 };
 
 /**
