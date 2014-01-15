@@ -155,16 +155,18 @@ EpigameNode.prototype.translateStudentWork = function(studentWork) {
 /**
  * Notify the HTML so it can save state on exit if desired.
  */
-EpigameNode.prototype.onExit = function() {
-	try {
-		//check if the content panel has been set
-		if (this.contentPanel && this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
-		}
-	} catch(e) {
-		
-	}
+EpigameNode.prototype.onExit = function () {
+  try {
+    //check if the content panel has been set
+    if (this.contentPanel && this.contentPanel.save) {
+      console.log(this.contentPanel);
+      console.log(this.contentPanel.save);
+      //tell the content panel to save
+      this.contentPanel.save();
+    }
+  } catch (e) {
+
+  }
 };
 
 /**
