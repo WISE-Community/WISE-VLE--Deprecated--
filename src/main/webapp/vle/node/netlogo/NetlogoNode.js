@@ -51,6 +51,14 @@ NetlogoNode.prototype.onExit = function() {
 	}
 };
 
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+NetlogoNode.prototype.canSpecialExport = function() {
+	return true;
+};
+
 NodeFactory.addNode('NetlogoNode', NetlogoNode);
 
 //used to notify scriptloader that this script has finished loading
