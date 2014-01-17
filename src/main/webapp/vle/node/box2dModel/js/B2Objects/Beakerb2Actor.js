@@ -44,7 +44,7 @@
 		this.savedObject.init_liquid_volume_perc = init_liquid_volume_perc;
 		this.savedObject.spilloff_volume_perc = spilloff_volume_perc;
 		this.savedObject.liquid_density = liquid.density;
-		this.savedObject.liquid_name = liquid.display_name;
+		this.savedObject.liquid_name = typeof liquid.name !== "undefined" ? liquid.name : liquid.display_name;
 
 		this.skin = new BeakerShape(this, width_units*GLOBAL_PARAMETERS.SCALE, height_units*GLOBAL_PARAMETERS.SCALE, depth_units*GLOBAL_PARAMETERS.SCALE, init_liquid_volume_perc, spilloff_volume_perc, showRuler, this.savedObject);
 		this.addChild(this.skin.backContainer);
