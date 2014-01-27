@@ -1265,7 +1265,7 @@ Epigame.prototype.getMissionData = function () {
     }
 
     //Player has started a trial (not a question)
-    else if (this.states[i].response.missionData.timeIntroScreen > 0) {
+    else if (this.states[i].response.missionData.timeIntroScreen > 0 || this.states[i].response.missionData.trackQuestion) {
       numTrials++;
       unsuccessfulTrialNum++;
     }
@@ -1273,7 +1273,9 @@ Epigame.prototype.getMissionData = function () {
     if (this.states[i].response.isExit && !this.states[i].response.missionData.isNodeExit) {
       dataLog.stepVisit++;
     }
-
+    else if (this.states[i].response.missionData.isExit && !this.states[i].response.missionData.isNodeExit){
+      dataLog.stepVisit++;
+    }
 
     if (this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
       numTrials = this.states[i].response.missionData.totalTrials;
