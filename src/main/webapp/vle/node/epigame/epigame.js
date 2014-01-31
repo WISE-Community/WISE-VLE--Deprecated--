@@ -1231,11 +1231,11 @@ Epigame.prototype.saveGameState = function(reportString) {
 	return this.save(reportString);
 };
 
-Epigame.prototype.saveExitState = function() {
-	var elem = this.getGameElement();
-	if (elem && elem.getExitReport) {
-		this.save(elem.getExitReport(),true);
-	}
+Epigame.prototype.saveExitState = function () {
+  var elem = this.getGameElement();
+  if (elem && elem.getExitReport) {
+    this.save(elem.getExitReport(), true);
+  }
 };
 
 Epigame.prototype.getMissionData = function () {
@@ -1246,7 +1246,7 @@ Epigame.prototype.getMissionData = function () {
   dataLog.studentIDs = this.node.view.userAndClassInfo.getUserIds();
   dataLog.studentName = this.node.view.userAndClassInfo.getUserName();
   dataLog.step=this.node.view.model.currentNodePosition;
-  dataLog.stepVisit = 1;
+  dataLog.stepVisit = 0;
 
   var numAttempts = 0;
   var numTrials = 0;
@@ -1270,12 +1270,17 @@ Epigame.prototype.getMissionData = function () {
       unsuccessfulTrialNum++;
     }
 
+
+    if (this.states[i].response.missionData.isNodeExit){
+      dataLog.stepVisit++;
+    }
+    /*
     if (this.states[i].response.isExit && !this.states[i].response.missionData.isNodeExit) {
       dataLog.stepVisit++;
     }
     else if (this.states[i].response.missionData.isExit && !this.states[i].response.missionData.isNodeExit){
       dataLog.stepVisit++;
-    }
+    }*/
 
     if (this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
       numTrials = this.states[i].response.missionData.totalTrials;
@@ -1283,7 +1288,8 @@ Epigame.prototype.getMissionData = function () {
     //console.log(Object.keys(this.states[i].response).length);
   }
   //account for the fact that an exit report is saved when entering 
-  dataLog.stepVisit = Math.round(dataLog.stepVisit);
+  
+  dataLog.stepVisit = Math.ceil(dataLog.stepVisit/2)+1;
 
   dataLog.attempts = 1 + numAttempts;
   dataLog.attemptTrials = unsuccessfulTrialNum;
