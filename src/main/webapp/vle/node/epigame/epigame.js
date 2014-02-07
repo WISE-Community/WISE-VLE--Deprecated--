@@ -1233,8 +1233,18 @@ Epigame.prototype.saveGameState = function(reportString) {
 
 Epigame.prototype.saveExitState = function () {
   var elem = this.getGameElement();
+
   if (elem && elem.getExitReport) {
-    this.save(elem.getExitReport(), true);
+    console.log("saving exit");
+    var topDoc = window.parent.document;
+
+    var starmap = topDoc.getElementById('navigation');
+    var epigameSwf = topDoc.getElementById('stepContent');
+
+    var isEnter = starmap.style.cssText=="" || starmap.style.display == "block";
+    console.log("Enter? " + isEnter);
+
+    this.save(elem.getExitReport(), !isEnter);
   }
 };
 
@@ -1245,8 +1255,8 @@ Epigame.prototype.getMissionData = function () {
   dataLog.workgroupID = this.node.view.userAndClassInfo.getWorkgroupId();
   dataLog.studentIDs = this.node.view.userAndClassInfo.getUserIds();
   dataLog.studentName = this.node.view.userAndClassInfo.getUserName();
-  dataLog.step=this.node.view.model.currentNodePosition;
-  dataLog.stepVisit = 0;
+  dataLog.step = this.node.view.model.currentNodePosition;
+  dataLog.stepVisit = 1;
 
   var numAttempts = 0;
   var numTrials = 0;
@@ -1271,15 +1281,15 @@ Epigame.prototype.getMissionData = function () {
     }
 
 
-    if (this.states[i].response.missionData.isNodeExit){
+    if (this.states[i].response.missionData.isNodeExit) {
       dataLog.stepVisit++;
     }
     /*
     if (this.states[i].response.isExit && !this.states[i].response.missionData.isNodeExit) {
-      dataLog.stepVisit++;
+    dataLog.stepVisit++;
     }
     else if (this.states[i].response.missionData.isExit && !this.states[i].response.missionData.isNodeExit){
-      dataLog.stepVisit++;
+    dataLog.stepVisit++;
     }*/
 
     if (this.states[i].response.missionData && this.states[i].response.missionData.totalTrials) {
@@ -1288,9 +1298,9 @@ Epigame.prototype.getMissionData = function () {
     //console.log(Object.keys(this.states[i].response).length);
   }
   //account for the fact that an exit report is saved when entering 
-  
-  dataLog.stepVisit = Math.ceil(dataLog.stepVisit/2)+1;
 
+  //dataLog.stepVisit = dataLog.stepVisit;
+  console.log(dataLog.stepVisit);
   dataLog.attempts = 1 + numAttempts;
   dataLog.attemptTrials = unsuccessfulTrialNum;
   dataLog.totalTrials = numTrials;
