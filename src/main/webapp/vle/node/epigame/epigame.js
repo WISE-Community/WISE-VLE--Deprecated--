@@ -857,7 +857,7 @@ Epigame.prototype.getCurrentAdaptiveMissionData = function(levelString) {
 	//if we didn't finish the last warp attempt, go back
 	if(this.states != null && this.states.length > 0) {
 		console.log("looking for last mission: ");			
-		if(this.states[this.states.length - 1].response) {
+		if(!this.states[this.states.length - 1].response.missionData.isExit) {
 			var lastWarpIndex = this.states[this.states.length - 1].response.warpIndex;
 			var successInWarpFound = false;
 			var successIndex = -1;
@@ -1324,16 +1324,16 @@ Epigame.prototype.save = function (st, isNodeExit) {
 
   //Create the state that will store the new work the student just submitted
   var epigameState = new EpigameState(stateJSON);
-
+  console.log("Last Warp Index: "+this.lastWarpIndex);
   //save warp index used if it exists
   if (!isNaN(this.lastWarpIndex)) {
     epigameState.response.warpIndex = this.lastWarpIndex;
   }
 
-  if(epigameState.response.missionData!=undefined){
+  if (epigameState.response.missionData != undefined) {
     epigameState.response.missionData.isNodeExit = isNodeExit;
   }
-  
+
 
   //Push this state to the global view.states object.
   //eventManager.fire('pushStudentWork', epigameState);
