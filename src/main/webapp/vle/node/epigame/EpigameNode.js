@@ -159,8 +159,6 @@ EpigameNode.prototype.onExit = function () {
   try {
     //check if the content panel has been set
     if (this.contentPanel && this.contentPanel.save) {
-      console.log(this.contentPanel);
-      console.log(this.contentPanel.save);
       //tell the content panel to save
       this.contentPanel.save();
     }
